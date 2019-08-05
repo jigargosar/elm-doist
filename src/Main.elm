@@ -15,7 +15,7 @@ import Ports
 import Result.Extra
 import Return
 import Route exposing (Route)
-import Todo exposing (Todo)
+import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (pure)
 import Url exposing (Url)
@@ -61,6 +61,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | OnAuthStateChanged Value
+    | OnTodoListChanged Value
     | OnSignInClicked
     | OnSignOutClicked
 
@@ -99,11 +100,25 @@ update message model =
                 |> Result.Extra.unpack updateDecodeError updateAuthState
                 |> callWith model
 
+        OnTodoListChanged encodedValue ->
+            JD.decodeValue Todo.listDecoder encodedValue
+                |> Result.Extra.unpack updateDecodeError updateTodoList
+                |> callWith model
+
         OnSignInClicked ->
             ( model, Ports.signIn () )
 
         OnSignOutClicked ->
             ( model, Ports.signOut () )
+
+
+updateTodoList : TodoList -> Model -> Return
+updateTodoList todoList model =
+    let
+        _ =
+            Debug.log "todoList" todoList
+    in
+    pure model
 
 
 updateAuthState : AuthState -> Model -> Return
@@ -126,7 +141,9 @@ setAuthState authState model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.onAuthStateChanged OnAuthStateChanged ]
+        [ Ports.onAuthStateChanged OnAuthStateChanged
+        , Ports.onTodoListChanged OnTodoListChanged
+        ]
 
 
 view : Model -> Browser.Document Msg

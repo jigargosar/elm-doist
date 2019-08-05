@@ -2,6 +2,7 @@ port module Ports exposing
     ( localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
+    , onTodoListChanged
     , signIn
     , signOut
     )
@@ -16,6 +17,9 @@ port localStorageSetJsonItem : ( String, Value ) -> Cmd msg
 
 
 port onAuthStateChanged : (Value -> msg) -> Sub msg
+
+
+port onTodoListChanged : (Value -> msg) -> Sub msg
 
 
 port signIn : () -> Cmd msg
