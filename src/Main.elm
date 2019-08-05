@@ -88,14 +88,14 @@ update message model =
             ( { model | route = route }, Cmd.none )
 
         OnAuthStateChanged encodedValue ->
-            let
-                _ =
-                    JD.decodeValue AuthState.decoder encodedValue
-                        |> Result.map (\val -> { model | authState = val })
-                        |> unpackErr (prependDecodeErrorIn model)
-                        |> Debug.log "auth"
-            in
-            pure model
+            case JD.decodeValue AuthState.decoder encodedValue of
+                Ok authState ->
+                    setAuthState authState model
+                        |> pure
+
+                Err decodeError ->
+                    prependDecodeError decodeError model
+                        |> pure
 
 
 setAuthState : AuthState -> Model -> Model
@@ -108,14 +108,14 @@ mapErrors f model =
     { model | errors = f model.errors }
 
 
-prependErrorIn : Model -> Error -> Model
-prependErrorIn model error =
-    mapErrors (Errors.prependError error) model
+prependErrorString : Error -> Model -> Model
+prependErrorString error =
+    mapErrors (Errors.prependError error)
 
 
-prependDecodeErrorIn : Model -> JD.Error -> Model
-prependDecodeErrorIn model error =
-    prependErrorIn model (JD.errorToString error)
+prependDecodeError : JD.Error -> Model -> Model
+prependDecodeError error =
+    prependErrorString (JD.errorToString error)
 
 
 subscriptions : Model -> Sub Msg
