@@ -34,20 +34,10 @@ function Disposables() {
 export function Fire() {
   const auth = firebase.auth()
   const db = firebase.firestore()
-  const signOutDisposables = Disposables()
+  const authChangeDisposables = Disposables()
 
   auth.onAuthStateChanged(user=>{
-    signOutDisposables.dispose()
-    if(user){
-      const uid = user.uid
-      const todoCRef = db.collection(`users/${uid}/todos`)
-      signOutDisposables.add(todoCRef.onSnapshot(qs=>{
-        qs.docs.forEach(ds=> {
-          const data = ds.data()
-          console.log("data", data)
-        })
-      }))
-    }
+    authChangeDisposables.dispose()
   })
   return {
     onAuthStateChanged(cb){
@@ -61,8 +51,8 @@ export function Fire() {
     signOut() {
       return auth.signOut()
     },
-    disposeOnSignOut(fn){
-      signOutDisposables.add(fn)
+    disposeOnAuthChange(fn){
+      authChangeDisposables.add(fn)
     },
     userCRef(name){
       const uid = auth.currentUser.uid

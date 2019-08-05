@@ -22,13 +22,10 @@ fire.onAuthStateChanged(user => {
   if (user) {
     console.debug(user)
 
-    const uid = user.uid
-    const todoCRef = db.collection(`users/${uid}/todos`)
-    signOutDisposables.add(todoCRef.onSnapshot(qs=>{
-      qs.docs.forEach(ds=> {
-        const data = ds.data()
-        console.log("data", data)
-      })
+    const todoCRef = fire.userCRef('todos')
+    fire.disposeOnAuthChange(todoCRef.onSnapshot(qs=>{
+      const dataList = qs.docs.map(ds=> ds.data())
+      console.log(dataList)
     }))
   } else {
   }
