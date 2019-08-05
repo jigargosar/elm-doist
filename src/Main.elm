@@ -6,6 +6,7 @@ import Browser.Navigation as Nav
 import Dict exposing (Dict)
 import Errors exposing (Errors)
 import Html exposing (Html, div, text)
+import Html.Events exposing (onClick)
 import Json.Encode exposing (Value)
 import Return
 import Route exposing (Route)
@@ -89,12 +90,12 @@ subscriptions _ =
 
 
 view : Model -> Browser.Document Msg
-view _ =
+view model =
     { title = "ElmDoist"
     , body =
         [ div []
-            [ div [] [ text "HW" ]
-            , div [] [ text "AuthState" ]
+            [ div [ onClick NoOp ] [ text "HW" ]
+            , div [] [ text "AuthState", AuthState.view model.authState ]
             ]
         ]
     }
