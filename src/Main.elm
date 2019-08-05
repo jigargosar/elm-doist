@@ -4,6 +4,7 @@ import AuthState exposing (AuthState)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
+import HasErrors
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
@@ -96,23 +97,13 @@ update message model =
                         |> pure
 
                 Err decodeError ->
-                    prependDecodeError decodeError model
+                    HasErrors.prependDecodeError decodeError model
                         |> pure
 
 
 setAuthState : AuthState -> Model -> Model
 setAuthState authState model =
     { model | authState = authState }
-
-
-prependErrorString : Error -> Model -> Model
-prependErrorString error model =
-    { model | errors = error :: model.errors }
-
-
-prependDecodeError : JD.Error -> Model -> Model
-prependDecodeError error =
-    prependErrorString (JD.errorToString error)
 
 
 subscriptions : Model -> Sub Msg
