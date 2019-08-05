@@ -1,11 +1,9 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
-import BasicsExtra exposing (unpackErr)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
-import Errors exposing (Error, Errors)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
@@ -20,10 +18,14 @@ import UpdateExtra exposing (pure)
 import Url exposing (Url)
 
 
+type alias Error =
+    String
+
+
 type alias Model =
     { todoDict : Dict TodoId Todo
     , authState : AuthState
-    , errors : Errors
+    , errors : List Error
     , key : Nav.Key
     , route : Route
     }
@@ -43,7 +45,7 @@ init _ url key =
         model =
             { todoDict = Dict.empty
             , authState = AuthState.initial
-            , errors = Errors.initial
+            , errors = []
             , key = key
             , route = route
             }
@@ -103,14 +105,9 @@ setAuthState authState model =
     { model | authState = authState }
 
 
-mapErrors : (Errors -> Errors) -> Model -> Model
-mapErrors f model =
-    { model | errors = f model.errors }
-
-
 prependErrorString : Error -> Model -> Model
-prependErrorString error =
-    mapErrors (Errors.prependError error)
+prependErrorString error model =
+    { model | errors = error :: model.errors }
 
 
 prependDecodeError : JD.Error -> Model -> Model
