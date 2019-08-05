@@ -65,6 +65,7 @@ type Msg
     | OnTodoListChanged Value
     | OnSignInClicked
     | OnSignOutClicked
+    | OnChangeTitle TodoId
 
 
 
@@ -111,6 +112,13 @@ update message model =
 
         OnSignOutClicked ->
             ( model, Ports.signOut () )
+
+        OnChangeTitle todoId ->
+            let
+                _ =
+                    Debug.log "OnChangeTitle" todoId
+            in
+            pure model
 
 
 updateTodoList : TodoList -> Model -> Return
@@ -201,7 +209,11 @@ viewTodoList dict =
                 ( dt, cls ) =
                     displayTitle todo
             in
-            div [ class "pa1", tabindex 0 ]
+            div
+                [ class "pa1"
+                , tabindex 0
+                , onClick (OnChangeTitle todo.id)
+                ]
                 [ div [ class cls ] [ text dt ]
                 ]
     in
