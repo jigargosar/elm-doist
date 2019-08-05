@@ -95,9 +95,9 @@ view model =
     { title = "ElmDoist"
     , body =
         [ div []
-            [ div [ onClick NoOp ] [ text "HW" ]
+            [ div [ onClick NoOp ] [ text "ElmDOist" ]
             , div [ class "pa3 flex hs3" ]
-                [ div [] [ text "AuthState" ]
+                [ div [ class "b" ] [ text "AuthState:" ]
                 , AuthState.view model.authState
                 ]
             ]
