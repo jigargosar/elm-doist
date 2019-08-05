@@ -115,10 +115,6 @@ update message model =
 
 updateTodoList : TodoList -> Model -> Return
 updateTodoList todoList model =
-    let
-        _ =
-            Debug.log "todoList" todoList
-    in
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
         |> pure
 
