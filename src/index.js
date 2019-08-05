@@ -44,9 +44,11 @@ initSubs({
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
-  changeTodoTitle: async (todoId) => {
+  changeTodoTitle: async todoId => {
     const todoCRef = fire.userCRef('todos')
-    await todoCRef.doc(todoId).update({ title: faker.hacker.phrase() })
+    await todoCRef
+      .doc(todoId)
+      .update({ title: faker.hacker.phrase(), modifiedAt: Date.now() })
   },
   persistTodoList: async todoList => {
     const todoCRef = fire.userCRef('todos')
