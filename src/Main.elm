@@ -14,10 +14,6 @@ import UpdateExtra exposing (pure)
 import Url exposing (Url)
 
 
-
--- FLAGS
-
-
 type alias Model =
     { todoDict : Dict TodoId Todo
     , errors : Errors
