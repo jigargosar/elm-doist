@@ -8,7 +8,7 @@ import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, classList, disabled)
+import Html.Attributes exposing (class, classList, disabled, tabindex)
 import Html.Events exposing (onClick)
 import Json.Decode as JD
 import Json.Encode as JE exposing (Value)
@@ -201,7 +201,7 @@ viewTodoList dict =
                 ( dt, cls ) =
                     displayTitle todo
             in
-            div [ class "pa1" ]
+            div [ class "pa1", tabindex 0 ]
                 [ div [ class cls ] [ text dt ]
                 ]
     in
