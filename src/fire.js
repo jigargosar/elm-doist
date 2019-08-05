@@ -19,7 +19,7 @@ export function Fire() {
   const auth = firebase.auth()
   return {
     onAuthStateChanged(cb){
-      auth.onAuthStateChanged(cb)
+      return auth.onAuthStateChanged(cb)
     },
     signIn(){
       const provider = new firebase.auth.GoogleAuthProvider()

@@ -143,8 +143,11 @@ view model =
                 AuthState.Unknown ->
                     button [ disabled True ] [ text "SignIn" ]
 
-                AuthState.SignedIn uid ->
-                    button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                AuthState.SignedIn user ->
+                    div [ class "flex" ]
+                        [ div [] [ text user.displayName ]
+                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        ]
 
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
