@@ -6,6 +6,7 @@ import Browser.Navigation as Nav
 import Dict exposing (Dict)
 import Errors exposing (Errors)
 import Html exposing (Html, div, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Json.Encode exposing (Value)
 import Return
@@ -95,7 +96,10 @@ view model =
     , body =
         [ div []
             [ div [ onClick NoOp ] [ text "HW" ]
-            , div [] [ text "AuthState", AuthState.view model.authState ]
+            , div [ class "pa3 flex hs3" ]
+                [ div [] [ text "AuthState" ]
+                , AuthState.view model.authState
+                ]
             ]
         ]
     }
