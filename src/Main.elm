@@ -1,12 +1,16 @@
-port module Main exposing (effect, main)
+port module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
+import Dict exposing (Dict)
+import Errors exposing (Errors)
 import Html exposing (Html, div, text)
 import Json.Encode exposing (Value)
 import Return
 import Route exposing (Route)
-import TodoCollection as TC exposing (TodoCollection)
+import Todo exposing (Todo)
+import TodoId exposing (TodoId)
+import UpdateExtra exposing (pure)
 import Url exposing (Url)
 
 
@@ -15,13 +19,9 @@ import Url exposing (Url)
 -- FLAGS
 
 
-type alias Error =
-    String
-
-
 type alias Model =
-    { todos : TodoCollection
-    , errors : List Error
+    { todoDict : Dict TodoId Todo
+    , errors : Errors
     , key : Nav.Key
     , route : Route
     }
@@ -39,8 +39,8 @@ init _ url key =
 
         model : Model
         model =
-            { todos = TC.initial
-            , errors = []
+            { todoDict = Dict.empty
+            , errors = Errors.initial
             , key = key
             , route = route
             }
@@ -84,11 +84,6 @@ update message model =
             ( { model | route = route }, Cmd.none )
 
 
-prependError : String -> Model -> Model
-prependError error model =
-    { model | errors = error :: model.errors }
-
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
@@ -96,7 +91,7 @@ subscriptions _ =
 
 
 view : Model -> Browser.Document Msg
-view model =
+view _ =
     { title = "ElmDoist"
     , body = [ div [] [ text "HW" ] ]
     }
@@ -112,53 +107,3 @@ main =
         , onUrlRequest = LinkClicked
         , onUrlChange = UrlChanged
         }
-
-
-
--- UPDATE HELPERS
-
-
-pure =
-    Return.singleton
-
-
-effect =
-    Return.effect_
-
-
-andThen =
-    Return.andThen
-
-
-command =
-    Return.command
-
-
-
--- VIEW HELPERS
-
-
-viewIf bool v =
-    if bool then
-        v
-
-    else
-        text ""
-
-
-viewUnless bool v =
-    viewIf (not bool) v
-
-
-
--- CORE HELPERS
-
-
-unpackErr : (e -> v) -> Result e v -> v
-unpackErr fn result =
-    case result of
-        Err e ->
-            fn e
-
-        Ok v ->
-            v

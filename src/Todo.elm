@@ -21,11 +21,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
-import TodoId
-
-
-type alias TodoId =
-    TodoId.TodoId
+import TodoId exposing (TodoId)
 
 
 type alias Millis =
