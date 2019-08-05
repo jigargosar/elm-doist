@@ -1,9 +1,6 @@
 import forEachObjIndexed from 'ramda/es/forEachObjIndexed'
-import fromPairs from 'ramda/es/fromPairs'
 import path from 'ramda/es/path'
-import values from 'ramda/es/values'
 import './index.css'
-// @ts-ignore
 import { Elm } from './Main.elm'
 
 const app = Elm.Main.init({
