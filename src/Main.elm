@@ -156,6 +156,10 @@ view model =
                 [ div [ class "b" ] [ text "AuthState:" ]
                 , AuthState.view model.authState
                 ]
+            , div [ class "pa3 flex hs3" ]
+                [ div [ class "b" ] [ text "Errors:" ]
+                , HasErrors.view model.errors
+                ]
             , case model.authState of
                 AuthState.Unknown ->
                     button [ disabled True ] [ text "SignIn" ]
