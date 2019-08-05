@@ -2,15 +2,14 @@ import forEachObjIndexed from 'ramda/es/forEachObjIndexed'
 import path from 'ramda/es/path'
 import './index.css'
 import { Elm } from './Main.elm'
-import firebase from "firebase/app"
-import "firebase/auth"
-// import "firebase/firestore"
+import { Fire } from './fire'
 
 const app = Elm.Main.init({
   flags: {
     modelCache: JSON.parse(localStorage.getItem('modelCache') || 'null'),
   },
 })
+const fire = Fire()
 
 const pub = {
   onAuthStateChanged: (arg) => {
@@ -26,20 +25,7 @@ const pub = {
   }
 }
 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBVS1Tx23pScQz9w4ZDTGh307mqkCRy2Bw",
-  authDomain: "not-now-142808.firebaseapp.com",
-  databaseURL: "https://not-now-142808.firebaseio.com",
-  projectId: "not-now-142808",
-  storageBucket: "not-now-142808.appspot.com",
-  messagingSenderId: "476064436883",
-  appId: "1:476064436883:web:bcd2d5b958a90fa6"
-};
-
-firebase.initializeApp(firebaseConfig)
-
-firebase.auth().onAuthStateChanged(user =>{
+fire.onAuthStateChanged(user =>{
   if(user){
     pub.onAuthStateChanged(user.uid)
   }else{
