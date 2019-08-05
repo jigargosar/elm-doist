@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "elmdoist",
     "public": "dist",
     "ignore": [
       "firebase.json",
