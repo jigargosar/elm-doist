@@ -66,7 +66,7 @@ type Msg
     | OnTodoListChanged Value
     | OnSignInClicked
     | OnSignOutClicked
-    | OnChangeTitle TodoId
+    | OnChangeTitleRequested TodoId
 
 
 
@@ -114,12 +114,8 @@ update message model =
         OnSignOutClicked ->
             ( model, Ports.signOut () )
 
-        OnChangeTitle todoId ->
-            let
-                _ =
-                    Debug.log "OnChangeTitle" todoId
-            in
-            pure model
+        OnChangeTitleRequested todoId ->
+            ( model, Ports.changeTodoTitle todoId )
 
 
 updateTodoList : TodoList -> Model -> Return
@@ -213,8 +209,8 @@ viewTodoList dict =
             div
                 [ class "lh-copy pa1 db hover-bg-light-yellow"
                 , tabindex 0
-                , onClick (OnChangeTitle todo.id)
-                , OnChangeTitle todo.id |> KeyEvent.onEnter
+                , onClick (OnChangeTitleRequested todo.id)
+                , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
                 ]
                 [ div [ class cls ] [ text dt ]
                 ]

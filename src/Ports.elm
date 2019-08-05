@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( localStorageSetJsonItem
+    ( changeTodoTitle
+    , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
     , onTodoListChanged
@@ -30,3 +31,6 @@ port signOut : () -> Cmd msg
 
 
 port persistTodoList : Value -> Cmd msg
+
+
+port changeTodoTitle : String -> Cmd msg
