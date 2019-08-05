@@ -92,15 +92,25 @@ update message model =
                 _ =
                     JD.decodeValue AuthState.decoder encodedValue
                         |> Result.map (\val -> { model | authState = val })
-                        |> unpackErr (JD.errorToString >> prependErrorIn model)
+                        |> unpackErr (prependDecodeErrorIn model)
                         |> Debug.log "auth"
             in
             pure model
 
 
+mapErrors : (Errors -> Errors) -> Model -> Model
+mapErrors f model =
+    { model | errors = f model.errors }
+
+
 prependErrorIn : Model -> Error -> Model
 prependErrorIn model error =
-    { model | errors = Errors.prependError error model.errors }
+    mapErrors (Errors.prependError error) model
+
+
+prependDecodeErrorIn : Model -> JD.Error -> Model
+prependDecodeErrorIn model error =
+    prependErrorIn model (JD.errorToString error)
 
 
 subscriptions : Model -> Sub Msg
