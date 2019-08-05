@@ -98,6 +98,11 @@ update message model =
             pure model
 
 
+setAuthState : AuthState -> Model -> Model
+setAuthState authState model =
+    { model | authState = authState }
+
+
 mapErrors : (Errors -> Errors) -> Model -> Model
 mapErrors f model =
     { model | errors = f model.errors }
