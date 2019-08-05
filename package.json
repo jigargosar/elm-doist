@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -w webpack.config.js -w tsconfig.json -w package-lock.json -w elm.json -x webpack-dev-server"
+    "start": "nodemon -w webpack.config.js -w tsconfig.json -w package-lock.json -w elm.json -x webpack-dev-server",
+    "build": "webpack -p"
   },
   "private": true,
   "keywords": [],
