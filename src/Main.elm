@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
+import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
@@ -93,10 +94,8 @@ update message model =
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
-                |> Result.Extra.unpack
-                    updateDecodeError
-                    updateAuthState
-                |> (|>) model
+                |> Result.Extra.unpack updateDecodeError updateAuthState
+                |> callWith model
 
 
 updateAuthState : AuthState -> Model -> Return

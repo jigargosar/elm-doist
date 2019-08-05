@@ -1,4 +1,4 @@
-module BasicsExtra exposing (unpackErr)
+module BasicsExtra exposing (callWith, unpackErr)
 
 -- CORE HELPERS
 
@@ -11,3 +11,8 @@ unpackErr fn result =
 
         Ok v ->
             v
+
+
+callWith : a -> (a -> b) -> b
+callWith =
+    (|>)
