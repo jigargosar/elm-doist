@@ -61,6 +61,8 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | OnAuthStateChanged Value
+    | OnSignInClicked
+    | OnSignOutClicked
 
 
 
@@ -96,6 +98,12 @@ update message model =
             JD.decodeValue AuthState.decoder encodedValue
                 |> Result.Extra.unpack updateDecodeError updateAuthState
                 |> callWith model
+
+        OnSignInClicked ->
+            ( model, Ports.signIn () )
+
+        OnSignOutClicked ->
+            ( model, Ports.signOut () )
 
 
 updateAuthState : AuthState -> Model -> Return
