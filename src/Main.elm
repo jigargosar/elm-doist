@@ -43,6 +43,7 @@ type alias Return =
 
 type alias Flags =
     { todoList : TodoList
+    , cachedAuthState : AuthState
     }
 
 
@@ -50,6 +51,7 @@ flagsDecoder : Decoder Flags
 flagsDecoder =
     JD.succeed Flags
         |> JDP.optional "todoList" Todo.listDecoder []
+        |> JDP.optional "cachedAuthState" AuthState.decoder AuthState.initial
 
 
 init : Value -> Url -> Nav.Key -> Return
@@ -142,6 +144,7 @@ updateFromEncodedFlags encodedFlags model =
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
     setTodoDictFromList flags.todoList model
+        |> setAuthState flags.cachedAuthState
         |> pure
 
 
@@ -204,14 +207,6 @@ view model =
                 , case model.authState of
                     AuthState.Unknown ->
                         button [ disabled True ] [ text "SignIn" ]
-
-                    AuthState.UnknownCached user ->
-                        div [ class "flex items-center hs3 " ]
-                            [ div [] [ text user.displayName ]
-                            , button
-                                [ disabled True, onClick OnSignOutClicked ]
-                                [ text "SignOut" ]
-                            ]
 
                     AuthState.SignedIn user ->
                         div [ class "flex items-center hs3 " ]

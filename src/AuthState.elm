@@ -1,4 +1,4 @@
-module AuthState exposing (AuthState(..), UID, decoder, initial, view)
+module AuthState exposing (AuthState(..), UID, User, decoder, initial, view)
 
 import Html exposing (Html, div, text)
 import Json.Decode as JD exposing (Decoder)
@@ -26,7 +26,6 @@ userDecoder =
 
 type AuthState
     = Unknown
-    | UnknownCached User
     | SignedIn User
     | NotSignedIn
 
