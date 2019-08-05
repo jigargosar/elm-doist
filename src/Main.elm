@@ -207,7 +207,7 @@ viewTodoList dict =
                     displayTitle todo
             in
             div
-                [ class "lh-copy pa1 db hover-bg-light-yellow"
+                [ class "lh-solid pa2 db hover-bg-light-yellow"
                 , tabindex 0
                 , onClick (OnChangeTitleRequested todo.id)
                 , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
