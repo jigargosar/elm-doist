@@ -101,7 +101,9 @@ update message model =
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
-            JD.decodeValue Todo.listDecoder encodedValue
+            JD.decodeValue
+                (JD.list (JD.oneOf [ Todo.decoder, Todo.relaxedDecoder ]))
+                encodedValue
                 |> Result.Extra.unpack updateDecodeError updateTodoList
                 |> callWith model
 

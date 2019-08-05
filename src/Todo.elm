@@ -12,6 +12,7 @@ module Todo exposing
     , listDecoder
     , matchesFilter
     , modify
+    , relaxedDecoder
     )
 
 import Compare exposing (Comparator)
