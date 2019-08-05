@@ -15,6 +15,7 @@ const fire = Fire()
 
 const pubs = initPubs({
   onAuthStateChanged: identity,
+  onTodoListChanged: identity
 })
 
 fire.onAuthStateChanged(user => {
@@ -24,8 +25,9 @@ fire.onAuthStateChanged(user => {
 
     const todoCRef = fire.userCRef('todos')
     fire.disposeOnAuthChange(todoCRef.onSnapshot(qs=>{
-      const dataList = qs.docs.map(ds=> ds.data())
-      console.log(dataList)
+      const todoDataList = qs.docs.map(ds=> ds.data())
+      console.log(todoDataList)
+      pubs.onTodoListChanged(todoDataList)
     }))
   } else {
   }
