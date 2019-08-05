@@ -11,6 +11,7 @@ import Html.Events exposing (onClick)
 import Json.Decode as JD
 import Json.Encode exposing (Value)
 import Ports
+import Result.Extra
 import Return
 import Route exposing (Route)
 import Todo exposing (Todo)
@@ -91,14 +92,11 @@ update message model =
             ( { model | route = route }, Cmd.none )
 
         OnAuthStateChanged encodedValue ->
-            case JD.decodeValue AuthState.decoder encodedValue of
-                Ok authState ->
-                    setAuthState authState model
-                        |> pure
-
-                Err decodeError ->
-                    HasErrors.prependDecodeError decodeError model
-                        |> pure
+            JD.decodeValue AuthState.decoder encodedValue
+                |> Result.Extra.unpack
+                    (\e -> HasErrors.prependDecodeError e model)
+                    (\v -> setAuthState v model)
+                |> pure
 
 
 setAuthState : AuthState -> Model -> Model
