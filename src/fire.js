@@ -15,8 +15,38 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 
+function Disposables() {
+  const disposables = []
+  return {
+    add(fn){
+      disposables.push(fn)
+    },
+    dispose(){
+      disposables.forEach(fn => fn())
+      disposables.splice(0, disposables.length)
+    }
+  }
+}
+
+
 export function Fire() {
   const auth = firebase.auth()
+  const db = firebase.firestore()
+  const signOutDisposables = Disposables()
+
+  auth.onAuthStateChanged(user=>{
+    signOutDisposables.dispose()
+    if(user){
+      const uid = user.uid
+      const todoCRef = db.collection(`users/${uid}/todos`)
+      signOutDisposables.add(todoCRef.onSnapshot(qs=>{
+        qs.docs.forEach(ds=> {
+          const data = ds.data()
+          console.log("data", data)
+        })
+      }))
+    }
+  })
   return {
     onAuthStateChanged(cb){
       return auth.onAuthStateChanged(cb)
