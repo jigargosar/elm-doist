@@ -91,7 +91,12 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view _ =
     { title = "ElmDoist"
-    , body = [ div [] [ text "HW" ] ]
+    , body =
+        [ div []
+            [ div [] [ text "HW" ]
+            , div [] [ text "AuthState" ]
+            ]
+        ]
     }
 
 
