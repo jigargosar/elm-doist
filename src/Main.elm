@@ -7,7 +7,7 @@ import Browser.Navigation as Nav
 import Dict exposing (Dict)
 import HasErrors
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, disabled)
 import Html.Events exposing (onClick)
 import Json.Decode as JD
 import Json.Encode exposing (Value)
@@ -141,7 +141,7 @@ view model =
                 ]
             , case model.authState of
                 AuthState.Unknown ->
-                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+                    button [ disabled True ] [ text "SignIn" ]
 
                 AuthState.SignedIn uid ->
                     button [ onClick OnSignOutClicked ] [ text "SignOut" ]
