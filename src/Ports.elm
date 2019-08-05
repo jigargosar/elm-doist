@@ -3,6 +3,7 @@ port module Ports exposing
     , localStorageSetStringItem
     , onAuthStateChanged
     , onTodoListChanged
+    , persistTodoList
     , signIn
     , signOut
     )
@@ -26,3 +27,6 @@ port signIn : () -> Cmd msg
 
 
 port signOut : () -> Cmd msg
+
+
+port persistTodoList : Value -> Cmd msg

@@ -5,19 +5,20 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
+import Dict.Extra
 import HasErrors
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, disabled)
 import Html.Events exposing (onClick)
 import Json.Decode as JD
-import Json.Encode exposing (Value)
+import Json.Encode as JE exposing (Value)
 import Ports
 import Result.Extra
 import Return
 import Route exposing (Route)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (pure)
+import UpdateExtra exposing (effect, pure)
 import Url exposing (Url)
 
 
@@ -120,7 +121,21 @@ updateTodoList todoList model =
         _ =
             Debug.log "todoList" todoList
     in
-    pure model
+    { model | todoDict = Dict.Extra.fromListBy .id todoList }
+        |> pure
+        |> effect (persistTodosIfChanged model)
+
+
+persistTodosIfChanged : Model -> Model -> Cmd Msg
+persistTodosIfChanged oldModel newModel =
+    if oldModel.todoDict == newModel.todoDict then
+        Cmd.none
+
+    else
+        Ports.persistTodoList
+            (Dict.values newModel.todoDict
+                |> JE.list Todo.encoder
+            )
 
 
 updateAuthState : AuthState -> Model -> Return
