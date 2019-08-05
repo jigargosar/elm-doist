@@ -12,6 +12,7 @@ import Html.Attributes exposing (class, classList, disabled, tabindex)
 import Html.Events exposing (onClick)
 import Json.Decode as JD
 import Json.Encode as JE exposing (Value)
+import KeyEvent
 import Ports
 import Result.Extra
 import Return
@@ -213,18 +214,7 @@ viewTodoList dict =
                 [ class "lh-copy pa1 db hover-bg-light-yellow"
                 , tabindex 0
                 , onClick (OnChangeTitle todo.id)
-                , Html.Events.on "keydown"
-                    (JD.field "key" JD.string
-                        |> JD.andThen
-                            (\key ->
-                                case key of
-                                    "Enter" ->
-                                        OnChangeTitle todo.id |> JD.succeed
-
-                                    _ ->
-                                        JD.fail "Not Interested"
-                            )
-                    )
+                , OnChangeTitle todo.id |> KeyEvent.onEnter
                 ]
                 [ div [ class cls ] [ text dt ]
                 ]
