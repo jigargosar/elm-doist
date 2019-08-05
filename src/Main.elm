@@ -170,7 +170,7 @@ view model =
 
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
-            , div [ class "pa3 flex hs3" ]
+            , div [ class "pa3 vs3" ]
                 [ div [ class "b" ] [ text "TodoList:" ]
                 , viewTodoList model.todoDict
                 ]
@@ -191,7 +191,7 @@ viewTodoList dict =
 
         displayTitle todo =
             if String.trim todo.title |> String.isEmpty then
-                ( "<no title>", "i" )
+                ( "<no title>", "i black-70" )
 
             else
                 ( todo.title, "" )
@@ -201,11 +201,11 @@ viewTodoList dict =
                 ( dt, cls ) =
                     displayTitle todo
             in
-            div [ class "pa3" ]
+            div [ class "pa1" ]
                 [ div [ class cls ] [ text dt ]
                 ]
     in
-    div [] (List.map viewTodoItem displayList)
+    div [ class "vs3" ] (List.map viewTodoItem displayList)
 
 
 main : Program Value Model Msg
