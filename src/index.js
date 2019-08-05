@@ -11,7 +11,9 @@ import { mapObjIndexed, identity } from 'ramda'
 const app = Elm.Main.init({
   flags: {
     todoList: JSON.parse(localStorage.getItem('todoList') || 'null'),
-    cachedAuthState: JSON.parse(localStorage.getItem('cachedAuthState') || 'null')
+    cachedAuthState: JSON.parse(
+      localStorage.getItem('cachedAuthState') || 'null',
+    ),
   },
 })
 const fire = Fire()
@@ -30,7 +32,7 @@ fire.onAuthStateChanged(user => {
     fire.disposeOnAuthChange(
       todoCRef.onSnapshot(qs => {
         const todoDataList = qs.docs.map(ds => ds.data())
-        console.log(todoDataList)
+        console.log('todoCRef.onSnapshot', todoDataList)
         pubs.onTodoListChanged(todoDataList)
       }),
     )
