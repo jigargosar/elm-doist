@@ -210,7 +210,7 @@ viewTodoList dict =
                     displayTitle todo
             in
             div
-                [ class "pa1 db"
+                [ class "lh-copy pa1 db hover-bg-light-yellow"
                 , tabindex 0
                 , onClick (OnChangeTitle todo.id)
                 , Html.Events.on "keydown"
@@ -229,7 +229,7 @@ viewTodoList dict =
                 [ div [ class cls ] [ text dt ]
                 ]
     in
-    div [ class "vs3" ] (List.map viewTodoItem displayList)
+    div [ class "vs1" ] (List.map viewTodoItem displayList)
 
 
 main : Program Value Model Msg

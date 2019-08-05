@@ -40,6 +40,14 @@ html,
   height: 100%;
 }
 
+.vs1 > * {
+  margin-bottom: var(--sp1);
+}
+
+.vs1 > :last-child {
+  margin-bottom: 0;
+}
+
 .vs3 > * {
   margin-bottom: var(--sp3);
 }
@@ -68,15 +76,14 @@ a {
   background-color: #fbf1a9;
 }
 
-.hover-db-parent .hover-db-child{
+.hover-db-parent .hover-db-child {
   display: none;
 }
 
-.hover-db-parent:hover .hover-db-child{
+.hover-db-parent:hover .hover-db-child {
   display: block;
 }
 
-
 .c-default {
-  cursor:default;
+  cursor: default;
 }
