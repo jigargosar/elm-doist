@@ -19,7 +19,7 @@ import Return
 import Route exposing (Route)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (effect, pure)
+import UpdateExtra exposing (command, effect, pure)
 import Url exposing (Url)
 
 
@@ -105,7 +105,7 @@ update message model =
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack updateDecodeError updateTodoList
+                |> Result.Extra.unpack updateDecodeError setTodoDictFromListAndCache
                 |> callWith model
 
         OnSignInClicked ->
@@ -118,10 +118,14 @@ update message model =
             ( model, Ports.changeTodoTitle todoId )
 
 
-updateTodoList : TodoList -> Model -> Return
-updateTodoList todoList model =
+setTodoDictFromListAndCache : TodoList -> Model -> Return
+setTodoDictFromListAndCache todoList model =
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
         |> pure
+        |> command
+            (Ports.localStorageSetJsonItem
+                ( "todoList", Todo.listEncoder todoList )
+            )
 
 
 updateAuthState : AuthState -> Model -> Return

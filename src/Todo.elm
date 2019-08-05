@@ -10,6 +10,7 @@ module Todo exposing
     , filterSingle
     , filterSort
     , listDecoder
+    , listEncoder
     , matchesFilter
     , modify
     , relaxedDecoder
@@ -154,6 +155,11 @@ type alias TodoList =
 listDecoder : Decoder TodoList
 listDecoder =
     JD.list decoder
+
+
+listEncoder : TodoList -> Value
+listEncoder =
+    JE.list encoder
 
 
 filter : Filter -> TodoList -> TodoList
