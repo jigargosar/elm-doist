@@ -8,7 +8,7 @@ import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, disabled)
+import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
 import Json.Decode as JD
 import Json.Encode as JE exposing (Value)
@@ -189,8 +189,21 @@ viewTodoList dict =
         displayList =
             Dict.values dict
 
+        displayTitle todo =
+            if String.trim todo.title |> String.isEmpty then
+                ( "<no title>", "i" )
+
+            else
+                ( todo.title, "" )
+
         viewTodoItem todo =
-            div [ class "pa3" ] [ text todo.title ]
+            let
+                ( dt, cls ) =
+                    displayTitle todo
+            in
+            div [ class "pa3" ]
+                [ div [ class cls ] [ text dt ]
+                ]
     in
     div [] (List.map viewTodoItem displayList)
 
