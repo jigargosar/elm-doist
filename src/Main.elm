@@ -123,22 +123,6 @@ updateTodoList todoList model =
         |> pure
 
 
-
---        |> effect (persistTodosIfChanged model)
-
-
-persistTodosIfChanged : Model -> Model -> Cmd Msg
-persistTodosIfChanged oldModel newModel =
-    if oldModel.todoDict == newModel.todoDict then
-        Cmd.none
-
-    else
-        Ports.persistTodoList
-            (Dict.values newModel.todoDict
-                |> JE.list Todo.encoder
-            )
-
-
 updateAuthState : AuthState -> Model -> Return
 updateAuthState authState model =
     setAuthState authState model
