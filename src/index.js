@@ -15,7 +15,7 @@ const fire = Fire()
 
 const pubs = initPubs({
   onAuthStateChanged: identity,
-  onTodoListChanged: identity
+  onTodoListChanged: identity,
 })
 
 fire.onAuthStateChanged(user => {
@@ -24,11 +24,13 @@ fire.onAuthStateChanged(user => {
     console.debug(user)
 
     const todoCRef = fire.userCRef('todos')
-    fire.disposeOnAuthChange(todoCRef.onSnapshot(qs=>{
-      const todoDataList = qs.docs.map(ds=> ds.data())
-      console.log(todoDataList)
-      pubs.onTodoListChanged(todoDataList)
-    }))
+    fire.disposeOnAuthChange(
+      todoCRef.onSnapshot(qs => {
+        const todoDataList = qs.docs.map(ds => ds.data())
+        console.log(todoDataList)
+        pubs.onTodoListChanged(todoDataList)
+      }),
+    )
   } else {
   }
 })
@@ -40,6 +42,13 @@ initSubs({
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
+  persistTodoList: async todoList => {
+    const todoCRef = fire.userCRef('todos')
+    const ps = todoList.map(todo => {
+      return todoCRef.doc(todo.id).set(todo, { merge: false })
+    })
+    await Promise.all(ps)
+  },
 })
 
 function initSubs(subs) {
