@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import AuthState exposing (AuthState)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
@@ -16,6 +17,7 @@ import Url exposing (Url)
 
 type alias Model =
     { todoDict : Dict TodoId Todo
+    , authState : AuthState
     , errors : Errors
     , key : Nav.Key
     , route : Route
@@ -35,6 +37,7 @@ init _ url key =
         model : Model
         model =
             { todoDict = Dict.empty
+            , authState = AuthState.initial
             , errors = Errors.initial
             , key = key
             , route = route
