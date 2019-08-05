@@ -17,7 +17,7 @@ const pub = {
     const portName = 'onAuthStateChanged'
     const send = path(['ports', portName, 'send'])(app)
     if (!send) {
-      console.warn('Cmd Port Not Found:', portName, arg)
+      console.warn('Send: Port Not Found:', portName, arg)
       return
     }
     if(send){
@@ -62,7 +62,7 @@ const subs = {
 forEachObjIndexed((listener, portName) => {
   const subscribe = path(['ports', portName, 'subscribe'])(app)
   if (!subscribe) {
-    console.warn('Subscription Port Not Found:', portName, app)
+    console.warn('Subscribe: Port Not Found:', portName)
     return
   }
   console.log('Subscription Port Attached', portName)
