@@ -4,6 +4,8 @@ import './index.css'
 import { Elm } from './Main.elm'
 import { Fire } from './fire'
 
+import faker from 'faker'
+
 import { mapObjIndexed, identity } from 'ramda'
 
 const app = Elm.Main.init({
@@ -42,6 +44,10 @@ initSubs({
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
+  changeTodoTitle: async (todoId) => {
+    const todoCRef = fire.userCRef('todos')
+    await todoCRef.doc(todoId).update({ title: faker.hacker.phrase() })
+  },
   persistTodoList: async todoList => {
     const todoCRef = fire.userCRef('todos')
     const ps = todoList.map(todo => {
