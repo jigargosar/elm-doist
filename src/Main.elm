@@ -210,9 +210,21 @@ viewTodoList dict =
                     displayTitle todo
             in
             div
-                [ class "pa1"
+                [ class "pa1 db"
                 , tabindex 0
                 , onClick (OnChangeTitle todo.id)
+                , Html.Events.on "keydown"
+                    (JD.field "key" JD.string
+                        |> JD.andThen
+                            (\key ->
+                                case key of
+                                    "Enter" ->
+                                        OnChangeTitle todo.id |> JD.succeed
+
+                                    _ ->
+                                        JD.fail "Not Interested"
+                            )
+                    )
                 ]
                 [ div [ class cls ] [ text dt ]
                 ]
