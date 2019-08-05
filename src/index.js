@@ -12,6 +12,20 @@ const app = Elm.Main.init({
   },
 })
 
+const pub = {
+  onAuthStateChanged: (arg) => {
+    const portName = 'onAuthStateChanged'
+    const send = path(['ports', portName, 'send'])(app)
+    if (!send) {
+      console.warn('Cmd Port Not Found:', portName, arg)
+      return
+    }
+    if(send){
+      send(arg)
+    }
+  }
+}
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBVS1Tx23pScQz9w4ZDTGh307mqkCRy2Bw",
@@ -27,9 +41,9 @@ firebase.initializeApp(firebaseConfig)
 
 firebase.auth().onAuthStateChanged(user =>{
   if(user){
-    app.ports.onAuthStateChanged.send(user.uid)
+    pub.onAuthStateChanged(user.uid)
   }else{
-    app.ports.onAuthStateChanged.send(null)
+    pub.onAuthStateChanged(null)
   }
 })
 
