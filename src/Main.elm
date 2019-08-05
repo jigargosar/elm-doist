@@ -1,14 +1,17 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
+import BasicsExtra exposing (unpackErr)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
-import Errors exposing (Errors)
+import Errors exposing (Error, Errors)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import Json.Decode as JD
 import Json.Encode exposing (Value)
+import Ports
 import Return
 import Route exposing (Route)
 import Todo exposing (Todo)
@@ -52,6 +55,7 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
+    | OnAuthStateChanged Value
 
 
 
@@ -83,11 +87,26 @@ update message model =
             in
             ( { model | route = route }, Cmd.none )
 
+        OnAuthStateChanged encodedValue ->
+            let
+                _ =
+                    JD.decodeValue AuthState.decoder encodedValue
+                        |> Result.map (\val -> { model | authState = val })
+                        |> unpackErr (JD.errorToString >> prependErrorIn model)
+                        |> Debug.log "auth"
+            in
+            pure model
+
+
+prependErrorIn : Model -> Error -> Model
+prependErrorIn model error =
+    { model | errors = Errors.prependError error model.errors }
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        []
+        [ Ports.onAuthStateChanged OnAuthStateChanged ]
 
 
 view : Model -> Browser.Document Msg

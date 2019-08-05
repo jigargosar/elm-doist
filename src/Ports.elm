@@ -1,4 +1,4 @@
-module Ports exposing
+port module Ports exposing
     ( localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
