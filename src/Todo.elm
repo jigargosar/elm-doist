@@ -49,6 +49,18 @@ decoder =
         |> JDP.required "modifiedAt" JD.int
 
 
+relaxedDecoder : Decoder Todo
+relaxedDecoder =
+    JD.succeed Todo
+        |> JDP.required "id" JD.string
+        |> JDP.custom (JD.oneOf [ JD.field "title" JD.string, JD.field "name" JD.string ])
+        |> JDP.optional "sortIdx" JD.int 0
+        |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
+        |> JDP.optional "isDone" JD.bool False
+        |> JDP.required "createdAt" JD.int
+        |> JDP.custom (JD.oneOf [ JD.field "modifiedAt" JD.int, JD.field "createdAt" JD.int ])
+
+
 encoder : Todo -> Value
 encoder { id, title, sortIdx, projectId, isDone, createdAt, modifiedAt } =
     JE.object
