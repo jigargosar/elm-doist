@@ -10,7 +10,7 @@ import { mapObjIndexed, identity } from 'ramda'
 
 const app = Elm.Main.init({
   flags: {
-    modelCache: JSON.parse(localStorage.getItem('modelCache') || 'null'),
+    todoList: JSON.parse(localStorage.getItem('todoList') || 'null'),
   },
 })
 const fire = Fire()
@@ -38,8 +38,8 @@ fire.onAuthStateChanged(user => {
 })
 
 initSubs({
-  cacheKeyValue: ([k, v]) => {
-    console.log('cacheKeyValue', k, v)
+  localStorageSetJsonItem: ([k, v]) => {
+    console.log('localStorageSetJsonItem', k, v)
     localStorage.setItem(k, JSON.stringify(v))
   },
   signIn: () => fire.signIn(),

@@ -10,7 +10,8 @@ import HasErrors
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, disabled, tabindex)
 import Html.Events exposing (onClick)
-import Json.Decode as JD
+import Json.Decode as JD exposing (Decoder)
+import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import KeyEvent
 import Ports
@@ -19,7 +20,7 @@ import Return
 import Route exposing (Route)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (command, effect, pure)
+import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -40,8 +41,19 @@ type alias Return =
     Return.Return Msg Model
 
 
+type alias Flags =
+    { todoList : TodoList
+    }
+
+
+flagsDecoder : Decoder Flags
+flagsDecoder =
+    JD.succeed Flags
+        |> JDP.optional "todoList" Todo.listDecoder []
+
+
 init : Value -> Url -> Nav.Key -> Return
-init _ url key =
+init encodedFlags url key =
     let
         route =
             Route.fromUrl url
@@ -55,7 +67,9 @@ init _ url key =
             , route = route
             }
     in
-    model |> pure
+    model
+        |> pure
+        |> andThen (updateFromEncodedFlags encodedFlags)
 
 
 type Msg
@@ -118,9 +132,27 @@ update message model =
             ( model, Ports.changeTodoTitle todoId )
 
 
+updateFromEncodedFlags : Value -> Model -> Return
+updateFromEncodedFlags encodedFlags model =
+    JD.decodeValue flagsDecoder encodedFlags
+        |> Result.Extra.unpack updateDecodeError updateFromFlags
+        |> callWith model
+
+
+updateFromFlags : Flags -> Model -> Return
+updateFromFlags flags model =
+    setTodoDictFromList flags.todoList model
+        |> pure
+
+
+setTodoDictFromList : TodoList -> Model -> Model
+setTodoDictFromList todoList model =
+    { model | todoDict = Dict.Extra.fromListBy .id todoList }
+
+
 setTodoDictFromListAndCache : TodoList -> Model -> Return
 setTodoDictFromListAndCache todoList model =
-    { model | todoDict = Dict.Extra.fromListBy .id todoList }
+    setTodoDictFromList todoList model
         |> pure
         |> command
             (Ports.localStorageSetJsonItem
@@ -172,6 +204,14 @@ view model =
                 , case model.authState of
                     AuthState.Unknown ->
                         button [ disabled True ] [ text "SignIn" ]
+
+                    AuthState.UnknownCached user ->
+                        div [ class "flex items-center hs3 " ]
+                            [ div [] [ text user.displayName ]
+                            , button
+                                [ disabled True, onClick OnSignOutClicked ]
+                                [ text "SignOut" ]
+                            ]
 
                     AuthState.SignedIn user ->
                         div [ class "flex items-center hs3 " ]

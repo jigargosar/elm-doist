@@ -26,6 +26,7 @@ userDecoder =
 
 type AuthState
     = Unknown
+    | UnknownCached User
     | SignedIn User
     | NotSignedIn
 
