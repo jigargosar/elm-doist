@@ -4,7 +4,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 import firebase from "firebase/app"
 import "firebase/auth"
-import "firebase/firestore"
+// import "firebase/firestore"
 
 const app = Elm.Main.init({
   flags: {

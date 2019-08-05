@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon -w webpack.config.js -w tsconfig.json -w package-lock.json -w elm.json -x webpack-dev-server",
-    "build": "webpack -p"
+    "build": "env NODE_ENV=production webpack -p",
+    "deploy": "firebase deploy --only hosting:elmdoist"
   },
   "private": true,
   "keywords": [],
