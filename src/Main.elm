@@ -116,12 +116,12 @@ update message model =
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
-                |> Result.Extra.unpack updateDecodeError updateAuthState
+                |> Result.Extra.unpack updateDecodeError setAndCacheAuthState
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack updateDecodeError setTodoDictFromListAndCache
+                |> Result.Extra.unpack updateDecodeError setAndCacheTodoDictFromList
                 |> callWith model
 
         OnSignInClicked ->
@@ -153,8 +153,8 @@ setTodoDictFromList todoList model =
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
 
 
-setTodoDictFromListAndCache : TodoList -> Model -> Return
-setTodoDictFromListAndCache todoList model =
+setAndCacheTodoDictFromList : TodoList -> Model -> Return
+setAndCacheTodoDictFromList todoList model =
     setTodoDictFromList todoList model
         |> pure
         |> command
@@ -163,21 +163,25 @@ setTodoDictFromListAndCache todoList model =
             )
 
 
-updateAuthState : AuthState -> Model -> Return
-updateAuthState authState model =
+setAuthState : AuthState -> Model -> Model
+setAuthState authState model =
+    { model | authState = authState }
+
+
+setAndCacheAuthState : AuthState -> Model -> Return
+setAndCacheAuthState authState model =
     setAuthState authState model
         |> pure
+        |> command
+            (Ports.localStorageSetJsonItem
+                ( "cachedAuthState", AuthState.encoder authState )
+            )
 
 
 updateDecodeError : JD.Error -> Model -> Return
 updateDecodeError error model =
     HasErrors.prependDecodeError error model
         |> pure
-
-
-setAuthState : AuthState -> Model -> Model
-setAuthState authState model =
-    { model | authState = authState }
 
 
 subscriptions : Model -> Sub Msg
