@@ -163,18 +163,21 @@ view model =
                 [ div [ class "b" ] [ text "Errors:" ]
                 , HasErrors.view model.errors
                 ]
-            , case model.authState of
-                AuthState.Unknown ->
-                    button [ disabled True ] [ text "SignIn" ]
+            , div [ class "pa3 flex items-center hs3" ]
+                [ div [ class "b" ] [ text "User:" ]
+                , case model.authState of
+                    AuthState.Unknown ->
+                        button [ disabled True ] [ text "SignIn" ]
 
-                AuthState.SignedIn user ->
-                    div [ class "flex" ]
-                        [ div [] [ text user.displayName ]
-                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
-                        ]
+                    AuthState.SignedIn user ->
+                        div [ class "flex items-center hs3 " ]
+                            [ div [] [ text user.displayName ]
+                            , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                            ]
 
-                AuthState.NotSignedIn ->
-                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+                    AuthState.NotSignedIn ->
+                        button [ onClick OnSignInClicked ] [ text "SignIn" ]
+                ]
             , div [ class "pa3 vs3" ]
                 [ div [ class "b" ] [ text "TodoList:" ]
                 , viewTodoList model.todoDict
