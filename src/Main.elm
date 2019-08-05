@@ -102,9 +102,7 @@ update message model =
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
-            JD.decodeValue
-                (JD.list (JD.oneOf [ Todo.decoder, Todo.relaxedDecoder ]))
-                encodedValue
+            JD.decodeValue Todo.listDecoder encodedValue
                 |> Result.Extra.unpack updateDecodeError updateTodoList
                 |> callWith model
 
@@ -123,7 +121,10 @@ updateTodoList todoList model =
     in
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
         |> pure
-        |> effect (persistTodosIfChanged model)
+
+
+
+--        |> effect (persistTodosIfChanged model)
 
 
 persistTodosIfChanged : Model -> Model -> Cmd Msg
