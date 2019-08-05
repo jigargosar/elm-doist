@@ -170,9 +170,29 @@ view model =
 
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            , div [ class "pa3 flex hs3" ]
+                [ div [ class "b" ] [ text "TodoList:" ]
+                , viewTodoList model.todoDict
+                ]
             ]
         ]
     }
+
+
+type alias TodoDict =
+    Dict TodoId Todo
+
+
+viewTodoList : Dict TodoId Todo -> Html Msg
+viewTodoList dict =
+    let
+        displayList =
+            Dict.values dict
+
+        viewTodoItem todo =
+            div [ class "pa3" ] [ text todo.title ]
+    in
+    div [] (List.map viewTodoItem displayList)
 
 
 main : Program Value Model Msg
