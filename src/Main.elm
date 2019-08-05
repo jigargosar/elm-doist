@@ -1,4 +1,4 @@
-port module Main exposing (main)
+module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
@@ -15,7 +15,6 @@ import Url exposing (Url)
 
 
 
--- PORTS
 -- FLAGS
 
 
