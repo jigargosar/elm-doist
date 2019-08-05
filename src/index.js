@@ -35,6 +35,8 @@ initSubs({
     console.log('cacheKeyValue', k, v)
     localStorage.setItem(k, JSON.stringify(v))
   },
+  signIn:()=>fire.signIn(),
+  signOut:()=>fire.signOut()
 })
 
 

@@ -16,10 +16,20 @@ firebase.initializeApp(firebaseConfig)
 
 
 export function Fire() {
+  const auth = firebase.auth()
   return {
     onAuthStateChanged(cb){
-      firebase.auth().onAuthStateChanged(cb)
+      auth.onAuthStateChanged(cb)
+    },
+    signIn(){
+      const provider = new firebase.auth.GoogleAuthProvider()
+      provider.setCustomParameters({prompt:'select_account'})
+      return auth.signInWithPopup(provider)
+    },
+    signOut() {
+      return auth.signOut()
     }
+
   }
 }
 
