@@ -20,7 +20,7 @@ const pubs = initPubs({
 fire.onAuthStateChanged(user => {
   pubs.onAuthStateChanged(user)
   if (user) {
-    console.log(user)
+    console.debug(user)
   } else {
   }
 })
