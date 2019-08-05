@@ -94,9 +94,21 @@ update message model =
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
                 |> Result.Extra.unpack
-                    (\e -> HasErrors.prependDecodeError e model)
-                    (\v -> setAuthState v model)
-                |> pure
+                    updateDecodeError
+                    updateAuthState
+                |> (|>) model
+
+
+updateAuthState : AuthState -> Model -> Return
+updateAuthState authState model =
+    setAuthState authState model
+        |> pure
+
+
+updateDecodeError : JD.Error -> Model -> Return
+updateDecodeError error model =
+    HasErrors.prependDecodeError error model
+        |> pure
 
 
 setAuthState : AuthState -> Model -> Model
