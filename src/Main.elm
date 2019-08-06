@@ -203,7 +203,19 @@ patchTodoCmd todoId todoMsg =
 
 
 queryTodoListCmd =
-    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 1000 }
+    Ports.queryFirestore
+        { id = "todoList"
+        , userCollectionName = "todos"
+        , limit = 1000
+        }
+
+
+queryProjectListCmd =
+    Ports.queryFirestore
+        { id = "projectList"
+        , userCollectionName = "projects"
+        , limit = 1000
+        }
 
 
 updateFromEncodedFlags : Value -> Model -> Return
@@ -249,7 +261,7 @@ updateAuthState authState model =
                     Cmd.none
 
                 AuthState.SignedIn _ ->
-                    queryTodoListCmd
+                    Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
 
                 AuthState.NotSignedIn ->
                     Cmd.none
