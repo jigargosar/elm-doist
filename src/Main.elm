@@ -12,6 +12,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import KeyEvent
+import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Result.Extra
 import Return
@@ -84,6 +85,7 @@ type Msg
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
     | OnChecked TodoId Bool
+    | PatchTodo TodoId Todo.Msg Millis
 
 
 
@@ -157,6 +159,15 @@ update message model =
                             JE.object [ Todo.patch (Todo.SetCompleted checked) ]
                         }
                     )
+
+        PatchTodo todoId todoMsg now ->
+            ( model
+            , Ports.updateFirestoreDoc
+                { userDocPath = "todos/" ++ todoId
+                , data =
+                    JE.object (Todo.modifyPatch todoMsg now)
+                }
+            )
 
 
 queryTodoListCmd =
