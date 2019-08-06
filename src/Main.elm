@@ -292,16 +292,16 @@ view model =
                     [ div [ class "b" ] [ text "TodoList:" ]
                     , button [ onClick OnAddTodo ] [ text "ADD" ]
                     ]
-                , viewTodoList model.todoList
+                , viewTodoList model.route model.todoList
                 ]
             ]
         ]
     }
 
 
-viewTodoList : List Todo -> Html Msg
-viewTodoList displayList =
-    div [ class "vs1" ] (List.map viewTodoItem displayList)
+viewTodoList : Route -> List Todo -> Html Msg
+viewTodoList _ todoList =
+    div [ class "vs1" ] (List.map viewTodoItem todoList)
 
 
 viewTodoItem todo =
