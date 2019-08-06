@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -w webpack.config.js -w tsconfig.json -w package-lock.json -w elm.json -x webpack-dev-server",
+    "start": "nodemon -w webpack.config.js -w tsconfig.json -w package-lock.json -w elm.json -x webpack-dev-server -- -d",
     "build:minify-elm": "uglifyjs src/elm.js --compress \"pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe\" | uglifyjs --mangle --output=src/elm.min.js",
     "build:elm": "elm make src/Main.elm --optimize --output src/elm.js",
     "build": "env NODE_ENV=production webpack -p",
