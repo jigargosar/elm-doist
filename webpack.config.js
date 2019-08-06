@@ -88,4 +88,10 @@ module.exports = {
     hot: false,
     // hotOnly: true,
   },
+  optimization: {
+    splitChunks: {
+      // include all types of chunks
+      chunks: 'all'
+    }
+  },
 }
