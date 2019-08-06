@@ -12,6 +12,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
 import KeyEvent
+import List.Extra
 import Ports exposing (FirestoreQueryResponse)
 import Result.Extra
 import Return
@@ -83,7 +84,7 @@ type Msg
     | OnSignInClicked
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
-    | OnChecked String
+    | OnChecked TodoId Bool
 
 
 
@@ -147,12 +148,22 @@ update message model =
                     HasErrors.prependErrorString ("Invalid QueryId" ++ qs.id) model
                         |> pure
 
-        OnChecked inp ->
+        OnChecked todoId checked ->
             let
                 _ =
-                    Debug.log "inp" inp
+                    Debug.log "inp" checked
+
+                newTodoList =
+                    model.todoList
+                        |> List.Extra.updateIf (.id >> (==) todoId)
+                            (\t ->
+                                { t
+                                    | isDone = checked
+                                }
+                            )
             in
-            pure model
+            setTodoList newTodoList model
+                |> pure
 
 
 queryTodoListCmd =
@@ -288,12 +299,12 @@ viewTodoList displayList =
                 [ class "flex hs1 lh-copy db "
                 , tabindex 0
                 ]
-                [ div [ class "pointer hover-bg-light-yellow flex flex-column pa2" ]
+                [ div [ class "hover-bg-light-yellow flex flex-column pa2" ]
                     [ input
                         [ class "pointer db flex-grow-1"
                         , type_ "checkbox"
                         , checked todo.isDone
-                        , onInput OnChecked
+                        , Html.Events.onCheck (OnChecked todo.id)
                         ]
                         []
                     ]
