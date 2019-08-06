@@ -206,7 +206,6 @@ queryTodoListCmd =
     Ports.queryFirestore
         { id = "todoList"
         , userCollectionName = "todos"
-        , limit = 1000
         }
 
 
@@ -214,7 +213,6 @@ queryProjectListCmd =
     Ports.queryFirestore
         { id = "projectList"
         , userCollectionName = "projects"
-        , limit = 1000
         }
 
 
