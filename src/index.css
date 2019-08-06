@@ -43,7 +43,6 @@ html,
 .vs1 > * {
   margin-bottom: var(--sp1);
 }
-
 .vs1 > :last-child {
   margin-bottom: 0;
 }
@@ -51,15 +50,20 @@ html,
 .vs3 > * {
   margin-bottom: var(--sp3);
 }
-
 .vs3 > :last-child {
   margin-bottom: 0;
+}
+
+.hs1 > * {
+  margin-right: var(--sp1);
+}
+.hs1 > :last-child {
+  margin-right: 0;
 }
 
 .hs3 > * {
   margin-right: var(--sp3);
 }
-
 .hs3 > :last-child {
   margin-right: 0;
 }

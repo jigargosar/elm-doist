@@ -37,13 +37,13 @@ initSubs({
       .doc(todoId)
       .update({ title: faker.hacker.phrase(), modifiedAt: Date.now() })
   },
-  persistTodoList: async todoList => {
-    const todoCRef = fire.userCRef('todos')
-    const ps = todoList.map(todo => {
-      return todoCRef.doc(todo.id).set(todo, { merge: false })
-    })
-    await Promise.all(ps)
-  },
+  // persistTodoList: async todoList => {
+  //   const todoCRef = fire.userCRef('todos')
+  //   const ps = todoList.map(todo => {
+  //     return todoCRef.doc(todo.id).set(todo, { merge: false })
+  //   })
+  //   await Promise.all(ps)
+  // },
   queryFirestore: async options => {
     const cRef = fire.userCRef(options.userCollectionName)
     fire.addDisposerWithId(
@@ -60,12 +60,16 @@ initSubs({
         }),
     )
   },
-  disposeFirestoreQuery: id => {
-    fire.disposeNamed(id)
-  },
+  // disposeFirestoreQuery: id => {
+  //   fire.disposeNamed(id)
+  // },
   updateFirestoreDoc:options=>{
     const doc = fire.userDocRef(options.userDocPath)
-    doc.update(options.data)
+    return doc.update(options.data)
+  },
+  deleteFirestoreDoc:options =>{
+    const doc = fire.userDocRef(options.userDocPath)
+    return doc.delete()
   }
 })
 
