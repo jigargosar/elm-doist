@@ -34,7 +34,7 @@ fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
 initSubs({
   localStorageSetJsonItem: ([k, v]) => {
-    console.groupCollapsed('localStorageSetJsonItem',k)
+    console.groupCollapsed('localStorageSetJsonItem', k)
     console.log(v)
     console.groupEnd()
     localStorage.setItem(k, JSON.stringify(v))
@@ -59,15 +59,14 @@ initSubs({
     const cRef = fire.userCRef(options.userCollectionName)
     fire.addDisposerWithId(
       options.id,
-      cRef
-        .onSnapshot(qs => {
-          const docDataList = qs.docs.map(ds => ds.data())
-          const response = { id: options.id, docDataList }
-          console.groupCollapsed('onFirestoreQueryResponse', options)
-          console.log(docDataList)
-          console.groupEnd()
-          pubs.onFirestoreQueryResponse(response)
-        }),
+      cRef.onSnapshot(qs => {
+        const docDataList = qs.docs.map(ds => ds.data())
+        const response = { id: options.id, docDataList }
+        console.groupCollapsed('onFirestoreQueryResponse', options)
+        console.log(docDataList)
+        console.groupEnd()
+        pubs.onFirestoreQueryResponse(response)
+      }),
     )
   },
   // disposeFirestoreQuery: id => {
@@ -91,7 +90,14 @@ initSubs({
       {},
       options.data,
       { id: docRef.id },
-      options.data.title === '' ? { title: faker.hacker.phrase() } : {},
+      options.data.title === '' && options.userCollectionName === 'todos'
+        ? { title: faker.hacker.phrase() }
+        : {},
+
+      options.data.title === '' &&
+        options.userCollectionName === 'projects'
+        ? { title: `${faker.hacker.ingverb()} ${faker.hacker.noun()}` }
+        : {},
     )
     return docRef.set(data)
   },
