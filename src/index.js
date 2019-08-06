@@ -67,6 +67,10 @@ initSubs({
   disposeFirestoreQuery: id => {
     fire.disposeNamed(id)
   },
+  updateFirestoreDoc:options=>{
+    const doc = fire.userDocRef(options.userDocPath)
+    doc.update(options.data)
+  }
 })
 
 function initSubs(subs) {

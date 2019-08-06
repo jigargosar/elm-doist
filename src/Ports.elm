@@ -10,6 +10,7 @@ port module Ports exposing
     , queryFirestore
     , signIn
     , signOut
+    , updateFirestoreDoc
     )
 
 import Json.Encode exposing (Value)
@@ -45,6 +46,9 @@ port queryFirestore :
     , limit : Int
     }
     -> Cmd msg
+
+
+port updateFirestoreDoc : { userDocPath : String, data : Value } -> Cmd msg
 
 
 type alias FirestoreQueryResponse =

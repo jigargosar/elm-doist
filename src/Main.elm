@@ -10,7 +10,7 @@ import Html.Attributes exposing (checked, class, disabled, style, tabindex, type
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode exposing (Value)
+import Json.Encode as JE exposing (Value)
 import KeyEvent
 import List.Extra
 import Ports exposing (FirestoreQueryResponse)
@@ -164,6 +164,15 @@ update message model =
             in
             setTodoList newTodoList model
                 |> pure
+                |> command
+                    (Ports.updateFirestoreDoc
+                        { userDocPath = "todos/" ++ todoId
+                        , data =
+                            JE.object
+                                [ ( "isDone", JE.bool checked )
+                                ]
+                        }
+                    )
 
 
 queryTodoListCmd =
