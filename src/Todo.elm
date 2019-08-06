@@ -3,6 +3,7 @@ module Todo exposing
     , Filter(..)
     , Msg(..)
     , Todo
+    , TodoDict
     , TodoList
     , decoder
     , encoder
@@ -17,6 +18,7 @@ module Todo exposing
     )
 
 import Compare exposing (Comparator)
+import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -150,6 +152,10 @@ matchesFilter filter_ todo =
 
 type alias TodoList =
     List Todo
+
+
+type alias TodoDict =
+    Dict TodoId Todo
 
 
 listDecoder : Decoder TodoList

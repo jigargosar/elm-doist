@@ -8,11 +8,11 @@ import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, classList, disabled, tabindex)
+import Html.Attributes exposing (class, disabled, tabindex)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import KeyEvent
 import Ports
 import Result.Extra
@@ -20,7 +20,7 @@ import Return
 import Route exposing (Route)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, command, effect, pure)
+import UpdateExtra exposing (andThen, command, pure)
 import Url exposing (Url)
 
 
@@ -29,7 +29,7 @@ type alias Error =
 
 
 type alias Model =
-    { todoDict : Dict TodoId Todo
+    { todoList : TodoList
     , authState : AuthState
     , errors : List Error
     , key : Nav.Key
@@ -62,7 +62,7 @@ init encodedFlags url key =
 
         model : Model
         model =
-            { todoDict = Dict.empty
+            { todoList = []
             , authState = AuthState.initial
             , errors = []
             , key = key
@@ -150,7 +150,7 @@ updateFromFlags flags model =
 
 setTodoList : TodoList -> Model -> Model
 setTodoList todoList model =
-    { model | todoDict = Dict.Extra.fromListBy .id todoList }
+    { model | todoList = Dict.Extra.fromListBy .id todoList }
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
@@ -223,23 +223,16 @@ view model =
                 ]
             , div [ class "pa3 vs3" ]
                 [ div [ class "b" ] [ text "TodoList:" ]
-                , viewTodoList model.todoDict
+                , viewTodoList model.todoList
                 ]
             ]
         ]
     }
 
 
-type alias TodoDict =
-    Dict TodoId Todo
-
-
-viewTodoList : Dict TodoId Todo -> Html Msg
-viewTodoList dict =
+viewTodoList : List Todo -> Html Msg
+viewTodoList displayList =
     let
-        displayList =
-            Dict.values dict
-
         displayTitle todo =
             if String.trim todo.title |> String.isEmpty then
                 ( "<no title>", "i black-70" )
