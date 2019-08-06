@@ -277,12 +277,15 @@ viewTodoList displayList =
                     displayTitle todo
             in
             div
-                [ class "pointer lh-solid pa2 db hover-bg-light-yellow"
+                [ class "flex lh-copy pa2 db hover-bg-light-yellow"
                 , tabindex 0
-                , onClick (OnChangeTitleRequested todo.id)
-                , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
                 ]
-                [ div [ class cls ] [ text dt ]
+                [ div
+                    [ class (cls ++ " " ++ "flex-grow-1 pointer lh-solid ")
+                    , onClick (OnChangeTitleRequested todo.id)
+                    , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
+                    ]
+                    [ text dt ]
                 ]
     in
     div [ class "vs1" ] (List.map viewTodoItem displayList)
