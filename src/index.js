@@ -4,7 +4,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 import { Fire } from './fire'
 
-import faker from 'faker'
+
 
 import { mapObjIndexed, identity, propOr } from 'ramda'
 
