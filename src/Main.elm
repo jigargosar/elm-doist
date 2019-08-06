@@ -150,7 +150,7 @@ updateFromFlags flags model =
 
 setTodoList : TodoList -> Model -> Model
 setTodoList todoList model =
-    { model | todoList = Dict.Extra.fromListBy .id todoList }
+    { model | todoList = todoList }
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
