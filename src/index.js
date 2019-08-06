@@ -6,7 +6,7 @@ import { Fire } from './fire'
 
 import faker from 'faker'
 
-import { mapObjIndexed, identity } from 'ramda'
+import { mapObjIndexed, identity, propOr } from 'ramda'
 
 const app = Elm.Main.init({
   flags: {
@@ -72,6 +72,12 @@ function initSubs(subs) {
     console.log('Subscription Port Attached', portName)
     subscribe(listener)
   })(subs)
+  const ports = propOr({}, "ports")(app)
+  forEachObjIndexed((port, portName) =>{
+    if(port.subscribe && !subs[portName]){
+      console.warn("Subscription Port Handler Missing", portName)
+    }
+  })(ports)
 }
 
 function initPubs(pubs) {

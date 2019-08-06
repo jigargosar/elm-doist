@@ -119,7 +119,7 @@ update message model =
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
-                |> Result.Extra.unpack updateDecodeError setAndCacheAuthState
+                |> Result.Extra.unpack updateDecodeError updateAuthState
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
@@ -171,8 +171,20 @@ setAuthState authState model =
     { model | authState = authState }
 
 
-setAndCacheAuthState : AuthState -> Model -> Return
-setAndCacheAuthState authState model =
+updateAuthState : AuthState -> Model -> Return
+updateAuthState authState model =
+    let
+        _ =
+            case authState of
+                AuthState.Unknown ->
+                    Cmd.none
+
+                AuthState.SignedIn _ ->
+                    queryTodoListCmd
+
+                AuthState.NotSignedIn ->
+                    Cmd.none
+    in
     setAuthState authState model
         |> pure
         |> command
