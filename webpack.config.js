@@ -10,6 +10,7 @@ console.log('NODE_ENV', NODE_ENV)
 
 // https://webpack.js.org/configuration/
 module.exports = {
+  mode: isProduction? 'production' : 'development',
   entry: './src/index.js',
   output: {
     publicPath: '/',
