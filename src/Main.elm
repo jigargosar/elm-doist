@@ -7,7 +7,7 @@ import Browser.Navigation as Nav
 import HasErrors
 import Html exposing (Html, button, div, input, text)
 import Html.Attributes exposing (checked, class, disabled, style, tabindex, type_)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -83,6 +83,7 @@ type Msg
     | OnSignInClicked
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
+    | OnChecked String
 
 
 
@@ -145,6 +146,13 @@ update message model =
                 _ ->
                     HasErrors.prependErrorString ("Invalid QueryId" ++ qs.id) model
                         |> pure
+
+        OnChecked inp ->
+            let
+                _ =
+                    Debug.log "inp" inp
+            in
+            pure model
 
 
 queryTodoListCmd =
@@ -285,6 +293,7 @@ viewTodoList displayList =
                         [ class "pointer db flex-grow-1"
                         , type_ "checkbox"
                         , checked todo.isDone
+                        , onInput OnChecked
                         ]
                         []
                     ]
