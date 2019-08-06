@@ -95,6 +95,8 @@ type Msg
     | PatchTodo TodoId Todo.Msg Millis
     | OnAddTodo
     | AddTodo Millis
+    | OnAddProject
+    | AddProject Millis
 
 
 
@@ -180,6 +182,17 @@ update message model =
             , Ports.addFirestoreDoc
                 { userCollectionName = "todos"
                 , data = Todo.new now
+                }
+            )
+
+        OnAddProject ->
+            ( model, Now.perform AddProject )
+
+        AddProject now ->
+            ( model
+            , Ports.addFirestoreDoc
+                { userCollectionName = "projects"
+                , data = Project.new now
                 }
             )
 
@@ -331,7 +344,10 @@ viewHeader model =
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
             ]
         , div [ class "pa3 flex hs3" ]
-            [ div [ class "b" ] [ text "Projects:" ]
+            [ div [ class "flex hs3" ]
+                [ div [ class "b" ] [ text "Projects:" ]
+                , button [ onClick OnAddProject ] [ text "New Project" ]
+                ]
             , viewNavProjects model.projectList
             ]
         ]

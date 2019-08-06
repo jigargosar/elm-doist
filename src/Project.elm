@@ -4,12 +4,14 @@ module Project exposing
     , decoder
     , encoder
     , listDecoder
+    , new
     , setModifiedAt
     )
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JD
 import Json.Encode as JE exposing (Value)
+import Now exposing (Millis)
 import ProjectId exposing (ProjectId)
 
 
@@ -50,6 +52,17 @@ encoder { id, title, sortIdx, createdAt, modifiedAt } =
         , ( "createdAt", JE.int createdAt )
         , ( "modifiedAt", JE.int modifiedAt )
         ]
+
+
+new : Millis -> Value
+new now =
+    { id = ""
+    , title = ""
+    , sortIdx = 0
+    , createdAt = now
+    , modifiedAt = now
+    }
+        |> encoder
 
 
 setModifiedAt now todo =
