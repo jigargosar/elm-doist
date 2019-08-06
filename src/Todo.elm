@@ -202,6 +202,7 @@ filterSingle filter_ =
 type CompareBy
     = ByIdx
     | ByRecentlyModified
+    | ByRecentlyCreated
 
 
 toComparator : CompareBy -> Comparator Todo
@@ -212,6 +213,9 @@ toComparator compareBy =
 
         ByRecentlyModified ->
             Compare.by .modifiedAt |> Compare.reverse
+
+        ByRecentlyCreated ->
+            Compare.by .createdAt |> Compare.reverse
 
 
 sortWith : List CompareBy -> TodoList -> TodoList

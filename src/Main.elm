@@ -274,7 +274,7 @@ viewRoute route model =
                 displayTodoList =
                     Todo.filterSort
                         (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-                        [ Todo.ByIdx ]
+                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
                         model.todoList
             in
             { title = "Inbox"
