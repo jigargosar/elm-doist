@@ -153,21 +153,20 @@ update message model =
             model
                 |> pure
                 |> command
-                    (Ports.updateFirestoreDoc
-                        { userDocPath = "todos/" ++ todoId
-                        , data =
-                            JE.object [ Todo.patch (Todo.SetCompleted checked) ]
-                        }
-                    )
+                    (patchTodoCmd todoId (Todo.SetCompleted checked))
 
         PatchTodo todoId todoMsg now ->
             ( model
             , Ports.updateFirestoreDoc
                 { userDocPath = "todos/" ++ todoId
-                , data =
-                    JE.object (Todo.modifyPatch todoMsg now)
+                , data = JE.object (Todo.modifyPatch todoMsg now)
                 }
             )
+
+
+patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
+patchTodoCmd todoId todoMsg =
+    PatchTodo todoId todoMsg |> Now.perform
 
 
 queryTodoListCmd =
