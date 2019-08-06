@@ -10,7 +10,7 @@ import { mapObjIndexed, identity } from 'ramda'
 
 const app = Elm.Main.init({
   flags: {
-    todoList: JSON.parse(localStorage.getItem('todoList') || 'null'),
+    cachedTodoList: JSON.parse(localStorage.getItem('cachedTodoList') || 'null'),
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),

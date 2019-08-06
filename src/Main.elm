@@ -42,7 +42,7 @@ type alias Return =
 
 
 type alias Flags =
-    { todoList : TodoList
+    { cachedTodoList : TodoList
     , cachedAuthState : AuthState
     }
 
@@ -50,8 +50,9 @@ type alias Flags =
 flagsDecoder : Decoder Flags
 flagsDecoder =
     JD.succeed Flags
-        |> JDP.optional "todoList" Todo.listDecoder []
-        |> JDP.optional "cachedAuthState" AuthState.decoder AuthState.initial
+        |> JDP.required "cachedTodoList" (JD.oneOf [ Todo.listDecoder, JD.null [] ])
+        |> JDP.required "cachedAuthState"
+            (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
 
 
 init : Value -> Url -> Nav.Key -> Return
@@ -143,7 +144,7 @@ updateFromEncodedFlags encodedFlags model =
 
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
-    setTodoList flags.todoList model
+    setTodoList flags.cachedTodoList model
         |> setAuthState flags.cachedAuthState
         |> pure
 
@@ -159,7 +160,7 @@ setAndCacheTodoList todoList model =
         |> pure
         |> command
             (Ports.localStorageSetJsonItem
-                ( "todoList", Todo.listEncoder todoList )
+                ( "cachedTodoList", Todo.listEncoder todoList )
             )
 
 
