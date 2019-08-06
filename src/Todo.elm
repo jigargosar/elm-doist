@@ -14,6 +14,7 @@ module Todo exposing
     , listEncoder
     , matchesFilter
     , modify
+    , patch
     )
 
 import Compare exposing (Comparator)
@@ -67,6 +68,22 @@ type Msg
     | SetProjectId ProjectId
     | SetTitle String
     | SetSortIdx Int
+
+
+patch : Msg -> ( String, Value )
+patch msg =
+    case msg of
+        SetCompleted bool ->
+            ( "isDone", JE.bool bool )
+
+        SetProjectId projectId ->
+            ( "projectId", ProjectId.encoder projectId )
+
+        SetTitle title ->
+            ( "title", JE.string title )
+
+        SetSortIdx sortIdx ->
+            ( "sortIdx", JE.int sortIdx )
 
 
 update : Msg -> Todo -> Todo
