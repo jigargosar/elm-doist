@@ -232,7 +232,6 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
-        , Ports.onTodoListChanged OnTodoListChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         ]
 

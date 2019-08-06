@@ -18,7 +18,6 @@ const fire = Fire()
 
 const pubs = initPubs({
   onAuthStateChanged: identity,
-  onTodoListChanged: identity,
   onFirestoreQueryResponse: identity,
 })
 
