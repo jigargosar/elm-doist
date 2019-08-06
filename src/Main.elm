@@ -4,8 +4,6 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
-import Dict exposing (Dict)
-import Dict.Extra
 import HasErrors
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, disabled, tabindex)
