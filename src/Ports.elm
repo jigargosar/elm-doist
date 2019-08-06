@@ -39,7 +39,7 @@ port changeTodoTitle : String -> Cmd msg
 
 port queryFirestore :
     { id : String
-    , collectionName : String
+    , userCollectionName : String
     , limit : Int
     }
     -> Cmd msg

@@ -73,6 +73,10 @@ init encodedFlags url key =
         |> andThen (updateFromEncodedFlags encodedFlags)
 
 
+queryTodoListCmd =
+    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 5 }
+
+
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
