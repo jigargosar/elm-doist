@@ -121,7 +121,7 @@ update message model =
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack updateDecodeError setAndCacheTodo
+                |> Result.Extra.unpack updateDecodeError setAndCacheTodoList
                 |> callWith model
 
         OnSignInClicked ->
@@ -143,19 +143,19 @@ updateFromEncodedFlags encodedFlags model =
 
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
-    setTodoDictFromList flags.todoList model
+    setTodoList flags.todoList model
         |> setAuthState flags.cachedAuthState
         |> pure
 
 
-setTodoDictFromList : TodoList -> Model -> Model
-setTodoDictFromList todoList model =
+setTodoList : TodoList -> Model -> Model
+setTodoList todoList model =
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
 
 
-setAndCacheTodo : TodoList -> Model -> Return
-setAndCacheTodo todoList model =
-    setTodoDictFromList todoList model
+setAndCacheTodoList : TodoList -> Model -> Return
+setAndCacheTodoList todoList model =
+    setTodoList todoList model
         |> pure
         |> command
             (Ports.localStorageSetJsonItem
