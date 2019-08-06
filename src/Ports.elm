@@ -3,6 +3,7 @@ port module Ports exposing
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
+    , onFirestoreQueryResponse
     , onTodoListChanged
     , persistTodoList
     , queryFirestore
@@ -43,3 +44,8 @@ port queryFirestore :
     , limit : Int
     }
     -> Cmd msg
+
+
+port onFirestoreQueryResponse :
+    ({ id : String, docDataList : List Value } -> msg)
+    -> Sub msg
