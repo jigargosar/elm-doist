@@ -1,6 +1,7 @@
 port module Ports exposing
     ( FirestoreQueryResponse
     , changeTodoTitle
+    , deleteFirestoreDoc
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
@@ -49,6 +50,9 @@ port queryFirestore :
 
 
 port updateFirestoreDoc : { userDocPath : String, data : Value } -> Cmd msg
+
+
+port deleteFirestoreDoc : { userDocPath : String } -> Cmd msg
 
 
 type alias FirestoreQueryResponse =

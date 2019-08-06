@@ -85,6 +85,7 @@ type Msg
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
     | OnChecked TodoId Bool
+    | OnDelete TodoId
     | PatchTodo TodoId Todo.Msg Millis
 
 
@@ -151,6 +152,9 @@ update message model =
 
         OnChecked todoId checked ->
             ( model, patchTodoCmd todoId (Todo.SetCompleted checked) )
+
+        OnDelete todoId ->
+            ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId } )
 
         PatchTodo todoId todoMsg now ->
             ( model
@@ -291,7 +295,12 @@ viewTodoItem todo =
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
-        , div [ class "flex items-center" ] [ button [] [ text "X" ] ]
+        , div [ class "flex items-center" ]
+            [ button
+                [ onClick (OnDelete todo.id)
+                ]
+                [ text "X" ]
+            ]
         ]
 
 
