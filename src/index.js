@@ -36,6 +36,7 @@ initSubs({
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
   changeTodoTitle: async todoId => {
+    const faker = await import('faker')
     const todoCRef = fire.userCRef('todos')
     await todoCRef
       .doc(todoId)
