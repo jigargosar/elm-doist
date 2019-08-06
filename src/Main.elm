@@ -6,7 +6,7 @@ import Browser
 import Browser.Navigation as Nav
 import HasErrors
 import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (class, disabled, style, tabindex, type_)
+import Html.Attributes exposing (checked, class, disabled, style, tabindex, type_)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -284,6 +284,7 @@ viewTodoList displayList =
                     [ input
                         [ class "pointer db flex-grow-1"
                         , type_ "checkbox"
+                        , checked todo.isDone
                         ]
                         []
                     ]
