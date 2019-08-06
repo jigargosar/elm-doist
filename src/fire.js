@@ -62,7 +62,7 @@ export function Fire() {
       const uid = auth.currentUser.uid
       invariant(userDocPath.trim().length > 0)
       invariant(uid.trim().length > 0)
-      return db.collection(`users/${uid}/${userDocPath}`)
+      return db.doc(`users/${uid}/${userDocPath}`)
     },
     addDisposerWithId(id, disposer) {
       const prevDisposer = namedDisposables[id]

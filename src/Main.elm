@@ -162,7 +162,8 @@ update message model =
                                 }
                             )
             in
-            setTodoList newTodoList model
+            --            setTodoList newTodoList model
+            model
                 |> pure
                 |> command
                     (Ports.updateFirestoreDoc
