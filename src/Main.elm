@@ -174,7 +174,7 @@ setAuthState authState model =
 updateAuthState : AuthState -> Model -> Return
 updateAuthState authState model =
     let
-        _ =
+        cmd =
             case authState of
                 AuthState.Unknown ->
                     Cmd.none
@@ -187,6 +187,7 @@ updateAuthState authState model =
     in
     setAuthState authState model
         |> pure
+        |> command cmd
         |> command
             (Ports.localStorageSetJsonItem
                 ( "cachedAuthState", AuthState.encoder authState )

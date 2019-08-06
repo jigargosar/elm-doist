@@ -21,6 +21,7 @@ const fire = Fire()
 const pubs = initPubs({
   onAuthStateChanged: identity,
   onTodoListChanged: identity,
+  onFirestoreQueryResponse: identity
 })
 
 fire.onAuthStateChanged(user => {
@@ -61,8 +62,14 @@ initSubs({
     await Promise.all(ps)
   },
   queryFirestore: async (options)=>{
+
     const cRef = fire.userCRef(options.userCollectionName)
-    fire.addDisposerWithId(options.id, cRef.limit(options.limit).onSnapshot(console.log))
+    fire.addDisposerWithId(options.id, cRef.limit(options.limit)
+      .onSnapshot(qs=>{
+        // console.log(options.userCollectionName,"qs:",qs)
+        const docDataList = qs.docs.map(ds=>ds.data())
+        pubs.onFirestoreQueryResponse({id:options.id, docDataList})
+    }))
   },
   disposeFirestoreQuery: (id)=>{
     fire.disposeNamed(id)
