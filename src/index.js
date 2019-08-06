@@ -10,7 +10,9 @@ import { mapObjIndexed, identity, propOr } from 'ramda'
 
 const app = Elm.Main.init({
   flags: {
-    cachedTodoList: JSON.parse(localStorage.getItem('cachedTodoList') || 'null'),
+    cachedTodoList: JSON.parse(
+      localStorage.getItem('cachedTodoList') || 'null',
+    ),
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),
@@ -21,7 +23,7 @@ const fire = Fire()
 const pubs = initPubs({
   onAuthStateChanged: identity,
   onTodoListChanged: identity,
-  onFirestoreQueryResponse: identity
+  onFirestoreQueryResponse: identity,
 })
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
@@ -46,18 +48,21 @@ initSubs({
     })
     await Promise.all(ps)
   },
-  queryFirestore: async (options)=>{
+  queryFirestore: async options => {
     const cRef = fire.userCRef(options.userCollectionName)
-    fire.addDisposerWithId(options.id, cRef.limit(options.limit)
-      .onSnapshot(qs=>{
-        // console.log(options.userCollectionName,"qs:",qs)
-        const docDataList = qs.docs.map(ds=>ds.data())
-        pubs.onFirestoreQueryResponse({id:options.id, docDataList})
-    }))
+    fire.addDisposerWithId(
+      options.id,
+      cRef.limit(options.limit).onSnapshot(qs => {
+        const docDataList = qs.docs.map(ds => ds.data())
+        const response = { id: options.id, docDataList }
+        console.log('FSQueryResponse:', response)
+        pubs.onFirestoreQueryResponse(response)
+      }),
+    )
   },
-  disposeFirestoreQuery: (id)=>{
+  disposeFirestoreQuery: id => {
     fire.disposeNamed(id)
-  }
+  },
 })
 
 function initSubs(subs) {
@@ -70,10 +75,10 @@ function initSubs(subs) {
     console.log('Subscribe: Port Handler Attached', portName)
     subscribe(listener)
   })(subs)
-  const ports = propOr({}, "ports")(app)
-  forEachObjIndexed((port, portName) =>{
-    if(port.subscribe && !subs[portName]){
-      console.warn("Subscribe: Port Handler Missing", portName)
+  const ports = propOr({}, 'ports')(app)
+  forEachObjIndexed((port, portName) => {
+    if (port.subscribe && !subs[portName]) {
+      console.warn('Subscribe: Port Handler Missing', portName)
     }
   })(ports)
 }
