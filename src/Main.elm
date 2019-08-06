@@ -121,7 +121,7 @@ update message model =
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack updateDecodeError setAndCacheTodoDictFromList
+                |> Result.Extra.unpack updateDecodeError setAndCacheTodo
                 |> callWith model
 
         OnSignInClicked ->
@@ -153,8 +153,8 @@ setTodoDictFromList todoList model =
     { model | todoDict = Dict.Extra.fromListBy .id todoList }
 
 
-setAndCacheTodoDictFromList : TodoList -> Model -> Return
-setAndCacheTodoDictFromList todoList model =
+setAndCacheTodo : TodoList -> Model -> Return
+setAndCacheTodo todoList model =
     setTodoDictFromList todoList model
         |> pure
         |> command
