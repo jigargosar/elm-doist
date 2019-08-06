@@ -15,6 +15,7 @@ module Todo exposing
     , matchesFilter
     , modify
     , modifyPatch
+    , new
     , patch
     )
 
@@ -69,6 +70,19 @@ type Msg
     | SetProjectId ProjectId
     | SetTitle String
     | SetSortIdx Int
+
+
+new : Millis -> Value
+new now =
+    { id = ""
+    , title = ""
+    , sortIdx = 0
+    , projectId = ProjectId.default
+    , isDone = False
+    , createdAt = now
+    , modifiedAt = now
+    }
+        |> encoder
 
 
 patch : Msg -> ( String, Value )

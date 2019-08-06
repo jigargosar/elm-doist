@@ -87,6 +87,8 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId Todo.Msg Millis
+    | OnAddTodo
+    | AddTodo Millis
 
 
 
@@ -161,6 +163,17 @@ update message model =
             , Ports.updateFirestoreDoc
                 { userDocPath = "todos/" ++ todoId
                 , data = JE.object (Todo.modifyPatch todoMsg now)
+                }
+            )
+
+        OnAddTodo ->
+            ( model, Now.perform AddTodo )
+
+        AddTodo now ->
+            ( model
+            , Ports.addFirestoreDoc
+                { userCollectionName = "todos"
+                , data = Todo.new now
                 }
             )
 

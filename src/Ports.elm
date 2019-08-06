@@ -1,5 +1,6 @@
 port module Ports exposing
     ( FirestoreQueryResponse
+    , addFirestoreDoc
     , changeTodoTitle
     , deleteFirestoreDoc
     , localStorageSetJsonItem
@@ -53,6 +54,9 @@ port updateFirestoreDoc : { userDocPath : String, data : Value } -> Cmd msg
 
 
 port deleteFirestoreDoc : { userDocPath : String } -> Cmd msg
+
+
+port addFirestoreDoc : { userCollectionName : String, data : Value } -> Cmd msg
 
 
 type alias FirestoreQueryResponse =
