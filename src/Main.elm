@@ -263,30 +263,7 @@ view model =
     { title = "ElmDoist"
     , body =
         [ div []
-            [ div [ onClick NoOp ] [ text "ElmDOist" ]
-            , div [ class "pa3 flex hs3" ]
-                [ div [ class "b" ] [ text "AuthState:" ]
-                , AuthState.view model.authState
-                ]
-            , div [ class "pa3 flex hs3" ]
-                [ div [ class "b" ] [ text "Errors:" ]
-                , HasErrors.view model.errors
-                ]
-            , div [ class "pa3 flex items-center hs3" ]
-                [ div [ class "b" ] [ text "User:" ]
-                , case model.authState of
-                    AuthState.Unknown ->
-                        button [ disabled True ] [ text "SignIn" ]
-
-                    AuthState.SignedIn user ->
-                        div [ class "flex items-center hs3 " ]
-                            [ div [] [ text user.displayName ]
-                            , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
-                            ]
-
-                    AuthState.NotSignedIn ->
-                        button [ onClick OnSignInClicked ] [ text "SignIn" ]
-                ]
+            [ viewHeader model
             , div [ class "pa3 vs3" ]
                 [ div [ class "flex items-center hs3" ]
                     [ div [ class "b" ] [ text "TodoList:" ]
@@ -297,6 +274,36 @@ view model =
             ]
         ]
     }
+
+
+viewHeader : Model -> Html Msg
+viewHeader model =
+    div []
+        [ div [ onClick NoOp ] [ text "ElmDOist" ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "b" ] [ text "AuthState:" ]
+            , AuthState.view model.authState
+            ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "b" ] [ text "Errors:" ]
+            , HasErrors.view model.errors
+            ]
+        , div [ class "pa3 flex items-center hs3" ]
+            [ div [ class "b" ] [ text "User:" ]
+            , case model.authState of
+                AuthState.Unknown ->
+                    button [ disabled True ] [ text "SignIn" ]
+
+                AuthState.SignedIn user ->
+                    div [ class "flex items-center hs3 " ]
+                        [ div [] [ text user.displayName ]
+                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        ]
+
+                AuthState.NotSignedIn ->
+                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            ]
+        ]
 
 
 viewTodoList : Route -> List Todo -> Html Msg
