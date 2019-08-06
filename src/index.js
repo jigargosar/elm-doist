@@ -53,7 +53,8 @@ initSubs({
     fire.addDisposerWithId(
       options.id,
       cRef
-        .orderBy('createdAt', 'desc')
+        .orderBy('id', 'asc')
+        // .orderBy('modifiedAt', 'desc')
         .limit(options.limit)
         .onSnapshot(qs => {
           const docDataList = qs.docs.map(ds => ds.data())

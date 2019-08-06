@@ -74,7 +74,7 @@ init encodedFlags url key =
 
 
 queryTodoListCmd =
-    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 5 }
+    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 1000 }
 
 
 type Msg
