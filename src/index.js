@@ -52,12 +52,15 @@ initSubs({
     const cRef = fire.userCRef(options.userCollectionName)
     fire.addDisposerWithId(
       options.id,
-      cRef.limit(options.limit).onSnapshot(qs => {
-        const docDataList = qs.docs.map(ds => ds.data())
-        const response = { id: options.id, docDataList }
-        console.log('FSQueryResponse:', response)
-        pubs.onFirestoreQueryResponse(response)
-      }),
+      cRef
+        .orderBy('createdAt', 'desc')
+        .limit(options.limit)
+        .onSnapshot(qs => {
+          const docDataList = qs.docs.map(ds => ds.data())
+          const response = { id: options.id, docDataList }
+          console.log('FSQueryResponse:', response)
+          pubs.onFirestoreQueryResponse(response)
+        }),
     )
   },
   disposeFirestoreQuery: id => {
