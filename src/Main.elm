@@ -233,6 +233,7 @@ updateFromEncodedFlags encodedFlags model =
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
     setTodoList flags.cachedTodoList model
+        |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
         |> pure
 
