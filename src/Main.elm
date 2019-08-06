@@ -8,12 +8,14 @@ import HasErrors
 import Html exposing (Html, button, div, input, text)
 import Html.Attributes exposing (checked, class, disabled, tabindex, type_)
 import Html.Events exposing (onClick)
+import HtmlExtra
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import KeyEvent
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
+import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
@@ -29,6 +31,7 @@ type alias Error =
 
 type alias Model =
     { todoList : TodoList
+    , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
     , key : Nav.Key
@@ -42,6 +45,7 @@ type alias Return =
 
 type alias Flags =
     { cachedTodoList : TodoList
+    , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
     }
 
@@ -50,6 +54,7 @@ flagsDecoder : Decoder Flags
 flagsDecoder =
     JD.succeed Flags
         |> JDP.required "cachedTodoList" (JD.oneOf [ Todo.listDecoder, JD.null [] ])
+        |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
         |> JDP.required "cachedAuthState"
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
 
@@ -63,6 +68,7 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
+            , projectList = []
             , authState = AuthState.initial
             , errors = []
             , key = key
@@ -324,7 +330,16 @@ viewHeader model =
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
             ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "b" ] [ text "Projects:" ]
+            , viewNavProjects model.projectList
+            ]
         ]
+
+
+viewNavProjects : ProjectList -> Html msg
+viewNavProjects projectList =
+    HtmlExtra.empty
 
 
 viewTodoList : List Todo -> Html Msg
