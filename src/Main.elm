@@ -6,13 +6,12 @@ import Browser
 import Browser.Navigation as Nav
 import HasErrors
 import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (checked, class, disabled, style, tabindex, type_)
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (checked, class, disabled, tabindex, type_)
+import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import KeyEvent
-import List.Extra
 import Ports exposing (FirestoreQueryResponse)
 import Result.Extra
 import Return
