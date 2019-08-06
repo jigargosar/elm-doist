@@ -69,13 +69,13 @@ function initSubs(subs) {
       console.warn('Subscribe: Port Not Found:', portName)
       return
     }
-    console.log('Subscription Port Attached', portName)
+    console.log('Subscribe: Port Handler Attached', portName)
     subscribe(listener)
   })(subs)
   const ports = propOr({}, "ports")(app)
   forEachObjIndexed((port, portName) =>{
     if(port.subscribe && !subs[portName]){
-      console.warn("Subscription Port Handler Missing", portName)
+      console.warn("Subscribe: Port Handler Missing", portName)
     }
   })(ports)
 }
