@@ -4,6 +4,7 @@ module Project exposing
     , decoder
     , encoder
     , listDecoder
+    , listEncoder
     , new
     , setModifiedAt
     )
@@ -67,3 +68,8 @@ new now =
 
 setModifiedAt now todo =
     { todo | modifiedAt = now }
+
+
+listEncoder : ProjectList -> Value
+listEncoder =
+    JE.list encoder

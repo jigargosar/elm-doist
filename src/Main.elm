@@ -156,6 +156,13 @@ update message model =
                         |> Result.Extra.unpack updateDecodeError setAndCacheTodoList
                         |> callWith model
 
+                "projectList" ->
+                    qs.docDataList
+                        |> List.map (JD.decodeValue Project.decoder)
+                        |> Result.Extra.combine
+                        |> Result.Extra.unpack updateDecodeError setAndCacheProjectList
+                        |> callWith model
+
                 _ ->
                     HasErrors.prependString ("Invalid QueryId" ++ qs.id) model
                         |> pure
@@ -242,6 +249,21 @@ setAndCacheTodoList todoList model =
         |> command
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
+            )
+
+
+setProjectList : ProjectList -> Model -> Model
+setProjectList projectList model =
+    { model | projectList = projectList }
+
+
+setAndCacheProjectList : ProjectList -> Model -> Return
+setAndCacheProjectList projectList model =
+    setProjectList projectList model
+        |> pure
+        |> command
+            (Ports.localStorageSetJsonItem
+                ( "cachedProjectList", Project.listEncoder projectList )
             )
 
 
@@ -365,7 +387,13 @@ viewHeader model =
 
 viewNavProjects : ProjectList -> Html msg
 viewNavProjects projectList =
-    HtmlExtra.empty
+    div [ class "vs1" ] (List.map viewProjectNavItem projectList)
+
+
+viewProjectNavItem project =
+    div [ class "pa2" ]
+        [ div [] [ text project.title ]
+        ]
 
 
 viewTodoList : List Todo -> Html Msg

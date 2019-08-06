@@ -10,14 +10,18 @@ import {
   path,
 } from 'ramda'
 
+const cachedProjectList = JSON.parse(
+  localStorage.getItem('cachedProjectList') || 'null',
+)
+
+console.log('cachedProjectList',cachedProjectList)
+
 const app = Elm.Main.init({
   flags: {
     cachedTodoList: JSON.parse(
       localStorage.getItem('cachedTodoList') || 'null',
     ),
-    cachedProjectList: JSON.parse(
-      localStorage.getItem('cachedProjectList') || 'null',
-    ),
+    cachedProjectList: cachedProjectList,
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),
