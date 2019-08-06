@@ -5,8 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import HasErrors
-import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, disabled, tabindex)
+import Html exposing (Html, button, div, input, text)
+import Html.Attributes exposing (class, disabled, style, tabindex, type_)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -277,11 +277,18 @@ viewTodoList displayList =
                     displayTitle todo
             in
             div
-                [ class "flex lh-copy pa2 db hover-bg-light-yellow"
+                [ class "flex hs1 lh-copy db hover-bg-light-yellow"
                 , tabindex 0
                 ]
-                [ div
-                    [ class (cls ++ " " ++ "flex-grow-1 pointer lh-solid ")
+                [ div [ class "flex flex-column pa2" ]
+                    [ input
+                        [ class "db flex-grow-1"
+                        , type_ "checkbox"
+                        ]
+                        []
+                    ]
+                , div
+                    [ class (cls ++ " " ++ "flex-grow-1 pointer lh-solid pa2")
                     , onClick (OnChangeTitleRequested todo.id)
                     , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
                     ]
