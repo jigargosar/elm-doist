@@ -12,7 +12,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
 import KeyEvent
-import Ports
+import Ports exposing (FirestoreQueryResponse)
 import Result.Extra
 import Return
 import Route exposing (Route)
@@ -83,6 +83,7 @@ type Msg
     | UrlChanged Url
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
+    | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
@@ -135,6 +136,19 @@ update message model =
 
         OnChangeTitleRequested todoId ->
             ( model, Ports.changeTodoTitle todoId )
+
+        OnFirestoreQueryResponse qs ->
+            case qs.id of
+                "todoList" ->
+                    qs.docDataList
+                        |> List.map (JD.decodeValue Todo.decoder)
+                        |> Result.Extra.combine
+                        |> Result.Extra.unpack updateDecodeError setAndCacheTodoList
+                        |> callWith model
+
+                _ ->
+                    HasErrors.prependErrorString ("Invalid QueryId" ++ qs.id) model
+                        |> pure
 
 
 updateFromEncodedFlags : Value -> Model -> Return
@@ -205,6 +219,7 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onTodoListChanged OnTodoListChanged
+        , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         ]
 
 

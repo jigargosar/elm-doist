@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( changeTodoTitle
+    ( FirestoreQueryResponse
+    , changeTodoTitle
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
@@ -46,6 +47,10 @@ port queryFirestore :
     -> Cmd msg
 
 
+type alias FirestoreQueryResponse =
+    { id : String, docDataList : List Value }
+
+
 port onFirestoreQueryResponse :
-    ({ id : String, docDataList : List Value } -> msg)
+    (FirestoreQueryResponse -> msg)
     -> Sub msg
