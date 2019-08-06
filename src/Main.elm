@@ -272,7 +272,8 @@ viewRoute route model =
         Route.Inbox ->
             let
                 displayTodoList =
-                    Todo.filterSort Todo.Pending
+                    Todo.filterSort
+                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                         [ Todo.ByIdx ]
                         model.todoList
             in
