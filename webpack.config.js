@@ -28,6 +28,7 @@ module.exports = {
             loader: 'elm-webpack-loader',
             options: {
               // report: 'json'
+              optimize:isProduction
             },
           },
         ],
