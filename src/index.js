@@ -63,7 +63,9 @@ initSubs({
         .onSnapshot(qs => {
           const docDataList = qs.docs.map(ds => ds.data())
           const response = { id: options.id, docDataList }
-          console.log('FSQueryResponse:', response)
+          console.groupCollapsed('onFirestoreQueryResponse', options)
+          console.log(docDataList)
+          console.groupEnd()
           pubs.onFirestoreQueryResponse(response)
         }),
     )
@@ -91,7 +93,6 @@ initSubs({
       { id: docRef.id },
       options.data.title === '' ? { title: faker.hacker.phrase() } : {},
     )
-
     return docRef.set(data)
   },
 })
@@ -103,7 +104,7 @@ function initSubs(subs) {
       console.warn('Subscribe: Port Not Found:', portName)
       return
     }
-    console.log('Subscribe: Port Handler Attached', portName)
+    console.debug('Subscribe: Port Handler Attached', portName)
     subscribe(listener)
   })(subs)
   const ports = propOr({}, 'ports')(app)
