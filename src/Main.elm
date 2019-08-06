@@ -376,7 +376,7 @@ viewHeader model =
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
             ]
-        , div [ class "pa3 flex hs3" ]
+        , div [ class "pa3 hs3" ]
             [ div [ class "flex hs3" ]
                 [ div [ class "b" ] [ text "Projects:" ]
                 , button [ onClick OnAddProject ] [ text "New Project" ]
