@@ -8,10 +8,10 @@ const isProduction = NODE_ENV === 'production'
 // console.log('NODE_ENV', NODE_ENV)
 
 // https://webpack.js.org/configuration/
-const mode = isProduction ? 'production' : 'development'
+// const mode = isProduction ? 'production' : 'development'
 // console.log('mode', mode)
 module.exports = {
-  mode: mode,
+  // mode: mode,
   entry: './src/index.js',
   output: {
     publicPath: '/',
@@ -61,7 +61,7 @@ module.exports = {
     modules: false,
   },
   // devtool: isProduction ? 'source-map' : 'eval-source-map',
-  devtool: isProduction ? 'source-map' : false,
+  // devtool: isProduction ? 'source-map' : false,
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
     // Custom Reload Trigger
