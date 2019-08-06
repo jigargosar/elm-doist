@@ -2,7 +2,13 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-import { mapObjIndexed, identity, propOr,forEachObjIndexed, path } from 'ramda'
+import {
+  mapObjIndexed,
+  identity,
+  propOr,
+  forEachObjIndexed,
+  path,
+} from 'ramda'
 
 const app = Elm.Main.init({
   flags: {
@@ -63,14 +69,29 @@ initSubs({
   // disposeFirestoreQuery: id => {
   //   fire.disposeNamed(id)
   // },
-  updateFirestoreDoc:options=>{
+  updateFirestoreDoc: options => {
     const doc = fire.userDocRef(options.userDocPath)
     return doc.update(options.data)
   },
-  deleteFirestoreDoc:options =>{
+  deleteFirestoreDoc: options => {
     const doc = fire.userDocRef(options.userDocPath)
     return doc.delete()
-  }
+  },
+  addFirestoreDoc: async options => {
+    const faker = await import('faker')
+    const cRef = fire.userCRef(options.userCollectionName)
+
+    const docRef = cRef.doc()
+
+    const data = Object.assign(
+      {},
+      options.data,
+      { id: docRef.id },
+      options.data.title === '' ? { title: faker.hacker.phrase() } : {},
+    )
+
+    return docRef.set(data)
+  },
 })
 
 function initSubs(subs) {

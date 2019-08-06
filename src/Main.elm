@@ -288,7 +288,10 @@ view model =
                         button [ onClick OnSignInClicked ] [ text "SignIn" ]
                 ]
             , div [ class "pa3 vs3" ]
-                [ div [ class "b" ] [ text "TodoList:" ]
+                [ div [ class "flex items-center hs3" ]
+                    [ div [ class "b" ] [ text "TodoList:" ]
+                    , button [ onClick OnAddTodo ] [ text "ADD" ]
+                    ]
                 , viewTodoList model.todoList
                 ]
             ]
