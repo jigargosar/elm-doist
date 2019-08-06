@@ -260,20 +260,40 @@ subscriptions _ =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "ElmDoist"
-    , body =
-        [ div []
-            [ viewHeader model
-            , div [ class "pa3 vs3" ]
-                [ div [ class "flex items-center hs3" ]
-                    [ div [ class "b" ] [ text "TodoList:" ]
-                    , button [ onClick OnAddTodo ] [ text "ADD" ]
+    viewRoute model.route model
+
+
+viewRoute : Route -> Model -> Browser.Document Msg
+viewRoute route model =
+    case route of
+        Route.Default ->
+            viewRoute Route.Inbox model
+
+        Route.Inbox ->
+            let
+                displayTodoList =
+                    Todo.filterSort Todo.Pending
+                        [ Todo.ByIdx ]
+                        model.todoList
+            in
+            { title = "Inbox"
+            , body =
+                [ viewHeader model
+                , div [ class "pa3 vs3" ]
+                    [ div [ class "flex items-center hs3" ]
+                        [ div [ class "b" ] [ text "Inbox" ]
+                        , button [ onClick OnAddTodo ] [ text "ADD" ]
+                        ]
+                    , viewTodoList displayTodoList
                     ]
-                , viewTodoList model.route model.todoList
                 ]
-            ]
-        ]
-    }
+            }
+
+        Route.Project string ->
+            viewRoute Route.Default model
+
+        Route.NotFound url ->
+            viewRoute Route.Default model
 
 
 viewHeader : Model -> Html Msg
@@ -306,8 +326,8 @@ viewHeader model =
         ]
 
 
-viewTodoList : Route -> List Todo -> Html Msg
-viewTodoList _ todoList =
+viewTodoList : List Todo -> Html Msg
+viewTodoList todoList =
     div [ class "vs1" ] (List.map viewTodoItem todoList)
 
 
