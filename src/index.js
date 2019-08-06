@@ -15,6 +15,9 @@ const app = Elm.Main.init({
     cachedTodoList: JSON.parse(
       localStorage.getItem('cachedTodoList') || 'null',
     ),
+    cachedProjectList: JSON.parse(
+      localStorage.getItem('cachedProjectList') || 'null',
+    ),
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),
