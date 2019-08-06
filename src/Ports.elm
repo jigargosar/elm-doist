@@ -5,6 +5,7 @@ port module Ports exposing
     , onAuthStateChanged
     , onTodoListChanged
     , persistTodoList
+    , queryFirestore
     , signIn
     , signOut
     )
@@ -34,3 +35,11 @@ port persistTodoList : Value -> Cmd msg
 
 
 port changeTodoTitle : String -> Cmd msg
+
+
+port queryFirestore :
+    { id : String
+    , collectionName : String
+    , limit : Int
+    }
+    -> Cmd msg
