@@ -277,18 +277,22 @@ viewTodoList displayList =
                     displayTitle todo
             in
             div
-                [ class "flex hs1 lh-copy db hover-bg-light-yellow"
+                [ class "flex hs1 lh-copy db "
                 , tabindex 0
                 ]
-                [ div [ class "flex flex-column pa2" ]
+                [ div [ class "pointer hover-bg-light-yellow flex flex-column pa2" ]
                     [ input
-                        [ class "db flex-grow-1"
+                        [ class "pointer db flex-grow-1"
                         , type_ "checkbox"
                         ]
                         []
                     ]
                 , div
-                    [ class (cls ++ " " ++ "flex-grow-1 pointer lh-solid pa2")
+                    [ class
+                        (cls
+                            ++ " "
+                            ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
+                        )
                     , onClick (OnChangeTitleRequested todo.id)
                     , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
                     ]
