@@ -24,22 +24,7 @@ const pubs = initPubs({
   onFirestoreQueryResponse: identity
 })
 
-fire.onAuthStateChanged(user => {
-  pubs.onAuthStateChanged(user)
-  if (user) {
-    console.debug(user)
-
-    const todoCRef = fire.userCRef('todos')
-    fire.disposeOnAuthChange(
-      todoCRef.onSnapshot(qs => {
-        const todoDataList = qs.docs.map(ds => ds.data())
-        console.log('todoCRef.onSnapshot', todoDataList)
-        pubs.onTodoListChanged(todoDataList)
-      }),
-    )
-  } else {
-  }
-})
+fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
 initSubs({
   localStorageSetJsonItem: ([k, v]) => {
@@ -62,7 +47,6 @@ initSubs({
     await Promise.all(ps)
   },
   queryFirestore: async (options)=>{
-
     const cRef = fire.userCRef(options.userCollectionName)
     fire.addDisposerWithId(options.id, cRef.limit(options.limit)
       .onSnapshot(qs=>{
