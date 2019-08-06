@@ -31,7 +31,9 @@ fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
 initSubs({
   localStorageSetJsonItem: ([k, v]) => {
-    console.log('localStorageSetJsonItem', k, v)
+    console.groupCollapsed('localStorageSetJsonItem',k)
+    console.log(v)
+    console.groupEnd()
     localStorage.setItem(k, JSON.stringify(v))
   },
   signIn: () => fire.signIn(),
