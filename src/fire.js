@@ -32,6 +32,7 @@ export function Fire() {
   const auth = firebase.auth()
   const db = firebase.firestore()
   const authChangeDisposables = Disposables()
+  const namedDisposables = {}
 
   auth.onAuthStateChanged(user => {
     authChangeDisposables.dispose()
@@ -57,5 +58,19 @@ export function Fire() {
       invariant(uid.trim().length > 0)
       return db.collection(`users/${uid}/${name}`)
     },
+    addDisposerWithId(id, disposer) {
+      const prevDisposer = namedDisposables[id]
+      if(prevDisposer){
+        prevDisposer()
+      }
+      namedDisposables[id] = disposer
+    },
+    disposeNamed(id){
+      const prevDisposer = namedDisposables[id]
+      if(prevDisposer){
+        prevDisposer()
+        delete namedDisposables[id]
+      }
+    }
   }
 }

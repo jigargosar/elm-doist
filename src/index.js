@@ -60,6 +60,13 @@ initSubs({
     })
     await Promise.all(ps)
   },
+  queryFirestore: async (options)=>{
+    const cRef = fire.userCRef(options.userCollectionName)
+    fire.addDisposerWithId(options.id, cRef.limit(options.limit).onSnapshot(console.log))
+  },
+  disposeFirestoreQuery: (id)=>{
+    fire.disposeNamed(id)
+  }
 })
 
 function initSubs(subs) {
