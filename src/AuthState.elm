@@ -47,7 +47,20 @@ initial =
 
 view : AuthState -> Html msg
 view model =
-    div [] [ text (Debug.toString model) ]
+    div [] [ text (toDebugString model) ]
+
+
+toDebugString : AuthState -> String
+toDebugString model =
+    case model of
+        Unknown ->
+            "Unknown"
+
+        SignedIn user ->
+            "SignedIn"
+
+        NotSignedIn ->
+            "NotSignedIn"
 
 
 decoder : Decoder AuthState
