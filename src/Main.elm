@@ -291,6 +291,7 @@ viewTodoItem todo =
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
+        , div [ class "flex items-center" ] [ button [] [ text "X" ] ]
         ]
 
 
