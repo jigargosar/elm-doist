@@ -5,11 +5,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const NODE_ENV = process.env.NODE_ENV
 const isProduction = NODE_ENV === 'production'
 
-console.log('NODE_ENV', NODE_ENV)
+// console.log('NODE_ENV', NODE_ENV)
 
 // https://webpack.js.org/configuration/
 const mode = isProduction ? 'production' : 'development'
-console.log('mode', mode)
+// console.log('mode', mode)
 module.exports = {
   mode: mode,
   entry: './src/index.js',
@@ -87,11 +87,5 @@ module.exports = {
     },
     hot: false,
     // hotOnly: true,
-  },
-  optimization: {
-    splitChunks: {
-      // include all types of chunks
-      chunks: 'all'
-    }
   },
 }
