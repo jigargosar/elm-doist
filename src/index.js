@@ -2,6 +2,7 @@ import forEachObjIndexed from 'ramda/es/forEachObjIndexed'
 import path from 'ramda/es/path'
 import './index.css'
 import { Elm } from './Main.elm'
+// import { Elm } from './elm.min'
 import { Fire } from './fire'
 
 
