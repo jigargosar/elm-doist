@@ -149,20 +149,6 @@ update message model =
                         |> pure
 
         OnChecked todoId checked ->
-            let
-                _ =
-                    Debug.log "inp" checked
-
-                newTodoList =
-                    model.todoList
-                        |> List.Extra.updateIf (.id >> (==) todoId)
-                            (\t ->
-                                { t
-                                    | isDone = checked
-                                }
-                            )
-            in
-            --            setTodoList newTodoList model
             model
                 |> pure
                 |> command
