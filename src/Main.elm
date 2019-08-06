@@ -73,10 +73,6 @@ init encodedFlags url key =
         |> andThen (updateFromEncodedFlags encodedFlags)
 
 
-queryTodoListCmd =
-    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 1000 }
-
-
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -149,6 +145,10 @@ update message model =
                 _ ->
                     HasErrors.prependErrorString ("Invalid QueryId" ++ qs.id) model
                         |> pure
+
+
+queryTodoListCmd =
+    Ports.queryFirestore { id = "todoList", userCollectionName = "todos", limit = 1000 }
 
 
 updateFromEncodedFlags : Value -> Model -> Return
