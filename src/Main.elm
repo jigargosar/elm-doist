@@ -281,45 +281,46 @@ view model =
 
 viewTodoList : List Todo -> Html Msg
 viewTodoList displayList =
-    let
-        displayTitle todo =
-            if String.trim todo.title |> String.isEmpty then
-                ( "<no title>", "i black-70" )
-
-            else
-                ( todo.title, "" )
-
-        viewTodoItem todo =
-            let
-                ( dt, cls ) =
-                    displayTitle todo
-            in
-            div
-                [ class "flex hs1 lh-copy db "
-                , tabindex 0
-                ]
-                [ div [ class "hover-bg-light-yellow flex flex-column pa2" ]
-                    [ input
-                        [ class "pointer db flex-grow-1"
-                        , type_ "checkbox"
-                        , checked todo.isDone
-                        , Html.Events.onCheck (OnChecked todo.id)
-                        ]
-                        []
-                    ]
-                , div
-                    [ class
-                        (cls
-                            ++ " "
-                            ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
-                        )
-                    , onClick (OnChangeTitleRequested todo.id)
-                    , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
-                    ]
-                    [ text dt ]
-                ]
-    in
     div [ class "vs1" ] (List.map viewTodoItem displayList)
+
+
+displayTitle todo =
+    if String.trim todo.title |> String.isEmpty then
+        ( "<no title>", "i black-70" )
+
+    else
+        ( todo.title, "" )
+
+
+viewTodoItem todo =
+    let
+        ( dt, cls ) =
+            displayTitle todo
+    in
+    div
+        [ class "flex hs1 lh-copy db "
+        , tabindex 0
+        ]
+        [ div [ class "hover-bg-light-yellow flex flex-column pa2" ]
+            [ input
+                [ class "pointer db flex-grow-1"
+                , type_ "checkbox"
+                , checked todo.isDone
+                , Html.Events.onCheck (OnChecked todo.id)
+                ]
+                []
+            ]
+        , div
+            [ class
+                (cls
+                    ++ " "
+                    ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
+                )
+            , onClick (OnChangeTitleRequested todo.id)
+            , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
+            ]
+            [ text dt ]
+        ]
 
 
 main : Program Value Model Msg
