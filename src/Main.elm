@@ -150,10 +150,7 @@ update message model =
                         |> pure
 
         OnChecked todoId checked ->
-            model
-                |> pure
-                |> command
-                    (patchTodoCmd todoId (Todo.SetCompleted checked))
+            ( model, patchTodoCmd todoId (Todo.SetCompleted checked) )
 
         PatchTodo todoId todoMsg now ->
             ( model
