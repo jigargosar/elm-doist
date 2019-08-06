@@ -23,15 +23,12 @@ import Json.Encode as JE exposing (Value)
 import List.Extra
 import Now exposing (Millis)
 import ProjectId exposing (ProjectId)
-import Todo exposing (Todo, TodoId, TodoList)
+import Todo exposing (Todo, TodoDict, TodoList)
+import TodoId exposing (TodoId)
 
 
 
 -- MODEL
-
-
-type alias TodoDict =
-    Dict TodoId Todo
 
 
 type alias TodoCollection =
