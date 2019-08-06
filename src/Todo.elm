@@ -14,6 +14,7 @@ module Todo exposing
     , listEncoder
     , matchesFilter
     , modify
+    , modifyPatch
     , patch
     )
 
@@ -84,6 +85,11 @@ patch msg =
 
         SetSortIdx sortIdx ->
             ( "sortIdx", JE.int sortIdx )
+
+
+modifyPatch : Msg -> Millis -> List ( String, Value )
+modifyPatch msg now =
+    patch msg :: [ ( "modifiedAt", JE.int now ) ]
 
 
 update : Msg -> Todo -> Todo

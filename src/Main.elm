@@ -154,9 +154,7 @@ update message model =
                     (Ports.updateFirestoreDoc
                         { userDocPath = "todos/" ++ todoId
                         , data =
-                            JE.object
-                                [ ( "isDone", JE.bool checked )
-                                ]
+                            JE.object [ Todo.patch (Todo.SetCompleted checked) ]
                         }
                     )
 
