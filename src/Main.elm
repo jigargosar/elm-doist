@@ -147,7 +147,7 @@ update message model =
                         |> callWith model
 
                 _ ->
-                    HasErrors.prependErrorString ("Invalid QueryId" ++ qs.id) model
+                    HasErrors.prependString ("Invalid QueryId" ++ qs.id) model
                         |> pure
 
         OnChecked todoId checked ->

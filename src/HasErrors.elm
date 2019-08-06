@@ -1,4 +1,4 @@
-module HasErrors exposing (Error, HasErrors, initial, prependDecodeError, prependErrorString, view)
+module HasErrors exposing (Error, HasErrors, initial, prependDecodeError, prependString, view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
@@ -18,14 +18,14 @@ initial =
     []
 
 
-prependErrorString : String -> HasErrors a -> HasErrors a
-prependErrorString error model =
+prependString : String -> HasErrors a -> HasErrors a
+prependString error model =
     { model | errors = error :: model.errors }
 
 
 prependDecodeError : JD.Error -> HasErrors a -> HasErrors a
 prependDecodeError error =
-    prependErrorString (JD.errorToString error)
+    prependString (JD.errorToString error)
 
 
 view : List Error -> Html msg
