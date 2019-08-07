@@ -31,7 +31,7 @@ type alias Error =
 type alias Model =
     { todoList : TodoList
     , displayTodoList : TodoList
-    , prevDisplayTodoList : TodoList
+    , newDisplayTodoList : TodoList
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -70,7 +70,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , displayTodoList = []
-            , prevDisplayTodoList = []
+            , newDisplayTodoList = []
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -265,8 +265,8 @@ updateDisplayTodoList model =
         newDisplayTodoList =
             computeDisplayTodoList model
     in
-    if model.displayTodoList /= newDisplayTodoList then
-        { model | displayTodoList = newDisplayTodoList }
+    if model.newDisplayTodoList /= newDisplayTodoList then
+        { model | newDisplayTodoList = newDisplayTodoList }
 
     else
         model
