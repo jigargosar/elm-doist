@@ -254,7 +254,7 @@ update message model =
 
 
 animTime =
-    5000
+    300
 
 
 updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
