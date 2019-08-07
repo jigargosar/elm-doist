@@ -4,10 +4,9 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
-import DisplayList exposing (DisplayList)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, disabled, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -18,10 +17,7 @@ import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
-import Set exposing (Set)
 import StyledKeyEvent
-import Task
-import Time
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, pure)
@@ -34,7 +30,6 @@ type alias Error =
 
 type alias Model =
     { todoList : TodoList
-    , todoDL : DisplayList Todo
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -72,7 +67,6 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
-            , todoDL = DisplayList.initial []
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -92,7 +86,6 @@ type Msg
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
-    | OnDisplayListMsg DisplayList.Msg
     | OnSignInClicked
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
@@ -215,9 +208,6 @@ update message model =
                 }
             )
 
-        OnDisplayListMsg msg ->
-            pure { model | todoDL = DisplayList.update msg model.todoDL }
-
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
@@ -256,7 +246,6 @@ updateFromFlags flags model =
 setTodoList : TodoList -> Model -> Model
 setTodoList todoList model =
     { model | todoList = todoList }
-        |> updateDisplayTodoList
 
 
 computeDisplayTodoList model =
@@ -264,14 +253,6 @@ computeDisplayTodoList model =
         (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
         [ Todo.ByIdx, Todo.ByRecentlyCreated ]
         model.todoList
-
-
-updateDisplayTodoList model =
-    let
-        newDisplayTodoList =
-            computeDisplayTodoList model
-    in
-    { model | todoDL = DisplayList.changeList newDisplayTodoList model.todoDL }
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
@@ -334,11 +315,10 @@ onDecodeError error model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , DisplayList.subscriptions model.todoDL |> Sub.map OnDisplayListMsg
         ]
 
 
@@ -372,17 +352,15 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList
-                        (model.todoDL |> DisplayList.removed .id)
-                        (model.todoDL |> DisplayList.toList)
+                    , viewTodoList (computeDisplayTodoList model)
                     ]
                 ]
             }
 
-        Route.Project string ->
+        Route.Project _ ->
             viewRoute Route.Default model
 
-        Route.NotFound url ->
+        Route.NotFound _ ->
             viewRoute Route.Default model
 
 
@@ -434,15 +412,15 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoList : Set TodoId -> List Todo -> Html Msg
-viewTodoList removed todoList =
-    div [ class "vs1" ] (List.map (\t -> viewTodoItem (Set.member t.id removed) t) todoList)
+viewTodoList : List Todo -> Html Msg
+viewTodoList todoList =
+    div [ class "vs1" ] (List.map (\t -> viewTodoItem t) todoList)
 
 
-viewTodoItem removed todo =
+viewTodoItem : Todo -> Html Msg
+viewTodoItem todo =
     div
         [ class "flex hs1 lh-copy db "
-        , classList [ ( "fade-out", removed ) ]
         , tabindex 0
         ]
         [ viewTodoCheck todo
