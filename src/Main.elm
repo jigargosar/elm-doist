@@ -264,7 +264,7 @@ update message model =
 
 
 animTime =
-    300
+    2000
 
 
 updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
@@ -615,6 +615,7 @@ viewTodoItem todoLI =
                             )
                         , style "overflow" "hidden"
                         , style "height" (String.fromFloat h ++ "px")
+                        , style "pointer-events" "none"
                         ]
 
                     _ ->
