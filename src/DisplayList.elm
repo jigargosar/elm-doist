@@ -1,4 +1,4 @@
-module DisplayList exposing (DisplayList, Msg, changeList, initial, subscriptions, update)
+module DisplayList exposing (DisplayList, Msg, changeList, initial, subscriptions, toList, update)
 
 import Now exposing (Millis)
 import Return
@@ -65,3 +65,13 @@ update msg model =
 
                         Nothing ->
                             Initial rec.to
+
+
+toList : DisplayList a -> List a
+toList model =
+    case model of
+        Initial l ->
+            l
+
+        Animating rec ->
+            rec.from

@@ -34,8 +34,6 @@ type alias Error =
 type alias Model =
     { todoList : TodoList
     , todoDL : DisplayList Todo
-    , displayTodoList : TodoList
-    , newDisplayTodoList : TodoList
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -74,8 +72,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , todoDL = DisplayList.initial []
-            , displayTodoList = []
-            , newDisplayTodoList = []
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -375,7 +371,7 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList model.displayTodoList
+                    , viewTodoList (model.todoDL |> DisplayList.toList)
                     ]
                 ]
             }
