@@ -367,7 +367,21 @@ updateTodoDL model =
                 (\( idx, tli ) acc ->
                     List.Extra.splitAt idx acc
                         |> (\( front, rear ) ->
-                                front ++ [ { tli | transit = Leaving 0 } ] ++ rear
+                                front
+                                    ++ [ { tli
+                                            | transit =
+                                                case tli.transit of
+                                                    Leaving _ ->
+                                                        tli.transit
+
+                                                    Entering _ ->
+                                                        Leaving 0
+
+                                                    Staying ->
+                                                        Leaving 0
+                                         }
+                                       ]
+                                    ++ rear
                            )
                 )
                 newTodoDL
