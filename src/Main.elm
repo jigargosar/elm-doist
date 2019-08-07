@@ -296,8 +296,8 @@ updateTodoDL model =
         |> effect updateTodoDLHeightEffect
 
 
-todoDLDomId : Todo -> String
-todoDLDomId todo =
+todoLIDomId : Todo -> String
+todoLIDomId todo =
     "todo-dl-" ++ todo.id
 
 
@@ -305,10 +305,16 @@ type alias DomError =
     Browser.Dom.Error
 
 
-updateTodoDLHeightEffect : { a | todoDL : List TodoLI } -> Cmd Msg
+updateTodoDLHeightEffect : Model -> Cmd Msg
 updateTodoDLHeightEffect model =
     model.todoDL
-        |> List.map (\tli -> tli.todo |> todoDLDomId |> Browser.Dom.getElement |> Task.map (Tuple.pair tli.todo.id))
+        |> List.map
+            (\tli ->
+                tli.todo
+                    |> todoLIDomId
+                    |> Browser.Dom.getElement
+                    |> Task.map (Tuple.pair tli.todo.id)
+            )
         |> Task.sequence
         |> Task.attempt OnTodoDLElements
 
@@ -490,7 +496,7 @@ viewTodoItem todoLI =
     div
         [ class "flex hs1 lh-copy db "
         , tabindex 0
-        , Html.Styled.Attributes.id (todoDLDomId todo)
+        , Html.Styled.Attributes.id (todoLIDomId todo)
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
