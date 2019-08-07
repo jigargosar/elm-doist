@@ -14,12 +14,14 @@ import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
+import List.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
+import Set exposing (Set)
 import StyledKeyEvent
 import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
@@ -292,6 +294,37 @@ updateTodoDL model =
         newTodoDL =
             computeDisplayTodoList model
                 |> List.map (\t -> { todo = t, height = Nothing })
+
+        newIdSet : Set TodoId
+        newIdSet =
+            newTodoDL |> List.map (.todo >> .id) |> Set.fromList
+
+        oldIdSet : Set TodoId
+        oldIdSet =
+            model.todoDL |> List.map (.todo >> .id) |> Set.fromList
+
+        removedIdSet : Set TodoId
+        removedIdSet =
+            Set.diff oldIdSet newIdSet
+
+        removedIndexedTLI : List ( Int, TodoLI )
+        removedIndexedTLI =
+            model.todoDL
+                |> List.indexedMap Tuple.pair
+                |> List.filter
+                    (Tuple.second
+                        >> (\tli -> Set.member tli.todo.id removedIdSet)
+                    )
+
+        newTodoDLWithRemoved : List TodoLI
+        newTodoDLWithRemoved =
+            List.foldr
+                (\( idx, tli ) acc ->
+                    List.Extra.splitAt idx acc
+                        |> (\( front, rear ) -> front ++ [ tli ] ++ rear)
+                )
+                newTodoDL
+                removedIndexedTLI
     in
     pure
         { model
