@@ -9,7 +9,7 @@ import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, classList, disabled, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -329,14 +329,14 @@ updateTodoDL model =
             List.foldr
                 (\( idx, tli ) acc ->
                     List.Extra.splitAt idx acc
-                        |> (\( front, rear ) -> front ++ [ tli ] ++ rear)
+                        |> (\( front, rear ) -> front ++ [ { tli | removed = True } ] ++ rear)
                 )
                 newTodoDL
                 removedIndexedTLI
     in
     pure
         { model
-            | todoDL = newTodoDL
+            | todoDL = newTodoDLWithRemoved
         }
         |> effect updateTodoDLHeightEffect
 
@@ -537,11 +537,15 @@ viewTodoItem todoLI =
     let
         todo =
             todoLI.todo
+
+        removed =
+            todoLI.removed
     in
     div
         [ class "flex hs1 lh-copy db "
         , tabindex 0
         , Html.Styled.Attributes.id (todoLIDomId todo)
+        , classList [ ( "bg-light-red", removed ) ]
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
