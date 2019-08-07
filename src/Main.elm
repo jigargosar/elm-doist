@@ -599,32 +599,26 @@ viewTodoItem todoLI =
          , Html.Styled.Attributes.id (todoLIDomId todo)
          , classList [ ( "bg-light-red", leaving ) ]
          ]
-            ++ (todoLI.height
-                    |> Maybe.map
-                        (\h ->
-                            case todoLI.transit of
-                                Leaving delta ->
-                                    let
-                                        input =
-                                            Debug.log "input" (animTime - delta)
+            ++ (case ( todoLI.transit, todoLI.height ) of
+                    ( Leaving delta, Just h ) ->
+                        let
+                            input =
+                                Debug.log "input" (animTime - delta)
 
-                                        factor =
-                                            Debug.log "factor" (input / animTime)
-                                    in
-                                    [ style "max-height"
-                                        (String.fromFloat
-                                            (h * factor)
-                                            ++ "px"
-                                        )
-                                    , style "overflow" "hidden"
-                                    , style "height" (String.fromFloat h ++ "px")
-                                    ]
+                            factor =
+                                Debug.log "factor" (input / animTime)
+                        in
+                        [ style "max-height"
+                            (String.fromFloat
+                                (h * factor)
+                                ++ "px"
+                            )
+                        , style "overflow" "hidden"
+                        , style "height" (String.fromFloat h ++ "px")
+                        ]
 
-                                _ ->
-                                    [ style "height" (String.fromFloat h ++ "px")
-                                    ]
-                        )
-                    |> Maybe.withDefault []
+                    _ ->
+                        []
                )
         )
         [ viewTodoCheck todo
