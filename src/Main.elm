@@ -10,12 +10,11 @@ import Compare exposing (Comparator)
 import Dict exposing (Dict)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, disabled, style, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, disabled, style, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import List.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
@@ -244,7 +243,7 @@ update message model =
                             |> List.filterMap
                                 (\tli ->
                                     case tli.transit of
-                                        Entering d ->
+                                        Entering _ ->
                                             Just tli
 
                                         Leaving d ->
@@ -360,44 +359,37 @@ updateTodoDL model =
         removedIdSet =
             Set.diff oldIdSet newIdSet
 
-        removedIndexedTLI : List ( Int, TodoLI )
-        removedIndexedTLI =
+        removedTLI : List TodoLI
+        removedTLI =
             model.todoDL
-                |> List.indexedMap Tuple.pair
                 |> List.filter
-                    (Tuple.second
-                        >> (\tli -> Set.member tli.todo.id removedIdSet)
-                    )
+                    (\tli -> Set.member tli.todo.id removedIdSet)
 
-        newTodoDLWithRemoved : List TodoLI
-        newTodoDLWithRemoved =
-            List.foldr
-                (\( idx, tli ) acc ->
-                    List.Extra.splitAt idx acc
-                        |> (\( front, rear ) ->
-                                front
-                                    ++ [ { tli
-                                            | transit =
-                                                case tli.transit of
-                                                    Leaving _ ->
-                                                        tli.transit
+        newTodoTLWithRemovedAndSorted : List TodoLI
+        newTodoTLWithRemovedAndSorted =
+            newTodoDL
+                ++ (removedTLI
+                        |> List.map
+                            (\tli ->
+                                { tli
+                                    | transit =
+                                        case tli.transit of
+                                            Leaving _ ->
+                                                tli.transit
 
-                                                    Entering _ ->
-                                                        Leaving 0
+                                            Entering _ ->
+                                                Leaving 0
 
-                                                    Staying ->
-                                                        Leaving 0
-                                         }
-                                       ]
-                                    ++ rear
-                           )
-                )
-                newTodoDL
-                removedIndexedTLI
+                                            Staying ->
+                                                Leaving 0
+                                }
+                            )
+                   )
+                |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
         { model
-            | todoDL = newTodoDLWithRemoved
+            | todoDL = newTodoTLWithRemovedAndSorted
         }
         |> effect updateTodoDLHeightEffect
 
@@ -601,14 +593,6 @@ viewTodoItem todoLI =
     let
         todo =
             todoLI.todo
-
-        leaving =
-            case todoLI.transit of
-                Leaving _ ->
-                    True
-
-                _ ->
-                    False
     in
     div
         ([ class "flex hs1 lh-copy db "
