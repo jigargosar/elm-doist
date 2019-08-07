@@ -380,15 +380,15 @@ updateTodoDL model =
                         }
                     )
 
-        newTodoTLWithRemovedAndSorted : List TodoLI
-        newTodoTLWithRemovedAndSorted =
+        newTodoDLWithRemovedAndSorted : List TodoLI
+        newTodoDLWithRemovedAndSorted =
             newTodoDL
                 ++ removedTLI
                 |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
         { model
-            | todoDL = newTodoTLWithRemovedAndSorted
+            | todoDL = newTodoDLWithRemovedAndSorted
         }
         |> effect updateTodoDLHeightEffect
 
