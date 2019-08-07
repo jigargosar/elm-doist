@@ -1,4 +1,4 @@
-module DisplayList exposing (DisplayList)
+module DisplayList exposing (DisplayList, Msg, changeList, initial, subscriptions, update)
 
 import Now exposing (Millis)
 import Return
@@ -17,6 +17,7 @@ type DisplayList a
     | Animating (AnimatingRec a)
 
 
+initial : List a -> DisplayList a
 initial =
     Initial
 
@@ -25,6 +26,7 @@ type Msg
     = EndAnimation Millis
 
 
+subscriptions : DisplayList a -> Sub Msg
 subscriptions model =
     case model of
         Initial _ ->
@@ -34,6 +36,7 @@ subscriptions model =
             Time.every 3000 (Time.posixToMillis >> EndAnimation)
 
 
+changeList : List a -> DisplayList a -> DisplayList a
 changeList newList model =
     case model of
         Initial oldList ->
