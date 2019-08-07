@@ -4,9 +4,9 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Dom exposing (Element)
+import Browser.Events
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
-import Dict.Extra
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, disabled, tabindex, type_)
@@ -109,6 +109,7 @@ type Msg
     | OnAddProject
     | AddProject Millis
     | OnTodoDLElements (Result DomError (List ( TodoId, Element )))
+    | OnAnimationFrameDelta Float
 
 
 
@@ -227,6 +228,29 @@ update message model =
                     (Debug.log "todoEL Error" >> always pure)
                     updateTodoDLElements
                 |> callWith model
+
+        OnAnimationFrameDelta delta ->
+            pure
+                { model
+                    | todoDL =
+                        model.todoDL
+                            |> List.filterMap
+                                (\tli ->
+                                    let
+                                        elapsed =
+                                            tli.delta + delta
+                                    in
+                                    if tli.removed then
+                                        if elapsed > 1000 then
+                                            Nothing
+
+                                        else
+                                            Just { tli | delta = elapsed }
+
+                                    else
+                                        Just tli
+                                )
+                }
 
 
 updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
@@ -434,6 +458,7 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
+        , Browser.Events.onAnimationFrameDelta OnAnimationFrameDelta
         ]
 
 
