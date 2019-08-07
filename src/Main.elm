@@ -7,7 +7,7 @@ import Browser.Navigation as Nav
 import DisplayList exposing (DisplayList)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, classList, disabled, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -18,6 +18,7 @@ import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
+import Set exposing (Set)
 import StyledKeyEvent
 import Task
 import Time
@@ -371,7 +372,9 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList (model.todoDL |> DisplayList.toList)
+                    , viewTodoList
+                        (model.todoDL |> DisplayList.removed .id)
+                        (model.todoDL |> DisplayList.toList)
                     ]
                 ]
             }
@@ -431,14 +434,15 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoList : List Todo -> Html Msg
-viewTodoList todoList =
-    div [ class "vs1" ] (List.map viewTodoItem todoList)
+viewTodoList : Set TodoId -> List Todo -> Html Msg
+viewTodoList removed todoList =
+    div [ class "vs1" ] (List.map (\t -> viewTodoItem (Set.member t.id removed) t) todoList)
 
 
-viewTodoItem todo =
+viewTodoItem removed todo =
     div
         [ class "flex hs1 lh-copy db "
+        , classList [ ( "fade-out", removed ) ]
         , tabindex 0
         ]
         [ viewTodoCheck todo

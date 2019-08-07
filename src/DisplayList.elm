@@ -1,14 +1,14 @@
-module DisplayList exposing (DisplayList, Msg, changeList, initial, subscriptions, toList, update)
+module DisplayList exposing (DisplayList, Msg, changeList, initial, removed, subscriptions, toList, update)
 
 import Now exposing (Millis)
 import Return
+import Set exposing (Set)
 import Time
 
 
 type alias AnimatingRec a =
     { from : List a
     , to : List a
-    , new : Maybe (List a)
     }
 
 
@@ -33,17 +33,17 @@ subscriptions model =
             Sub.none
 
         Animating _ ->
-            Time.every 3000 (Time.posixToMillis >> EndAnimation)
+            Time.every 2000 (Time.posixToMillis >> EndAnimation)
 
 
 changeList : List a -> DisplayList a -> DisplayList a
 changeList newList model =
     case model of
         Initial oldList ->
-            Animating { from = oldList, to = newList, new = Nothing }
+            Animating { from = oldList, to = newList }
 
         Animating rec ->
-            Animating { rec | new = Just newList }
+            Animating { rec | to = newList }
 
 
 type alias Return a =
@@ -59,12 +59,7 @@ update msg model =
                     model
 
                 Animating rec ->
-                    case rec.new of
-                        Just new ->
-                            Animating { from = rec.to, to = new, new = Nothing }
-
-                        Nothing ->
-                            Initial rec.to
+                    Initial rec.to
 
 
 toList : DisplayList a -> List a
@@ -75,3 +70,20 @@ toList model =
 
         Animating rec ->
             rec.from
+
+
+removed : (a -> comparable) -> DisplayList a -> Set comparable
+removed toId model =
+    case model of
+        Initial _ ->
+            Set.empty
+
+        Animating rec ->
+            let
+                oldIds =
+                    rec.from |> List.map toId |> Set.fromList
+
+                newIds =
+                    rec.to |> List.map toId |> Set.fromList
+            in
+            Set.diff oldIds newIds
