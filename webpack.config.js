@@ -60,22 +60,6 @@ module.exports = {
   // devtool: isProduction ? 'source-map' : false,
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
-    // Custom Reload Trigger
-    // after: (app, server) => {
-    //   setInterval(() => {
-    //     server.sockWrite(server.sockets, 'content-changed')
-    //   }, 5000)
-    // },
-    //
-    // contentBase: false,
-    contentBase: [path.resolve('server')],
-    watchContentBase: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        pathRewrite: { '^/api': '' },
-      },
-    },
     historyApiFallback: true,
     overlay: {
       warnings: true,
