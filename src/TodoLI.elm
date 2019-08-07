@@ -1,4 +1,4 @@
-module TodoLI exposing (TodoDL, TodoLI, Transit(..), fromTodo, initDisplayList)
+module TodoLI exposing (TodoDL, TodoLI, Transit(..), fromTodo, initDisplayList, update)
 
 import Set exposing (Set)
 import Todo exposing (Todo, TodoList)
@@ -37,6 +37,7 @@ toIdSet todoDL =
     todoDL |> List.map (.todo >> .id) |> Set.fromList
 
 
+update : TodoList -> TodoDL -> TodoDL
 update todoList todoDL =
     let
         newTodoDL : TodoDL
@@ -75,9 +76,5 @@ update todoList todoDL =
                                         Leaving 0
                         }
                     )
-
-        newTodoDLWithRemovedAndSorted : List TodoLI
-        newTodoDLWithRemovedAndSorted =
-            newTodoDL ++ removedTLI
     in
-    1
+    newTodoDL ++ removedTLI

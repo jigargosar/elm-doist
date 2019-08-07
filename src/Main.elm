@@ -330,48 +330,9 @@ updateTodoDL model =
                     (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                 |> List.sortWith todoComparator
 
-        newTodoDL : TodoDL
-        newTodoDL =
-            newFilteredAndSortedTodoList
-                |> TodoLI.initDisplayList
-
-        newIdSet : Set TodoId
-        newIdSet =
-            newTodoDL |> List.map (.todo >> .id) |> Set.fromList
-
-        oldIdSet : Set TodoId
-        oldIdSet =
-            model.todoDL |> List.map (.todo >> .id) |> Set.fromList
-
-        removedIdSet : Set TodoId
-        removedIdSet =
-            Set.diff oldIdSet newIdSet
-
-        removedTLI : List TodoLI
-        removedTLI =
-            model.todoDL
-                |> List.filter
-                    (\tli -> Set.member tli.todo.id removedIdSet)
-                |> List.map
-                    (\tli ->
-                        { tli
-                            | transit =
-                                case tli.transit of
-                                    TodoLI.Leaving _ ->
-                                        tli.transit
-
-                                    TodoLI.Entering _ ->
-                                        TodoLI.Leaving 0
-
-                                    TodoLI.Staying ->
-                                        TodoLI.Leaving 0
-                        }
-                    )
-
         newTodoDLWithRemovedAndSorted : List TodoLI
         newTodoDLWithRemovedAndSorted =
-            newTodoDL
-                ++ removedTLI
+            TodoLI.update newFilteredAndSortedTodoList model.todoDL
                 |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
