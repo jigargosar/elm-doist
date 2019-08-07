@@ -130,12 +130,12 @@ update message model =
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
-                |> Result.Extra.unpack updateDecodeError updateAuthState
+                |> Result.Extra.unpack onDecodeError onAuthStateChanged
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack updateDecodeError setAndCacheTodoList
+                |> Result.Extra.unpack onDecodeError setAndCacheTodoList
                 |> callWith model
 
         OnSignInClicked ->
@@ -153,14 +153,14 @@ update message model =
                     qs.docDataList
                         |> List.map (JD.decodeValue Todo.decoder)
                         |> Result.Extra.combine
-                        |> Result.Extra.unpack updateDecodeError setAndCacheTodoList
+                        |> Result.Extra.unpack onDecodeError setAndCacheTodoList
                         |> callWith model
 
                 "projectList" ->
                     qs.docDataList
                         |> List.map (JD.decodeValue Project.decoder)
                         |> Result.Extra.combine
-                        |> Result.Extra.unpack updateDecodeError setAndCacheProjectList
+                        |> Result.Extra.unpack onDecodeError setAndCacheProjectList
                         |> callWith model
 
                 _ ->
@@ -226,7 +226,7 @@ queryProjectListCmd =
 updateFromEncodedFlags : Value -> Model -> Return
 updateFromEncodedFlags encodedFlags model =
     JD.decodeValue flagsDecoder encodedFlags
-        |> Result.Extra.unpack updateDecodeError updateFromFlags
+        |> Result.Extra.unpack onDecodeError updateFromFlags
         |> callWith model
 
 
@@ -273,8 +273,8 @@ setAuthState authState model =
     { model | authState = authState }
 
 
-updateAuthState : AuthState -> Model -> Return
-updateAuthState authState model =
+onAuthStateChanged : AuthState -> Model -> Return
+onAuthStateChanged authState model =
     let
         cmd =
             case authState of
@@ -296,8 +296,8 @@ updateAuthState authState model =
             )
 
 
-updateDecodeError : JD.Error -> Model -> Return
-updateDecodeError error model =
+onDecodeError : JD.Error -> Model -> Return
+onDecodeError error model =
     HasErrors.prependDecodeError error model
         |> pure
 
