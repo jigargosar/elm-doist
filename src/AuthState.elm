@@ -1,6 +1,6 @@
 module AuthState exposing (AuthState(..), UID, User, decoder, encoder, initial, view)
 
-import Html exposing (Html, div, text)
+import Html.Styled exposing (Html, div, text)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)

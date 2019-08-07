@@ -5,20 +5,19 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import HasErrors
-import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (checked, class, disabled, tabindex, type_)
-import Html.Events exposing (onClick)
-import HtmlExtra
+import Html.Styled exposing (Html, button, div, input, text)
+import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
+import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import KeyEvent
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
+import StyledKeyEvent
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, pure)
@@ -319,9 +318,19 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     viewRoute model.route model
+        |> toUnStyledDocument
 
 
-viewRoute : Route -> Model -> Browser.Document Msg
+type alias StyledDocument msg =
+    { title : String, body : List (Html msg) }
+
+
+toUnStyledDocument : StyledDocument msg -> Browser.Document msg
+toUnStyledDocument { title, body } =
+    { title = title, body = body |> List.map Html.Styled.toUnstyled }
+
+
+viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
         Route.Default ->
@@ -440,7 +449,7 @@ viewTodoTitle todo =
                 ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
             )
         , onClick (OnChangeTitleRequested todo.id)
-        , OnChangeTitleRequested todo.id |> KeyEvent.onEnter
+        , OnChangeTitleRequested todo.id |> StyledKeyEvent.onEnter
         ]
         [ text title ]
 
@@ -451,7 +460,7 @@ viewTodoCheck todo =
             [ class "pointer db flex-grow-1"
             , type_ "checkbox"
             , checked todo.isDone
-            , Html.Events.onCheck (OnChecked todo.id)
+            , onCheck (OnChecked todo.id)
             ]
             []
         ]

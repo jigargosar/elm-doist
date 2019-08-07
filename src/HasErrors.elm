@@ -1,7 +1,7 @@
 module HasErrors exposing (Error, HasErrors, initial, prependDecodeError, prependString, view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class)
+import Html.Styled exposing (Html, div, text)
+import Html.Styled.Attributes exposing (class)
 import Json.Decode as JD
 
 

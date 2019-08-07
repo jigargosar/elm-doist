@@ -74,7 +74,7 @@ initSubs({
     )
   },
   disposeFirestoreQuery: id => {
-    // fire.disposeNamed(id)
+    fire.disposeNamed(id)
   },
   updateFirestoreDoc: options => {
     const doc = fire.userDocRef(options.userDocPath)
