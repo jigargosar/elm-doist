@@ -331,7 +331,10 @@ updateTodoDL model =
     let
         newTodoDL : List TodoLI
         newTodoDL =
-            computeDisplayTodoList model
+            Todo.filter
+                (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
+                model.todoList
+                |> Todo.sortWith [ Todo.ByIdx, Todo.ByRecentlyCreated ]
                 |> List.map
                     (\t ->
                         { todo = t
@@ -415,13 +418,6 @@ updateTodoDLHeightEffect model =
             )
         |> Task.sequence
         |> Task.attempt OnTodoDLElements
-
-
-computeDisplayTodoList model =
-    Todo.filterSort
-        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-        model.todoList
 
 
 setAndCacheTodoList : TodoList -> Model -> Return

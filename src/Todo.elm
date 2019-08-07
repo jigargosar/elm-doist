@@ -17,6 +17,7 @@ module Todo exposing
     , modifyPatch
     , new
     , patch
+    , sortWith
     )
 
 import Compare exposing (Comparator)
