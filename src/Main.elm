@@ -4,6 +4,7 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
+import DisplayList exposing (DisplayList)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
@@ -32,6 +33,7 @@ type alias Error =
 
 type alias Model =
     { todoList : TodoList
+    , todoDL : DisplayList Todo
     , displayTodoList : TodoList
     , newDisplayTodoList : TodoList
     , projectList : ProjectList
@@ -71,6 +73,7 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
+            , todoDL = DisplayList.initial []
             , displayTodoList = []
             , newDisplayTodoList = []
             , projectList = []
@@ -92,6 +95,7 @@ type Msg
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
+    | OnDisplayListMsg DisplayList.Msg
     | OnSignInClicked
     | OnSignOutClicked
     | OnChangeTitleRequested TodoId
@@ -224,6 +228,9 @@ update message model =
             )
                 |> pure
 
+        OnDisplayListMsg msg ->
+            pure { model | todoDL = DisplayList.update msg model.todoDL }
+
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
@@ -348,11 +355,7 @@ subscriptions model =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , if model.displayTodoList /= model.newDisplayTodoList then
-            Time.every 3000 (Time.posixToMillis >> UpdateDisplayTodoList)
-
-          else
-            Sub.none
+        , DisplayList.subscriptions model.todoDL |> Sub.map OnDisplayListMsg
         ]
 
 
