@@ -106,7 +106,6 @@ type Msg
     | AddTodo Millis
     | OnAddProject
     | AddProject Millis
-    | UpdateDisplayTodoList Millis
 
 
 
@@ -219,15 +218,6 @@ update message model =
                 }
             )
 
-        UpdateDisplayTodoList now ->
-            (if model.displayTodoList /= model.newDisplayTodoList then
-                { model | displayTodoList = model.newDisplayTodoList }
-
-             else
-                model
-            )
-                |> pure
-
         OnDisplayListMsg msg ->
             pure { model | todoDL = DisplayList.update msg model.todoDL }
 
@@ -284,11 +274,7 @@ updateDisplayTodoList model =
         newDisplayTodoList =
             computeDisplayTodoList model
     in
-    if model.newDisplayTodoList /= newDisplayTodoList then
-        { model | newDisplayTodoList = newDisplayTodoList }
-
-    else
-        model
+    { model | todoDL = DisplayList.changeList newDisplayTodoList model.todoDL }
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
