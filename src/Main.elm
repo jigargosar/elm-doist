@@ -333,12 +333,15 @@ updateTodoDL model =
         todoComparator =
             Todo.concatCompareBy [ Todo.ByIdx, Todo.ByRecentlyCreated ]
 
-        newTodoDL : List TodoLI
-        newTodoDL =
+        newFilteredAndSortedTodoList =
             model.todoList
                 |> Todo.filter
                     (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                 |> List.sortWith todoComparator
+
+        newTodoDL : List TodoLI
+        newTodoDL =
+            newFilteredAndSortedTodoList
                 |> List.map
                     (\t ->
                         { todo = t
