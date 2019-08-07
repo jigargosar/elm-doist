@@ -146,6 +146,7 @@ update message model =
             , Cmd.batch
                 [ Ports.signOut ()
                 , Ports.disposeFirestoreQuery "todoList"
+                , Ports.disposeFirestoreQuery "projectList"
                 ]
             )
 
