@@ -3,6 +3,7 @@ module Main exposing (main)
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
+import Browser.Dom exposing (Element)
 import Browser.Navigation as Nav
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
@@ -18,6 +19,7 @@ import Result.Extra
 import Return
 import Route exposing (Route)
 import StyledKeyEvent
+import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, pure)
@@ -102,6 +104,7 @@ type Msg
     | AddTodo Millis
     | OnAddProject
     | AddProject Millis
+    | OnTodoDLElements (Result DomError (List ( Todo, Element )))
 
 
 
@@ -214,6 +217,16 @@ update message model =
                 }
             )
 
+        OnTodoDLElements result ->
+            result
+                |> Result.Extra.unpack (always pure) updateTodoDLElements
+                |> callWith model
+
+
+updateTodoDLElements : List ( Todo, Element ) -> Model -> Return
+updateTodoDLElements list model =
+    pure model
+
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
@@ -256,6 +269,22 @@ updateTodoList todoList model =
 updateTodoDL : Model -> Return
 updateTodoDL model =
     pure { model | todoDL = computeDisplayTodoList model }
+
+
+todoDLDomId : Todo -> String
+todoDLDomId todo =
+    "todo-dl-" ++ todo.id
+
+
+type alias DomError =
+    Browser.Dom.Error
+
+
+updateTodoDLHeightEffect model =
+    model.todoDL
+        |> List.map (\t -> t |> todoDLDomId |> Browser.Dom.getElement |> Task.map (Tuple.pair t))
+        |> Task.sequence
+        |> Task.attempt OnTodoDLElements
 
 
 computeDisplayTodoList model =
