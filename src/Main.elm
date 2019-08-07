@@ -599,16 +599,15 @@ viewTodoItem todoLI =
         ([ class "flex hs1 lh-copy db "
          , tabindex 0
          , Html.Styled.Attributes.id (todoLIDomId todo)
-         , classList [ ( "bg-light-red", leaving ) ]
          ]
             ++ (case ( todoLI.transit, todoLI.height ) of
                     ( Leaving delta, Just h ) ->
                         let
-                            input =
-                                Debug.log "input" (animTime - delta)
+                            inValue =
+                                animTime - delta
 
                             factor =
-                                Debug.log "factor" (input / animTime)
+                                inValue / animTime
                         in
                         [ style "max-height"
                             (String.fromFloat
@@ -618,6 +617,7 @@ viewTodoItem todoLI =
                         , style "overflow" "hidden"
                         , style "height" (String.fromFloat h ++ "px")
                         , style "pointer-events" "none"
+                        , class "bg-light-pink"
                         ]
 
                     _ ->
