@@ -330,16 +330,10 @@ updateTodoDL model =
                     (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                 |> List.sortWith todoComparator
 
-        newTodoDL : List TodoLI
+        newTodoDL : TodoDL
         newTodoDL =
             newFilteredAndSortedTodoList
-                |> List.map
-                    (\t ->
-                        { todo = t
-                        , height = Nothing
-                        , transit = TodoLI.Staying
-                        }
-                    )
+                |> TodoLI.initDisplayList
 
         newIdSet : Set TodoId
         newIdSet =
