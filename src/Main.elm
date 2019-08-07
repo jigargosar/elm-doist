@@ -9,7 +9,7 @@ import Browser.Navigation as Nav
 import Dict exposing (Dict)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, disabled, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, classList, disabled, style, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -241,7 +241,7 @@ update message model =
                                             tli.delta + delta
                                     in
                                     if tli.removed then
-                                        if elapsed > 1000 then
+                                        if elapsed > animTime then
                                             Nothing
 
                                         else
@@ -251,6 +251,10 @@ update message model =
                                         Just tli
                                 )
                 }
+
+
+animTime =
+    5000
 
 
 updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
@@ -557,6 +561,15 @@ viewTodoList todoDL =
     div [ class "vs1" ] (List.map viewTodoItem todoDL)
 
 
+
+-- ? = 1/3000
+-- outputMin = 1 , outputMax = 100
+-- inputMin = 1 , inputMax = 3000
+--   output? = 100 * input / 3000
+--   output? = (100 * delta / animTime) / 100
+--
+
+
 viewTodoItem : TodoLI -> Html Msg
 viewTodoItem todoLI =
     let
@@ -567,11 +580,37 @@ viewTodoItem todoLI =
             todoLI.removed
     in
     div
-        [ class "flex hs1 lh-copy db "
-        , tabindex 0
-        , Html.Styled.Attributes.id (todoLIDomId todo)
-        , classList [ ( "bg-light-red", removed ) ]
-        ]
+        ([ class "flex hs1 lh-copy db "
+         , tabindex 0
+         , Html.Styled.Attributes.id (todoLIDomId todo)
+         , classList [ ( "bg-light-red", removed ) ]
+         ]
+            ++ (todoLI.height
+                    |> Maybe.map
+                        (\h ->
+                            if removed then
+                                let
+                                    input =
+                                        Debug.log "input" (animTime - todoLI.delta)
+
+                                    factor =
+                                        Debug.log "factor" (input / animTime)
+                                in
+                                [ style "height"
+                                    (String.fromFloat
+                                        (h * factor)
+                                        ++ "px"
+                                    )
+                                , style "overflow" "hidden"
+                                ]
+
+                            else
+                                [ style "height" (String.fromFloat h ++ "px")
+                                ]
+                        )
+                    |> Maybe.withDefault []
+               )
+        )
         [ viewTodoCheck todo
         , viewTodoTitle todo
         , div [ class "flex items-center" ]
