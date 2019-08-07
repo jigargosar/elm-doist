@@ -35,7 +35,7 @@ type alias Error =
 
 
 type alias TodoLI =
-    { todo : Todo, height : Maybe Float }
+    { todo : Todo, height : Maybe Float, removed : Bool, delta : Float }
 
 
 type alias Model =
@@ -291,9 +291,17 @@ updateTodoList todoList model =
 updateTodoDL : Model -> Return
 updateTodoDL model =
     let
+        newTodoDL : List TodoLI
         newTodoDL =
             computeDisplayTodoList model
-                |> List.map (\t -> { todo = t, height = Nothing })
+                |> List.map
+                    (\t ->
+                        { todo = t
+                        , height = Nothing
+                        , removed = False
+                        , delta = 0
+                        }
+                    )
 
         newIdSet : Set TodoId
         newIdSet =
