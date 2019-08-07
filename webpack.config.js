@@ -4,20 +4,20 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 const NODE_ENV = process.env.NODE_ENV
 const isProduction = NODE_ENV === 'production'
-
 // console.log('NODE_ENV', NODE_ENV)
 
-// https://webpack.js.org/configuration/
 // const mode = isProduction ? 'production' : 'development'
 // console.log('mode', mode)
+
+// https://webpack.js.org/configuration/
 module.exports = {
-  // mode: mode,
+// mode: mode,
   entry: './src/index.js',
   output: {
     publicPath: '/',
   },
   resolve: {
-    extensions: ['.js', '.ts', '.tsx', '.jsx', '.elm'],
+    extensions: ['.js', '.elm'],
   },
   module: {
     rules: [
@@ -25,11 +25,9 @@ module.exports = {
       {
         test: /\.elm$/,
         use: [
-          // 'elm-hot-webpack-loader',
           {
             loader: 'elm-webpack-loader',
             options: {
-              // report: 'json'
               optimize: isProduction,
             },
           },
