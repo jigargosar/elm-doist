@@ -18,6 +18,8 @@ import Result.Extra
 import Return
 import Route exposing (Route)
 import StyledKeyEvent
+import Task
+import Time
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, pure)
@@ -100,6 +102,7 @@ type Msg
     | AddTodo Millis
     | OnAddProject
     | AddProject Millis
+    | UpdateDisplayTodoList Millis
 
 
 
@@ -211,6 +214,15 @@ update message model =
                 , data = Project.new now
                 }
             )
+
+        UpdateDisplayTodoList now ->
+            (if model.displayTodoList /= model.newDisplayTodoList then
+                { model | displayTodoList = model.newDisplayTodoList }
+
+             else
+                model
+            )
+                |> pure
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
@@ -332,10 +344,15 @@ onDecodeError error model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
+        , if model.displayTodoList /= model.newDisplayTodoList then
+            Time.every 3000 (Time.posixToMillis >> UpdateDisplayTodoList)
+
+          else
+            Sub.none
         ]
 
 
