@@ -364,27 +364,26 @@ updateTodoDL model =
             model.todoDL
                 |> List.filter
                     (\tli -> Set.member tli.todo.id removedIdSet)
+                |> List.map
+                    (\tli ->
+                        { tli
+                            | transit =
+                                case tli.transit of
+                                    Leaving _ ->
+                                        tli.transit
+
+                                    Entering _ ->
+                                        Leaving 0
+
+                                    Staying ->
+                                        Leaving 0
+                        }
+                    )
 
         newTodoTLWithRemovedAndSorted : List TodoLI
         newTodoTLWithRemovedAndSorted =
             newTodoDL
-                ++ (removedTLI
-                        |> List.map
-                            (\tli ->
-                                { tli
-                                    | transit =
-                                        case tli.transit of
-                                            Leaving _ ->
-                                                tli.transit
-
-                                            Entering _ ->
-                                                Leaving 0
-
-                                            Staying ->
-                                                Leaving 0
-                                }
-                            )
-                   )
+                ++ removedTLI
                 |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
