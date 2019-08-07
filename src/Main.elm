@@ -22,7 +22,7 @@ import StyledKeyEvent
 import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, command, pure)
+import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -219,12 +219,18 @@ update message model =
 
         OnTodoDLElements result ->
             result
-                |> Result.Extra.unpack (always pure) updateTodoDLElements
+                |> Result.Extra.unpack
+                    (Debug.log "todoEL Error" >> always pure)
+                    updateTodoDLElements
                 |> callWith model
 
 
 updateTodoDLElements : List ( Todo, Element ) -> Model -> Return
 updateTodoDLElements list model =
+    let
+        _ =
+            Debug.log "todoEl" list
+    in
     pure model
 
 
@@ -269,6 +275,7 @@ updateTodoList todoList model =
 updateTodoDL : Model -> Return
 updateTodoDL model =
     pure { model | todoDL = computeDisplayTodoList model }
+        |> effect updateTodoDLHeightEffect
 
 
 todoDLDomId : Todo -> String
@@ -280,6 +287,7 @@ type alias DomError =
     Browser.Dom.Error
 
 
+updateTodoDLHeightEffect : { a | todoDL : List Todo } -> Cmd Msg
 updateTodoDLHeightEffect model =
     model.todoDL
         |> List.map (\t -> t |> todoDLDomId |> Browser.Dom.getElement |> Task.map (Tuple.pair t))
