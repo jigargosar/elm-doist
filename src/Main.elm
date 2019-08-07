@@ -28,8 +28,13 @@ type alias Error =
     String
 
 
+type alias TodoLI =
+    Todo
+
+
 type alias Model =
     { todoList : TodoList
+    , todoDL : List TodoLI
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -67,6 +72,7 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
+            , todoDL = []
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -237,15 +243,19 @@ updateFromEncodedFlags encodedFlags model =
 
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
-    setTodoList flags.cachedTodoList model
-        |> setProjectList flags.cachedProjectList
+    setProjectList flags.cachedProjectList model
         |> setAuthState flags.cachedAuthState
-        |> pure
+        |> updateTodoList flags.cachedTodoList
 
 
-setTodoList : TodoList -> Model -> Model
-setTodoList todoList model =
-    { model | todoList = todoList }
+updateTodoList : TodoList -> Model -> Return
+updateTodoList todoList model =
+    updateTodoDL { model | todoList = todoList }
+
+
+updateTodoDL : Model -> Return
+updateTodoDL model =
+    pure { model | todoDL = computeDisplayTodoList model }
 
 
 computeDisplayTodoList model =
@@ -257,8 +267,7 @@ computeDisplayTodoList model =
 
 setAndCacheTodoList : TodoList -> Model -> Return
 setAndCacheTodoList todoList model =
-    setTodoList todoList model
-        |> pure
+    updateTodoList todoList model
         |> command
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
