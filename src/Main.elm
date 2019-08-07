@@ -398,7 +398,7 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList (computeDisplayTodoList model)
+                    , viewTodoList model.todoDL
                     ]
                 ]
             }
@@ -458,16 +458,21 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoList : List Todo -> Html Msg
-viewTodoList todoList =
-    div [ class "vs1" ] (List.map (\t -> viewTodoItem t) todoList)
+viewTodoList : List TodoLI -> Html Msg
+viewTodoList todoDL =
+    div [ class "vs1" ] (List.map viewTodoItem todoDL)
 
 
-viewTodoItem : Todo -> Html Msg
-viewTodoItem todo =
+viewTodoItem : TodoLI -> Html Msg
+viewTodoItem todoLI =
+    let
+        todo =
+            todoLI
+    in
     div
         [ class "flex hs1 lh-copy db "
         , tabindex 0
+        , Html.Styled.Attributes.id (todoDLDomId todo)
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
