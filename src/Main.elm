@@ -5,6 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Dom exposing (Element)
 import Browser.Navigation as Nav
+import Dict exposing (Dict)
+import Dict.Extra
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
@@ -228,8 +230,11 @@ update message model =
 updateTodoDLElements : List ( Todo, Element ) -> Model -> Return
 updateTodoDLElements list model =
     let
-        _ =
+        byId : Dict TodoId Float
+        byId =
             Debug.log "todoEl" list
+                |> Dict.Extra.fromListBy (Tuple.first >> .id)
+                |> Dict.map (\_ -> Tuple.second >> .element >> .height)
     in
     pure model
 
