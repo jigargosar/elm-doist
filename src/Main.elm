@@ -6,6 +6,7 @@ import Browser
 import Browser.Dom exposing (Element)
 import Browser.Events
 import Browser.Navigation as Nav
+import Compare exposing (Comparator)
 import Dict exposing (Dict)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
@@ -329,12 +330,16 @@ updateTodoList todoList model =
 updateTodoDL : Model -> Return
 updateTodoDL model =
     let
+        todoComparator : Comparator Todo
+        todoComparator =
+            Todo.concatCompareBy [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+
         newTodoDL : List TodoLI
         newTodoDL =
-            Todo.filter
-                (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-                model.todoList
-                |> Todo.sortWith [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+            model.todoList
+                |> Todo.filter
+                    (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
+                |> List.sortWith todoComparator
                 |> List.map
                     (\t ->
                         { todo = t

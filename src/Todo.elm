@@ -5,6 +5,7 @@ module Todo exposing
     , Todo
     , TodoDict
     , TodoList
+    , concatCompareBy
     , decoder
     , encoder
     , filter
