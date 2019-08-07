@@ -26,6 +26,7 @@ import StyledKeyEvent
 import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
+import TodoLI exposing (TodoDL, TodoLI)
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
@@ -34,19 +35,9 @@ type alias Error =
     String
 
 
-type Transit
-    = Entering Float
-    | Leaving Float
-    | Staying
-
-
-type alias TodoLI =
-    { todo : Todo, height : Maybe Float, transit : Transit }
-
-
 type alias Model =
     { todoList : TodoList
-    , todoDL : List TodoLI
+    , todoDL : TodoDL
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -243,10 +234,10 @@ update message model =
                             |> List.filterMap
                                 (\tli ->
                                     case tli.transit of
-                                        Entering _ ->
+                                        TodoLI.Entering _ ->
                                             Just tli
 
-                                        Leaving d ->
+                                        TodoLI.Leaving d ->
                                             let
                                                 elapsed =
                                                     d + delta
@@ -255,9 +246,9 @@ update message model =
                                                 Nothing
 
                                             else
-                                                Just { tli | transit = Leaving elapsed }
+                                                Just { tli | transit = TodoLI.Leaving elapsed }
 
-                                        Staying ->
+                                        TodoLI.Staying ->
                                             Just tli
                                 )
                 }
@@ -346,7 +337,7 @@ updateTodoDL model =
                     (\t ->
                         { todo = t
                         , height = Nothing
-                        , transit = Staying
+                        , transit = TodoLI.Staying
                         }
                     )
 
@@ -372,14 +363,14 @@ updateTodoDL model =
                         { tli
                             | transit =
                                 case tli.transit of
-                                    Leaving _ ->
+                                    TodoLI.Leaving _ ->
                                         tli.transit
 
-                                    Entering _ ->
-                                        Leaving 0
+                                    TodoLI.Entering _ ->
+                                        TodoLI.Leaving 0
 
-                                    Staying ->
-                                        Leaving 0
+                                    TodoLI.Staying ->
+                                        TodoLI.Leaving 0
                         }
                     )
 
@@ -602,7 +593,7 @@ viewTodoItem todoLI =
          , Html.Styled.Attributes.id (todoLIDomId todo)
          ]
             ++ (case ( todoLI.transit, todoLI.height ) of
-                    ( Leaving delta, Just h ) ->
+                    ( TodoLI.Leaving delta, Just h ) ->
                         let
                             inValue =
                                 animTime - delta
