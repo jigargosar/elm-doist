@@ -282,16 +282,20 @@ updateFromFlags flags model =
 
 updateTodoList : TodoList -> Model -> Return
 updateTodoList todoList model =
-    updateTodoDL { model | todoList = todoList }
+    { model | todoList = todoList }
+        |> updateTodoDL
 
 
 updateTodoDL : Model -> Return
 updateTodoDL model =
+    let
+        newTodoDL =
+            computeDisplayTodoList model
+                |> List.map (\t -> { todo = t, height = Nothing })
+    in
     pure
         { model
-            | todoDL =
-                computeDisplayTodoList model
-                    |> List.map (\t -> { todo = t, height = Nothing })
+            | todoDL = newTodoDL
         }
         |> effect updateTodoDLHeightEffect
 
