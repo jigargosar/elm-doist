@@ -3,6 +3,7 @@ port module Ports exposing
     , addFirestoreDoc
     , changeTodoTitle
     , deleteFirestoreDoc
+    , disposeFirestoreQuery
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
@@ -47,6 +48,9 @@ port queryFirestore :
     , userCollectionName : String
     }
     -> Cmd msg
+
+
+port disposeFirestoreQuery : String -> Cmd msg
 
 
 port updateFirestoreDoc : { userDocPath : String, data : Value } -> Cmd msg

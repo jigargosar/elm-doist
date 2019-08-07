@@ -142,7 +142,12 @@ update message model =
             ( model, Ports.signIn () )
 
         OnSignOutClicked ->
-            ( model, Ports.signOut () )
+            ( model
+            , Cmd.batch
+                [ Ports.signOut ()
+                , Ports.disposeFirestoreQuery "todoList"
+                ]
+            )
 
         OnChangeTitleRequested todoId ->
             ( model, Ports.changeTodoTitle todoId )
