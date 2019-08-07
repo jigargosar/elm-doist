@@ -596,12 +596,13 @@ viewTodoItem todoLI =
                                     factor =
                                         Debug.log "factor" (input / animTime)
                                 in
-                                [ style "height"
+                                [ style "max-height"
                                     (String.fromFloat
                                         (h * factor)
                                         ++ "px"
                                     )
                                 , style "overflow" "hidden"
+                                , style "height" (String.fromFloat h ++ "px")
                                 ]
 
                             else
