@@ -9,7 +9,7 @@
     "build:elm": "elm make src/Main.elm --optimize --output src/elm.js",
     "build": "env NODE_ENV=production webpack -p",
     "deploy": "firebase deploy --only hosting:elmdoist",
-    "bnd": "npm run build && npm run deploy"
+    "stage": "npm run build && npm run deploy"
   },
   "private": true,
   "keywords": [],
