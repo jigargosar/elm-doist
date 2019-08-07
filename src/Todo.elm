@@ -219,9 +219,14 @@ toComparator compareBy =
             Compare.by .createdAt |> Compare.reverse
 
 
+concatCompareBy : List CompareBy -> Comparator Todo
+concatCompareBy comps =
+    Compare.concat (List.map toComparator comps)
+
+
 sortWith : List CompareBy -> TodoList -> TodoList
 sortWith comps =
-    List.sortWith (Compare.concat (List.map toComparator comps))
+    List.sortWith (concatCompareBy comps)
 
 
 filterSort : Filter -> List CompareBy -> TodoList -> TodoList
