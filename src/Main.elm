@@ -366,7 +366,9 @@ updateTodoDL model =
             List.foldr
                 (\( idx, tli ) acc ->
                     List.Extra.splitAt idx acc
-                        |> (\( front, rear ) -> front ++ [ { tli | transit = Leaving 0 } ] ++ rear)
+                        |> (\( front, rear ) ->
+                                front ++ [ { tli | transit = Leaving 0 } ] ++ rear
+                           )
                 )
                 newTodoDL
                 removedIndexedTLI
