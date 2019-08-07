@@ -34,8 +34,14 @@ type alias Error =
     String
 
 
+type Transit
+    = Entering Float
+    | Leaving Float
+    | Staying
+
+
 type alias TodoLI =
-    { todo : Todo, height : Maybe Float, removed : Bool, delta : Float }
+    { todo : Todo, height : Maybe Float, transit : Transit }
 
 
 type alias Model =
@@ -236,19 +242,23 @@ update message model =
                         model.todoDL
                             |> List.filterMap
                                 (\tli ->
-                                    let
-                                        elapsed =
-                                            tli.delta + delta
-                                    in
-                                    if tli.removed then
-                                        if elapsed > animTime then
-                                            Nothing
+                                    case tli.transit of
+                                        Entering d ->
+                                            Just tli
 
-                                        else
-                                            Just { tli | delta = elapsed }
+                                        Leaving d ->
+                                            let
+                                                elapsed =
+                                                    d + delta
+                                            in
+                                            if elapsed > animTime then
+                                                Nothing
 
-                                    else
-                                        Just tli
+                                            else
+                                                Just { tli | transit = Leaving elapsed }
+
+                                        Staying ->
+                                            Just tli
                                 )
                 }
 
@@ -326,8 +336,7 @@ updateTodoDL model =
                     (\t ->
                         { todo = t
                         , height = Nothing
-                        , removed = False
-                        , delta = 0
+                        , transit = Staying
                         }
                     )
 
@@ -357,7 +366,7 @@ updateTodoDL model =
             List.foldr
                 (\( idx, tli ) acc ->
                     List.Extra.splitAt idx acc
-                        |> (\( front, rear ) -> front ++ [ { tli | removed = True } ] ++ rear)
+                        |> (\( front, rear ) -> front ++ [ { tli | transit = Leaving 0 } ] ++ rear)
                 )
                 newTodoDL
                 removedIndexedTLI
@@ -576,38 +585,44 @@ viewTodoItem todoLI =
         todo =
             todoLI.todo
 
-        removed =
-            todoLI.removed
+        leaving =
+            case todoLI.transit of
+                Leaving _ ->
+                    True
+
+                _ ->
+                    False
     in
     div
         ([ class "flex hs1 lh-copy db "
          , tabindex 0
          , Html.Styled.Attributes.id (todoLIDomId todo)
-         , classList [ ( "bg-light-red", removed ) ]
+         , classList [ ( "bg-light-red", leaving ) ]
          ]
             ++ (todoLI.height
                     |> Maybe.map
                         (\h ->
-                            if removed then
-                                let
-                                    input =
-                                        Debug.log "input" (animTime - todoLI.delta)
+                            case todoLI.transit of
+                                Leaving delta ->
+                                    let
+                                        input =
+                                            Debug.log "input" (animTime - delta)
 
-                                    factor =
-                                        Debug.log "factor" (input / animTime)
-                                in
-                                [ style "max-height"
-                                    (String.fromFloat
-                                        (h * factor)
-                                        ++ "px"
-                                    )
-                                , style "overflow" "hidden"
-                                , style "height" (String.fromFloat h ++ "px")
-                                ]
+                                        factor =
+                                            Debug.log "factor" (input / animTime)
+                                    in
+                                    [ style "max-height"
+                                        (String.fromFloat
+                                            (h * factor)
+                                            ++ "px"
+                                        )
+                                    , style "overflow" "hidden"
+                                    , style "height" (String.fromFloat h ++ "px")
+                                    ]
 
-                            else
-                                [ style "height" (String.fromFloat h ++ "px")
-                                ]
+                                _ ->
+                                    [ style "height" (String.fromFloat h ++ "px")
+                                    ]
                         )
                     |> Maybe.withDefault []
                )
