@@ -31,19 +31,6 @@ module.exports = {
           },
         ],
       },
-      // {
-      //   test: /\.[jt]sx?$/,
-      //   include: path.resolve('src'),
-      //   use: [
-      //     {
-      //       loader: 'ts-loader',
-      //       options: {
-      //         // to enable ts-loader work with HMR
-      //         // transpileOnly: true,
-      //       },
-      //     },
-      //   ],
-      // },
     ],
   },
   plugins: [
