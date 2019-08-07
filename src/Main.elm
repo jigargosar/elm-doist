@@ -33,7 +33,7 @@ type alias Error =
 
 
 type alias TodoLI =
-    Todo
+    { todo : Todo, height : Maybe Float }
 
 
 type alias Model =
@@ -106,7 +106,7 @@ type Msg
     | AddTodo Millis
     | OnAddProject
     | AddProject Millis
-    | OnTodoDLElements (Result DomError (List ( Todo, Element )))
+    | OnTodoDLElements (Result DomError (List ( TodoId, Element )))
 
 
 
@@ -227,16 +227,21 @@ update message model =
                 |> callWith model
 
 
-updateTodoDLElements : List ( Todo, Element ) -> Model -> Return
+updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
 updateTodoDLElements list model =
     let
         byId : Dict TodoId Float
         byId =
             Debug.log "todoEl" list
-                |> Dict.Extra.fromListBy (Tuple.first >> .id)
-                |> Dict.map (\_ -> Tuple.second >> .element >> .height)
+                |> Dict.fromList
+                |> Dict.map (\_ -> .element >> .height)
     in
-    pure model
+    pure
+        { model
+            | todoDL =
+                model.todoDL
+                    |> List.map (\tli -> { tli | height = Dict.get tli.todo.id byId })
+        }
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
@@ -279,7 +284,12 @@ updateTodoList todoList model =
 
 updateTodoDL : Model -> Return
 updateTodoDL model =
-    pure { model | todoDL = computeDisplayTodoList model }
+    pure
+        { model
+            | todoDL =
+                computeDisplayTodoList model
+                    |> List.map (\t -> { todo = t, height = Nothing })
+        }
         |> effect updateTodoDLHeightEffect
 
 
@@ -292,10 +302,10 @@ type alias DomError =
     Browser.Dom.Error
 
 
-updateTodoDLHeightEffect : { a | todoDL : List Todo } -> Cmd Msg
+updateTodoDLHeightEffect : { a | todoDL : List TodoLI } -> Cmd Msg
 updateTodoDLHeightEffect model =
     model.todoDL
-        |> List.map (\t -> t |> todoDLDomId |> Browser.Dom.getElement |> Task.map (Tuple.pair t))
+        |> List.map (\tli -> tli.todo |> todoDLDomId |> Browser.Dom.getElement |> Task.map (Tuple.pair tli.todo.id))
         |> Task.sequence
         |> Task.attempt OnTodoDLElements
 
@@ -472,7 +482,7 @@ viewTodoItem : TodoLI -> Html Msg
 viewTodoItem todoLI =
     let
         todo =
-            todoLI
+            todoLI.todo
     in
     div
         [ class "flex hs1 lh-copy db "
