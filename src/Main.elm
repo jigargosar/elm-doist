@@ -30,6 +30,8 @@ type alias Error =
 
 type alias Model =
     { todoList : TodoList
+    , displayTodoList : TodoList
+    , prevDisplayTodoList : TodoList
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -67,6 +69,8 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
+            , displayTodoList = []
+            , prevDisplayTodoList = []
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -246,6 +250,26 @@ updateFromFlags flags model =
 setTodoList : TodoList -> Model -> Model
 setTodoList todoList model =
     { model | todoList = todoList }
+        |> updateDisplayTodoList
+
+
+computeDisplayTodoList model =
+    Todo.filterSort
+        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
+        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+        model.todoList
+
+
+updateDisplayTodoList model =
+    let
+        newDisplayTodoList =
+            computeDisplayTodoList model
+    in
+    if model.displayTodoList /= newDisplayTodoList then
+        { model | displayTodoList = newDisplayTodoList }
+
+    else
+        model
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
@@ -337,13 +361,6 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
         Route.Inbox ->
-            let
-                displayTodoList =
-                    Todo.filterSort
-                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-                        model.todoList
-            in
             { title = "Inbox"
             , body =
                 [ viewHeader model
@@ -352,7 +369,7 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList displayTodoList
+                    , viewTodoList model.displayTodoList
                     ]
                 ]
             }
