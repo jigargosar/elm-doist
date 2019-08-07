@@ -232,15 +232,18 @@ updateTodoDLElements list model =
     let
         byId : Dict TodoId Float
         byId =
-            Debug.log "todoEl" list
+            {- Debug.log "todoEl" -}
+            list
                 |> Dict.fromList
                 |> Dict.map (\_ -> .element >> .height)
+
+        updateHeight : TodoLI -> TodoLI
+        updateHeight tli =
+            { tli | height = Dict.get tli.todo.id byId }
     in
     pure
         { model
-            | todoDL =
-                model.todoDL
-                    |> List.map (\tli -> { tli | height = Dict.get tli.todo.id byId })
+            | todoDL = model.todoDL |> List.map updateHeight
         }
 
 
