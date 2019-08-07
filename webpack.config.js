@@ -11,7 +11,7 @@ const isProduction = NODE_ENV === 'production'
 
 // https://webpack.js.org/configuration/
 module.exports = {
-// mode: mode,
+  // mode: mode,
   entry: './src/index.js',
   output: {
     publicPath: '/',
@@ -27,9 +27,7 @@ module.exports = {
         use: [
           {
             loader: 'elm-webpack-loader',
-            options: {
-              optimize: isProduction,
-            },
+            options: { optimize: isProduction },
           },
         ],
       },
