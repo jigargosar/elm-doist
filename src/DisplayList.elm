@@ -1,5 +1,6 @@
 module DisplayList exposing (DisplayList, Msg, changeList, initial, removed, subscriptions, toList, update)
 
+import Browser.Events
 import Now exposing (Millis)
 import Return
 import Set exposing (Set)
@@ -9,6 +10,7 @@ import Time
 type alias AnimatingRec a =
     { from : List a
     , to : List a
+    , elapsed : Float
     }
 
 
@@ -24,6 +26,7 @@ initial =
 
 type Msg
     = EndAnimation Millis
+    | OnAnimationFrame Float
 
 
 subscriptions : DisplayList a -> Sub Msg
@@ -33,17 +36,17 @@ subscriptions model =
             Sub.none
 
         Animating _ ->
-            Time.every 2000 (Time.posixToMillis >> EndAnimation)
+            Browser.Events.onAnimationFrameDelta OnAnimationFrame
 
 
 changeList : List a -> DisplayList a -> DisplayList a
 changeList newList model =
     case model of
         Initial oldList ->
-            Animating { from = oldList, to = newList }
+            Animating { from = oldList, to = newList, elapsed = 0 }
 
         Animating rec ->
-            Animating { rec | to = newList }
+            Animating { rec | to = newList, elapsed = 0 }
 
 
 type alias Return a =
@@ -60,6 +63,14 @@ update msg model =
 
                 Animating rec ->
                     Initial rec.to
+
+        OnAnimationFrame delta ->
+            case model of
+                Initial _ ->
+                    model
+
+                Animating rec ->
+                    Animating { rec | elapsed = delta + rec.elapsed }
 
 
 toList : DisplayList a -> List a
