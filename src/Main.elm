@@ -24,8 +24,8 @@ import Route exposing (Route)
 import StyledKeyEvent
 import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
+import TodoDL exposing (TodoDL, TodoLI)
 import TodoId exposing (TodoId)
-import TodoLI exposing (TodoDL, TodoLI)
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
@@ -74,7 +74,7 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
-            , todoDL = TodoLI.empty
+            , todoDL = TodoDL.empty
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -230,13 +230,13 @@ update message model =
                 { model
                     | todoDL =
                         model.todoDL
-                            |> TodoLI.filterMap
+                            |> TodoDL.filterMap
                                 (\tli ->
                                     case tli.transit of
-                                        TodoLI.Entering _ ->
+                                        TodoDL.Entering _ ->
                                             Just tli
 
-                                        TodoLI.Leaving d ->
+                                        TodoDL.Leaving d ->
                                             let
                                                 elapsed =
                                                     d + delta
@@ -245,9 +245,9 @@ update message model =
                                                 Nothing
 
                                             else
-                                                Just { tli | transit = TodoLI.Leaving elapsed }
+                                                Just { tli | transit = TodoDL.Leaving elapsed }
 
-                                        TodoLI.Staying ->
+                                        TodoDL.Staying ->
                                             Just tli
                                 )
                 }
@@ -273,7 +273,7 @@ updateTodoDLElements list model =
     in
     pure
         { model
-            | todoDL = model.todoDL |> TodoLI.map updateHeight
+            | todoDL = model.todoDL |> TodoDL.map updateHeight
         }
 
 
@@ -332,9 +332,9 @@ updateTodoDL model =
 
         newTodoDLWithRemovedAndSorted : TodoDL
         newTodoDLWithRemovedAndSorted =
-            TodoLI.update newFilteredAndSortedTodoList model.todoDL
+            TodoDL.update newFilteredAndSortedTodoList model.todoDL
 
-        --                |> TodoLI.toList
+        --                |> TodoDL.toList
         --                |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
@@ -356,7 +356,7 @@ type alias DomError =
 updateTodoDLHeightEffect : Model -> Cmd Msg
 updateTodoDLHeightEffect model =
     model.todoDL
-        |> TodoLI.toList
+        |> TodoDL.toList
         |> List.map
             (\tli ->
                 tli.todo
@@ -529,7 +529,7 @@ viewTodoList : TodoDL -> Html Msg
 viewTodoList todoDL =
     let
         list =
-            TodoLI.toList todoDL
+            TodoDL.toList todoDL
                 |> List.sortWith (Compare.compose .todo todoComparator)
     in
     div [ class "vs1" ] (List.map viewTodoItem list)
@@ -556,7 +556,7 @@ viewTodoItem todoLI =
          , Html.Styled.Attributes.id (todoLIDomId todo)
          ]
             ++ (case ( todoLI.transit, todoLI.height ) of
-                    ( TodoLI.Leaving delta, Just h ) ->
+                    ( TodoDL.Leaving delta, Just h ) ->
                         let
                             inValue =
                                 animTime - delta
