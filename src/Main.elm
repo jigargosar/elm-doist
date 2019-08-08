@@ -422,9 +422,9 @@ viewHeader model =
                 [ a [ class "no-underline", href Route.inboxUrl, class "b" ] [ text "Inbox" ]
                 ]
             ]
-        , div [ class "pa3 hs3" ]
+        , div [ class "pa3 " ]
             [ div [ class "flex hs3" ]
-                [ div [ class "b" ] [ text "Projects:" ]
+                [ div [ class "b flex-grow-1" ] [ text "Projects:" ]
                 , button [ onClick OnAddProject ] [ text "New Project" ]
                 ]
             , viewNavProjects model.projectList
