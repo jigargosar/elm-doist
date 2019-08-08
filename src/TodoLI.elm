@@ -1,4 +1,4 @@
-module TodoLI exposing (TodoDL, TodoLI, Transit(..), fromTodo, initDisplayList, update)
+module TodoLI exposing (TodoDL, TodoLI, Transit(..), empty, filterMap, fromTodo, initDisplayList, map, toList, update)
 
 import Set exposing (Set)
 import Todo exposing (Todo, TodoList)
@@ -15,8 +15,8 @@ type alias TodoLI =
     { todo : Todo, height : Maybe Float, transit : Transit }
 
 
-type alias TodoDL =
-    List TodoLI
+type TodoDL
+    = TodoDL (List TodoLI)
 
 
 fromTodo : Todo -> TodoLI
@@ -29,11 +29,11 @@ fromTodo t =
 
 initDisplayList : TodoList -> TodoDL
 initDisplayList =
-    List.map fromTodo
+    List.map fromTodo >> TodoDL
 
 
 toIdSet : TodoDL -> Set TodoId
-toIdSet todoDL =
+toIdSet (TodoDL todoDL) =
     todoDL |> List.map (.todo >> .id) |> Set.fromList
 
 
@@ -55,26 +55,55 @@ update todoList todoDL =
         removedIdSet : Set TodoId
         removedIdSet =
             Set.diff oldIdSet newIdSet
-
-        removedTLI : List TodoLI
-        removedTLI =
-            todoDL
-                |> List.filter
-                    (\tli -> Set.member tli.todo.id removedIdSet)
-                |> List.map
-                    (\tli ->
-                        { tli
-                            | transit =
-                                case tli.transit of
-                                    Leaving _ ->
-                                        tli.transit
-
-                                    Entering _ ->
-                                        Leaving 0
-
-                                    Staying ->
-                                        Leaving 0
-                        }
-                    )
     in
-    newTodoDL ++ removedTLI
+    concat newTodoDL (removedTLI removedIdSet todoDL)
+
+
+concat : TodoDL -> TodoDL -> TodoDL
+concat (TodoDL a) (TodoDL b) =
+    a ++ b |> TodoDL
+
+
+removedTLI : Set TodoId -> TodoDL -> TodoDL
+removedTLI removedIdSet (TodoDL todoDL) =
+    todoDL
+        |> List.filter
+            (\tli -> Set.member tli.todo.id removedIdSet)
+        |> List.map
+            (\tli ->
+                { tli
+                    | transit =
+                        case tli.transit of
+                            Leaving _ ->
+                                tli.transit
+
+                            Entering _ ->
+                                Leaving 0
+
+                            Staying ->
+                                Leaving 0
+                }
+            )
+        |> TodoDL
+
+
+toList : TodoDL -> List TodoLI
+toList (TodoDL todoDL) =
+    todoDL
+
+
+empty : TodoDL
+empty =
+    TodoDL []
+
+
+filterMap : (TodoLI -> Maybe TodoLI) -> TodoDL -> TodoDL
+filterMap fn (TodoDL todoDL) =
+    List.filterMap fn todoDL
+        |> TodoDL
+
+
+map : (TodoLI -> TodoLI) -> TodoDL -> TodoDL
+map fn (TodoDL todoDL) =
+    List.map fn todoDL
+        |> TodoDL

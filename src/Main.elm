@@ -21,7 +21,6 @@ import Project exposing (ProjectList)
 import Result.Extra
 import Return
 import Route exposing (Route)
-import Set exposing (Set)
 import StyledKeyEvent
 import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
@@ -75,7 +74,7 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
-            , todoDL = []
+            , todoDL = TodoLI.empty
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -231,7 +230,7 @@ update message model =
                 { model
                     | todoDL =
                         model.todoDL
-                            |> List.filterMap
+                            |> TodoLI.filterMap
                                 (\tli ->
                                     case tli.transit of
                                         TodoLI.Entering _ ->
@@ -274,7 +273,7 @@ updateTodoDLElements list model =
     in
     pure
         { model
-            | todoDL = model.todoDL |> List.map updateHeight
+            | todoDL = model.todoDL |> TodoLI.map updateHeight
         }
 
 
@@ -317,23 +316,26 @@ updateTodoList todoList model =
         |> updateTodoDL
 
 
+todoComparator : Comparator Todo
+todoComparator =
+    Todo.concatCompareBy [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+
+
 updateTodoDL : Model -> Return
 updateTodoDL model =
     let
-        todoComparator : Comparator Todo
-        todoComparator =
-            Todo.concatCompareBy [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-
         newFilteredAndSortedTodoList =
             model.todoList
                 |> Todo.filter
                     (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                 |> List.sortWith todoComparator
 
-        newTodoDLWithRemovedAndSorted : List TodoLI
+        newTodoDLWithRemovedAndSorted : TodoDL
         newTodoDLWithRemovedAndSorted =
             TodoLI.update newFilteredAndSortedTodoList model.todoDL
-                |> List.sortWith (Compare.compose .todo todoComparator)
+
+        --                |> TodoLI.toList
+        --                |> List.sortWith (Compare.compose .todo todoComparator)
     in
     pure
         { model
@@ -354,6 +356,7 @@ type alias DomError =
 updateTodoDLHeightEffect : Model -> Cmd Msg
 updateTodoDLHeightEffect model =
     model.todoDL
+        |> TodoLI.toList
         |> List.map
             (\tli ->
                 tli.todo
@@ -522,9 +525,14 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoList : List TodoLI -> Html Msg
+viewTodoList : TodoDL -> Html Msg
 viewTodoList todoDL =
-    div [ class "vs1" ] (List.map viewTodoItem todoDL)
+    let
+        list =
+            TodoLI.toList todoDL
+                |> List.sortWith (Compare.compose .todo todoComparator)
+    in
+    div [ class "vs1" ] (List.map viewTodoItem list)
 
 
 
