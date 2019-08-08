@@ -5,8 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import HasErrors
-import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
+import Html.Styled exposing (Html, a, button, div, input, text)
+import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -408,7 +408,7 @@ viewNavProjects projectList =
 
 viewProjectNavItem project =
     div [ class "pa2" ]
-        [ div [] [ text project.title ]
+        [ a [ href (Route.projectUrl project.id) ] [ text project.title ]
         ]
 
 
