@@ -5,8 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import HasErrors
-import Html.Styled exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_)
+import Html.Styled exposing (Html, a, button, div, input, option, select, text)
+import Html.Styled.Attributes exposing (checked, class, disabled, href, selected, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -437,12 +437,22 @@ viewTodoItem edit todo =
 viewEditTodoItem : InlineEditTodo -> Html Msg
 viewEditTodoItem edt =
     div
-        [ class "flex hs1 lh-copy db "
+        [ class ""
         , tabindex 0
         ]
-        [ div [] [ text "editing" ]
-        , button [ onClick OnEditCancel ] [ text "Cancel" ]
-        , button [ onClick OnEditSave ] [ text "Save" ]
+        [ div []
+            [ select []
+                [ option
+                    [ value ""
+                    , selected (edt.pid |> Maybe.withDefault edt.todo.projectId |> (==) "")
+                    ]
+                    [ text "Inbox" ]
+                ]
+            ]
+        , div [ class "flex hs3" ]
+            [ button [ onClick OnEditCancel ] [ text "Cancel" ]
+            , button [ onClick OnEditSave ] [ text "Save" ]
+            ]
         ]
 
 
