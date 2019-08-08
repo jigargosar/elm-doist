@@ -442,12 +442,17 @@ viewEditTodoItem edt =
         ]
         [ div []
             [ select []
-                [ option
+                (option
                     [ value ""
-                    , selected (edt.pid |> Maybe.withDefault edt.todo.projectId |> (==) "")
+                    , selected
+                        (edt.pid
+                            |> Maybe.withDefault edt.todo.projectId
+                            |> (==) ""
+                        )
                     ]
                     [ text "Inbox" ]
-                ]
+                    :: []
+                )
             ]
         , div [ class "flex hs3" ]
             [ button [ onClick OnEditCancel ] [ text "Cancel" ]
