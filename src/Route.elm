@@ -6,8 +6,7 @@ import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, string, to
 
 
 type Route
-    = Default
-    | Inbox
+    = Inbox
     | Project String
     | NotFound Url
 
@@ -15,7 +14,7 @@ type Route
 routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
-        [ map Default top
+        [ map Inbox top
         , map Project (s "project" </> string)
         , map Inbox (s "inbox")
         ]

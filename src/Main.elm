@@ -334,9 +334,6 @@ toUnStyledDocument { title, body } =
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
-        Route.Default ->
-            viewRoute Route.Inbox model
-
         Route.Inbox ->
             let
                 displayTodoList =
@@ -383,7 +380,7 @@ viewRoute route model =
             }
 
         Route.NotFound url ->
-            viewRoute Route.Default model
+            viewRoute Route.Inbox model
 
 
 viewTodoListHeader title =
