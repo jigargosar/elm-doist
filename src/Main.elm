@@ -11,6 +11,7 @@ import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
+import List.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
@@ -364,8 +365,14 @@ viewRoute route model =
                         (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
                         [ Todo.ByIdx, Todo.ByRecentlyCreated ]
                         model.todoList
+
+                title =
+                    model.projectList
+                        |> List.Extra.find (.id >> (==) pid)
+                        |> Maybe.map .title
+                        |> Maybe.withDefault "Project Not Found"
             in
-            { title = "Inbox"
+            { title = title
             , body =
                 [ viewHeader model
                 , div [ class "pa3 vs3" ]
