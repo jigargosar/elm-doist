@@ -434,7 +434,7 @@ viewTodoItem edit todo =
                 viewTodoItemHelp todo
 
 
-viewEditTodoItem : InlineEditTodo -> Html msg
+viewEditTodoItem : InlineEditTodo -> Html Msg
 viewEditTodoItem edt =
     div
         [ class "flex hs1 lh-copy db "
