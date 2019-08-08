@@ -348,10 +348,7 @@ viewRoute route model =
             { title = title
             , body =
                 [ viewHeader model
-                , div [ class "pa3 vs3" ]
-                    [ viewTodoListHeader title
-                    , viewTodoList displayTodoList
-                    ]
+                , todoListPageContent title displayTodoList
                 ]
             }
 
@@ -372,15 +369,19 @@ viewRoute route model =
             { title = title
             , body =
                 [ viewHeader model
-                , div [ class "pa3 vs3" ]
-                    [ viewTodoListHeader title
-                    , viewTodoList displayTodoList
-                    ]
+                , todoListPageContent title displayTodoList
                 ]
             }
 
         Route.NotFound url ->
             viewRoute Route.Inbox model
+
+
+todoListPageContent title displayTodoList =
+    div [ class "pa3 vs3" ]
+        [ viewTodoListHeader title
+        , viewTodoList displayTodoList
+        ]
 
 
 viewHeader : Model -> Html Msg
