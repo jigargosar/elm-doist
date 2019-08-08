@@ -344,15 +344,15 @@ viewRoute route model =
                         (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
                         [ Todo.ByIdx, Todo.ByRecentlyCreated ]
                         model.todoList
+
+                title =
+                    "Inbox"
             in
-            { title = "Inbox"
+            { title = title
             , body =
                 [ viewHeader model
                 , div [ class "pa3 vs3" ]
-                    [ div [ class "flex items-center hs3" ]
-                        [ div [ class "flex-grow-1 b" ] [ text "Inbox" ]
-                        , button [ onClick OnAddTodo ] [ text "ADD" ]
-                        ]
+                    [ viewTodoListHeader title
                     , viewTodoList displayTodoList
                     ]
                 ]
@@ -376,10 +376,7 @@ viewRoute route model =
             , body =
                 [ viewHeader model
                 , div [ class "pa3 vs3" ]
-                    [ div [ class "flex items-center hs3" ]
-                        [ div [ class "b flex-grow-1" ] [ text title ]
-                        , button [ onClick OnAddTodo ] [ text "ADD" ]
-                        ]
+                    [ viewTodoListHeader title
                     , viewTodoList displayTodoList
                     ]
                 ]
@@ -387,6 +384,13 @@ viewRoute route model =
 
         Route.NotFound url ->
             viewRoute Route.Default model
+
+
+viewTodoListHeader title =
+    div [ class "flex items-center hs3" ]
+        [ div [ class "b flex-grow-1" ] [ text title ]
+        , button [ onClick OnAddTodo ] [ text "ADD" ]
+        ]
 
 
 viewHeader : Model -> Html Msg
