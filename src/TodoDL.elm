@@ -1,4 +1,15 @@
-module TodoDL exposing (TodoDL, TodoLI, Transit(..), empty, filterMap, fromTodo, initDisplayList, map, toList, update)
+module TodoDL exposing
+    ( TodoDL
+    , TodoLI
+    , Transit(..)
+    , empty
+    , filterMap
+    , fromTodo
+    , initDisplayList
+    , map
+    , toList
+    , update
+    )
 
 import Set exposing (Set)
 import Todo exposing (Todo, TodoList)
