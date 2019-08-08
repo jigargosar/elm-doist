@@ -405,12 +405,19 @@ viewTodoItem todo =
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
-        , div [ class "flex items-center" ]
-            [ button
-                [ onClick (OnDelete todo.id)
-                ]
-                [ text "X" ]
+        , viewDeleteTodoBtn todo
+        ]
+
+
+viewTodoCheck todo =
+    div [ class "hover-bg-light-yellow flex flex-column pa2" ]
+        [ input
+            [ class "pointer db flex-grow-1"
+            , type_ "checkbox"
+            , checked todo.isDone
+            , onCheck (OnChecked todo.id)
             ]
+            []
         ]
 
 
@@ -435,16 +442,9 @@ viewTodoTitle todo =
         [ text title ]
 
 
-viewTodoCheck todo =
-    div [ class "hover-bg-light-yellow flex flex-column pa2" ]
-        [ input
-            [ class "pointer db flex-grow-1"
-            , type_ "checkbox"
-            , checked todo.isDone
-            , onCheck (OnChecked todo.id)
-            ]
-            []
-        ]
+viewDeleteTodoBtn todo =
+    div [ class "flex items-center" ]
+        [ button [ onClick (OnDelete todo.id) ] [ text "X" ] ]
 
 
 
