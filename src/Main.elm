@@ -377,13 +377,6 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
 
-todoListPageContent title displayTodoList =
-    div [ class "pa3 vs3" ]
-        [ viewTodoListHeader title
-        , viewTodoList displayTodoList
-        ]
-
-
 viewHeader : Model -> Html Msg
 viewHeader model =
     div []
@@ -441,16 +434,14 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoListHeader title =
-    div [ class "flex items-center hs3" ]
-        [ div [ class "b flex-grow-1" ] [ text title ]
-        , button [ onClick OnAddTodo ] [ text "ADD" ]
+todoListPageContent title displayTodoList =
+    div [ class "pa3 vs3" ]
+        [ div [ class "flex items-center hs3" ]
+            [ div [ class "b flex-grow-1" ] [ text title ]
+            , button [ onClick OnAddTodo ] [ text "ADD" ]
+            ]
+        , div [ class "vs1" ] (List.map viewTodoItem displayTodoList)
         ]
-
-
-viewTodoList : List Todo -> Html Msg
-viewTodoList todoList =
-    div [ class "vs1" ] (List.map viewTodoItem todoList)
 
 
 viewTodoItem todo =
