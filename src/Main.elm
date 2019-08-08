@@ -377,61 +377,8 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
 
-viewHeader : Model -> Html Msg
-viewHeader model =
-    div []
-        [ div [ onClick NoOp ] [ text "ElmDOist" ]
-        , div [ class "pa3 flex hs3" ]
-            [ div [ class "b" ] [ text "AuthState:" ]
-            , AuthState.view model.authState
-            ]
-        , div [ class "pa3 flex hs3" ]
-            [ div [ class "b" ] [ text "Errors:" ]
-            , HasErrors.view model.errors
-            ]
-        , div [ class "pa3 flex items-center hs3" ]
-            [ div [ class "b" ] [ text "User:" ]
-            , case model.authState of
-                AuthState.Unknown ->
-                    button [ disabled True ] [ text "SignIn" ]
 
-                AuthState.SignedIn user ->
-                    div [ class "flex items-center hs3 " ]
-                        [ div [] [ text user.displayName ]
-                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
-                        ]
-
-                AuthState.NotSignedIn ->
-                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
-            ]
-        , div [ class "pa3 hs3" ]
-            [ div [ class "flex hs3" ]
-                [ a [ class "no-underline", href Route.inboxUrl, class "b" ] [ text "Inbox" ]
-                ]
-            ]
-        , div [ class "pa3 " ]
-            [ div [ class "flex hs3" ]
-                [ div [ class "b flex-grow-1" ] [ text "Projects:" ]
-                , button [ onClick OnAddProject ] [ text "New Project" ]
-                ]
-            , viewNavProjects model.projectList
-            ]
-        ]
-
-
-viewNavProjects : ProjectList -> Html msg
-viewNavProjects projectList =
-    div [ class "vs1" ] (List.map viewProjectNavItem projectList)
-
-
-viewProjectNavItem project =
-    div [ class "pa2" ]
-        [ a
-            [ class "no-underline"
-            , href (Route.projectUrl project.id)
-            ]
-            [ text project.title ]
-        ]
+-- TodoListPageContent
 
 
 todoListPageContent title displayTodoList =
@@ -490,6 +437,67 @@ viewTodoCheck todo =
             , onCheck (OnChecked todo.id)
             ]
             []
+        ]
+
+
+
+-- HEADER
+
+
+viewHeader : Model -> Html Msg
+viewHeader model =
+    div []
+        [ div [ onClick NoOp ] [ text "ElmDOist" ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "b" ] [ text "AuthState:" ]
+            , AuthState.view model.authState
+            ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "b" ] [ text "Errors:" ]
+            , HasErrors.view model.errors
+            ]
+        , div [ class "pa3 flex items-center hs3" ]
+            [ div [ class "b" ] [ text "User:" ]
+            , case model.authState of
+                AuthState.Unknown ->
+                    button [ disabled True ] [ text "SignIn" ]
+
+                AuthState.SignedIn user ->
+                    div [ class "flex items-center hs3 " ]
+                        [ div [] [ text user.displayName ]
+                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        ]
+
+                AuthState.NotSignedIn ->
+                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            ]
+        , div [ class "pa3 hs3" ]
+            [ div [ class "flex hs3" ]
+                [ a [ class "no-underline", href Route.inboxUrl, class "b" ] [ text "Inbox" ]
+                ]
+            ]
+        , div [ class "pa3 " ]
+            [ div [ class "flex hs3" ]
+                [ div [ class "b flex-grow-1" ] [ text "Projects:" ]
+                , button [ onClick OnAddProject ] [ text "New Project" ]
+                ]
+            , viewNavProjects model.projectList
+            ]
+        ]
+
+
+viewNavProjects : ProjectList -> Html msg
+viewNavProjects projectList =
+    div [ class "vs1" ] (List.map viewProjectNavItem projectList)
+
+
+viewProjectNavItem project =
+    div [ class "pa2" ]
+        [ a
+            [ class "no-underline"
+            , href (Route.projectUrl project.id)
+            ]
+            [ text project.title ]
         ]
 
 
