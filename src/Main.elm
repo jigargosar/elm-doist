@@ -12,6 +12,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import List.Extra
+import Maybe.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
@@ -103,7 +104,10 @@ type Msg
     | OnAddTodo
     | AddTodo Millis
     | OnAddProject
+    | OnEdit TodoId
     | AddProject Millis
+    | OnEditCancel
+    | OnEditSave
 
 
 
@@ -215,6 +219,23 @@ update message model =
                 , data = Project.new now
                 }
             )
+
+        OnEdit todoId ->
+            model.todoList
+                |> List.Extra.find (.id >> (==) todoId)
+                |> Maybe.Extra.unwrap pure startEditing
+                |> callWith model
+
+        OnEditCancel ->
+            pure { model | inlineEditTodo = Nothing }
+
+        OnEditSave ->
+            pure { model | inlineEditTodo = Nothing }
+
+
+startEditing : Todo -> Model -> Return
+startEditing todo model =
+    pure { model | inlineEditTodo = Just { todo = todo, pid = Nothing } }
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
@@ -419,7 +440,9 @@ viewEditTodoItem edt =
         [ class "flex hs1 lh-copy db "
         , tabindex 0
         ]
-        [ text "editing"
+        [ div [] [ text "editing" ]
+        , button [ onClick OnEditCancel ] [ text "Cancel" ]
+        , button [ onClick OnEditSave ] [ text "Save" ]
         ]
 
 
@@ -461,8 +484,7 @@ viewTodoTitle todo =
                 ++ " "
                 ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
             )
-        , onClick (OnChangeTitleRequested todo.id)
-        , OnChangeTitleRequested todo.id |> StyledKeyEvent.onEnter
+        , onClick (OnEdit todo.id)
         ]
         [ text title ]
 
