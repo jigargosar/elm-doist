@@ -383,13 +383,6 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
 
-viewTodoListHeader title =
-    div [ class "flex items-center hs3" ]
-        [ div [ class "b flex-grow-1" ] [ text title ]
-        , button [ onClick OnAddTodo ] [ text "ADD" ]
-        ]
-
-
 viewHeader : Model -> Html Msg
 viewHeader model =
     div []
@@ -444,6 +437,13 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
+        ]
+
+
+viewTodoListHeader title =
+    div [ class "flex items-center hs3" ]
+        [ div [ class "b flex-grow-1" ] [ text title ]
+        , button [ onClick OnAddTodo ] [ text "ADD" ]
         ]
 
 
