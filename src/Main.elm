@@ -3,14 +3,10 @@ module Main exposing (main)
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
-import Browser.Dom exposing (Element)
-import Browser.Events
 import Browser.Navigation as Nav
-import Compare exposing (Comparator)
-import Dict exposing (Dict)
 import HasErrors
 import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, style, tabindex, type_)
+import Html.Styled.Attributes exposing (checked, class, disabled, tabindex, type_)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -22,11 +18,9 @@ import Result.Extra
 import Return
 import Route exposing (Route)
 import StyledKeyEvent
-import Task exposing (Task)
 import Todo exposing (Todo, TodoList)
-import TodoDL exposing (TodoDL, TodoLI)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, command, effect, pure)
+import UpdateExtra exposing (andThen, command, pure)
 import Url exposing (Url)
 
 
@@ -36,7 +30,6 @@ type alias Error =
 
 type alias Model =
     { todoList : TodoList
-    , todoDL : TodoDL
     , projectList : ProjectList
     , authState : AuthState
     , errors : List Error
@@ -74,7 +67,6 @@ init encodedFlags url key =
         model : Model
         model =
             { todoList = []
-            , todoDL = TodoDL.empty
             , projectList = []
             , authState = AuthState.initial
             , errors = []
@@ -104,8 +96,6 @@ type Msg
     | AddTodo Millis
     | OnAddProject
     | AddProject Millis
-    | OnTodoDLElements (Result DomError (List ( TodoId, Element )))
-    | OnAnimationFrameDelta Float
 
 
 
@@ -218,64 +208,6 @@ update message model =
                 }
             )
 
-        OnTodoDLElements result ->
-            result
-                |> Result.Extra.unpack
-                    (Debug.log "todoEL Error" >> always pure)
-                    updateTodoDLElements
-                |> callWith model
-
-        OnAnimationFrameDelta delta ->
-            pure
-                { model
-                    | todoDL =
-                        model.todoDL
-                            |> TodoDL.filterMap
-                                (\tli ->
-                                    case tli.transit of
-                                        TodoDL.Entering _ ->
-                                            Just tli
-
-                                        TodoDL.Leaving d ->
-                                            let
-                                                elapsed =
-                                                    d + delta
-                                            in
-                                            if elapsed > animTime then
-                                                Nothing
-
-                                            else
-                                                Just { tli | transit = TodoDL.Leaving elapsed }
-
-                                        TodoDL.Staying ->
-                                            Just tli
-                                )
-                }
-
-
-animTime =
-    2000
-
-
-updateTodoDLElements : List ( TodoId, Element ) -> Model -> Return
-updateTodoDLElements list model =
-    let
-        byId : Dict TodoId Float
-        byId =
-            {- Debug.log "todoEl" -}
-            list
-                |> Dict.fromList
-                |> Dict.map (\_ -> .element >> .height)
-
-        updateHeight : TodoLI -> TodoLI
-        updateHeight tli =
-            { tli | height = Dict.get tli.todo.id byId }
-    in
-    pure
-        { model
-            | todoDL = model.todoDL |> TodoDL.map updateHeight
-        }
-
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
@@ -305,72 +237,21 @@ updateFromEncodedFlags encodedFlags model =
 
 updateFromFlags : Flags -> Model -> Return
 updateFromFlags flags model =
-    setProjectList flags.cachedProjectList model
+    setTodoList flags.cachedTodoList model
+        |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
-        |> updateTodoList flags.cachedTodoList
+        |> pure
 
 
-updateTodoList : TodoList -> Model -> Return
-updateTodoList todoList model =
+setTodoList : TodoList -> Model -> Model
+setTodoList todoList model =
     { model | todoList = todoList }
-        |> updateTodoDL
-
-
-todoComparator : Comparator Todo
-todoComparator =
-    Todo.concatCompareBy [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-
-
-updateTodoDL : Model -> Return
-updateTodoDL model =
-    let
-        newFilteredAndSortedTodoList =
-            model.todoList
-                |> Todo.filter
-                    (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-                |> List.sortWith todoComparator
-
-        newTodoDLWithRemovedAndSorted : TodoDL
-        newTodoDLWithRemovedAndSorted =
-            TodoDL.update newFilteredAndSortedTodoList model.todoDL
-
-        --                |> TodoDL.toList
-        --                |> List.sortWith (Compare.compose .todo todoComparator)
-    in
-    pure
-        { model
-            | todoDL = newTodoDLWithRemovedAndSorted
-        }
-        |> effect updateTodoDLHeightEffect
-
-
-todoLIDomId : Todo -> String
-todoLIDomId todo =
-    "todo-dl-" ++ todo.id
-
-
-type alias DomError =
-    Browser.Dom.Error
-
-
-updateTodoDLHeightEffect : Model -> Cmd Msg
-updateTodoDLHeightEffect model =
-    model.todoDL
-        |> TodoDL.toList
-        |> List.map
-            (\tli ->
-                tli.todo
-                    |> todoLIDomId
-                    |> Browser.Dom.getElement
-                    |> Task.map (Tuple.pair tli.todo.id)
-            )
-        |> Task.sequence
-        |> Task.attempt OnTodoDLElements
 
 
 setAndCacheTodoList : TodoList -> Model -> Return
 setAndCacheTodoList todoList model =
-    updateTodoList todoList model
+    setTodoList todoList model
+        |> pure
         |> command
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
@@ -431,7 +312,6 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , Browser.Events.onAnimationFrameDelta OnAnimationFrameDelta
         ]
 
 
@@ -457,6 +337,13 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
         Route.Inbox ->
+            let
+                displayTodoList =
+                    Todo.filterSort
+                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
+                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+                        model.todoList
+            in
             { title = "Inbox"
             , body =
                 [ viewHeader model
@@ -465,15 +352,15 @@ viewRoute route model =
                         [ div [ class "b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
-                    , viewTodoList model.todoDL
+                    , viewTodoList displayTodoList
                     ]
                 ]
             }
 
-        Route.Project _ ->
+        Route.Project string ->
             viewRoute Route.Default model
 
-        Route.NotFound _ ->
+        Route.NotFound url ->
             viewRoute Route.Default model
 
 
@@ -525,60 +412,16 @@ viewProjectNavItem project =
         ]
 
 
-viewTodoList : TodoDL -> Html Msg
-viewTodoList todoDL =
-    let
-        list =
-            TodoDL.toList todoDL
-                |> List.sortWith (Compare.compose .todo todoComparator)
-    in
-    div [ class "vs1" ] (List.map viewTodoItem list)
+viewTodoList : List Todo -> Html Msg
+viewTodoList todoList =
+    div [ class "vs1" ] (List.map viewTodoItem todoList)
 
 
-
--- ? = 1/3000
--- outputMin = 1 , outputMax = 100
--- inputMin = 1 , inputMax = 3000
---   output? = 100 * input / 3000
---   output? = (100 * delta / animTime) / 100
---
-
-
-viewTodoItem : TodoLI -> Html Msg
-viewTodoItem todoLI =
-    let
-        todo =
-            todoLI.todo
-    in
+viewTodoItem todo =
     div
-        ([ class "flex hs1 lh-copy db "
-         , tabindex 0
-         , Html.Styled.Attributes.id (todoLIDomId todo)
-         ]
-            ++ (case ( todoLI.transit, todoLI.height ) of
-                    ( TodoDL.Leaving delta, Just h ) ->
-                        let
-                            inValue =
-                                animTime - delta
-
-                            factor =
-                                inValue / animTime
-                        in
-                        [ style "max-height"
-                            (String.fromFloat
-                                (h * factor)
-                                ++ "px"
-                            )
-                        , style "overflow" "hidden"
-                        , style "height" (String.fromFloat h ++ "px")
-                        , style "pointer-events" "none"
-                        , class "bg-light-pink"
-                        ]
-
-                    _ ->
-                        []
-               )
-        )
+        [ class "flex hs1 lh-copy db "
+        , tabindex 0
+        ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
         , div [ class "flex items-center" ]
