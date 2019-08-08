@@ -357,8 +357,26 @@ viewRoute route model =
                 ]
             }
 
-        Route.Project string ->
-            viewRoute Route.Default model
+        Route.Project pid ->
+            let
+                displayTodoList =
+                    Todo.filterSort
+                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
+                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
+                        model.todoList
+            in
+            { title = "Inbox"
+            , body =
+                [ viewHeader model
+                , div [ class "pa3 vs3" ]
+                    [ div [ class "flex items-center hs3" ]
+                        [ div [ class "b" ] [ text "Inbox" ]
+                        , button [ onClick OnAddTodo ] [ text "ADD" ]
+                        ]
+                    , viewTodoList displayTodoList
+                    ]
+                ]
+            }
 
         Route.NotFound url ->
             viewRoute Route.Default model
@@ -390,6 +408,11 @@ viewHeader model =
 
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            ]
+        , div [ class "pa3 hs3" ]
+            [ div [ class "flex hs3" ]
+                [ a [ href Route.inboxUrl, class "b" ] [ text "Inbox" ]
+                ]
             ]
         , div [ class "pa3 hs3" ]
             [ div [ class "flex hs3" ]
