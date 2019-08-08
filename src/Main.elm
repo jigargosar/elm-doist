@@ -350,7 +350,7 @@ viewRoute route model =
                 [ viewHeader model
                 , div [ class "pa3 vs3" ]
                     [ div [ class "flex items-center hs3" ]
-                        [ div [ class "b" ] [ text "Inbox" ]
+                        [ div [ class "flex-grow-1 b" ] [ text "Inbox" ]
                         , button [ onClick OnAddTodo ] [ text "ADD" ]
                         ]
                     , viewTodoList displayTodoList
