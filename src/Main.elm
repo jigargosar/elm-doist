@@ -355,7 +355,7 @@ viewRoute route model =
             { title = title
             , body =
                 [ viewHeader model
-                , todoListPageContent title displayTodoList
+                , todoListPageContent title model.inlineEditTodo displayTodoList
                 ]
             }
 
@@ -376,7 +376,7 @@ viewRoute route model =
             { title = title
             , body =
                 [ viewHeader model
-                , todoListPageContent title displayTodoList
+                , todoListPageContent title model.inlineEditTodo displayTodoList
                 ]
             }
 
@@ -388,17 +388,42 @@ viewRoute route model =
 -- TodoListPageContent
 
 
-todoListPageContent title displayTodoList =
+todoListPageContent : String -> Maybe InlineEditTodo -> TodoList -> Html Msg
+todoListPageContent title edit displayTodoList =
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick OnAddTodo ] [ text "ADD" ]
             ]
-        , div [ class "vs1" ] (List.map viewTodoItem displayTodoList)
+        , div [ class "vs1" ] (List.map (viewTodoItem edit) displayTodoList)
         ]
 
 
-viewTodoItem todo =
+viewTodoItem : Maybe InlineEditTodo -> Todo -> Html Msg
+viewTodoItem edit todo =
+    case edit of
+        Nothing ->
+            viewTodoItemHelp todo
+
+        Just edt ->
+            if edt.todo.id == todo.id then
+                viewEditTodoItem edt
+
+            else
+                viewTodoItemHelp todo
+
+
+viewEditTodoItem : InlineEditTodo -> Html msg
+viewEditTodoItem edt =
+    div
+        [ class "flex hs1 lh-copy db "
+        , tabindex 0
+        ]
+        [ text "editing"
+        ]
+
+
+viewTodoItemHelp todo =
     div
         [ class "flex hs1 lh-copy db "
         , tabindex 0
