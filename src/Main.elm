@@ -15,6 +15,7 @@ import List.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
+import ProjectId exposing (ProjectId)
 import Result.Extra
 import Return
 import Route exposing (Route)
@@ -29,9 +30,14 @@ type alias Error =
     String
 
 
+type alias InlineEditTodo =
+    { todo : Todo, pid : Maybe ProjectId }
+
+
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
+    , inlineEditTodo : Maybe InlineEditTodo
     , authState : AuthState
     , errors : List Error
     , key : Nav.Key
@@ -69,6 +75,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
+            , inlineEditTodo = Nothing
             , authState = AuthState.initial
             , errors = []
             , key = key
