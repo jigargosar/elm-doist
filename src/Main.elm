@@ -418,7 +418,7 @@ viewHeader model =
             ]
         , div [ class "pa3 hs3" ]
             [ div [ class "flex hs3" ]
-                [ a [ href Route.inboxUrl, class "b" ] [ text "Inbox" ]
+                [ a [ class "no-underline", href Route.inboxUrl, class "b" ] [ text "Inbox" ]
                 ]
             ]
         , div [ class "pa3 hs3" ]
@@ -438,7 +438,11 @@ viewNavProjects projectList =
 
 viewProjectNavItem project =
     div [ class "pa2" ]
-        [ a [ href (Route.projectUrl project.id) ] [ text project.title ]
+        [ a
+            [ class "no-underline"
+            , href (Route.projectUrl project.id)
+            ]
+            [ text project.title ]
         ]
 
 
