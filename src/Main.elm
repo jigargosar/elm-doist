@@ -427,8 +427,7 @@ queryProjectListCmd =
         { id = "projectList"
         , userCollectionName = "projects"
         , whereClause =
-            [ ( "deleted", "==", JE.bool False )
-            ]
+            [{- ( "deleted", "==", JE.bool False ) -}]
         }
 
 
@@ -542,7 +541,7 @@ viewFooter model =
                 HtmlStyledExtra.empty
 
             MoveToProjectDialog todo ->
-                viewMoveDialog todo model.projectList
+                viewMoveDialog todo (Project.filterActive model.projectList)
         ]
 
 
@@ -638,6 +637,7 @@ viewRoute route model =
         Route.Project pid ->
             case
                 model.projectList
+                    |> Project.filterActive
                     |> List.Extra.find (.id >> (==) pid)
             of
                 Just project ->
@@ -814,16 +814,17 @@ viewHeader model =
                 [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
                 , button [ onClick OnAddProjectStart ] [ text "add project" ]
                 ]
-            , viewNavProjects model.projectList
+            , viewNavProjects (Project.filterActive model.projectList)
             ]
         ]
 
 
-viewNavProjects : ProjectList -> Html msg
+viewNavProjects : ProjectList -> Html Msg
 viewNavProjects projectList =
     div [ class "b vs1" ] (List.map viewProjectNavItem projectList)
 
 
+viewProjectNavItem : Project -> Html Msg
 viewProjectNavItem project =
     div [ class "pa2 flex hide-child" ]
         [ a
@@ -831,7 +832,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , button [ class "child" ] [ text "X" ]
+        , button [ class "child", onClick (OnDeleteProject project.id) ] [ text "X" ]
         ]
 
 

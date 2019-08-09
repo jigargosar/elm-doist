@@ -3,6 +3,7 @@ module Project exposing
     , ProjectList
     , decoder
     , encoder
+    , filterActive
     , listDecoder
     , listEncoder
     , new
@@ -77,3 +78,11 @@ setModifiedAt now todo =
 listEncoder : ProjectList -> Value
 listEncoder =
     JE.list encoder
+
+
+eq =
+    (==)
+
+
+filterActive =
+    List.filter (.deleted >> eq False)
