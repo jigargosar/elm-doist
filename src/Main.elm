@@ -112,6 +112,10 @@ cacheEncoder { dialog } =
         ]
 
 
+setModelFromCache { dialog } model =
+    { model | dialog = dialog }
+
+
 cacheFromModel model =
     { dialog = model.dialog }
 
@@ -348,6 +352,7 @@ updateFromFlags flags model =
     setTodoList flags.cachedTodoList model
         |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
+        |> setModelFromCache flags.cache
         |> pure
 
 
