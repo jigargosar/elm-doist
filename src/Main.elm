@@ -101,21 +101,25 @@ dialogEncoder dialog =
                 ]
 
 
+cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
         |> JDP.optional "dialog" dialogDecoder NoDialog
 
 
+cacheEncoder : Cache -> Value
 cacheEncoder { dialog } =
     JE.object
         [ ( "dialog", dialogEncoder dialog )
         ]
 
 
+setModelFromCache : Cache -> Model -> Model
 setModelFromCache { dialog } model =
     { model | dialog = dialog }
 
 
+cacheFromModel : Model -> Cache
 cacheFromModel model =
     { dialog = model.dialog }
 
