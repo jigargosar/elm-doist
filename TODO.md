@@ -14,6 +14,13 @@
 
 
 ## SLICE 3
+* DueAt
+* Today
+* Next Seven Days
+* Overdue
+
+
+## IceBox
 * edit text? 
 * drag/sort todo/project?
 * dueAt?
