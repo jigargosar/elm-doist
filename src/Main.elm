@@ -561,19 +561,24 @@ viewRoute route model =
                 model
 
         Route.Project pid ->
-            let
-                displayTodoList =
-                    sortedPendingInProject pid model.todoList
+            case
+                model.projectList
+                    |> List.Extra.find (.id >> (==) pid)
+            of
+                Just project ->
+                    let
+                        displayTodoList =
+                            sortedPendingInProject pid model.todoList
 
-                title =
-                    model.projectList
-                        |> List.Extra.find (.id >> (==) pid)
-                        |> Maybe.map .title
-                        |> Maybe.withDefault "Project Not Found"
-            in
-            masterLayout title
-                (pendingForProjectContent title model.inlineEditTodo displayTodoList)
-                model
+                        title =
+                            project.title
+                    in
+                    masterLayout title
+                        (pendingForProjectContent title model.inlineEditTodo displayTodoList)
+                        model
+
+                Nothing ->
+                    viewRoute Route.Inbox model
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
