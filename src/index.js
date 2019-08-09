@@ -70,9 +70,12 @@ initSubs({
   // },
   queryFirestore: async options => {
     const cRef = fire.userCRef(options.userCollectionName)
+    const query = options.whereClause.reduce((query, [fieldPath,op,value])=>{
+      return query.where(fieldPath,op,value)
+    }, cRef)
     fire.addDisposerWithId(
       options.id,
-      cRef.onSnapshot(qs => {
+      query.onSnapshot(qs => {
         const docDataList = qs.docs.map(ds => ds.data())
         const response = { id: options.id, docDataList }
         console.groupCollapsed('onFirestoreQueryResponse', options)

@@ -181,6 +181,7 @@ type Msg
     | OnChangeTitleRequested TodoId
     | OnChecked TodoId Bool
     | OnDelete TodoId
+    | OnDeleteProject ProjectId
     | PatchTodo TodoId Todo.Msg Millis
     | OnAddTodoStart ProjectId
     | AddTodo ProjectId Millis
@@ -273,6 +274,9 @@ update message model =
 
         OnDelete todoId ->
             ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId } )
+
+        OnDeleteProject projectId ->
+            ( model, Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ projectId } )
 
         PatchTodo todoId todoMsg now ->
             ( model
@@ -374,6 +378,7 @@ queryTodoListCmd =
     Ports.queryFirestore
         { id = "todoList"
         , userCollectionName = "todos"
+        , whereClause = []
         }
 
 
@@ -381,6 +386,7 @@ queryProjectListCmd =
     Ports.queryFirestore
         { id = "projectList"
         , userCollectionName = "projects"
+        , whereClause = []
         }
 
 
@@ -563,8 +569,9 @@ sortedPendingInProject pid todoList =
         todoList
 
 
-inboxDisplayProject =
-    { id = ProjectId.default, title = "Inbox" }
+
+--inboxDisplayProject =
+--    { id = ProjectId.default, title = "Inbox" }
 
 
 viewRoute : Route -> Model -> StyledDocument Msg
