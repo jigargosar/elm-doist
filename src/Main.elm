@@ -776,12 +776,13 @@ viewNavProjects projectList =
 
 
 viewProjectNavItem project =
-    div [ class "pa2" ]
+    div [ class "pa2 flex hide-child" ]
         [ a
-            [ class "no-underline"
+            [ class "no-underline flex-grow-1"
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
+        , button [ class "child" ] [ text "X" ]
         ]
 
 
