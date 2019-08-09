@@ -320,10 +320,6 @@ update message model =
                             )
 
         OnOverlayClicked ->
-            let
-                _ =
-                    Debug.log "overlay clicked" model.dialog
-            in
             case model.dialog of
                 NoDialog ->
                     pure model
@@ -523,7 +519,6 @@ viewMoveDialog todo projectList =
         [ class "absolute absolute--fill bg-black-50"
         , class "flex items-center justify-center "
         , Html.Styled.Attributes.id "overlay"
-        , onDomIdClicked "overlay" OnOverlayClicked
         , onDomIdClicked "overlay" OnOverlayClicked
         ]
         [ div [ class "bg-white vs3 pa3" ]
