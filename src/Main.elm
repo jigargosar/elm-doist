@@ -710,7 +710,7 @@ todayContent model =
             0
 
         display =
-            List.filter (.dueAt >> Maybe.map (eqByDay now) >> Maybe.withDefault False)
+            List.filter (.dueAt >> Maybe.Extra.unwrap True (eqByDay now))
                 model.todoList
 
         viewTodayTodoItem todo =
