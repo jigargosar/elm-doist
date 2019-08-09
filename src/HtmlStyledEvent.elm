@@ -1,18 +1,24 @@
-module HtmlStyledEvent exposing (onDomIdClicked, targetDomIdEqDecoder)
+module HtmlStyledEvent exposing (onDomIdClicked, targetDomIdDecoder, targetDomIdEqDecoder)
 
 import Html.Styled.Events exposing (on)
-import Json.Decode as JD
+import Json.Decode as JD exposing (Decoder)
 
 
-targetDomIdEqDecoder targetDomId tagger =
+targetDomIdDecoder : Decoder String
+targetDomIdDecoder =
     JD.at [ "target", "id" ] JD.string
+
+
+targetDomIdEqDecoder : String -> a -> Decoder a
+targetDomIdEqDecoder domId tagger =
+    targetDomIdDecoder
         |> JD.andThen
-            (\domId ->
-                if domId == targetDomId then
+            (\targetDomId ->
+                if targetDomId == domId then
                     JD.succeed tagger
 
                 else
-                    JD.fail ("Not Clicked on:" ++ targetDomId)
+                    JD.fail ("Not Clicked on:" ++ domId)
             )
 
 
