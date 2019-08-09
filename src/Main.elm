@@ -33,10 +33,16 @@ type alias InlineEditTodo =
     { todo : Todo, title : Maybe String }
 
 
+type Dialog
+    = NoDialog
+    | MoveToProject Todo
+
+
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo
+    , dialog : Dialog
     , authState : AuthState
     , errors : List Error
     , key : Nav.Key
@@ -75,6 +81,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
+            , dialog = NoDialog
             , authState = AuthState.initial
             , errors = []
             , key = key
