@@ -840,27 +840,22 @@ viewHeader model =
 
 viewNav : Model -> Html Msg
 viewNav model =
+    let
+        navItem link title =
+            div [ class "pa2 " ]
+                [ div [ class "flex hs3" ]
+                    [ a
+                        [ class "no-underline"
+                        , href link
+                        , class "b"
+                        ]
+                        [ text title ]
+                    ]
+                ]
+    in
     div [ class "ph2 lh-title" ]
-        [ div [ class "pa2 " ]
-            [ div [ class "flex hs3" ]
-                [ a
-                    [ class "no-underline"
-                    , href Route.inboxUrl
-                    , class "b"
-                    ]
-                    [ text "Inbox" ]
-                ]
-            ]
-        , div [ class "pa2" ]
-            [ div [ class "flex hs3" ]
-                [ a
-                    [ class "no-underline"
-                    , href Route.inboxUrl
-                    , class "b"
-                    ]
-                    [ text "Today" ]
-                ]
-            ]
+        [ navItem Route.inboxUrl "Inbox"
+        , navItem Route.inboxUrl "Today"
         , div [ class "pa2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , button [ onClick OnAddProjectStart ] [ text "add project" ]
