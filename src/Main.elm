@@ -392,36 +392,35 @@ queryTodoListCmd =
         }
 
 
-queryPendingTodoListCmd =
-    Ports.queryFirestore
-        { id = "todoList"
-        , userCollectionName = "todos"
-        , whereClause = [ ( "isDone", "==", JE.bool False ) ]
-        }
 
-
-queryTodoListForRouteCmd : Route -> Cmd msg
-queryTodoListForRouteCmd route =
-    let
-        getPid r =
-            case r of
-                Route.Inbox ->
-                    ""
-
-                Route.Project pid ->
-                    pid
-
-                Route.NotFound _ ->
-                    getPid Route.Inbox
-    in
-    Ports.queryFirestore
-        { id = "todoList"
-        , userCollectionName = "todos"
-        , whereClause =
-            [ ( "projectId", "==", getPid route |> ProjectId.encoder )
-            , ( "isDone", "==", JE.bool False )
-            ]
-        }
+--queryPendingTodoListCmd =
+--    Ports.queryFirestore
+--        { id = "todoList"
+--        , userCollectionName = "todos"
+--        , whereClause = [ ( "isDone", "==", JE.bool False ) ]
+--        }
+--queryTodoListForRouteCmd : Route -> Cmd msg
+--queryTodoListForRouteCmd route =
+--    let
+--        getPid r =
+--            case r of
+--                Route.Inbox ->
+--                    ""
+--
+--                Route.Project pid ->
+--                    pid
+--
+--                Route.NotFound _ ->
+--                    getPid Route.Inbox
+--    in
+--    Ports.queryFirestore
+--        { id = "todoList"
+--        , userCollectionName = "todos"
+--        , whereClause =
+--            [ ( "projectId", "==", getPid route |> ProjectId.encoder )
+--            , ( "isDone", "==", JE.bool False )
+--            ]
+--        }
 
 
 queryProjectListCmd =
@@ -465,10 +464,6 @@ updateTodoListFromFirestore todoList model =
         |> andThen cleanupTodoList
 
 
-eq =
-    (==)
-
-
 cleanupTodoList : Model -> Return
 cleanupTodoList model =
     let
@@ -479,7 +474,7 @@ cleanupTodoList model =
         deleteTodosCmd : Cmd msg
         deleteTodosCmd =
             model.projectList
-                |> List.filter (.deleted >> eq True)
+                |> List.filter .deleted
                 |> List.filterMap (\p -> Dict.get p.id todoByPid)
                 |> List.concat
                 |> List.map
@@ -522,7 +517,7 @@ onAuthStateChanged authState model =
                     Cmd.none
 
                 AuthState.SignedIn _ ->
-                    Cmd.batch [ queryPendingTodoListCmd, queryProjectListCmd ]
+                    Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
 
                 AuthState.NotSignedIn ->
                     Cmd.none
