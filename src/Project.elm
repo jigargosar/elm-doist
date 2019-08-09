@@ -37,7 +37,7 @@ decoder =
         |> JD.required "id" JD.string
         |> JD.required "title" JD.string
         |> JD.required "sortIdx" JD.int
-        |> JD.optional "decoder" JD.bool False
+        |> JD.optional "deleted" JD.bool False
         |> JD.required "createdAt" JD.int
         |> JD.required "modifiedAt" JD.int
 
