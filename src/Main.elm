@@ -171,9 +171,9 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId Todo.Msg Millis
-    | OnAddTodo
+    | OnAddTodoStart
     | AddTodo Millis
-    | OnAddProject
+    | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
     | OnMoveToProject ProjectId
@@ -270,7 +270,7 @@ update message model =
                 }
             )
 
-        OnAddTodo ->
+        OnAddTodoStart ->
             ( model, Now.perform AddTodo )
 
         AddTodo now ->
@@ -281,7 +281,7 @@ update message model =
                 }
             )
 
-        OnAddProject ->
+        OnAddProjectStart ->
             ( model, Now.perform AddProject )
 
         AddProject now ->
@@ -576,7 +576,7 @@ todoListPageContent title edit displayTodoList =
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , button [ onClick OnAddTodo ] [ text "ADD" ]
+            , button [ onClick OnAddTodoStart ] [ text "ADD" ]
             ]
         , div [ class "vs1" ] (List.map (viewTodoItem edit) displayTodoList)
         ]
@@ -710,7 +710,7 @@ viewHeader model =
         , div [ class "pa3 " ]
             [ div [ class "flex hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text "Projects:" ]
-                , button [ onClick OnAddProject ] [ text "New Project" ]
+                , button [ onClick OnAddProjectStart ] [ text "New Project" ]
                 ]
             , viewNavProjects model.projectList
             ]
