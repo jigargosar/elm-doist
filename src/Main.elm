@@ -155,8 +155,9 @@ type Msg
     | OnAddTodo
     | AddTodo Millis
     | OnAddProject
-    | OnEdit TodoId
     | AddProject Millis
+    | OnMove TodoId
+    | OnEdit TodoId
     | OnEditCancel
     | OnEditSave
 
@@ -277,6 +278,12 @@ update message model =
                 |> Maybe.Extra.unwrap pure startEditing
                 |> callWith model
 
+        OnMove todoId ->
+            model.todoList
+                |> List.Extra.find (.id >> (==) todoId)
+                |> Maybe.Extra.unwrap pure startMoving
+                |> callWith model
+
         OnEditCancel ->
             pure { model | inlineEditTodo = Nothing }
 
@@ -287,6 +294,11 @@ update message model =
 startEditing : Todo -> Model -> Return
 startEditing todo model =
     pure { model | inlineEditTodo = Just { todo = todo, title = Nothing } }
+
+
+startMoving : Todo -> Model -> Return
+startMoving todo model =
+    pure { model | dialog = MoveToProjectDialog todo }
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
@@ -529,6 +541,7 @@ viewTodoItemHelp todo =
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
+        , viewMoveTodoBtn todo
         , viewDeleteTodoBtn todo
         ]
 
@@ -563,6 +576,11 @@ viewTodoTitle todo =
         , onClick (OnEdit todo.id)
         ]
         [ text title ]
+
+
+viewMoveTodoBtn todo =
+    div [ class "flex items-center" ]
+        [ button [ onClick (OnMove todo.id) ] [ text "MV" ] ]
 
 
 viewDeleteTodoBtn todo =
