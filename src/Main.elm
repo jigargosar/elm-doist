@@ -858,7 +858,7 @@ viewNav model =
                     , href Route.inboxUrl
                     , class "b"
                     ]
-                    [ text "Inbox" ]
+                    [ text "Today" ]
                 ]
             ]
         , div [ class "pa3 flex hs3" ]
