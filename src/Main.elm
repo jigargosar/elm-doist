@@ -364,6 +364,17 @@ toUnStyledDocument { title, body } =
     { title = title, body = body |> List.map Html.Styled.toUnstyled }
 
 
+viewFooter model =
+    div [] []
+
+
+masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
+masterLayout title content model =
+    { title = title
+    , body = [ viewHeader model, content, viewFooter model ]
+    }
+
+
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
@@ -378,12 +389,9 @@ viewRoute route model =
                 title =
                     "Inbox"
             in
-            { title = title
-            , body =
-                [ viewHeader model
-                , todoListPageContent title model.inlineEditTodo displayTodoList
-                ]
-            }
+            masterLayout title
+                (todoListPageContent title model.inlineEditTodo displayTodoList)
+                model
 
         Route.Project pid ->
             let
@@ -399,12 +407,9 @@ viewRoute route model =
                         |> Maybe.map .title
                         |> Maybe.withDefault "Project Not Found"
             in
-            { title = title
-            , body =
-                [ viewHeader model
-                , todoListPageContent title model.inlineEditTodo displayTodoList
-                ]
-            }
+            masterLayout title
+                (todoListPageContent title model.inlineEditTodo displayTodoList)
+                model
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
