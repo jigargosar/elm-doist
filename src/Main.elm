@@ -310,9 +310,12 @@ update message model =
                     pure model
 
                 MoveToProjectDialog todo ->
-                    ( { model | dialog = NoDialog }
-                    , patchTodoCmd todo.id (Todo.SetProjectId pid)
-                    )
+                    updateDialog NoDialog model
+                        |> command
+                            (patchTodoCmd
+                                todo.id
+                                (Todo.SetProjectId pid)
+                            )
 
         OnEditCancel ->
             pure { model | inlineEditTodo = Nothing }
@@ -327,8 +330,13 @@ startEditing todo model =
 
 
 startMoving : Todo -> Model -> Return
-startMoving todo model =
-    pure { model | dialog = MoveToProjectDialog todo }
+startMoving todo =
+    updateDialog (MoveToProjectDialog todo)
+
+
+updateDialog : Dialog -> Model -> Return
+updateDialog dialog model =
+    pure { model | dialog = dialog }
         |> effect cacheEffect
 
 
