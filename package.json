@@ -7,8 +7,7 @@
     "start": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
     "build": "env NODE_ENV=production webpack -p",
     "deploy": "firebase deploy --only hosting:elmdoist",
-    "stage": "npm run build && npm run deploy",
-    "ver" : "npm -v"
+    "stage": "npm run build && npm run deploy"
   },
   "private": true,
   "keywords": [],
