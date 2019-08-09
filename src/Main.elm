@@ -310,7 +310,9 @@ update message model =
                     pure model
 
                 MoveToProjectDialog todo ->
-                    ( model, patchTodoCmd todo.id (Todo.SetProjectId pid) )
+                    ( { model | dialog = NoDialog }
+                    , patchTodoCmd todo.id (Todo.SetProjectId pid)
+                    )
 
         OnEditCancel ->
             pure { model | inlineEditTodo = Nothing }
