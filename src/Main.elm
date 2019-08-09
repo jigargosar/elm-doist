@@ -222,7 +222,7 @@ update message model =
                 route =
                     Route.fromUrl url
             in
-            ( { model | route = route }, Cmd.none )
+            ( { model | route = route }, queryTodoListForRouteCmd route )
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
@@ -382,6 +382,30 @@ queryTodoListCmd =
         }
 
 
+queryTodoListForRouteCmd : Route -> Cmd msg
+queryTodoListForRouteCmd route =
+    let
+        getPid r =
+            case r of
+                Route.Inbox ->
+                    ""
+
+                Route.Project pid ->
+                    pid
+
+                Route.NotFound _ ->
+                    getPid Route.Inbox
+    in
+    Ports.queryFirestore
+        { id = "todoList"
+        , userCollectionName = "todos"
+        , whereClause =
+            [ ( "projectId", "==", getPid route |> ProjectId.encoder )
+            , ( "isDone", "==", JE.bool False )
+            ]
+        }
+
+
 queryProjectListCmd =
     Ports.queryFirestore
         { id = "projectList"
@@ -450,7 +474,7 @@ onAuthStateChanged authState model =
                     Cmd.none
 
                 AuthState.SignedIn _ ->
-                    Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
+                    Cmd.batch [ queryTodoListForRouteCmd model.route, queryProjectListCmd ]
 
                 AuthState.NotSignedIn ->
                     Cmd.none
