@@ -276,7 +276,15 @@ update message model =
             ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId } )
 
         OnDeleteProject projectId ->
-            ( model, Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ projectId } )
+            ( model
+            , Ports.updateFirestoreDoc
+                { userDocPath = "projects/" ++ projectId
+                , data =
+                    JE.object
+                        [ ( "deleted", JE.bool True )
+                        ]
+                }
+            )
 
         PatchTodo todoId todoMsg now ->
             ( model
@@ -418,7 +426,9 @@ queryProjectListCmd =
     Ports.queryFirestore
         { id = "projectList"
         , userCollectionName = "projects"
-        , whereClause = []
+        , whereClause =
+            [ ( "deleted", "==", JE.bool False )
+            ]
         }
 
 
