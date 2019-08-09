@@ -231,7 +231,7 @@ update message model =
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack onDecodeError setAndCacheTodoList
+                |> Result.Extra.unpack onDecodeError updateTodoListFromFirestore
                 |> callWith model
 
         OnSignInClicked ->
@@ -255,7 +255,7 @@ update message model =
                     qs.docDataList
                         |> List.map (JD.decodeValue Todo.decoder)
                         |> Result.Extra.combine
-                        |> Result.Extra.unpack onDecodeError setAndCacheTodoList
+                        |> Result.Extra.unpack onDecodeError updateTodoListFromFirestore
                         |> callWith model
 
                 "projectList" ->
@@ -452,8 +452,8 @@ setTodoList todoList model =
     { model | todoList = todoList }
 
 
-setAndCacheTodoList : TodoList -> Model -> Return
-setAndCacheTodoList todoList model =
+updateTodoListFromFirestore : TodoList -> Model -> Return
+updateTodoListFromFirestore todoList model =
     setTodoList todoList model
         |> pure
         |> command
