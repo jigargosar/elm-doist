@@ -458,7 +458,10 @@ viewFooter model =
                 HtmlStyledExtra.empty
 
             MoveToProjectDialog todo ->
-                div [ class "flex items-center justify-center absolute absolute--fill bg-black-50" ]
+                div
+                    [ class "absolute absolute--fill bg-black-50"
+                    , class "flex items-center justify-center "
+                    ]
                     [ div [ class "bg-white vs3 pa3" ]
                         [ div [ class "b" ] [ text "Move To Project ..." ]
                         , div [ class "vs1" ]
