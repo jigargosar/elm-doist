@@ -8,6 +8,7 @@ import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
+import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -177,6 +178,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnMoveToProject ProjectId
+    | OnOverlayClicked
     | OnEdit TodoId
     | OnEditCancel
     | OnEditSave
@@ -316,6 +318,18 @@ update message model =
                                 todo.id
                                 (Todo.SetProjectId pid)
                             )
+
+        OnOverlayClicked ->
+            let
+                _ =
+                    Debug.log "overlay clicked" model.dialog
+            in
+            case model.dialog of
+                NoDialog ->
+                    pure model
+
+                MoveToProjectDialog _ ->
+                    updateDialog NoDialog model
 
         OnEditCancel ->
             pure { model | inlineEditTodo = Nothing }
@@ -508,6 +522,9 @@ viewMoveDialog todo projectList =
     div
         [ class "absolute absolute--fill bg-black-50"
         , class "flex items-center justify-center "
+        , Html.Styled.Attributes.id "overlay"
+        , onDomIdClicked "overlay" OnOverlayClicked
+        , onDomIdClicked "overlay" OnOverlayClicked
         ]
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]

@@ -1,20 +1,20 @@
-module HtmlStyledEvent exposing (onSelfClick)
+module HtmlStyledEvent exposing (onDomIdClicked, targetDomIdEqDecoder)
 
 import Html.Styled.Events exposing (on)
 import Json.Decode as JD
 
 
-selfClickDecoder selfDomId tagger =
+targetDomIdEqDecoder targetDomId tagger =
     JD.at [ "target", "id" ] JD.string
         |> JD.andThen
             (\domId ->
-                if domId == selfDomId then
+                if domId == targetDomId then
                     JD.succeed tagger
 
                 else
-                    JD.fail ("Not Clicked on:" ++ selfDomId)
+                    JD.fail ("Not Clicked on:" ++ targetDomId)
             )
 
 
-onSelfClick selfDomId tagger =
-    on "click" (selfClickDecoder selfDomId tagger)
+onDomIdClicked targetDomId tagger =
+    on "click" (targetDomIdEqDecoder targetDomId tagger)
