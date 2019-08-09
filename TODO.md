@@ -9,4 +9,4 @@
 ## SLICE 2
 * Projects CRUD.
 * Project Routes
-* Inbasket
+* InBox
