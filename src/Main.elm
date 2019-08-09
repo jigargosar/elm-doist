@@ -171,8 +171,8 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId Todo.Msg Millis
-    | OnAddTodoStart
-    | AddTodo Millis
+    | OnAddTodoStart ProjectId
+    | AddTodo ProjectId Millis
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
@@ -270,14 +270,14 @@ update message model =
                 }
             )
 
-        OnAddTodoStart ->
-            ( model, Now.perform AddTodo )
+        OnAddTodoStart pid ->
+            ( model, Now.perform (AddTodo pid) )
 
-        AddTodo now ->
+        AddTodo pid now ->
             ( model
             , Ports.addFirestoreDoc
                 { userCollectionName = "todos"
-                , data = Todo.new now
+                , data = Todo.new now pid
                 }
             )
 
@@ -541,6 +541,10 @@ sortedPendingInProject pid todoList =
         todoList
 
 
+inboxDisplayProject =
+    { id = ProjectId.default, title = "Inbox" }
+
+
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
@@ -553,7 +557,7 @@ viewRoute route model =
                     "Inbox"
             in
             masterLayout title
-                (todoListPageContent title model.inlineEditTodo displayTodoList)
+                (pendingForProjectContent title model.inlineEditTodo displayTodoList)
                 model
 
         Route.Project pid ->
@@ -568,7 +572,7 @@ viewRoute route model =
                         |> Maybe.withDefault "Project Not Found"
             in
             masterLayout title
-                (todoListPageContent title model.inlineEditTodo displayTodoList)
+                (pendingForProjectContent title model.inlineEditTodo displayTodoList)
                 model
 
         Route.NotFound _ ->
@@ -579,12 +583,12 @@ viewRoute route model =
 -- TodoListPageContent
 
 
-todoListPageContent : String -> Maybe InlineEditTodo -> TodoList -> Html Msg
-todoListPageContent title edit displayTodoList =
+pendingForProjectContent : String -> Maybe InlineEditTodo -> TodoList -> Html Msg
+pendingForProjectContent title edit displayTodoList =
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , button [ onClick OnAddTodoStart ] [ text "ADD" ]
+            , button [ onClick (OnAddTodoStart ProjectId.default) ] [ text "ADD" ]
             ]
         , div [ class "vs1" ] (List.map (viewTodoItem edit) displayTodoList)
         ]

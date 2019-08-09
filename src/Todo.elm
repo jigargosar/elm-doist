@@ -76,12 +76,12 @@ type Msg
     | SetSortIdx Int
 
 
-new : Millis -> Value
-new now =
+new : Millis -> ProjectId -> Value
+new now pid =
     { id = ""
     , title = ""
     , sortIdx = 0
-    , projectId = ProjectId.default
+    , projectId = pid
     , projectIdModifiedAt = now
     , isDone = False
     , createdAt = now
