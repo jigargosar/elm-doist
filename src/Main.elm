@@ -34,6 +34,7 @@ import ProjectId exposing (ProjectId)
 import Result.Extra
 import Return
 import Route exposing (Route)
+import Time
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, effect, pure)
@@ -62,6 +63,7 @@ type alias Model =
     , errors : List Error
     , key : Nav.Key
     , route : Route
+    , now : Millis
     }
 
 
@@ -164,6 +166,7 @@ init encodedFlags url key =
             , errors = []
             , key = key
             , route = route
+            , now = 0
             }
     in
     model
@@ -175,6 +178,7 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
+    | OnNow Millis
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
@@ -225,6 +229,9 @@ update message model =
                     Route.fromUrl url
             in
             ( { model | route = route }, {- queryTodoListForRouteCmd route -} Cmd.none )
+
+        OnNow now ->
+            pure { model | now = now }
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
@@ -542,6 +549,7 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
+        , Time.every 1000 (Time.posixToMillis >> OnNow)
         ]
 
 
@@ -707,10 +715,10 @@ eqByDay m1 m2 =
 todayContent model =
     let
         now =
-            0
+            model.now
 
         display =
-            List.filter (.dueAt >> Maybe.Extra.unwrap True (eqByDay now))
+            List.filter (.dueAt >> Maybe.Extra.unwrap False (eqByDay now))
                 model.todoList
 
         viewTodayTodoItem todo =
