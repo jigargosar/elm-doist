@@ -19,3 +19,6 @@
 * dueAt?
 * show completed?
 * query/search?
+
+## Maybe
+* Firestore Abstraction
