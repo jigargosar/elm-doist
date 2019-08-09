@@ -8,7 +8,6 @@ import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
-import HtmlExtra
 import HtmlStyledExtra
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -37,7 +36,7 @@ type alias InlineEditTodo =
 
 type Dialog
     = NoDialog
-    | MoveToProject Todo
+    | MoveToProjectDialog Todo
 
 
 type alias Model =
@@ -56,11 +55,55 @@ type alias Return =
     Return.Return Msg Model
 
 
+type alias Cache =
+    { dialog : Dialog
+    }
+
+
 type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
+    , cache : Cache
     }
+
+
+dialogDecoderForTag : String -> Decoder Dialog
+dialogDecoderForTag tag =
+    case tag of
+        "NoDialog" ->
+            JD.succeed NoDialog
+
+        "MoveToProjectDialog" ->
+            JD.field "todo" Todo.decoder
+                |> JD.map MoveToProjectDialog
+
+        _ ->
+            JD.fail ("Invalid Dialog Tag:" ++ tag)
+
+
+dialogDecoder : Decoder Dialog
+dialogDecoder =
+    JD.field "tag" JD.string
+        |> JD.andThen dialogDecoderForTag
+
+
+dialogEncoder : Dialog -> Value
+dialogEncoder dialog =
+    case dialog of
+        NoDialog ->
+            JE.object [ ( "tag", JE.string "NoDialog" ) ]
+
+        MoveToProjectDialog todo ->
+            JE.object
+                [ ( "tag", JE.string "MoveToProjectDialog" )
+                , ( "todo", Todo.encoder todo )
+                ]
+
+
+cacheDecoder =
+    JD.succeed Cache
+        |> JDP.optional "dialog" dialogDecoder NoDialog
 
 
 flagsDecoder : Decoder Flags
@@ -70,6 +113,7 @@ flagsDecoder =
         |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
         |> JDP.required "cachedAuthState"
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
+        |> JDP.required "cache" cacheDecoder
 
 
 init : Value -> Url -> Nav.Key -> Return
@@ -372,7 +416,7 @@ viewFooter model =
             NoDialog ->
                 HtmlStyledExtra.empty
 
-            MoveToProject todo ->
+            MoveToProjectDialog todo ->
                 div [ class "absolute absolute--fill bg-black-50" ] []
         ]
 

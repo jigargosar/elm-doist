@@ -7,7 +7,7 @@ import {
   identity,
   propOr,
   forEachObjIndexed,
-  path,
+  path, isNil,
 } from 'ramda'
 
 const cachedProjectList = JSON.parse(
@@ -16,6 +16,7 @@ const cachedProjectList = JSON.parse(
 
 console.log('cachedProjectList',cachedProjectList)
 
+const storageKey = 'appCache'
 const app = Elm.Main.init({
   flags: {
     cachedTodoList: JSON.parse(
@@ -25,6 +26,7 @@ const app = Elm.Main.init({
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),
+    cache:JSON.parse(localStorage.getItem(storageKey) || 'null')
   },
 })
 const fire = Fire()
@@ -42,6 +44,13 @@ initSubs({
     console.log(v)
     console.groupEnd()
     localStorage.setItem(k, JSON.stringify(v))
+  },
+  setCache:(cache)=>{
+    if(isNil(cache)){
+      localStorage.removeItem(storageKey)
+    }else{
+      localStorage.setItem(storageKey, JSON.stringify(cache))
+    }
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
