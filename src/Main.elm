@@ -6,7 +6,17 @@ import Browser
 import Browser.Navigation as Nav
 import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, disabled, href, tabindex, type_, value)
+import Html.Styled.Attributes
+    exposing
+        ( checked
+        , class
+        , classList
+        , disabled
+        , href
+        , tabindex
+        , type_
+        , value
+        )
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra
