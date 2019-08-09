@@ -686,10 +686,22 @@ viewRoute route model =
                     viewRoute Route.Inbox model
 
         Route.Today ->
-            viewRoute Route.Inbox model
+            let
+                title =
+                    "Today"
+            in
+            masterLayout title (todayContent model) model
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
+
+
+
+-- TODAY CONTENT
+
+
+todayContent model =
+    div [] [ text "Today" ]
 
 
 
@@ -858,7 +870,7 @@ viewNav model =
     in
     div [ class "ph2 lh-title" ]
         [ navItem Route.inboxUrl "Inbox"
-        , navItem Route.inboxUrl "Today"
+        , navItem Route.todayUrl "Today"
         , div [ class "pa2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , button [ onClick OnAddProjectStart ] [ text "add project" ]
