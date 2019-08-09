@@ -11,3 +11,11 @@
 * Project Routes
 * InBox
 * Deploy to elmdoist.web.app
+
+
+## SLICE 3
+* edit text? 
+* drag/sort todo/project?
+* dueAt?
+* show completed?
+* query/search?
