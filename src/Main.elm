@@ -448,13 +448,25 @@ toUnStyledDocument { title, body } =
 
 
 viewFooter model =
+    let
+        viewPLI p =
+            div [ tabindex 0, class "lh-copy pointer pa2" ] [ div [] [ text p.title ] ]
+    in
     div []
         [ case model.dialog of
             NoDialog ->
                 HtmlStyledExtra.empty
 
             MoveToProjectDialog todo ->
-                div [ class "absolute absolute--fill bg-black-50" ] []
+                div [ class "flex items-center justify-center absolute absolute--fill bg-black-50" ]
+                    [ div [ class "bg-white vs3 pa3" ]
+                        [ div [ class "b" ] [ text "Move To Project ..." ]
+                        , div [ class "vs1" ]
+                            (model.projectList
+                                |> List.map viewPLI
+                            )
+                        ]
+                    ]
         ]
 
 
