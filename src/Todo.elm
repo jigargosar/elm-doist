@@ -17,7 +17,6 @@ module Todo exposing
     , modify
     , modifyPatch
     , new
-    , patch
     , sortWith
     )
 
@@ -36,9 +35,10 @@ type alias Todo =
     , title : String
     , sortIdx : Int
     , projectId : ProjectId
+    , projectIdModifiedAt : Millis
     , isDone : Bool
-    , createdAt : Int
-    , modifiedAt : Int
+    , createdAt : Millis
+    , modifiedAt : Millis
     }
 
 
@@ -49,18 +49,20 @@ decoder =
         |> JDP.required "title" JD.string
         |> JDP.required "sortIdx" JD.int
         |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
+        |> JDP.optional "projectIdModifiedAt" JD.int 0
         |> JDP.required "isDone" JD.bool
         |> JDP.required "createdAt" JD.int
         |> JDP.required "modifiedAt" JD.int
 
 
 encoder : Todo -> Value
-encoder { id, title, sortIdx, projectId, isDone, createdAt, modifiedAt } =
+encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, createdAt, modifiedAt } =
     JE.object
         [ ( "id", JE.string id )
         , ( "title", JE.string title )
         , ( "sortIdx", JE.int sortIdx )
         , ( "projectId", ProjectId.encoder projectId )
+        , ( "projectIdModifiedAt", JE.int projectIdModifiedAt )
         , ( "isDone", JE.bool isDone )
         , ( "createdAt", JE.int createdAt )
         , ( "modifiedAt", JE.int modifiedAt )
@@ -80,6 +82,7 @@ new now =
     , title = ""
     , sortIdx = 0
     , projectId = ProjectId.default
+    , projectIdModifiedAt = now
     , isDone = False
     , createdAt = now
     , modifiedAt = now
@@ -87,25 +90,24 @@ new now =
         |> encoder
 
 
-patch : Msg -> ( String, Value )
-patch msg =
-    case msg of
-        SetCompleted bool ->
-            ( "isDone", JE.bool bool )
-
-        SetProjectId projectId ->
-            ( "projectId", ProjectId.encoder projectId )
-
-        SetTitle title ->
-            ( "title", JE.string title )
-
-        SetSortIdx sortIdx ->
-            ( "sortIdx", JE.int sortIdx )
-
-
 modifyPatch : Msg -> Millis -> List ( String, Value )
 modifyPatch msg now =
-    patch msg :: [ ( "modifiedAt", JE.int now ) ]
+    ( "modifiedAt", JE.int now )
+        :: (case msg of
+                SetCompleted bool ->
+                    [ ( "isDone", JE.bool bool ) ]
+
+                SetProjectId projectId ->
+                    [ ( "projectId", ProjectId.encoder projectId )
+                    , ( "projectIdModifiedAt", JE.int now )
+                    ]
+
+                SetTitle title ->
+                    [ ( "title", JE.string title ) ]
+
+                SetSortIdx sortIdx ->
+                    [ ( "sortIdx", JE.int sortIdx ) ]
+           )
 
 
 update : Msg -> Todo -> Todo
