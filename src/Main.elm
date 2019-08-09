@@ -840,8 +840,8 @@ viewHeader model =
 
 viewNav : Model -> Html Msg
 viewNav model =
-    div []
-        [ div [ class "pa3" ]
+    div [ class "ph2 lh-title" ]
+        [ div [ class "pa2 " ]
             [ div [ class "flex hs3" ]
                 [ a
                     [ class "no-underline"
@@ -851,7 +851,7 @@ viewNav model =
                     [ text "Inbox" ]
                 ]
             ]
-        , div [ class "pa3" ]
+        , div [ class "pa2" ]
             [ div [ class "flex hs3" ]
                 [ a
                     [ class "no-underline"
@@ -861,7 +861,7 @@ viewNav model =
                     [ text "Today" ]
                 ]
             ]
-        , div [ class "pa3 flex hs3" ]
+        , div [ class "pa2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , button [ onClick OnAddProjectStart ] [ text "add project" ]
             ]
