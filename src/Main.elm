@@ -4,6 +4,8 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
+import Dict exposing (Dict)
+import Dict.Extra
 import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes
@@ -460,6 +462,35 @@ updateTodoListFromFirestore todoList model =
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
             )
+        |> andThen cleanupTodoList
+
+
+eq =
+    (==)
+
+
+cleanupTodoList : Model -> Return
+cleanupTodoList model =
+    let
+        todoByPid : Dict ProjectId (List Todo)
+        todoByPid =
+            Dict.Extra.groupBy .projectId model.todoList
+
+        deleteTodosCmd : Cmd msg
+        deleteTodosCmd =
+            model.projectList
+                |> List.filter (.deleted >> eq True)
+                |> List.filterMap (\p -> Dict.get p.id todoByPid)
+                |> List.concat
+                |> List.map
+                    (.id
+                        >> (\todoId ->
+                                Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId }
+                           )
+                    )
+                |> Cmd.batch
+    in
+    ( model, deleteTodosCmd )
 
 
 setProjectList : ProjectList -> Model -> Model
