@@ -22,7 +22,7 @@ import Return
 import Route exposing (Route)
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, command, pure)
+import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -104,6 +104,16 @@ dialogEncoder dialog =
 cacheDecoder =
     JD.succeed Cache
         |> JDP.optional "dialog" dialogDecoder NoDialog
+
+
+cacheEncoder { dialog } =
+    JE.object
+        [ ( "dialog", dialogEncoder dialog )
+        ]
+
+
+cacheFromModel model =
+    { dialog = model.dialog }
 
 
 flagsDecoder : Decoder Flags
@@ -299,6 +309,12 @@ startEditing todo model =
 startMoving : Todo -> Model -> Return
 startMoving todo model =
     pure { model | dialog = MoveToProjectDialog todo }
+        |> effect cacheEffect
+
+
+cacheEffect : Model -> Cmd msg
+cacheEffect model =
+    Ports.setCache (cacheEncoder (cacheFromModel model))
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg

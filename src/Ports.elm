@@ -11,6 +11,7 @@ port module Ports exposing
     , onTodoListChanged
     , persistTodoList
     , queryFirestore
+    , setCache
     , signIn
     , signOut
     , updateFirestoreDoc
@@ -23,6 +24,9 @@ port localStorageSetStringItem : ( String, String ) -> Cmd msg
 
 
 port localStorageSetJsonItem : ( String, Value ) -> Cmd msg
+
+
+port setCache : Value -> Cmd msg
 
 
 port onAuthStateChanged : (Value -> msg) -> Sub msg
