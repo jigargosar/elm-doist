@@ -852,13 +852,13 @@ viewNavProjects projectList =
 
 viewProjectNavItem : Project -> Html Msg
 viewProjectNavItem project =
-    div [ class "pa2 flex hide-child" ]
+    div [ class "pa2 flex " ]
         [ a
             [ class "no-underline flex-grow-1"
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , button [ class "child", onClick (OnDeleteProject project.id) ] [ text "X" ]
+        , button [ class "", onClick (OnDeleteProject project.id) ] [ text "X" ]
         ]
 
 
