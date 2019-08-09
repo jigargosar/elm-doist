@@ -20,6 +20,7 @@ type alias Project =
     { id : ProjectId
     , title : String
     , sortIdx : Int
+    , deleted : Bool
     , createdAt : Int
     , modifiedAt : Int
     }
@@ -35,6 +36,7 @@ decoder =
         |> JD.required "id" JD.string
         |> JD.required "title" JD.string
         |> JD.required "sortIdx" JD.int
+        |> JD.optional "decoder" JD.bool False
         |> JD.required "createdAt" JD.int
         |> JD.required "modifiedAt" JD.int
 
@@ -45,11 +47,12 @@ listDecoder =
 
 
 encoder : Project -> Value
-encoder { id, title, sortIdx, createdAt, modifiedAt } =
+encoder { id, title, sortIdx, deleted, createdAt, modifiedAt } =
     JE.object
         [ ( "id", JE.string id )
         , ( "title", JE.string title )
         , ( "sortIdx", JE.int sortIdx )
+        , ( "deleted", JE.bool deleted )
         , ( "createdAt", JE.int createdAt )
         , ( "modifiedAt", JE.int modifiedAt )
         ]
@@ -60,6 +63,7 @@ new now =
     { id = ""
     , title = ""
     , sortIdx = 0
+    , deleted = False
     , createdAt = now
     , modifiedAt = now
     }
