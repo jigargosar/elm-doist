@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, inboxUrl, projectUrl)
+module Route exposing (Route(..), fromUrl, inboxUrl, projectUrl, todayUrl)
 
 import Url exposing (Url)
 import Url.Builder as B
@@ -8,6 +8,7 @@ import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, string, to
 type Route
     = Inbox
     | Project String
+    | Today
     | NotFound Url
 
 
@@ -15,8 +16,9 @@ routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map Inbox top
-        , map Project (s "project" </> string)
         , map Inbox (s "inbox")
+        , map Today (s "today")
+        , map Project (s "project" </> string)
         ]
 
 
@@ -34,3 +36,8 @@ projectUrl pid =
 inboxUrl : String
 inboxUrl =
     B.absolute [ "inbox" ] []
+
+
+todayUrl : String
+todayUrl =
+    B.absolute [ "today" ] []

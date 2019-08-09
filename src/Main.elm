@@ -685,6 +685,9 @@ viewRoute route model =
                 Nothing ->
                     viewRoute Route.Inbox model
 
+        Route.Today ->
+            viewRoute Route.Inbox model
+
         Route.NotFound _ ->
             viewRoute Route.Inbox model
 
