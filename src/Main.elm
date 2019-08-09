@@ -32,7 +32,7 @@ type alias Error =
 
 
 type alias InlineEditTodo =
-    { todo : Todo, pid : Maybe ProjectId }
+    { todo : Todo, title : Maybe String }
 
 
 type alias Model =
@@ -436,23 +436,17 @@ viewTodoItem edit todo =
 
 viewEditTodoItem : InlineEditTodo -> Html Msg
 viewEditTodoItem edt =
+    let
+        titleValue =
+            edt.title
+                |> Maybe.withDefault edt.todo.title
+    in
     div
         [ class ""
         , tabindex 0
         ]
         [ div []
-            [ select []
-                (option
-                    [ value ""
-                    , selected
-                        (edt.pid
-                            |> Maybe.withDefault edt.todo.projectId
-                            |> (==) ""
-                        )
-                    ]
-                    [ text "Inbox" ]
-                    :: []
-                )
+            [ input [ type_ "text", value titleValue ] []
             ]
         , div [ class "flex hs3" ]
             [ button [ onClick OnEditCancel ] [ text "Cancel" ]
