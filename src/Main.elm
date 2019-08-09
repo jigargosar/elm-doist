@@ -491,7 +491,7 @@ viewMoveDialog todo projectList =
         viewPLI dp =
             div
                 [ tabindex 0
-                , class "lh-copy pa2"
+                , class "lh-copy pa2 pointer"
                 , classList [ ( "b", dp.id == todo.projectId ) ]
                 , onClick (OnMoveToProject dp.id)
                 ]
