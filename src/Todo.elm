@@ -37,6 +37,7 @@ type alias Todo =
     , projectId : ProjectId
     , projectIdModifiedAt : Millis
     , isDone : Bool
+    , dueAt : Maybe Millis
     , createdAt : Millis
     , modifiedAt : Millis
     }
@@ -51,12 +52,13 @@ decoder =
         |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
         |> JDP.optional "projectIdModifiedAt" JD.int 0
         |> JDP.required "isDone" JD.bool
+        |> JDP.optional "dueAt" (JD.maybe JD.int) Nothing
         |> JDP.required "createdAt" JD.int
         |> JDP.required "modifiedAt" JD.int
 
 
 encoder : Todo -> Value
-encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, createdAt, modifiedAt } =
+encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, dueAt, createdAt, modifiedAt } =
     JE.object
         [ ( "id", JE.string id )
         , ( "title", JE.string title )
@@ -64,6 +66,7 @@ encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, createdAt,
         , ( "projectId", ProjectId.encoder projectId )
         , ( "projectIdModifiedAt", JE.int projectIdModifiedAt )
         , ( "isDone", JE.bool isDone )
+        , ( "dueAt", dueAt |> Maybe.map JE.int |> Maybe.withDefault JE.null )
         , ( "createdAt", JE.int createdAt )
         , ( "modifiedAt", JE.int modifiedAt )
         ]
@@ -84,6 +87,7 @@ new now pid =
     , projectId = pid
     , projectIdModifiedAt = now
     , isDone = False
+    , dueAt = Nothing
     , createdAt = now
     , modifiedAt = now
     }

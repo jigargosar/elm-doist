@@ -700,8 +700,28 @@ viewRoute route model =
 -- TODAY CONTENT
 
 
+eqByDay m1 m2 =
+    m1 == m2
+
+
 todayContent model =
-    div [] [ text "Today" ]
+    let
+        now =
+            0
+
+        display =
+            List.filter (.dueAt >> Maybe.map (eqByDay now) >> Maybe.withDefault False)
+                model.todoList
+
+        viewTodayTodoItem todo =
+            div [] [ text todo.title ]
+    in
+    div [ class "pa3 vs3" ]
+        [ div [ class "flex items-center hs3" ]
+            [ div [ class "b flex-grow-1" ] [ text "Today" ]
+            ]
+        , div [ class "vs1" ] (List.map viewTodayTodoItem display)
+        ]
 
 
 
