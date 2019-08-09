@@ -6,7 +6,8 @@
 * Elm Browser.application skeleton with todo CRUD
 * Deploy to elmdoist.web.app
 
-## SLICE 2
+## SLICE 2: DONE
 * Projects CRUD.
 * Project Routes
 * InBox
+* Deploy to elmdoist.web.app
