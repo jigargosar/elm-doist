@@ -720,7 +720,7 @@ viewDeleteTodoBtn todo =
 viewHeader : Model -> Html Msg
 viewHeader model =
     div [ class "vs3" ]
-        [ div [ onClick NoOp ] [ text "ElmDOist" ]
+        [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
         , HtmlStyledExtra.viewUnless (model.errors |> List.isEmpty) <|
             div [ class "ph3 flex hs3" ]
                 [ div [ class "ttu tracked" ] [ text "Errors:" ]
