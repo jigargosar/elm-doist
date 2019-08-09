@@ -6,7 +6,7 @@ import Browser
 import Browser.Navigation as Nav
 import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_, value)
+import Html.Styled.Attributes exposing (checked, class, classList, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledExtra
 import Json.Decode as JD exposing (Decoder)
@@ -448,28 +448,38 @@ toUnStyledDocument { title, body } =
 
 
 viewFooter model =
-    let
-        viewPLI p =
-            div [ tabindex 0, class "lh-copy pointer pa2" ] [ div [] [ text p.title ] ]
-    in
     div []
         [ case model.dialog of
             NoDialog ->
                 HtmlStyledExtra.empty
 
             MoveToProjectDialog todo ->
-                div
-                    [ class "absolute absolute--fill bg-black-50"
-                    , class "flex items-center justify-center "
-                    ]
-                    [ div [ class "bg-white vs3 pa3" ]
-                        [ div [ class "b" ] [ text "Move To Project ..." ]
-                        , div [ class "vs1" ]
-                            (model.projectList
-                                |> List.map viewPLI
-                            )
-                        ]
-                    ]
+                viewMoveDialog todo model.projectList
+        ]
+
+
+viewMoveDialog : Todo -> ProjectList -> Html Msg
+viewMoveDialog todo projectList =
+    let
+        viewPLI p =
+            div
+                [ tabindex 0
+                , class "lh-copy pointer pa2"
+                , classList [ ( "b", p.id == todo.projectId ) ]
+                ]
+                [ div [] [ text p.title ] ]
+    in
+    div
+        [ class "absolute absolute--fill bg-black-50"
+        , class "flex items-center justify-center "
+        ]
+        [ div [ class "bg-white vs3 pa3" ]
+            [ div [ class "b" ] [ text "Move To Project ..." ]
+            , div [ class "vs1" ]
+                (projectList
+                    |> List.map viewPLI
+                )
+            ]
         ]
 
 
