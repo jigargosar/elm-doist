@@ -16,7 +16,8 @@ import List.Extra
 import Maybe.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
-import Project exposing (ProjectList)
+import Project exposing (Project, ProjectList)
+import ProjectId exposing (ProjectId)
 import Result.Extra
 import Return
 import Route exposing (Route)
@@ -175,6 +176,7 @@ type Msg
     | OnAddProject
     | AddProject Millis
     | OnMove TodoId
+    | OnMoveToProject ProjectId
     | OnEdit TodoId
     | OnEditCancel
     | OnEditSave
@@ -301,6 +303,14 @@ update message model =
                 |> List.Extra.find (.id >> (==) todoId)
                 |> Maybe.Extra.unwrap pure startMoving
                 |> callWith model
+
+        OnMoveToProject pid ->
+            case model.dialog of
+                NoDialog ->
+                    pure model
+
+                MoveToProjectDialog todo ->
+                    pure model
 
         OnEditCancel ->
             pure { model | inlineEditTodo = Nothing }
@@ -458,16 +468,32 @@ viewFooter model =
         ]
 
 
+type alias DisplayProject =
+    { id : ProjectId
+    , title : String
+    }
+
+
+toDisplayProject : Project -> DisplayProject
+toDisplayProject p =
+    { id = p.id, title = p.title }
+
+
+toDisplayProjectList projectList =
+    { id = "", title = "Inbox" } :: List.map toDisplayProject projectList
+
+
 viewMoveDialog : Todo -> ProjectList -> Html Msg
 viewMoveDialog todo projectList =
     let
-        viewPLI p =
+        viewPLI dp =
             div
                 [ tabindex 0
-                , class "lh-copy pointer pa2"
-                , classList [ ( "b", p.id == todo.projectId ) ]
+                , class "lh-copy pa2"
+                , classList [ ( "b", dp.id == todo.projectId ) ]
+                , onClick (OnMoveToProject dp.id)
                 ]
-                [ div [] [ text p.title ] ]
+                [ div [] [ text dp.title ] ]
     in
     div
         [ class "absolute absolute--fill bg-black-50"
@@ -477,6 +503,7 @@ viewMoveDialog todo projectList =
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
                 (projectList
+                    |> toDisplayProjectList
                     |> List.map viewPLI
                 )
             ]
