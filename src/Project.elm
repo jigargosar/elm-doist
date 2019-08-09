@@ -80,9 +80,5 @@ listEncoder =
     JE.list encoder
 
 
-eq =
-    (==)
-
-
 filterActive =
     List.filter (.deleted >> not)
