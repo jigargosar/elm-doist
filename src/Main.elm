@@ -373,7 +373,7 @@ viewFooter model =
                 HtmlStyledExtra.empty
 
             MoveToProject todo ->
-                HtmlStyledExtra.empty
+                div [ class "absolute absolute--fill bg-black-50" ] []
         ]
 
 
