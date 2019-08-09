@@ -521,16 +521,23 @@ masterLayout title content model =
     }
 
 
+sortedPendingInProject pid todoList =
+    Todo.filterSort
+        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
+        [ Todo.ByIdx
+        , Todo.ByRecentlyModifiedProjectId
+        , Todo.ByRecentlyCreated
+        ]
+        todoList
+
+
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
         Route.Inbox ->
             let
                 displayTodoList =
-                    Todo.filterSort
-                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject ""))
-                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-                        model.todoList
+                    sortedPendingInProject ProjectId.default model.todoList
 
                 title =
                     "Inbox"
@@ -542,10 +549,7 @@ viewRoute route model =
         Route.Project pid ->
             let
                 displayTodoList =
-                    Todo.filterSort
-                        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
-                        [ Todo.ByIdx, Todo.ByRecentlyCreated ]
-                        model.todoList
+                    sortedPendingInProject pid model.todoList
 
                 title =
                     model.projectList

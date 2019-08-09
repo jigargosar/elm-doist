@@ -207,6 +207,7 @@ type CompareBy
     = ByIdx
     | ByRecentlyModified
     | ByRecentlyCreated
+    | ByRecentlyModifiedProjectId
 
 
 toComparator : CompareBy -> Comparator Todo
@@ -220,6 +221,9 @@ toComparator compareBy =
 
         ByRecentlyCreated ->
             Compare.by .createdAt |> Compare.reverse
+
+        ByRecentlyModifiedProjectId ->
+            Compare.by .projectIdModifiedAt |> Compare.reverse
 
 
 concatCompareBy : List CompareBy -> Comparator Todo
