@@ -371,7 +371,11 @@ viewFooter model =
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     { title = title
-    , body = [ viewHeader model, content, viewFooter model ]
+    , body =
+        [ viewHeader model
+        , content
+        , viewFooter model
+        ]
     }
 
 
