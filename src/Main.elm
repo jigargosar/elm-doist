@@ -841,7 +841,7 @@ viewHeader model =
 viewNav : Model -> Html Msg
 viewNav model =
     div []
-        [ div [ class "ph3" ]
+        [ div [ class "pa3" ]
             [ div [ class "flex hs3" ]
                 [ a
                     [ class "no-underline"
@@ -851,24 +851,32 @@ viewNav model =
                     [ text "Inbox" ]
                 ]
             ]
-        , div [ class "pa3 " ]
+        , div [ class "pa3" ]
             [ div [ class "flex hs3" ]
-                [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-                , button [ onClick OnAddProjectStart ] [ text "add project" ]
+                [ a
+                    [ class "no-underline"
+                    , href Route.inboxUrl
+                    , class "b"
+                    ]
+                    [ text "Inbox" ]
                 ]
-            , viewNavProjects (Project.filterActive model.projectList)
             ]
+        , div [ class "pa3 flex hs3" ]
+            [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
+            , button [ onClick OnAddProjectStart ] [ text "add project" ]
+            ]
+        , viewNavProjects (Project.filterActive model.projectList)
         ]
 
 
 viewNavProjects : ProjectList -> Html Msg
 viewNavProjects projectList =
-    div [ class "b vs1" ] (List.map viewProjectNavItem projectList)
+    div [ class "b " ] (List.map viewProjectNavItem projectList)
 
 
 viewProjectNavItem : Project -> Html Msg
 viewProjectNavItem project =
-    div [ class "pa2 flex " ]
+    div [ class "pa3 flex " ]
         [ a
             [ class "no-underline flex-grow-1"
             , href (Route.projectUrl project.id)
