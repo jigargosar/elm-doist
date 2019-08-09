@@ -4,6 +4,7 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
+import Date
 import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
@@ -708,8 +709,12 @@ viewRoute route model =
 -- TODAY CONTENT
 
 
+dateFromMillis =
+    Time.millisToPosix >> Date.fromPosix Time.utc
+
+
 eqByDay m1 m2 =
-    m1 == m2
+    dateFromMillis m1 == dateFromMillis m2
 
 
 todayContent model =
