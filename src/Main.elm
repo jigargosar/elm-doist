@@ -830,9 +830,25 @@ viewHeader model =
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
             ]
-        , div [ class "ph3" ]
+        , viewNav model
+        ]
+
+
+
+-- NAV
+
+
+viewNav : Model -> Html Msg
+viewNav model =
+    div []
+        [ div [ class "ph3" ]
             [ div [ class "flex hs3" ]
-                [ a [ class "no-underline", href Route.inboxUrl, class "b" ] [ text "Inbox" ]
+                [ a
+                    [ class "no-underline"
+                    , href Route.inboxUrl
+                    , class "b"
+                    ]
+                    [ text "Inbox" ]
                 ]
             ]
         , div [ class "pa3 " ]
