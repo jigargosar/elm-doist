@@ -618,7 +618,7 @@ pendingForProjectContent pid title edit displayTodoList =
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , button [ onClick (OnAddTodoStart pid) ] [ text "ADD" ]
+            , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
             ]
         , div [ class "vs1" ] (List.map (viewTodoItem edit) displayTodoList)
         ]
@@ -705,12 +705,12 @@ viewTodoTitle todo =
 
 viewMoveTodoBtn todo =
     div [ class "flex items-center" ]
-        [ button [ onClick (OnMoveStart todo.id) ] [ text "MV" ] ]
+        [ button [ onClick (OnMoveStart todo.id), class "code" ] [ text "M" ] ]
 
 
 viewDeleteTodoBtn todo =
     div [ class "flex items-center" ]
-        [ button [ onClick (OnDelete todo.id) ] [ text "X" ] ]
+        [ button [ onClick (OnDelete todo.id), class "code" ] [ text "X" ] ]
 
 
 
@@ -753,7 +753,7 @@ viewHeader model =
         , div [ class "pa3 " ]
             [ div [ class "flex hs3" ]
                 [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-                , button [ onClick OnAddProjectStart ] [ text "New Project" ]
+                , button [ onClick OnAddProjectStart ] [ text "add project" ]
                 ]
             , viewNavProjects model.projectList
             ]
