@@ -8,6 +8,8 @@ import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
+import HtmlExtra
+import HtmlStyledExtra
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -365,7 +367,14 @@ toUnStyledDocument { title, body } =
 
 
 viewFooter model =
-    div [] []
+    div []
+        [ case model.dialog of
+            NoDialog ->
+                HtmlStyledExtra.empty
+
+            MoveToProject todo ->
+                HtmlStyledExtra.empty
+        ]
 
 
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
