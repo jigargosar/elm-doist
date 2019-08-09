@@ -5,8 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import HasErrors
-import Html.Styled exposing (Html, a, button, div, input, option, select, text)
-import Html.Styled.Attributes exposing (checked, class, disabled, href, selected, tabindex, type_, value)
+import Html.Styled exposing (Html, a, button, div, input, text)
+import Html.Styled.Attributes exposing (checked, class, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -16,11 +16,9 @@ import Maybe.Extra
 import Now exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (ProjectList)
-import ProjectId exposing (ProjectId)
 import Result.Extra
 import Return
 import Route exposing (Route)
-import StyledKeyEvent
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, pure)
@@ -235,7 +233,7 @@ update message model =
 
 startEditing : Todo -> Model -> Return
 startEditing todo model =
-    pure { model | inlineEditTodo = Just { todo = todo, pid = Nothing } }
+    pure { model | inlineEditTodo = Just { todo = todo, title = Nothing } }
 
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
@@ -401,7 +399,7 @@ viewRoute route model =
                 ]
             }
 
-        Route.NotFound url ->
+        Route.NotFound _ ->
             viewRoute Route.Inbox model
 
 
