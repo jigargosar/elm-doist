@@ -85,4 +85,4 @@ eq =
 
 
 filterActive =
-    List.filter (.deleted >> eq False)
+    List.filter (.deleted >> not)
