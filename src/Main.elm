@@ -537,7 +537,8 @@ cleanupTodoList model =
                 |> List.map
                     (.id
                         >> (\todoId ->
-                                Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId }
+                                Ports.deleteFirestoreDoc
+                                    { userDocPath = "todos/" ++ todoId }
                            )
                     )
                 |> Cmd.batch
