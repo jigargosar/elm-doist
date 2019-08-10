@@ -812,23 +812,28 @@ eqByDay m1 m2 =
     dateFromMillis m1 == dateFromMillis m2
 
 
+todayContent : Model -> Html Msg
 todayContent model =
     let
         now =
             model.now
 
-        display =
+        displayTodoList =
             List.filter (.dueAt >> Maybe.Extra.unwrap False (eqByDay now))
                 model.todoList
-
-        viewTodayTodoItem todo =
-            div [] [ text todo.title ]
     in
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text "Today" ]
             ]
-        , div [ class "vs1" ] (List.map viewTodayTodoItem display)
+        , div [ class "vs1" ]
+            (List.map
+                (viewTodoItem
+                    model.inlineEditTodo
+                    model.here
+                )
+                displayTodoList
+            )
         ]
 
 
@@ -857,14 +862,14 @@ viewTodoItem : Maybe InlineEditTodo -> Time.Zone -> Todo -> Html Msg
 viewTodoItem edit here todo =
     case edit of
         Nothing ->
-            viewProjectTodoItem here todo
+            viewTodoItemHelp here todo
 
         Just edt ->
             if edt.todo.id == todo.id then
                 viewEditTodoItem edt
 
             else
-                viewProjectTodoItem here todo
+                viewTodoItemHelp here todo
 
 
 viewEditTodoItem : InlineEditTodo -> Html Msg
@@ -888,7 +893,7 @@ viewEditTodoItem edt =
         ]
 
 
-viewProjectTodoItem here todo =
+viewTodoItemHelp here todo =
     div
         [ class "flex items-center hs1 lh-copy db "
         , tabindex 0
