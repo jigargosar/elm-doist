@@ -467,43 +467,11 @@ queryTodoListCmd =
         }
 
 
-
---queryPendingTodoListCmd =
---    Ports.queryFirestore
---        { id = "todoList"
---        , userCollectionName = "todos"
---        , whereClause = [ ( "isDone", "==", JE.bool False ) ]
---        }
---queryTodoListForRouteCmd : Route -> Cmd msg
---queryTodoListForRouteCmd route =
---    let
---        getPid r =
---            case r of
---                Route.Inbox ->
---                    ""
---
---                Route.Project pid ->
---                    pid
---
---                Route.NotFound _ ->
---                    getPid Route.Inbox
---    in
---    Ports.queryFirestore
---        { id = "todoList"
---        , userCollectionName = "todos"
---        , whereClause =
---            [ ( "projectId", "==", getPid route |> ProjectId.encoder )
---            , ( "isDone", "==", JE.bool False )
---            ]
---        }
-
-
 queryProjectListCmd =
     Ports.queryFirestore
         { id = "projectList"
         , userCollectionName = "projects"
-        , whereClause =
-            [{- ( "deleted", "==", JE.bool False ) -}]
+        , whereClause = []
         }
 
 
