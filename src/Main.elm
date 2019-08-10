@@ -295,7 +295,7 @@ update message model =
                     qs.docDataList
                         |> List.map (JD.decodeValue Project.decoder)
                         |> Result.Extra.combine
-                        |> Result.Extra.unpack onDecodeError setAndCacheProjectList
+                        |> Result.Extra.unpack onDecodeError updateProjectListAndCleanupFromFirestore
                         |> callWith model
 
                 _ ->
@@ -536,7 +536,6 @@ updateTodoListFromFirestore todoList model =
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
             )
-        |> andThen cleanupTodoList
 
 
 cleanupTodoList : Model -> Return
@@ -568,14 +567,15 @@ setProjectList projectList model =
     { model | projectList = projectList }
 
 
-setAndCacheProjectList : ProjectList -> Model -> Return
-setAndCacheProjectList projectList model =
+updateProjectListAndCleanupFromFirestore : ProjectList -> Model -> Return
+updateProjectListAndCleanupFromFirestore projectList model =
     setProjectList projectList model
         |> pure
         |> command
             (Ports.localStorageSetJsonItem
                 ( "cachedProjectList", Project.listEncoder projectList )
             )
+        |> andThen cleanupTodoList
 
 
 setAuthState : AuthState -> Model -> Model
