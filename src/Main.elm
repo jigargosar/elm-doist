@@ -605,6 +605,10 @@ subscriptions _ =
         ]
 
 
+
+-- VIEW
+
+
 view : Model -> Browser.Document Msg
 view model =
     viewRoute model.route model
