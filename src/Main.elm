@@ -4,7 +4,8 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
-import Calendar as Date exposing (Date)
+import Calendar
+import Date
 import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
@@ -53,6 +54,7 @@ type alias InlineEditTodo =
 type Dialog
     = NoDialog
     | MoveToProjectDialog Todo
+    | DueDialog Todo
 
 
 type alias Model =
@@ -114,6 +116,12 @@ dialogEncoder dialog =
         MoveToProjectDialog todo ->
             JE.object
                 [ ( "tag", JE.string "MoveToProjectDialog" )
+                , ( "todo", Todo.encoder todo )
+                ]
+
+        DueDialog todo ->
+            JE.object
+                [ ( "tag", JE.string "DueDialog" )
                 , ( "todo", Todo.encoder todo )
                 ]
 
@@ -195,6 +203,7 @@ type Msg
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
+    | OnEditDueStart TodoId
     | OnMoveToProject ProjectId
     | OnOverlayClicked
     | OnEdit TodoId
@@ -338,6 +347,12 @@ update message model =
                 |> Maybe.Extra.unwrap pure startMoving
                 |> callWith model
 
+        OnEditDueStart todoId ->
+            model.todoList
+                |> List.Extra.find (.id >> (==) todoId)
+                |> Maybe.Extra.unwrap pure startEditingDue
+                |> callWith model
+
         OnMoveToProject pid ->
             case model.dialog of
                 NoDialog ->
@@ -351,12 +366,18 @@ update message model =
                                 (Todo.SetProjectId pid)
                             )
 
+                DueDialog _ ->
+                    pure model
+
         OnOverlayClicked ->
             case model.dialog of
                 NoDialog ->
                     pure model
 
                 MoveToProjectDialog _ ->
+                    updateDialog NoDialog model
+
+                DueDialog _ ->
                     updateDialog NoDialog model
 
         OnEditCancel ->
@@ -374,6 +395,11 @@ startEditing todo model =
 startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialog (MoveToProjectDialog todo)
+
+
+startEditingDue : Todo -> Model -> Return
+startEditingDue todo =
+    updateDialog (DueDialog todo)
 
 
 updateDialog : Dialog -> Model -> Return
@@ -577,6 +603,9 @@ viewFooter model =
 
             MoveToProjectDialog todo ->
                 viewMoveDialog todo (Project.filterActive model.projectList)
+
+            DueDialog todo ->
+                viewDueDialog model.now todo
         ]
 
 
@@ -620,6 +649,39 @@ viewMoveDialog todo projectList =
                     |> toDisplayProjectList
                     |> List.map viewPLI
                 )
+            ]
+        ]
+
+
+viewDueDialog : Millis -> Todo -> Html Msg
+viewDueDialog now _ =
+    let
+        today : Calendar.Date
+        today =
+            dateFromMillis now
+
+        _ =
+            [ Calendar.getDay today |> String.fromInt
+            , Calendar.getMonth today |> Debug.toString
+            , Calendar.getYear today
+                |> String.fromInt
+            ]
+
+        todayFmt =
+            Date.format "ddd MM yyyy"
+                (Date.fromPosix Time.utc <|
+                    Time.millisToPosix now
+                )
+    in
+    div
+        [ class "absolute absolute--fill bg-black-50"
+        , class "flex items-center justify-center "
+        , Html.Styled.Attributes.id "overlay"
+        , onDomIdClicked "overlay" OnOverlayClicked
+        ]
+        [ div [ class "bg-white vs3 pa3" ]
+            [ div [ class "b" ] [ text "Set Due At ..." ]
+            , div [] [ text <| "today:" ++ todayFmt ]
             ]
         ]
 
@@ -709,9 +771,9 @@ viewRoute route model =
 -- TODAY CONTENT
 
 
-dateFromMillis : Int -> Date
+dateFromMillis : Int -> Calendar.Date
 dateFromMillis =
-    Time.millisToPosix >> Date.fromPosix
+    Time.millisToPosix >> Calendar.fromPosix
 
 
 eqByDay m1 m2 =
@@ -800,9 +862,25 @@ viewTodoItemHelp todo =
         ]
         [ viewTodoCheck todo
         , viewTodoTitle todo
-        , viewMoveTodoBtn todo
         , viewDeleteTodoBtn todo
+        , viewMoveTodoBtn todo
+        , viewCharBtn (OnEditDueStart todo.id) 'D'
         ]
+
+
+viewMoveTodoBtn : Todo -> Html Msg
+viewMoveTodoBtn todo =
+    viewCharBtn (OnMoveStart todo.id) 'M'
+
+
+viewDeleteTodoBtn todo =
+    viewCharBtn (OnDelete todo.id) 'X'
+
+
+viewCharBtn : msg -> Char -> Html msg
+viewCharBtn clickHandler chr =
+    div [ class "flex items-center" ]
+        [ button [ onClick clickHandler, class "code" ] [ text <| String.fromChar chr ] ]
 
 
 viewTodoCheck todo =
@@ -835,16 +913,6 @@ viewTodoTitle todo =
         , onClick (OnEdit todo.id)
         ]
         [ text title ]
-
-
-viewMoveTodoBtn todo =
-    div [ class "flex items-center" ]
-        [ button [ onClick (OnMoveStart todo.id), class "code" ] [ text "M" ] ]
-
-
-viewDeleteTodoBtn todo =
-    div [ class "flex items-center" ]
-        [ button [ onClick (OnDelete todo.id), class "code" ] [ text "X" ] ]
 
 
 
