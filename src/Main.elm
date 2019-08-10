@@ -207,6 +207,8 @@ type Msg
     | OnDeleteProject ProjectId
     | PatchTodo TodoId Todo.Msg Millis
     | OnAddTodoStart ProjectId
+    | OnAddTodoTodayStart
+    | AddTodoToday Millis
     | AddTodo ProjectId Millis
     | OnAddProjectStart
     | AddProject Millis
@@ -332,7 +334,18 @@ update message model =
             ( model
             , Ports.addFirestoreDoc
                 { userCollectionName = "todos"
-                , data = Todo.new now pid
+                , data = Todo.newForProject now pid
+                }
+            )
+
+        OnAddTodoTodayStart ->
+            ( model, Millis.nowCmd AddTodoToday )
+
+        AddTodoToday now ->
+            ( model
+            , Ports.addFirestoreDoc
+                { userCollectionName = "todos"
+                , data = Todo.newToday now model.now
                 }
             )
 
@@ -737,6 +750,16 @@ sortedPendingInProject pid todoList =
         todoList
 
 
+sortedInProject pid todoList =
+    Todo.filterSort
+        (Todo.BelongsToProject pid)
+        [ Todo.ByIdx
+        , Todo.ByRecentlyModifiedProjectId
+        , Todo.ByRecentlyCreated
+        ]
+        todoList
+
+
 
 --inboxDisplayProject =
 --    { id = ProjectId.default, title = "Inbox" }
@@ -748,7 +771,7 @@ viewRoute route model =
         Route.Inbox ->
             let
                 displayTodoList =
-                    sortedPendingInProject ProjectId.default model.todoList
+                    sortedInProject ProjectId.default model.todoList
 
                 title =
                     "Inbox"
@@ -771,7 +794,7 @@ viewRoute route model =
                 Just project ->
                     let
                         displayTodoList =
-                            sortedPendingInProject pid model.todoList
+                            sortedInProject pid model.todoList
 
                         title =
                             project.title
@@ -812,6 +835,10 @@ eqByDay m1 m2 =
     dateFromMillis m1 == dateFromMillis m2
 
 
+compareDate m1 m2 =
+    Calendar.compare (dateFromMillis m1) (dateFromMillis m2)
+
+
 todayContent : Model -> Html Msg
 todayContent model =
     let
@@ -821,19 +848,45 @@ todayContent model =
         displayTodoList =
             List.filter (.dueAt >> Maybe.Extra.unwrap False (eqByDay now))
                 model.todoList
-    in
-    div [ class "pa3 vs3" ]
-        [ div [ class "flex items-center hs3" ]
-            [ div [ class "b flex-grow-1" ] [ text "Today" ]
-            ]
-        , div [ class "vs1" ]
-            (List.map
-                (viewTodoItem
-                    model.inlineEditTodo
-                    model.here
+
+        overDueList =
+            List.filter
+                (.dueAt
+                    >> Maybe.Extra.unwrap False
+                        (\dueAt -> compareDate dueAt now == EQ)
                 )
-                displayTodoList
-            )
+                model.todoList
+                |> List.filter (.isDone >> not)
+    in
+    div [ class "vs3" ]
+        [ HtmlStyledExtra.viewUnless (overDueList |> List.isEmpty) <|
+            div [ class "pa3 vs3" ]
+                [ div [ class "flex items-center hs3" ]
+                    [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
+                    ]
+                , div [ class "vs1" ]
+                    (List.map
+                        (viewTodoItem
+                            model.inlineEditTodo
+                            model.here
+                        )
+                        overDueList
+                    )
+                ]
+        , div [ class "pa3 vs3" ]
+            [ div [ class "flex items-center hs3" ]
+                [ div [ class "b flex-grow-1" ] [ text "Today" ]
+                , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
+                ]
+            , div [ class "vs1" ]
+                (List.map
+                    (viewTodoItem
+                        model.inlineEditTodo
+                        model.here
+                    )
+                    displayTodoList
+                )
+            ]
         ]
 
 

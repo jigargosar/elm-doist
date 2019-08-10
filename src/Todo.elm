@@ -16,7 +16,8 @@ module Todo exposing
     , matchesFilter
     , modify
     , modifyPatch
-    , new
+    , newForProject
+    , newToday
     , sortWith
     )
 
@@ -80,8 +81,8 @@ type Msg
     | SetDueAt Millis
 
 
-new : Millis -> ProjectId -> Value
-new now pid =
+newForProject : Millis -> ProjectId -> Value
+newForProject now pid =
     { id = ""
     , title = ""
     , sortIdx = 0
@@ -89,6 +90,21 @@ new now pid =
     , projectIdModifiedAt = now
     , isDone = False
     , dueAt = Nothing
+    , createdAt = now
+    , modifiedAt = now
+    }
+        |> encoder
+
+
+newToday : Millis -> Millis -> Value
+newToday now dueAt =
+    { id = ""
+    , title = ""
+    , sortIdx = 0
+    , projectId = ProjectId.default
+    , projectIdModifiedAt = now
+    , isDone = False
+    , dueAt = Just dueAt
     , createdAt = now
     , modifiedAt = now
     }
