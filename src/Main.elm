@@ -513,6 +513,21 @@ cleanupTodoList model =
         todoByPid =
             Dict.Extra.groupBy .projectId model.todoList
 
+        deleteProjectsCmd =
+            model.projectList
+                |> List.filter .deleted
+                |> List.filter
+                    (\p ->
+                        Dict.get p.id todoByPid |> Maybe.Extra.unwrap True List.isEmpty
+                    )
+                |> List.map
+                    (.id
+                        >> (\projectId ->
+                                Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ projectId }
+                           )
+                    )
+                |> Cmd.batch
+
         deleteTodosCmd : Cmd msg
         deleteTodosCmd =
             model.projectList
@@ -527,7 +542,7 @@ cleanupTodoList model =
                     )
                 |> Cmd.batch
     in
-    ( model, deleteTodosCmd )
+    ( model, Cmd.batch [ deleteTodosCmd, deleteProjectsCmd ] )
 
 
 setProjectList : ProjectList -> Model -> Model
