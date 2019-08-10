@@ -732,14 +732,16 @@ masterLayout title content model =
     }
 
 
-sortedPendingInProject pid todoList =
-    Todo.filterSort
-        (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
-        [ Todo.ByIdx
-        , Todo.ByRecentlyModifiedProjectId
-        , Todo.ByRecentlyCreated
-        ]
-        todoList
+
+{- sortedPendingInProject pid todoList =
+   Todo.filterSort
+       (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
+       [ Todo.ByIdx
+       , Todo.ByRecentlyModifiedProjectId
+       , Todo.ByRecentlyCreated
+       ]
+       todoList
+-}
 
 
 sortedInProject pid todoList =
@@ -1047,10 +1049,6 @@ viewHeader model =
             ]
         , viewNav model
         ]
-
-
-
--- NAV
 
 
 viewNav : Model -> Html Msg
