@@ -757,6 +757,7 @@ viewRoute route model =
                 (pendingForProjectContent ProjectId.default
                     title
                     model.inlineEditTodo
+                    model.here
                     displayTodoList
                 )
                 model
@@ -779,6 +780,7 @@ viewRoute route model =
                         (pendingForProjectContent project.id
                             title
                             model.inlineEditTodo
+                            model.here
                             displayTodoList
                         )
                         model
@@ -838,30 +840,31 @@ pendingForProjectContent :
     ProjectId
     -> String
     -> Maybe InlineEditTodo
+    -> Time.Zone
     -> TodoList
     -> Html Msg
-pendingForProjectContent pid title edit displayTodoList =
+pendingForProjectContent pid title edit here displayTodoList =
     div [ class "pa3 vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
             ]
-        , div [ class "vs1" ] (List.map (viewTodoItem edit) displayTodoList)
+        , div [ class "vs1" ] (List.map (viewTodoItem edit here) displayTodoList)
         ]
 
 
-viewTodoItem : Maybe InlineEditTodo -> Todo -> Html Msg
-viewTodoItem edit todo =
+viewTodoItem : Maybe InlineEditTodo -> Time.Zone -> Todo -> Html Msg
+viewTodoItem edit here todo =
     case edit of
         Nothing ->
-            viewTodoItemHelp todo
+            viewTodoItemHelp here todo
 
         Just edt ->
             if edt.todo.id == todo.id then
                 viewEditTodoItem edt
 
             else
-                viewTodoItemHelp todo
+                viewTodoItemHelp here todo
 
 
 viewEditTodoItem : InlineEditTodo -> Html Msg
@@ -885,17 +888,31 @@ viewEditTodoItem edt =
         ]
 
 
-viewTodoItemHelp todo =
+viewTodoItemHelp here todo =
     div
-        [ class "flex hs1 lh-copy db "
+        [ class "flex items-center hs1 lh-copy db "
         , tabindex 0
         ]
         [ viewTodoCheck todo
+        , viewDueAt here todo
         , viewTodoTitle todo
         , viewDeleteTodoBtn todo
         , viewMoveTodoBtn todo
         , viewCharBtn (OnEditDueStart todo.id) 'D'
         ]
+
+
+viewDueAt here todo =
+    let
+        viewDueAt_ dueAt =
+            div [ class "truncate flex-shrink-0 f7 code" ]
+                [ text <| Millis.formatDate "ddd MMM" here dueAt
+                ]
+    in
+    todo.dueAt
+        |> Maybe.Extra.unwrap
+            HtmlStyledExtra.empty
+            viewDueAt_
 
 
 viewMoveTodoBtn : Todo -> Html Msg
