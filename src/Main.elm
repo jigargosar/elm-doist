@@ -961,7 +961,7 @@ viewTodoItemHelp here todo =
         [ class "flex items-center hs1 lh-copy db "
         , tabindex 0
         ]
-        [ viewTodoCheck todo
+        [ viewTodoCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
         , viewTodoTitle todo
         , viewCharBtn (OnDelete todo.id) 'X'
@@ -989,13 +989,13 @@ viewCharBtn clickHandler chr =
         [ button [ onClick clickHandler, class "code" ] [ text <| String.fromChar chr ] ]
 
 
-viewTodoCheck todo =
+viewTodoCheck isChecked onCheckMsg =
     div [ class "hover-bg-light-yellow flex flex-column pa2" ]
         [ input
             [ class "pointer db flex-grow-1"
             , type_ "checkbox"
-            , checked todo.isDone
-            , onCheck (OnChecked todo.id)
+            , checked isChecked
+            , onCheck onCheckMsg
             ]
             []
         ]
