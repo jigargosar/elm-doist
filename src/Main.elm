@@ -42,6 +42,10 @@ import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
+
+-- MODEL
+
+
 type alias Error =
     String
 
@@ -68,10 +72,6 @@ type alias Model =
     , now : Millis
     , here : Time.Zone
     }
-
-
-type alias Return =
-    Return.Return Msg Model
 
 
 type alias Cache =
@@ -163,6 +163,14 @@ flagsDecoder =
         |> JDP.required "cache" cacheDecoder
 
 
+
+-- INIT
+
+
+type alias Return =
+    Return.Return Msg Model
+
+
 init : Value -> Url -> Nav.Key -> Return
 init encodedFlags url key =
     let
@@ -188,6 +196,10 @@ init encodedFlags url key =
         |> andThen (updateFromEncodedFlags encodedFlags)
         |> command (Millis.nowCmd OnNow)
         |> command (Millis.hereCmd OnHere)
+
+
+
+-- MSG
 
 
 type Msg
@@ -654,8 +666,12 @@ toDisplayProject p =
     { id = p.id, title = p.title }
 
 
+inboxDisplayProject =
+    { id = ProjectId.default, title = "Inbox" }
+
+
 toDisplayProjectList projectList =
-    { id = "", title = "Inbox" } :: List.map toDisplayProject projectList
+    inboxDisplayProject :: List.map toDisplayProject projectList
 
 
 viewMoveDialog : Todo -> ProjectList -> Html Msg
@@ -670,12 +686,7 @@ viewMoveDialog todo projectList =
                 ]
                 [ div [] [ text dp.title ] ]
     in
-    div
-        [ class "absolute absolute--fill bg-black-50"
-        , class "flex items-center justify-center "
-        , Html.Styled.Attributes.id "overlay"
-        , onDomIdClicked "overlay" OnOverlayClicked
-        ]
+    viewOverlay
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
@@ -703,12 +714,7 @@ viewDueDialog zone now _ =
         yesterdayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
     in
-    div
-        [ class "absolute absolute--fill bg-black-50"
-        , class "flex items-center justify-center "
-        , Html.Styled.Attributes.id "overlay"
-        , onDomIdClicked "overlay" OnOverlayClicked
-        ]
+    viewOverlay
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
@@ -722,6 +728,16 @@ viewDueDialog zone now _ =
                 ]
                 [ text <| "Yesterday: " ++ yesterdayFmt ]
             ]
+        ]
+
+
+viewOverlay : List (Html Msg) -> Html Msg
+viewOverlay =
+    div
+        [ class "absolute absolute--fill bg-black-50"
+        , class "flex items-center justify-center "
+        , Html.Styled.Attributes.id "overlay"
+        , onDomIdClicked "overlay" OnOverlayClicked
         ]
 
 
@@ -756,11 +772,6 @@ sortedInProject pid todoList =
         , Todo.ByRecentlyCreated
         ]
         todoList
-
-
-
---inboxDisplayProject =
---    { id = ProjectId.default, title = "Inbox" }
 
 
 viewRoute : Route -> Model -> StyledDocument Msg
