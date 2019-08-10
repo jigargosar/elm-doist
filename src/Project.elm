@@ -13,7 +13,7 @@ module Project exposing
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JD
 import Json.Encode as JE exposing (Value)
-import Now exposing (Millis)
+import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
 
 

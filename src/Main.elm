@@ -5,7 +5,6 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Date
 import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
@@ -29,7 +28,7 @@ import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra
-import Now exposing (Millis)
+import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -67,6 +66,7 @@ type alias Model =
     , key : Nav.Key
     , route : Route
     , now : Millis
+    , here : Time.Zone
     }
 
 
@@ -180,11 +180,14 @@ init encodedFlags url key =
             , key = key
             , route = route
             , now = 0
+            , here = Time.utc
             }
     in
     model
         |> pure
         |> andThen (updateFromEncodedFlags encodedFlags)
+        |> command (Millis.nowCmd OnNow)
+        |> command (Millis.hereCmd OnHere)
 
 
 type Msg
@@ -192,6 +195,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | OnNow Millis
+    | OnHere Time.Zone
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
@@ -208,6 +212,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
+    | OnSetDue Millis
     | OnMoveToProject ProjectId
     | OnOverlayClicked
     | OnEdit TodoId
@@ -246,6 +251,9 @@ update message model =
 
         OnNow now ->
             pure { model | now = now }
+
+        OnHere here ->
+            pure { model | here = here }
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
@@ -318,7 +326,7 @@ update message model =
             )
 
         OnAddTodoStart pid ->
-            ( model, Now.perform (AddTodo pid) )
+            ( model, Millis.nowCmd (AddTodo pid) )
 
         AddTodo pid now ->
             ( model
@@ -329,7 +337,7 @@ update message model =
             )
 
         OnAddProjectStart ->
-            ( model, Now.perform AddProject )
+            ( model, Millis.nowCmd AddProject )
 
         AddProject now ->
             ( model
@@ -372,6 +380,22 @@ update message model =
 
                 DueDialog _ ->
                     pure model
+
+        OnSetDue dueAt ->
+            case model.dialog of
+                NoDialog ->
+                    pure model
+
+                MoveToProjectDialog _ ->
+                    pure model
+
+                DueDialog todo ->
+                    updateDialog NoDialog model
+                        |> command
+                            (patchTodoCmd
+                                todo.id
+                                (Todo.SetDueAt dueAt)
+                            )
 
         OnOverlayClicked ->
             case model.dialog of
@@ -419,7 +443,7 @@ cacheEffect model =
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
-    PatchTodo todoId todoMsg |> Now.perform
+    PatchTodo todoId todoMsg |> Millis.nowCmd
 
 
 queryTodoListCmd =
@@ -599,6 +623,7 @@ toUnStyledDocument { title, body } =
     { title = title, body = body |> List.map Html.Styled.toUnstyled }
 
 
+viewFooter : Model -> Html Msg
 viewFooter model =
     div []
         [ case model.dialog of
@@ -609,7 +634,7 @@ viewFooter model =
                 viewMoveDialog todo (Project.filterActive model.projectList)
 
             DueDialog todo ->
-                viewDueDialog model.now todo
+                viewDueDialog model.here model.now todo
         ]
 
 
@@ -657,8 +682,8 @@ viewMoveDialog todo projectList =
         ]
 
 
-viewDueDialog : Millis -> Todo -> Html Msg
-viewDueDialog now _ =
+viewDueDialog : Time.Zone -> Millis -> Todo -> Html Msg
+viewDueDialog zone now _ =
     let
         today : Calendar.Date
         today =
@@ -672,10 +697,7 @@ viewDueDialog now _ =
             ]
 
         todayFmt =
-            Date.format "ddd MMM yyyy"
-                (Date.fromPosix Time.utc <|
-                    Time.millisToPosix now
-                )
+            Millis.formatDate "ddd MMM yyyy" zone now
     in
     div
         [ class "absolute absolute--fill bg-black-50"
@@ -684,8 +706,12 @@ viewDueDialog now _ =
         , onDomIdClicked "overlay" OnOverlayClicked
         ]
         [ div [ class "bg-white vs3 pa3" ]
-            [ div [ class "b" ] [ text "Set Due At ..." ]
-            , div [] [ text <| "today:" ++ todayFmt ]
+            [ div [ class "b" ] [ text "Set Due Date.." ]
+            , div
+                [ class "pa3 b pointer"
+                , onClick (OnSetDue <| Calendar.toMillis today)
+                ]
+                [ text <| "Today: " ++ todayFmt ]
             ]
         ]
 

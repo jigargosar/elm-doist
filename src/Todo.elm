@@ -25,7 +25,7 @@ import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import Now exposing (Millis)
+import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
 
@@ -77,6 +77,7 @@ type Msg
     | SetProjectId ProjectId
     | SetTitle String
     | SetSortIdx Int
+    | SetDueAt Millis
 
 
 new : Millis -> ProjectId -> Value
@@ -111,6 +112,9 @@ modifyPatch msg now =
 
                 SetSortIdx sortIdx ->
                     [ ( "sortIdx", JE.int sortIdx ) ]
+
+                SetDueAt dueAt ->
+                    [ ( "dueAt", JE.int dueAt ) ]
            )
 
 
@@ -128,6 +132,9 @@ update msg model =
 
         SetSortIdx sortIdx ->
             { model | sortIdx = sortIdx }
+
+        SetDueAt dueAt ->
+            { model | dueAt = Just dueAt }
 
 
 modifyWithNow : Millis -> Msg -> Todo -> Maybe Todo

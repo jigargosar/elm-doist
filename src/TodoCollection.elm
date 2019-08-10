@@ -21,7 +21,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import List.Extra
-import Now exposing (Millis)
+import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
 import Todo exposing (Todo, TodoDict, TodoList)
 import TodoId exposing (TodoId)
