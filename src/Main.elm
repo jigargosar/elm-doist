@@ -848,6 +848,7 @@ todayContent model =
         displayTodoList =
             List.filter (.dueAt >> Maybe.Extra.unwrap False (eqByDay now))
                 model.todoList
+                |> List.filter (.isDone >> not)
 
         overDueList =
             List.filter
