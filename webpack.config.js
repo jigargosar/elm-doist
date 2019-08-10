@@ -44,7 +44,7 @@ module.exports = {
     modules: false,
   },
   // devtool: isProduction ? 'source-map' : 'eval-source-map',
-  // devtool: isProduction ? 'source-map' : false,
+  devtool: isProduction ? 'source-map' : false,
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
     historyApiFallback: true,
