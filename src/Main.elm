@@ -702,13 +702,6 @@ viewDueDialog zone now _ =
         today =
             dateFromMillis now
 
-        _ =
-            [ Calendar.getDay today |> String.fromInt
-            , Calendar.getMonth today |> Debug.toString
-            , Calendar.getYear today
-                |> String.fromInt
-            ]
-
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone now
 
