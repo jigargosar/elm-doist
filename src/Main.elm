@@ -87,20 +87,6 @@ type alias Flags =
     }
 
 
-dialogDecoderForTag : String -> Decoder Dialog
-dialogDecoderForTag tag =
-    case tag of
-        "NoDialog" ->
-            JD.succeed NoDialog
-
-        "MoveToProjectDialog" ->
-            JD.field "todo" Todo.decoder
-                |> JD.map MoveToProjectDialog
-
-        _ ->
-            JD.fail ("Invalid Dialog Tag:" ++ tag)
-
-
 dialogDecoder : Decoder Dialog
 dialogDecoder =
     JD.field "tag" JD.string
@@ -124,6 +110,24 @@ dialogEncoder dialog =
                 [ ( "tag", JE.string "DueDialog" )
                 , ( "todo", Todo.encoder todo )
                 ]
+
+
+dialogDecoderForTag : String -> Decoder Dialog
+dialogDecoderForTag tag =
+    case tag of
+        "NoDialog" ->
+            JD.succeed NoDialog
+
+        "MoveToProjectDialog" ->
+            JD.field "todo" Todo.decoder
+                |> JD.map MoveToProjectDialog
+
+        "DueDialog" ->
+            JD.field "todo" Todo.decoder
+                |> JD.map DueDialog
+
+        _ ->
+            JD.fail ("Invalid Dialog Tag:" ++ tag)
 
 
 cacheDecoder : Decoder Cache
@@ -668,7 +672,7 @@ viewDueDialog now _ =
             ]
 
         todayFmt =
-            Date.format "ddd MM yyyy"
+            Date.format "ddd MMM yyyy"
                 (Date.fromPosix Time.utc <|
                     Time.millisToPosix now
                 )
