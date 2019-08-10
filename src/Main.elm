@@ -711,6 +711,12 @@ viewDueDialog zone now _ =
 
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone now
+
+        yesterday =
+            Calendar.decrementDay today
+
+        yesterdayFmt =
+            Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
     in
     div
         [ class "absolute absolute--fill bg-black-50"
@@ -725,6 +731,11 @@ viewDueDialog zone now _ =
                 , onClick (OnSetDue <| Calendar.toMillis today)
                 ]
                 [ text <| "Today: " ++ todayFmt ]
+            , div
+                [ class "pa3 b pointer"
+                , onClick (OnSetDue <| Calendar.toMillis yesterday)
+                ]
+                [ text <| "Yesterday: " ++ yesterdayFmt ]
             ]
         ]
 
@@ -854,14 +865,14 @@ todayContent model =
             List.filter
                 (.dueAt
                     >> Maybe.Extra.unwrap False
-                        (\dueAt -> compareDate dueAt now == EQ)
+                        (\dueAt -> compareDate dueAt now == LT)
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
     in
     div [ class "vs3" ]
         [ HtmlStyledExtra.viewUnless (overDueList |> List.isEmpty) <|
-            div [ class "pa3 vs3" ]
+            div [ class "ph3 vs3" ]
                 [ div [ class "flex items-center hs3" ]
                     [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
                     ]
@@ -874,7 +885,7 @@ todayContent model =
                         overDueList
                     )
                 ]
-        , div [ class "pa3 vs3" ]
+        , div [ class "ph3 vs3" ]
             [ div [ class "flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text "Today" ]
                 , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
