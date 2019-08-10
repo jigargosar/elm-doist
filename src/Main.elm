@@ -964,8 +964,8 @@ viewTodoItemHelp here todo =
         [ viewTodoCheck todo
         , viewDueAt here todo
         , viewTodoTitle todo
-        , viewDeleteTodoBtn todo
-        , viewMoveTodoBtn todo
+        , viewCharBtn (OnDelete todo.id) 'X'
+        , viewCharBtn (OnMoveStart todo.id) 'M'
         , viewCharBtn (OnEditDueStart todo.id) 'D'
         ]
 
@@ -981,15 +981,6 @@ viewDueAt here todo =
         |> Maybe.Extra.unwrap
             HtmlStyledExtra.empty
             viewDueAt_
-
-
-viewMoveTodoBtn : Todo -> Html Msg
-viewMoveTodoBtn todo =
-    viewCharBtn (OnMoveStart todo.id) 'M'
-
-
-viewDeleteTodoBtn todo =
-    viewCharBtn (OnDelete todo.id) 'X'
 
 
 viewCharBtn : msg -> Char -> Html msg
