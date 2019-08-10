@@ -223,7 +223,20 @@ type Msg
 
 
 
---
+-- SUB
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ Ports.onAuthStateChanged OnAuthStateChanged
+        , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
+        , Time.every 1000 (Time.posixToMillis >> OnNow)
+        ]
+
+
+
+-- UPDATE
 
 
 update : Msg -> Model -> Return
@@ -594,15 +607,6 @@ onDecodeError : JD.Error -> Model -> Return
 onDecodeError error model =
     HasErrors.prependDecodeError error model
         |> pure
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ Ports.onAuthStateChanged OnAuthStateChanged
-        , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , Time.every 1000 (Time.posixToMillis >> OnNow)
-        ]
 
 
 
