@@ -4,7 +4,7 @@ import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
-import Date
+import Calendar as Date exposing (Date)
 import Dict exposing (Dict)
 import Dict.Extra
 import HasErrors
@@ -709,8 +709,9 @@ viewRoute route model =
 -- TODAY CONTENT
 
 
+dateFromMillis : Int -> Date
 dateFromMillis =
-    Time.millisToPosix >> Date.fromPosix Time.utc
+    Time.millisToPosix >> Date.fromPosix
 
 
 eqByDay m1 m2 =
