@@ -734,7 +734,7 @@ viewDueDialog zone now _ =
 viewOverlay : List (Html Msg) -> Html Msg
 viewOverlay =
     div
-        [ class "absolute absolute--fill bg-black-50"
+        [ class "fixed absolute--fill bg-black-50"
         , class "flex items-center justify-center "
         , Html.Styled.Attributes.id "overlay"
         , onDomIdClicked "overlay" OnOverlayClicked
