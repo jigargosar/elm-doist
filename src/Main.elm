@@ -917,7 +917,7 @@ viewDialogOverlay =
 
 
 
--- TODAY CONTENT
+-- TODAY PAGE CONTENT
 
 
 dateFromMillis : Int -> Calendar.Date
