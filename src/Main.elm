@@ -721,7 +721,7 @@ masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     { title = title
     , body =
-        [ viewHeader model
+        [ div [ class "mb3" ] [ viewHeader model ]
         , div [ class "flex" ]
             [ div [ class "w-30" ]
                 [ viewSidebar model
@@ -738,7 +738,9 @@ masterLayout title content model =
 
 
 viewSidebar model =
-    div [] [ text "Sidebar" ]
+    div []
+        [ viewNav model
+        ]
 
 
 
@@ -769,7 +771,6 @@ viewHeader model =
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
             ]
-        , viewNav model
         ]
 
 
@@ -777,7 +778,7 @@ viewNav : Model -> Html Msg
 viewNav model =
     let
         navItem link title =
-            div [ class "pa2 " ]
+            div [ class "pv2 " ]
                 [ div [ class "flex hs3" ]
                     [ a
                         [ class "no-underline"
@@ -788,12 +789,12 @@ viewNav model =
                     ]
                 ]
     in
-    div [ class "ph2 lh-title" ]
+    div [ class "lh-title" ]
         [ navItem Route.inboxUrl "Inbox"
         , navItem Route.todayUrl "Today"
-        , div [ class "pa2 flex hs3" ]
+        , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , button [ onClick OnAddProjectStart ] [ text "add project" ]
+            , viewCharBtn OnAddProjectStart '+'
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -806,13 +807,13 @@ viewNavProjects projectList =
 
 viewProjectNavItem : Project -> Html Msg
 viewProjectNavItem project =
-    div [ class "pa3 flex " ]
+    div [ class "pv2 flex hs3" ]
         [ a
-            [ class "no-underline flex-grow-1"
+            [ class "no-underline truncate flex-grow-1"
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , button [ class "", onClick (OnDeleteProject project.id) ] [ text "X" ]
+        , viewCharBtn (OnDeleteProject project.id) 'X'
         ]
 
 
@@ -1002,7 +1003,7 @@ pendingForProjectContent :
     -> TodoList
     -> Html Msg
 pendingForProjectContent pid title edit here displayTodoList =
-    div [ class "pa3 vs3" ]
+    div [ class "vs3" ]
         [ div [ class "flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
