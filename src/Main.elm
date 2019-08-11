@@ -722,7 +722,7 @@ masterLayout title content model =
     { title = title
     , body =
         [ div [ class "mb3" ] [ viewHeader model ]
-        , div [ class "flex" ]
+        , div [ class "mt3 ph3 hs3 flex " ]
             [ div [ class "w-30" ]
                 [ viewSidebar model
                 ]
