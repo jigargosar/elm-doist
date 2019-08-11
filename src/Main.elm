@@ -716,21 +716,20 @@ masterLayout title content model =
 
         headerHeight =
             rem 2
+
+        maxContentWidth =
+            px 1024
     in
     { title = title
     , body =
         [ div
-            [ class "fixed bg-black white"
-            , css
-                [ position sticky
-                , top zero
-                , height headerHeight
-                ]
+            [ class "bg-black white"
+            , css [ position sticky, top zero, height headerHeight ]
             ]
-            [ div [ class "center", css [ maxWidth (px 1024) ] ]
+            [ div [ class "center", css [ maxWidth maxContentWidth ] ]
                 [ viewHeader model ]
             ]
-        , div [ class "center", css [ maxWidth (px 1024) ] ]
+        , div [ class "center", css [ maxWidth maxContentWidth ] ]
             [ div
                 [ class "fixed overflow-auto"
                 , css
