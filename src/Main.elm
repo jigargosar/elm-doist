@@ -5,7 +5,20 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (bottom, height, int, marginLeft, maxWidth, num, pct, position, px, rem, sticky, top, width, zIndex, zero)
+import Css
+    exposing
+        ( bottom
+        , height
+        , marginLeft
+        , maxWidth
+        , position
+        , px
+        , rem
+        , sticky
+        , top
+        , width
+        , zero
+        )
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
