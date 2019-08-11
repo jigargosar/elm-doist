@@ -184,7 +184,7 @@ init encodedFlags url key =
             , inlineEditTodo = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
-            , errors = []
+            , errors = [ "Testing Error View" ]
             , key = key
             , route = route
             , now = 0
@@ -961,7 +961,7 @@ viewTodoItemHelp here todo =
         [ class "flex items-center hs1 lh-copy db "
         , tabindex 0
         ]
-        [ viewTodoCheck todo.isDone (OnChecked todo.id)
+        [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
         , viewTodoTitle todo
         , viewCharBtn (OnDelete todo.id) 'X'
@@ -989,7 +989,7 @@ viewCharBtn clickHandler chr =
         [ button [ onClick clickHandler, class "code" ] [ text <| String.fromChar chr ] ]
 
 
-viewTodoCheck isChecked onCheckMsg =
+viewCheck isChecked onCheckMsg =
     div [ class "hover-bg-light-yellow flex flex-column pa2" ]
         [ input
             [ class "pointer db flex-grow-1"
@@ -1029,11 +1029,7 @@ viewHeader : Model -> Html Msg
 viewHeader model =
     div [ class "vs3" ]
         [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
-        , HtmlStyledExtra.viewUnless (model.errors |> List.isEmpty) <|
-            div [ class "ph3 flex hs3" ]
-                [ div [ class "ttu tracked" ] [ text "Errors:" ]
-                , HasErrors.view model.errors
-                ]
+        , viewErrors model.errors
         , div [ class "ph3 flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
             , AuthState.view model.authState
@@ -1055,6 +1051,15 @@ viewHeader model =
             ]
         , viewNav model
         ]
+
+
+viewErrors : List Error -> Html msg
+viewErrors errors =
+    HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
+        div [ class "ph3 flex hs3" ]
+            [ div [ class "ttu tracked" ] [ text "Errors:" ]
+            , HasErrors.view errors
+            ]
 
 
 viewNav : Model -> Html Msg
