@@ -722,17 +722,19 @@ masterLayout title content model =
     { title = title
     , body =
         [ div [ class "h-100 flex flex-column" ]
-            [ div [ class "fixed w-100" ] [ viewHeader model ]
+            [ div [ class "fixed w-100 bg-black white" ] [ viewHeader model ]
             , div [ class "flex-shrink-0 h3" ] []
             , div [ class "flex-grow-1 ph3 hs3 flex " ]
                 [ div [ class "w-30" ] [ viewSidebar model ]
-                , content
-                ]
-            , div [ class "pa3 vs3" ]
-                [ HasErrors.detailView model
-                , div [ class " flex hs3" ]
-                    [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                    , AuthState.view model.authState
+                , div []
+                    [ content
+                    , div [ class "pa3 vs3" ]
+                        [ HasErrors.detailView model
+                        , div [ class " flex hs3" ]
+                            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                            , AuthState.view model.authState
+                            ]
+                        ]
                     ]
                 ]
             , viewFooter model
