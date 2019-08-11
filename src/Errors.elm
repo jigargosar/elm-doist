@@ -42,7 +42,7 @@ prependDecodeError error =
 detailView : Errors -> Html msg
 detailView (Errors errors) =
     HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
-        div [ class "ph3 vs3" ]
+        div [ class "vs3" ]
             [ div [ class "ttu tracked" ] [ text "Errors:" ]
             , ol [ class "vs3" ] (List.map viewError errors)
             ]

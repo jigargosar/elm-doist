@@ -721,14 +721,22 @@ masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     { title = title
     , body =
-        [ div [ class "mb3" ] [ viewHeader model ]
-        , div [ class "mt3 ph3 hs3 flex " ]
-            [ div [ class "w-30" ]
-                [ viewSidebar model
+        [ div [ class "h-100 flex flex-column" ]
+            [ div [ class "fixed w-100" ] [ viewHeader model ]
+            , div [ class "flex-shrink-0 h3" ] []
+            , div [ class "flex-grow-1 ph3 hs3 flex " ]
+                [ div [ class "w-30" ] [ viewSidebar model ]
+                , content
                 ]
-            , content
+            , div [ class "pa3 vs3" ]
+                [ HasErrors.detailView model
+                , div [ class " flex hs3" ]
+                    [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                    , AuthState.view model.authState
+                    ]
+                ]
+            , viewFooter model
             ]
-        , viewFooter model
         ]
     }
 
@@ -764,11 +772,6 @@ viewHeader model =
 
                 AuthState.NotSignedIn ->
                     button [ onClick OnSignInClicked ] [ text "SignIn" ]
-            ]
-        , HasErrors.detailView model
-        , div [ class "ph3 flex hs3" ]
-            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-            , AuthState.view model.authState
             ]
         ]
 
@@ -1003,7 +1006,7 @@ pendingForProjectContent :
     -> Html Msg
 pendingForProjectContent pid title edit here displayTodoList =
     div [ class "vs3" ]
-        [ div [ class "flex items-center hs3" ]
+        [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
             ]
