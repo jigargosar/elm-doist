@@ -719,43 +719,40 @@ masterLayout title content model =
     in
     { title = title
     , body =
-        [ div [ class "min-h-100" ]
-            [ div
-                [ class "fixed bg-black white"
-                , css
-                    [ position sticky
-                    , top zero
-                    , zIndex (int 1)
-                    , height headerHeight
-                    ]
+        [ div
+            [ class "fixed bg-black white"
+            , css
+                [ position sticky
+                , top zero
+                , height headerHeight
                 ]
-                [ div [ class "center", css [ maxWidth (px 1024) ] ]
-                    [ viewHeader model ]
-                ]
-            , div [ class "center", css [ maxWidth (px 1024) ] ]
-                [ div
-                    [ class "fixed overflow-auto"
-                    , css
-                        [ width sidebarWidth
-                        , top headerHeight
-                        , bottom zero
-                        ]
-                    ]
-                    [ viewSidebar model
-                    ]
-                , div [ css [ marginLeft sidebarWidth ] ]
-                    [ content
-                    , div [ class "pa3 vs3" ]
-                        [ HasErrors.detailView model
-                        , div [ class " flex hs3" ]
-                            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                            , AuthState.view model.authState
-                            ]
-                        ]
-                    ]
-                ]
-            , viewFooter model
             ]
+            [ div [ class "center", css [ maxWidth (px 1024) ] ]
+                [ viewHeader model ]
+            ]
+        , div [ class "center", css [ maxWidth (px 1024) ] ]
+            [ div
+                [ class "fixed overflow-auto"
+                , css
+                    [ width sidebarWidth
+                    , top headerHeight
+                    , bottom zero
+                    ]
+                ]
+                [ viewSidebar model
+                ]
+            , div [ css [ marginLeft sidebarWidth ] ]
+                [ content
+                , div [ class "pa3 vs3" ]
+                    [ HasErrors.detailView model
+                    , div [ class " flex hs3" ]
+                        [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                        , AuthState.view model.authState
+                        ]
+                    ]
+                ]
+            ]
+        , viewFooter model
         ]
     }
 
