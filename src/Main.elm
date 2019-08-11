@@ -637,7 +637,83 @@ toUnStyledDocument { title, body } =
     { title = title, body = body |> List.map Html.Styled.toUnstyled }
 
 
+viewRoute : Route -> Model -> StyledDocument Msg
+viewRoute route model =
+    case route of
+        Route.Inbox ->
+            let
+                displayTodoList =
+                    sortedInProject ProjectId.default model.todoList
 
+                title =
+                    "Inbox"
+            in
+            masterLayout title
+                (pendingForProjectContent ProjectId.default
+                    title
+                    model.inlineEditTodo
+                    model.here
+                    displayTodoList
+                )
+                model
+
+        Route.Project pid ->
+            case
+                model.projectList
+                    |> Project.filterActive
+                    |> List.Extra.find (.id >> (==) pid)
+            of
+                Just project ->
+                    let
+                        displayTodoList =
+                            sortedInProject pid model.todoList
+
+                        title =
+                            project.title
+                    in
+                    masterLayout title
+                        (pendingForProjectContent project.id
+                            title
+                            model.inlineEditTodo
+                            model.here
+                            displayTodoList
+                        )
+                        model
+
+                Nothing ->
+                    viewRoute Route.Inbox model
+
+        Route.Today ->
+            let
+                title =
+                    "Today"
+            in
+            masterLayout title (todayContent model) model
+
+        Route.NotFound _ ->
+            viewRoute Route.Inbox model
+
+
+sortedInProject pid todoList =
+    Todo.filterSort
+        (Todo.BelongsToProject pid)
+        [ Todo.ByIdx
+        , Todo.ByRecentlyModifiedProjectId
+        , Todo.ByRecentlyCreated
+        ]
+        todoList
+
+
+
+{- sortedPendingInProject pid todoList =
+   Todo.filterSort
+       (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
+       [ Todo.ByIdx
+       , Todo.ByRecentlyModifiedProjectId
+       , Todo.ByRecentlyCreated
+       ]
+       todoList
+-}
 -- MASTER LAYOUT
 
 
@@ -838,89 +914,6 @@ viewDialogOverlay =
         , Html.Styled.Attributes.id "overlay"
         , onDomIdClicked "overlay" OnDialogOverlayClicked
         ]
-
-
-
--- VIEW ROUTES WITH MASTER LAYOUT
-
-
-sortedInProject pid todoList =
-    Todo.filterSort
-        (Todo.BelongsToProject pid)
-        [ Todo.ByIdx
-        , Todo.ByRecentlyModifiedProjectId
-        , Todo.ByRecentlyCreated
-        ]
-        todoList
-
-
-
-{- sortedPendingInProject pid todoList =
-   Todo.filterSort
-       (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
-       [ Todo.ByIdx
-       , Todo.ByRecentlyModifiedProjectId
-       , Todo.ByRecentlyCreated
-       ]
-       todoList
--}
-
-
-viewRoute : Route -> Model -> StyledDocument Msg
-viewRoute route model =
-    case route of
-        Route.Inbox ->
-            let
-                displayTodoList =
-                    sortedInProject ProjectId.default model.todoList
-
-                title =
-                    "Inbox"
-            in
-            masterLayout title
-                (pendingForProjectContent ProjectId.default
-                    title
-                    model.inlineEditTodo
-                    model.here
-                    displayTodoList
-                )
-                model
-
-        Route.Project pid ->
-            case
-                model.projectList
-                    |> Project.filterActive
-                    |> List.Extra.find (.id >> (==) pid)
-            of
-                Just project ->
-                    let
-                        displayTodoList =
-                            sortedInProject pid model.todoList
-
-                        title =
-                            project.title
-                    in
-                    masterLayout title
-                        (pendingForProjectContent project.id
-                            title
-                            model.inlineEditTodo
-                            model.here
-                            displayTodoList
-                        )
-                        model
-
-                Nothing ->
-                    viewRoute Route.Inbox model
-
-        Route.Today ->
-            let
-                title =
-                    "Today"
-            in
-            masterLayout title (todayContent model) model
-
-        Route.NotFound _ ->
-            viewRoute Route.Inbox model
 
 
 
