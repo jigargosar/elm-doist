@@ -5,20 +5,8 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css
-    exposing
-        ( bottom
-        , height
-        , marginLeft
-        , maxWidth
-        , position
-        , px
-        , rem
-        , sticky
-        , top
-        , width
-        , zero
-        )
+import Css exposing (bottom, calc, height, marginLeft, maxWidth, minus, position, px, rem, sticky, top, width, zero)
+import Css.Media as Media exposing (only, screen, withMedia)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -741,6 +729,17 @@ masterLayout title content model =
                     , AuthState.view model.authState
                     ]
                 ]
+
+        bpSmall =
+            600
+
+        sm =
+            withMedia
+                [ Media.all [ Media.maxWidth <| px bpSmall ] ]
+
+        ns =
+            withMedia
+                [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
     in
     { title = title
     , body =
@@ -758,11 +757,19 @@ masterLayout title content model =
                     [ width sidebarWidth
                     , top headerHeight
                     , bottom zero
+                    , sm
+                        [ top <| calc (px 0) minus sidebarWidth ]
                     ]
                 ]
                 [ viewSidebar model
                 ]
-            , div [ class "ph3", css [ marginLeft sidebarWidth ] ]
+            , div
+                [ class "ph3"
+                , css
+                    [ ns
+                        [ marginLeft sidebarWidth ]
+                    ]
+                ]
                 [ content
                 , viewDebugContent
                 ]
