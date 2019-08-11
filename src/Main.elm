@@ -719,6 +719,15 @@ masterLayout title content model =
 
         maxContentWidth =
             px 1024
+
+        viewDebugContent =
+            div [ class "pa3 vs3" ]
+                [ HasErrors.detailView model
+                , div [ class " flex hs3" ]
+                    [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                    , AuthState.view model.authState
+                    ]
+                ]
     in
     { title = title
     , body =
@@ -742,13 +751,7 @@ masterLayout title content model =
                 ]
             , div [ css [ marginLeft sidebarWidth ] ]
                 [ content
-                , div [ class "pa3 vs3" ]
-                    [ HasErrors.detailView model
-                    , div [ class " flex hs3" ]
-                        [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                        , AuthState.view model.authState
-                        ]
-                    ]
+                , viewDebugContent
                 ]
             ]
         , viewFooter model
