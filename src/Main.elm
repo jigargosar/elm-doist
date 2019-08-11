@@ -5,7 +5,7 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (int, marginLeft, maxWidth, num, pct, position, px, sticky, top, width, zIndex, zero)
+import Css exposing (bottom, height, int, marginLeft, maxWidth, num, pct, position, px, rem, sticky, top, width, zIndex, zero)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -710,24 +710,40 @@ sortedInProject pid todoList =
 
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
+    let
+        sidebarWidth =
+            px 250
+
+        headerHeight =
+            rem 2
+    in
     { title = title
     , body =
         [ div [ class "min-h-100" ]
             [ div
-                [ class "bg-black white"
-                , css [ position sticky, top zero, zIndex (int 1) ]
+                [ class "fixed bg-black white"
+                , css
+                    [ position sticky
+                    , top zero
+                    , zIndex (int 1)
+                    , height headerHeight
+                    ]
                 ]
                 [ div [ class "center", css [ maxWidth (px 1024) ] ]
                     [ viewHeader model ]
                 ]
-            , div [ class "relative center", css [ maxWidth (px 1024) ] ]
+            , div [ class "center", css [ maxWidth (px 1024) ] ]
                 [ div
-                    [ class "absolute"
-                    , css [ width <| pct 30 ]
+                    [ class "fixed overflow-auto"
+                    , css
+                        [ width sidebarWidth
+                        , top headerHeight
+                        , bottom zero
+                        ]
                     ]
                     [ viewSidebar model
                     ]
-                , div [ css [ marginLeft (pct 30) ] ]
+                , div [ css [ marginLeft sidebarWidth ] ]
                     [ content
                     , div [ class "pa3 vs3" ]
                         [ HasErrors.detailView model
