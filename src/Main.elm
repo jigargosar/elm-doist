@@ -750,7 +750,21 @@ viewSidebar model =
 viewHeader : Model -> Html Msg
 viewHeader model =
     div [ class "vs3" ]
-        [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
+        [ div [ class "flex ph3 h2 items-center" ]
+            [ div [ class "f4 tracked flex-grow-1" ] [ text "ElmDOist" ]
+            , case model.authState of
+                AuthState.Unknown ->
+                    button [ disabled True ] [ text "SignIn" ]
+
+                AuthState.SignedIn user ->
+                    div [ class "flex items-center hs3 " ]
+                        [ div [] [ text user.displayName ]
+                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        ]
+
+                AuthState.NotSignedIn ->
+                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            ]
         , HasErrors.detailView model
         , div [ class "ph3 flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
