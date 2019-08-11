@@ -1,4 +1,4 @@
-module HasErrors exposing (Error, ErrorList, HasErrors, empty, fromStrings, prependDecodeError, prependString, view)
+module HasErrors exposing (Error, ErrorList, HasErrors, detailView, empty, fromStrings, prependDecodeError, prependString)
 
 import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (class)
@@ -38,8 +38,8 @@ prependDecodeError error =
     prependString (JD.errorToString error)
 
 
-view : ErrorList -> Html msg
-view errors =
+detailView : HasErrors a -> Html msg
+detailView { errors } =
     HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
         div [ class "ph3 flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "Errors:" ]

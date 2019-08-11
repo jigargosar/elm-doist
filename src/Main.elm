@@ -1025,7 +1025,7 @@ viewHeader : Model -> Html Msg
 viewHeader model =
     div [ class "vs3" ]
         [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
-        , HasErrors.view model.errors
+        , HasErrors.detailView model
         , div [ class "ph3 flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
             , AuthState.view model.authState
