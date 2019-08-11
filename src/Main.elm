@@ -5,22 +5,13 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
+import Css exposing (maxWidth, px)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes
-    exposing
-        ( checked
-        , class
-        , classList
-        , disabled
-        , href
-        , tabindex
-        , type_
-        , value
-        )
+import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra
@@ -722,9 +713,16 @@ masterLayout title content model =
     { title = title
     , body =
         [ div [ class "h-100 flex flex-column" ]
-            [ div [ class "fixed w-100 bg-black white" ] [ viewHeader model ]
+            [ div [ class "fixed w-100 bg-black white" ]
+                [ div [ class "w-100 center", css [ maxWidth (px 1024) ] ]
+                    [ viewHeader model ]
+                ]
             , div [ class "flex-shrink-0 h2" ] []
-            , div [ class "flex-grow-1 hs3 flex overflow-hidden" ]
+            , div
+                [ class "flex-grow-1 hs3 flex overflow-hidden"
+                , class "w-100 center"
+                , css [ maxWidth (px 1024) ]
+                ]
                 [ div [ class "h-100 w-30 flex-shrink-0 flex flex-column overflow-y-auto" ]
                     [ div [ class "h2" ] []
                     , viewSidebar model
