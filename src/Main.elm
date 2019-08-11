@@ -5,7 +5,7 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (maxWidth, px)
+import Css exposing (int, marginLeft, maxWidth, num, pct, position, px, sticky, top, zIndex)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -713,28 +713,26 @@ masterLayout title content model =
     { title = title
     , body =
         [ div [ class "h-100 flex flex-column" ]
-            [ div [ class "fixed w-100 bg-black white" ]
+            [ div
+                [ class "w-100 bg-black white"
+                , css [ position sticky, top (px 0) ]
+                ]
                 [ div [ class "w-100 center", css [ maxWidth (px 1024) ] ]
                     [ viewHeader model ]
                 ]
-            , div [ class "flex-shrink-0 h2" ] []
-            , div
-                [ class "flex-grow-1 hs3 flex overflow-hidden"
-                , class "w-100 center"
-                , css [ maxWidth (px 1024) ]
-                ]
-                [ div [ class "h-100 w-30 flex-shrink-0 flex flex-column overflow-y-auto" ]
-                    [ div [ class "h2" ] []
-                    , viewSidebar model
-                    ]
-                , div [ class "flex-grow-1 overflow-y-auto" ]
-                    [ div [ class " h2" ] []
-                    , content
-                    , div [ class "pa3 vs3" ]
-                        [ HasErrors.detailView model
-                        , div [ class " flex hs3" ]
-                            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                            , AuthState.view model.authState
+            , div [ class "flex-grow-1" ]
+                [ div [ class "relative center", css [ maxWidth (px 1024) ] ]
+                    [ div [ class "absolute w-30 flex flex-column" ]
+                        [ viewSidebar model
+                        ]
+                    , div [ css [ marginLeft (pct 30) ] ]
+                        [ content
+                        , div [ class "pa3 vs3" ]
+                            [ HasErrors.detailView model
+                            , div [ class " flex hs3" ]
+                                [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                                , AuthState.view model.authState
+                                ]
                             ]
                         ]
                     ]
