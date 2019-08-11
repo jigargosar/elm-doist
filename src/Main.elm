@@ -225,7 +225,7 @@ type Msg
     | OnEditDueStart TodoId
     | OnSetDue Millis
     | OnMoveToProject ProjectId
-    | OnOverlayClicked
+    | OnDialogOverlayClicked
     | OnEdit TodoId
     | OnEditCancel
     | OnEditSave
@@ -432,7 +432,7 @@ update message model =
                                 (Todo.SetDueAt dueAt)
                             )
 
-        OnOverlayClicked ->
+        OnDialogOverlayClicked ->
             case model.dialog of
                 NoDialog ->
                     pure model
@@ -683,7 +683,7 @@ viewMoveDialog todo projectList =
                 ]
                 [ div [] [ text dp.title ] ]
     in
-    viewOverlay
+    viewDialogOverlay
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
@@ -711,7 +711,7 @@ viewDueDialog zone now _ =
         yesterdayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
     in
-    viewOverlay
+    viewDialogOverlay
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
@@ -728,13 +728,13 @@ viewDueDialog zone now _ =
         ]
 
 
-viewOverlay : List (Html Msg) -> Html Msg
-viewOverlay =
+viewDialogOverlay : List (Html Msg) -> Html Msg
+viewDialogOverlay =
     div
         [ class "fixed absolute--fill bg-black-50"
         , class "flex items-center justify-center "
         , Html.Styled.Attributes.id "overlay"
-        , onDomIdClicked "overlay" OnOverlayClicked
+        , onDomIdClicked "overlay" OnDialogOverlayClicked
         ]
 
 
