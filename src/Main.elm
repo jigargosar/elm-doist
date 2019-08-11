@@ -740,7 +740,7 @@ masterLayout title content model =
             ]
         , div [ class "center", css [ maxWidth maxContentWidth ] ]
             [ div
-                [ class "fixed overflow-auto"
+                [ class "fixed overflow-auto ph2"
                 , css
                     [ width sidebarWidth
                     , top headerHeight
@@ -749,7 +749,7 @@ masterLayout title content model =
                 ]
                 [ viewSidebar model
                 ]
-            , div [ css [ marginLeft sidebarWidth ] ]
+            , div [ class "ph2", css [ marginLeft sidebarWidth ] ]
                 [ content
                 , viewDebugContent
                 ]
