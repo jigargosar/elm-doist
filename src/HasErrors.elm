@@ -1,6 +1,6 @@
 module HasErrors exposing (Error, ErrorList, HasErrors, detailView, empty, fromStrings, prependDecodeError, prependString)
 
-import Html.Styled exposing (Html, div, text)
+import Html.Styled exposing (Html, div, li, ol, text)
 import Html.Styled.Attributes exposing (class)
 import HtmlStyledExtra
 import Json.Decode as JD
@@ -41,12 +41,12 @@ prependDecodeError error =
 detailView : HasErrors a -> Html msg
 detailView { errors } =
     HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
-        div [ class "ph3 flex hs3" ]
+        div [ class "ph3 vs3" ]
             [ div [ class "ttu tracked" ] [ text "Errors:" ]
-            , div [ class "vs3" ] (List.map viewError errors)
+            , ol [ class "vs3" ] (List.map viewError errors)
             ]
 
 
 viewError : Error -> Html msg
 viewError error =
-    div [] [ text error ]
+    li [] [ text error ]
