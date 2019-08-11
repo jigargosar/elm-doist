@@ -5,8 +5,9 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (bottom, calc, height, marginLeft, maxWidth, minus, position, px, rem, sticky, top, width, zero)
+import Css exposing (auto, bottom, calc, height, left, marginLeft, maxWidth, minus, position, px, rem, sticky, top, width, zero)
 import Css.Media as Media exposing (only, screen, withMedia)
+import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -758,7 +759,8 @@ masterLayout title content model =
                     , top headerHeight
                     , bottom zero
                     , sm
-                        [ top <| calc (px 0) minus sidebarWidth ]
+                        [ left <| calc (px 0) minus sidebarWidth ]
+                    , transition [ Transition.left 1000 ]
                     ]
                 ]
                 [ viewSidebar model
