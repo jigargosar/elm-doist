@@ -5,7 +5,7 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (int, marginLeft, maxWidth, num, pct, position, px, sticky, top, zIndex)
+import Css exposing (int, marginLeft, maxWidth, num, pct, position, px, sticky, top, width, zIndex, zero)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -712,27 +712,28 @@ masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     { title = title
     , body =
-        [ div [ class "h-100 flex flex-column" ]
+        [ div [ class "min-h-100" ]
             [ div
-                [ class "w-100 bg-black white"
-                , css [ position sticky, top (px 0) ]
+                [ class "bg-black white"
+                , css [ position sticky, top zero, zIndex (int 1) ]
                 ]
-                [ div [ class "w-100 center", css [ maxWidth (px 1024) ] ]
+                [ div [ class "center", css [ maxWidth (px 1024) ] ]
                     [ viewHeader model ]
                 ]
-            , div [ class "flex-grow-1" ]
-                [ div [ class "relative center", css [ maxWidth (px 1024) ] ]
-                    [ div [ class "absolute w-30 flex flex-column" ]
-                        [ viewSidebar model
-                        ]
-                    , div [ css [ marginLeft (pct 30) ] ]
-                        [ content
-                        , div [ class "pa3 vs3" ]
-                            [ HasErrors.detailView model
-                            , div [ class " flex hs3" ]
-                                [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                                , AuthState.view model.authState
-                                ]
+            , div [ class "relative center", css [ maxWidth (px 1024) ] ]
+                [ div
+                    [ class "absolute"
+                    , css [ width <| pct 30 ]
+                    ]
+                    [ viewSidebar model
+                    ]
+                , div [ css [ marginLeft (pct 30) ] ]
+                    [ content
+                    , div [ class "pa3 vs3" ]
+                        [ HasErrors.detailView model
+                        , div [ class " flex hs3" ]
+                            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+                            , AuthState.view model.authState
                             ]
                         ]
                     ]
