@@ -1,4 +1,4 @@
-module HasErrors exposing (Error, ErrorList, HasErrors, detailView, empty, fromStrings, prependDecodeError, prependString)
+module HasErrors exposing (Error, Errors, HasErrors, detailView, empty, fromStrings, prependDecodeError, prependString)
 
 import Html.Styled exposing (Html, div, li, ol, text)
 import Html.Styled.Attributes exposing (class)
@@ -10,12 +10,12 @@ type alias Error =
     String
 
 
-type alias ErrorList =
+type alias Errors =
     List Error
 
 
 type alias HasErrors a =
-    { a | errors : ErrorList }
+    { a | errors : Errors }
 
 
 empty : List Error
@@ -23,7 +23,7 @@ empty =
     []
 
 
-fromStrings : List String -> ErrorList
+fromStrings : List String -> Errors
 fromStrings errors =
     errors
 

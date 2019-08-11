@@ -7,7 +7,7 @@ import Browser.Navigation as Nav
 import Calendar
 import Dict exposing (Dict)
 import Dict.Extra
-import HasErrors exposing (ErrorList)
+import HasErrors exposing (Errors)
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes
     exposing
@@ -62,7 +62,7 @@ type alias Model =
     , inlineEditTodo : Maybe InlineEditTodo
     , dialog : Dialog
     , authState : AuthState
-    , errors : ErrorList
+    , errors : Errors
     , key : Nav.Key
     , route : Route
     , now : Millis
