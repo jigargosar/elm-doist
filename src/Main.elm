@@ -637,6 +637,108 @@ toUnStyledDocument { title, body } =
     { title = title, body = body |> List.map Html.Styled.toUnstyled }
 
 
+
+-- MASTER LAYOUT
+
+
+masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
+masterLayout title content model =
+    { title = title
+    , body =
+        [ viewHeader model
+        , div [] [ viewSidebar model, content ]
+        , viewFooter model
+        ]
+    }
+
+
+
+-- LAYOUT SIDEBAR
+
+
+viewSidebar model =
+    div [] []
+
+
+
+-- LAYOUT HEADER
+
+
+viewHeader : Model -> Html Msg
+viewHeader model =
+    div [ class "vs3" ]
+        [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
+        , HasErrors.detailView model
+        , div [ class "ph3 flex hs3" ]
+            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+            , AuthState.view model.authState
+            ]
+        , div [ class "ph3 flex items-center hs3" ]
+            [ div [ class "ttu tracked" ] [ text "User:" ]
+            , case model.authState of
+                AuthState.Unknown ->
+                    button [ disabled True ] [ text "SignIn" ]
+
+                AuthState.SignedIn user ->
+                    div [ class "flex items-center hs3 " ]
+                        [ div [] [ text user.displayName ]
+                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        ]
+
+                AuthState.NotSignedIn ->
+                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
+            ]
+        , viewNav model
+        ]
+
+
+viewNav : Model -> Html Msg
+viewNav model =
+    let
+        navItem link title =
+            div [ class "pa2 " ]
+                [ div [ class "flex hs3" ]
+                    [ a
+                        [ class "no-underline"
+                        , href link
+                        , class "b"
+                        ]
+                        [ text title ]
+                    ]
+                ]
+    in
+    div [ class "ph2 lh-title" ]
+        [ navItem Route.inboxUrl "Inbox"
+        , navItem Route.todayUrl "Today"
+        , div [ class "pa2 flex hs3" ]
+            [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
+            , button [ onClick OnAddProjectStart ] [ text "add project" ]
+            ]
+        , viewNavProjects (Project.filterActive model.projectList)
+        ]
+
+
+viewNavProjects : ProjectList -> Html Msg
+viewNavProjects projectList =
+    div [ class "b " ] (List.map viewProjectNavItem projectList)
+
+
+viewProjectNavItem : Project -> Html Msg
+viewProjectNavItem project =
+    div [ class "pa3 flex " ]
+        [ a
+            [ class "no-underline flex-grow-1"
+            , href (Route.projectUrl project.id)
+            ]
+            [ text project.title ]
+        , button [ class "", onClick (OnDeleteProject project.id) ] [ text "X" ]
+        ]
+
+
+
+-- LAYOUT FOOTER & DIALOG
+
+
 viewFooter : Model -> Html Msg
 viewFooter model =
     div []
@@ -738,15 +840,18 @@ viewDialogOverlay =
         ]
 
 
-masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
-masterLayout title content model =
-    { title = title
-    , body =
-        [ viewHeader model
-        , content
-        , viewFooter model
+
+-- VIEW ROUTES WITH MASTER LAYOUT
+
+
+sortedInProject pid todoList =
+    Todo.filterSort
+        (Todo.BelongsToProject pid)
+        [ Todo.ByIdx
+        , Todo.ByRecentlyModifiedProjectId
+        , Todo.ByRecentlyCreated
         ]
-    }
+        todoList
 
 
 
@@ -759,16 +864,6 @@ masterLayout title content model =
        ]
        todoList
 -}
-
-
-sortedInProject pid todoList =
-    Todo.filterSort
-        (Todo.BelongsToProject pid)
-        [ Todo.ByIdx
-        , Todo.ByRecentlyModifiedProjectId
-        , Todo.ByRecentlyCreated
-        ]
-        todoList
 
 
 viewRoute : Route -> Model -> StyledDocument Msg
@@ -1016,81 +1111,6 @@ viewTodoTitle todo =
         , onClick (OnEdit todo.id)
         ]
         [ text title ]
-
-
-
--- HEADER
-
-
-viewHeader : Model -> Html Msg
-viewHeader model =
-    div [ class "vs3" ]
-        [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
-        , HasErrors.detailView model
-        , div [ class "ph3 flex hs3" ]
-            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-            , AuthState.view model.authState
-            ]
-        , div [ class "ph3 flex items-center hs3" ]
-            [ div [ class "ttu tracked" ] [ text "User:" ]
-            , case model.authState of
-                AuthState.Unknown ->
-                    button [ disabled True ] [ text "SignIn" ]
-
-                AuthState.SignedIn user ->
-                    div [ class "flex items-center hs3 " ]
-                        [ div [] [ text user.displayName ]
-                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
-                        ]
-
-                AuthState.NotSignedIn ->
-                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
-            ]
-        , viewNav model
-        ]
-
-
-viewNav : Model -> Html Msg
-viewNav model =
-    let
-        navItem link title =
-            div [ class "pa2 " ]
-                [ div [ class "flex hs3" ]
-                    [ a
-                        [ class "no-underline"
-                        , href link
-                        , class "b"
-                        ]
-                        [ text title ]
-                    ]
-                ]
-    in
-    div [ class "ph2 lh-title" ]
-        [ navItem Route.inboxUrl "Inbox"
-        , navItem Route.todayUrl "Today"
-        , div [ class "pa2 flex hs3" ]
-            [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , button [ onClick OnAddProjectStart ] [ text "add project" ]
-            ]
-        , viewNavProjects (Project.filterActive model.projectList)
-        ]
-
-
-viewNavProjects : ProjectList -> Html Msg
-viewNavProjects projectList =
-    div [ class "b " ] (List.map viewProjectNavItem projectList)
-
-
-viewProjectNavItem : Project -> Html Msg
-viewProjectNavItem project =
-    div [ class "pa3 flex " ]
-        [ a
-            [ class "no-underline flex-grow-1"
-            , href (Route.projectUrl project.id)
-            ]
-            [ text project.title ]
-        , button [ class "", onClick (OnDeleteProject project.id) ] [ text "X" ]
-        ]
 
 
 main : Program Value Model Msg
