@@ -723,11 +723,15 @@ masterLayout title content model =
     , body =
         [ div [ class "h-100 flex flex-column" ]
             [ div [ class "fixed w-100 bg-black white" ] [ viewHeader model ]
-            , div [ class "flex-shrink-0 h3" ] []
-            , div [ class "flex-grow-1 ph3 hs3 flex " ]
-                [ div [ class "w-30" ] [ viewSidebar model ]
-                , div []
-                    [ content
+            , div [ class "flex-shrink-0 h2" ] []
+            , div [ class "self-center flex-grow-1 ph3 hs3 flex overflow-hidden" ]
+                [ div [ class "h-100 w-30 flex-shrink-0 flex flex-column overflow-y-auto" ]
+                    [ div [ class "h2" ] []
+                    , viewSidebar model
+                    ]
+                , div [ class "overflow-y-auto" ]
+                    [ div [ class " h2" ] []
+                    , content
                     , div [ class "pa3 vs3" ]
                         [ HasErrors.detailView model
                         , div [ class " flex hs3" ]
