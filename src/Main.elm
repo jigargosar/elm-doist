@@ -7,7 +7,8 @@ import Browser.Navigation as Nav
 import Calendar
 import Dict exposing (Dict)
 import Dict.Extra
-import HasErrors exposing (Errors)
+import Errors exposing (Errors)
+import HasErrors
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes
     exposing
@@ -180,7 +181,7 @@ init encodedFlags url key =
             , inlineEditTodo = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
-            , errors = HasErrors.fromStrings [ "Testing Error View" ]
+            , errors = Errors.fromStrings [ "Testing Error View" ]
             , key = key
             , route = route
             , now = 0
