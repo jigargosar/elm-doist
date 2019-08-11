@@ -770,21 +770,6 @@ viewHeader model =
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
             , AuthState.view model.authState
             ]
-        , div [ class "ph3 flex items-center hs3" ]
-            [ div [ class "ttu tracked" ] [ text "User:" ]
-            , case model.authState of
-                AuthState.Unknown ->
-                    button [ disabled True ] [ text "SignIn" ]
-
-                AuthState.SignedIn user ->
-                    div [ class "flex items-center hs3 " ]
-                        [ div [] [ text user.displayName ]
-                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
-                        ]
-
-                AuthState.NotSignedIn ->
-                    button [ onClick OnSignInClicked ] [ text "SignIn" ]
-            ]
         ]
 
 
