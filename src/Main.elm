@@ -7,7 +7,7 @@ import Browser.Navigation as Nav
 import Calendar
 import Dict exposing (Dict)
 import Dict.Extra
-import HasErrors
+import HasErrors exposing (ErrorList)
 import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes
     exposing
@@ -46,10 +46,6 @@ import Url exposing (Url)
 -- MODEL
 
 
-type alias Error =
-    String
-
-
 type alias InlineEditTodo =
     { todo : Todo, title : Maybe String }
 
@@ -66,7 +62,7 @@ type alias Model =
     , inlineEditTodo : Maybe InlineEditTodo
     , dialog : Dialog
     , authState : AuthState
-    , errors : List Error
+    , errors : ErrorList
     , key : Nav.Key
     , route : Route
     , now : Millis
@@ -184,7 +180,7 @@ init encodedFlags url key =
             , inlineEditTodo = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
-            , errors = [ "Testing Error View" ]
+            , errors = HasErrors.fromStrings [ "Testing Error View" ]
             , key = key
             , route = route
             , now = 0
@@ -1029,7 +1025,7 @@ viewHeader : Model -> Html Msg
 viewHeader model =
     div [ class "vs3" ]
         [ div [ class "pa3 f4 tracked" ] [ text "ElmDOist" ]
-        , viewErrors model.errors
+        , HasErrors.view model.errors
         , div [ class "ph3 flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
             , AuthState.view model.authState
@@ -1051,15 +1047,6 @@ viewHeader model =
             ]
         , viewNav model
         ]
-
-
-viewErrors : List Error -> Html msg
-viewErrors errors =
-    HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
-        div [ class "ph3 flex hs3" ]
-            [ div [ class "ttu tracked" ] [ text "Errors:" ]
-            , HasErrors.view errors
-            ]
 
 
 viewNav : Model -> Html Msg

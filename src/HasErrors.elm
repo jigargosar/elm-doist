@@ -1,7 +1,8 @@
-module HasErrors exposing (Error, HasErrors, initial, prependDecodeError, prependString, view)
+module HasErrors exposing (Error, ErrorList, HasErrors, empty, fromStrings, prependDecodeError, prependString, view)
 
 import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (class)
+import HtmlStyledExtra
 import Json.Decode as JD
 
 
@@ -9,13 +10,22 @@ type alias Error =
     String
 
 
+type alias ErrorList =
+    List Error
+
+
 type alias HasErrors a =
-    { a | errors : List Error }
+    { a | errors : ErrorList }
 
 
-initial : List Error
-initial =
+empty : List Error
+empty =
     []
+
+
+fromStrings : List String -> ErrorList
+fromStrings errors =
+    errors
 
 
 prependString : String -> HasErrors a -> HasErrors a
@@ -28,9 +38,13 @@ prependDecodeError error =
     prependString (JD.errorToString error)
 
 
-view : List Error -> Html msg
-view list =
-    div [ class "vs3" ] (List.map viewError list)
+view : ErrorList -> Html msg
+view errors =
+    HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
+        div [ class "ph3 flex hs3" ]
+            [ div [ class "ttu tracked" ] [ text "Errors:" ]
+            , div [ class "vs3" ] (List.map viewError errors)
+            ]
 
 
 viewError : Error -> Html msg
