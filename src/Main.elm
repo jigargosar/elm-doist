@@ -12,6 +12,7 @@ import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
+import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, style, tabindex, type_, value)
@@ -710,6 +711,12 @@ view : Model -> Browser.Document Msg
 view model =
     viewRoute model.route model
         |> toUnStyledDocument
+        |> prependFontAwesomeCss
+
+
+prependFontAwesomeCss : Browser.Document Msg -> Browser.Document Msg
+prependFontAwesomeCss doc =
+    { doc | body = FontAwesome.Styles.css :: doc.body }
 
 
 type alias StyledDocument msg =
