@@ -134,6 +134,16 @@ inlineEditTodoDecoder =
         |> JDP.required "title" (JD.maybe JD.string)
 
 
+inlineEditTodoEncoder =
+    Maybe.Extra.unwrap JE.null
+        (\{ todo, title } ->
+            JE.object
+                [ ( "todo", Todo.encoder todo )
+                , ( "title", title |> Maybe.Extra.unwrap JE.null JE.string )
+                ]
+        )
+
+
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
@@ -142,9 +152,10 @@ cacheDecoder =
 
 
 cacheEncoder : Cache -> Value
-cacheEncoder { dialog } =
+cacheEncoder { dialog, inlineEditTodo } =
     JE.object
         [ ( "dialog", dialogEncoder dialog )
+        , ( "inlineEditTodo", inlineEditTodoEncoder inlineEditTodo )
         ]
 
 
