@@ -27,7 +27,7 @@ body {
 }
 
 svg {
-  shape-rendering: geometricPrecision;
+  shape-rendering: auto;
 }
 
 code,

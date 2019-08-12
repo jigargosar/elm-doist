@@ -12,15 +12,16 @@ import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
+import FontAwesome.Attributes
+import FontAwesome.Icon as FAIcon
+import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, style, tabindex, type_, value)
+import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
-import Icons exposing (RGBA)
-import Ionicon.Android
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -959,7 +960,19 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , viewCharBtn (OnDeleteProject project.id) 'X'
+        , faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash
+        ]
+
+
+faBtn : msg -> FAIcon.Icon -> Html msg
+faBtn clickHandler icon =
+    div
+        [ class "gray hover-dark-gray pointer"
+        , onClick clickHandler
+        ]
+        [ icon
+            |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
+            |> H.fromUnstyled
         ]
 
 
