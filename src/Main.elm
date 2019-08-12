@@ -470,15 +470,19 @@ update message model =
                     updateDialog NoDialog model
 
         OnEditCancel ->
-            pure { model | inlineEditTodo = Nothing }
+            updateInlineEditTodo Nothing model
 
         OnEditSave ->
-            pure { model | inlineEditTodo = Nothing }
+            updateInlineEditTodo Nothing model
+
+
+updateInlineEditTodo inlineEditTodo model =
+    pure { model | inlineEditTodo = inlineEditTodo }
 
 
 startEditing : Todo -> Model -> Return
-startEditing todo model =
-    pure { model | inlineEditTodo = Just { todo = todo, title = Nothing } }
+startEditing todo =
+    updateInlineEditTodo <| Just { todo = todo, title = Nothing }
 
 
 startMoving : Todo -> Model -> Return
