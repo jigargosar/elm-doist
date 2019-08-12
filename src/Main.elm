@@ -1133,8 +1133,13 @@ viewEditTodoItem edt =
         [ class ""
         , tabindex 0
         ]
-        [ div []
-            [ input [ type_ "text", value titleValue ] []
+        [ div [ class "flex" ]
+            [ input
+                [ class "flex-grow-1"
+                , type_ "text"
+                , value titleValue
+                ]
+                []
             ]
         , div [ class "flex hs3" ]
             [ button [ onClick OnEditCancel ] [ text "Cancel" ]
