@@ -1182,13 +1182,15 @@ viewEditTodoItem here edt =
             ]
         , div [ class "flex items-center" ]
             [ div [ class "flex-grow-1 flex items-center hs3" ]
-                [ div [] [ text "Due" ]
-                , case dueAtValue of
+                [ case dueAtValue of
                     Nothing ->
                         div [] [ text "No Due Date" ]
 
                     Just mi ->
-                        div [] [ text <| Millis.formatDate "ddd MMM" here <| mi ]
+                        div [ class "code" ]
+                            [ text "Due: "
+                            , text <| Millis.formatDate "ddd MMM" here <| mi
+                            ]
                 , viewCharBtn (OnEditDueStart edt.todo.id) 'D'
                 ]
             , div [ class "flex flex-row-reverse justify-start" ]
