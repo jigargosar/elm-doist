@@ -1169,7 +1169,7 @@ viewEditTodoItem here edt =
                 |> Todo.dueAtToMillis
     in
     div
-        [ class "vs3"
+        [ class "pa3 vs3"
         , tabindex 0
         ]
         [ div [ class "flex" ]
@@ -1181,18 +1181,23 @@ viewEditTodoItem here edt =
                 []
             ]
         , div [ class "flex items-center" ]
-            [ div [ class "flex-grow-1 flex items-center hs3" ]
+            [ div
+                [ class "flex items-center hs3"
+                , class "pointer"
+                , onClick <| OnEditDueStart edt.todo.id
+                ]
                 [ case dueAtValue of
                     Nothing ->
                         div [] [ text "No Due Date" ]
 
                     Just mi ->
-                        div [ class "code" ]
+                        div [ class "" ]
                             [ text "Due: "
                             , text <| Millis.formatDate "ddd MMM" here <| mi
                             ]
-                , viewCharBtn (OnEditDueStart edt.todo.id) 'D'
+                , div [ class "pointer underline blue" ] [ text "edit" ]
                 ]
+            , div [ class "flex-grow-1" ] []
             , div [ class "flex flex-row-reverse justify-start" ]
                 [ button [ class "ml3", onClick OnEditSave ] [ text "Save" ]
                 , button [ class "ml3", onClick OnEditCancel ] [ text "Cancel" ]
