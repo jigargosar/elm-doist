@@ -1140,18 +1140,22 @@ viewTodoItem edit here todo =
 
         Just edt ->
             if edt.todo.id == todo.id then
-                viewEditTodoItem edt
+                viewEditTodoItem here edt
 
             else
                 viewTodoItemBase here todo
 
 
-viewEditTodoItem : InlineEditTodo -> Html Msg
-viewEditTodoItem edt =
+viewEditTodoItem : Time.Zone -> InlineEditTodo -> Html Msg
+viewEditTodoItem here edt =
     let
         titleValue =
             edt.title
                 |> Maybe.withDefault edt.todo.title
+
+        dueAtValue =
+            edt.dueAt
+                |> Maybe.withDefault edt.todo.dueAt
     in
     div
         [ class "vs3"
@@ -1168,7 +1172,12 @@ viewEditTodoItem edt =
         , div [ class "flex items-center" ]
             [ div [ class "flex-grow-1 flex items-center hs3" ]
                 [ div [] [ text "Due" ]
-                , input [ class " pa1 ", type_ "text", value "" ] []
+                , case dueAtValue of
+                    Nothing ->
+                        div [] [ text "No Due Date" ]
+
+                    Just mi ->
+                        div [] [ text <| Millis.formatDate "ddd MMM" here <| mi ]
                 , viewCharBtn (OnEditDueStart edt.todo.id) 'D'
                 ]
             , div [ class "flex flex-row-reverse justify-start" ]
