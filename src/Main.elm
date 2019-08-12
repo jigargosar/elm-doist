@@ -1126,7 +1126,7 @@ viewTodoItemBase here todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
-        , viewTodoTitle here todo
+        , viewTodoItemContent here todo
         , viewCharBtn (OnDelete todo.id) 'X'
         , viewCharBtn (OnMoveStart todo.id) 'M'
         , viewCharBtn (OnEditDueStart todo.id) 'D'
@@ -1164,8 +1164,8 @@ viewCheck isChecked onCheckMsg =
         ]
 
 
-viewTodoTitle : Time.Zone -> Todo -> Html Msg
-viewTodoTitle here todo =
+viewTodoItemContent : Time.Zone -> Todo -> Html Msg
+viewTodoItemContent here todo =
     let
         ( title, titleClass ) =
             if String.trim todo.title |> String.isEmpty then
