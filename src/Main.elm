@@ -78,6 +78,7 @@ type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
+    , browserSize : Size
     , cache : Cache
     }
 
@@ -155,6 +156,7 @@ flagsDecoder =
         |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
         |> JDP.required "cachedAuthState"
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
+        |> JDP.required "browserSize" Size.decoder
         |> JDP.required "cache" cacheDecoder
 
 

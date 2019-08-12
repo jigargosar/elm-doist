@@ -7,14 +7,15 @@ import {
   identity,
   propOr,
   forEachObjIndexed,
-  path, isNil,
+  path,
+  isNil,
 } from 'ramda'
 
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
 )
 
-console.log('cachedProjectList',cachedProjectList)
+console.log('cachedProjectList', cachedProjectList)
 
 const storageKey = 'appCache'
 const app = Elm.Main.init({
@@ -26,7 +27,8 @@ const app = Elm.Main.init({
     cachedAuthState: JSON.parse(
       localStorage.getItem('cachedAuthState') || 'null',
     ),
-    cache:JSON.parse(localStorage.getItem(storageKey) || 'null')
+    browserSize: { width: window.innerWidth, height: window.innerHeight },
+    cache: JSON.parse(localStorage.getItem(storageKey) || 'null'),
   },
 })
 const fire = Fire()
@@ -45,10 +47,10 @@ initSubs({
     console.groupEnd()
     localStorage.setItem(k, JSON.stringify(v))
   },
-  setCache:(cache)=>{
-    if(isNil(cache)){
+  setCache: cache => {
+    if (isNil(cache)) {
       localStorage.removeItem(storageKey)
-    }else{
+    } else {
       localStorage.setItem(storageKey, JSON.stringify(cache))
     }
   },
@@ -70,9 +72,12 @@ initSubs({
   // },
   queryFirestore: async options => {
     const cRef = fire.userCRef(options.userCollectionName)
-    const query = options.whereClause.reduce((query, [fieldPath,op,value])=>{
-      return query.where(fieldPath,op,value)
-    }, cRef)
+    const query = options.whereClause.reduce(
+      (query, [fieldPath, op, value]) => {
+        return query.where(fieldPath, op, value)
+      },
+      cRef,
+    )
     fire.addDisposerWithId(
       options.id,
       query.onSnapshot(qs => {
