@@ -788,8 +788,7 @@ masterLayout title content model =
                 [ class "ph3"
                 , css
                     [ marginLeft zero
-                    , ns
-                        [ marginLeft <| px sidebarWidthNum ]
+                    , ns [ marginLeft <| px sidebarWidthNum ]
                     , transition [ Transition.marginLeft 1000 ]
                     ]
                 ]
