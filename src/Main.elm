@@ -65,6 +65,7 @@ type alias Model =
     , now : Millis
     , here : Time.Zone
     , browserSize : Size
+    , masterContentWidth : Int
     }
 
 
@@ -184,6 +185,7 @@ init encodedFlags url key =
             , now = 0
             , here = Time.utc
             , browserSize = Size.initial
+            , masterContentWidth = 0
             }
     in
     model
