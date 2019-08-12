@@ -478,6 +478,7 @@ update message model =
 
 updateInlineEditTodo inlineEditTodo model =
     pure { model | inlineEditTodo = inlineEditTodo }
+        |> effect cacheEffect
 
 
 startEditing : Todo -> Model -> Return
