@@ -1026,6 +1026,11 @@ viewDueDialog zone now _ =
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
                 [ class "pa3 b pointer"
+                , onClick (OnSetDue <| Nothing)
+                ]
+                [ text <| "No Due Date" ]
+            , div
+                [ class "pa3 b pointer"
                 , onClick (OnSetDue <| Just <| Calendar.toMillis today)
                 ]
                 [ text <| "Today: " ++ todayFmt ]
