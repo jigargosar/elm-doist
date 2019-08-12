@@ -13,12 +13,13 @@ import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import HasErrors
-import Html.Styled exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
+import Html.Styled as H exposing (Html, a, button, div, input, text)
+import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, style, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Icons exposing (RGBA)
+import Ionicon.Android
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -717,7 +718,7 @@ type alias StyledDocument msg =
 
 toUnStyledDocument : StyledDocument msg -> Browser.Document msg
 toUnStyledDocument { title, body } =
-    { title = title, body = body |> List.map Html.Styled.toUnstyled }
+    { title = title, body = body |> List.map H.toUnstyled }
 
 
 viewRoute : Route -> Model -> StyledDocument Msg
@@ -1102,7 +1103,7 @@ todayContent model =
                 [ div [ class "flex items-center hs3" ]
                     [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
                     ]
-                , div [ class "vs1" ]
+                , div [ class "" ]
                     (List.map
                         (viewTodoItem model.inlineEditTodo model.here)
                         overDueList
@@ -1113,7 +1114,7 @@ todayContent model =
                 [ div [ class "b flex-grow-1" ] [ text "Today" ]
                 , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
                 ]
-            , div [ class "vs1" ]
+            , div [ class "" ]
                 (List.map
                     (viewTodoItem model.inlineEditTodo model.here)
                     displayTodoList
@@ -1139,7 +1140,7 @@ pendingForProjectContent pid title edit here displayTodoList =
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
             ]
-        , div [ class "vs1" ] (List.map (viewTodoItem edit here) displayTodoList)
+        , div [ class "" ] (List.map (viewTodoItem edit here) displayTodoList)
         ]
 
 
@@ -1210,7 +1211,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase here todo =
     div
-        [ class "flex items-center hs1 lh-copy db "
+        [ class "pa2 flex items-center hs1 lh-copy db "
         , tabindex 0
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
@@ -1243,15 +1244,21 @@ viewCharBtn clickHandler chr =
 
 
 viewCheck isChecked onCheckMsg =
-    div [ class "hover-bg-light-yellow flex flex-column pa2" ]
+    div
+        [ class "flex-shrink-0 hover-bg-light-yellow "
+        , css [ width <| px 32, height <| px 32 ]
+        ]
         [ input
-            [ class "pointer db flex-grow-1"
+            [ class "pointer w-100 h-100"
+
+            --            , style "-webkit-appearance" "none"
             , type_ "checkbox"
             , checked isChecked
             , onCheck onCheckMsg
             ]
             []
-        , Icons.circleOutline 10 (RGBA 0 0 0 1)
+
+        --        , H.fromUnstyled <| Ionicon.Android.checkboxOutlineBlank 32 (RGBA 0 0 0 0)
         ]
 
 
