@@ -1,5 +1,6 @@
-module Size exposing (Size, decoder, encoder, initial)
+module Size exposing (Size, decoder, encoder, initial, onBrowserResize)
 
+import Browser.Events
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -27,3 +28,8 @@ encoder { width, height } =
         [ ( "width", JE.int width )
         , ( "height", JE.int height )
         ]
+
+
+onBrowserResize : (Size -> msg) -> Sub msg
+onBrowserResize tagger =
+    Browser.Events.onResize (\w h -> Size w h |> tagger)

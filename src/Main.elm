@@ -3,10 +3,11 @@ module Main exposing (main)
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith)
 import Browser
+import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (auto, bottom, calc, height, left, marginLeft, maxWidth, minus, position, px, rem, sticky, top, transforms, translateX, width, zero)
-import Css.Media as Media exposing (only, screen, withMedia)
+import Css exposing (bottom, height, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
+import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
@@ -29,6 +30,8 @@ import ProjectId exposing (ProjectId)
 import Result.Extra
 import Return
 import Route exposing (Route)
+import Size exposing (Size)
+import Task
 import Time
 import Todo exposing (Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -186,6 +189,7 @@ init encodedFlags url key =
         |> andThen (updateFromEncodedFlags encodedFlags)
         |> command (Millis.nowCmd OnNow)
         |> command (Millis.hereCmd OnHere)
+        |> command (Dom.getViewport |> Task.perform GotViewport)
 
 
 
@@ -198,6 +202,8 @@ type Msg
     | UrlChanged Url
     | OnNow Millis
     | OnHere Time.Zone
+    | GotViewport Dom.Viewport
+    | OnBrowserResize Size
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
@@ -234,6 +240,7 @@ subscriptions _ =
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , Time.every 1000 (Time.posixToMillis >> OnNow)
+        , Size.onBrowserResize OnBrowserResize
         ]
 
 
@@ -271,6 +278,20 @@ update message model =
 
         OnHere here ->
             pure { model | here = here }
+
+        GotViewport domVP ->
+            let
+                _ =
+                    Debug.log "domVP" domVP
+            in
+            pure model
+
+        OnBrowserResize size ->
+            let
+                _ =
+                    Debug.log "__onResize" size
+            in
+            pure model
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
