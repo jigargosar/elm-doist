@@ -18,6 +18,7 @@ import Html.Styled.Attributes exposing (checked, class, classList, css, disabled
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
+import Icons exposing (RGBA)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -1250,6 +1251,7 @@ viewCheck isChecked onCheckMsg =
             , onCheck onCheckMsg
             ]
             []
+        , Icons.circleOutline 10 (RGBA 0 0 0 1)
         ]
 
 
