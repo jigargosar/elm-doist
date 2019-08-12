@@ -1069,10 +1069,7 @@ todayContent model =
                     ]
                 , div [ class "vs1" ]
                     (List.map
-                        (viewTodoItem
-                            model.inlineEditTodo
-                            model.here
-                        )
+                        (viewTodoItem model.inlineEditTodo model.here)
                         overDueList
                     )
                 ]
@@ -1083,10 +1080,7 @@ todayContent model =
                 ]
             , div [ class "vs1" ]
                 (List.map
-                    (viewTodoItem
-                        model.inlineEditTodo
-                        model.here
-                    )
+                    (viewTodoItem model.inlineEditTodo model.here)
                     displayTodoList
                 )
             ]
