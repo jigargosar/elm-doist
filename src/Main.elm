@@ -740,11 +740,11 @@ masterLayout title content model =
         sidebarWidthNum =
             250
 
-        headerHeight =
-            rem 2
-
         maxContentWidthNum =
             800
+
+        headerHeight =
+            rem 2
 
         maxContentWidth =
             px maxContentWidthNum
