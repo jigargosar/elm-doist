@@ -803,9 +803,13 @@ masterLayout title content model =
                     [ width sidebarWidth
                     , top headerHeight
                     , bottom zero
+                    , left (px contentLeft)
                     , sm
                         [ transforms [ translateX <| negativeSidebarWidth ] ]
-                    , transition [ Transition.transform 1000 ]
+                    , transition
+                        [ Transition.transform 1000
+                        , Transition.left 1000
+                        ]
                     ]
                 ]
                 [ viewSidebar model
