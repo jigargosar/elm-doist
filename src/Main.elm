@@ -779,11 +779,7 @@ masterLayout title content model =
             , css [ position sticky, top zero, height headerHeight ]
             ]
             [ div
-                [ class "center"
-                , css
-                    [ maxWidth maxContentWidth
-                    ]
-                ]
+                [ class "center", css [ maxWidth maxContentWidth ] ]
                 [ viewHeader model ]
             ]
         , div [ class "center", css [ maxWidth maxContentWidth ] ]
