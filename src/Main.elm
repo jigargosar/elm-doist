@@ -1088,14 +1088,14 @@ viewTodoItem : Maybe InlineEditTodo -> Time.Zone -> Todo -> Html Msg
 viewTodoItem edit here todo =
     case edit of
         Nothing ->
-            viewTodoItemHelp here todo
+            viewTodoItemBase here todo
 
         Just edt ->
             if edt.todo.id == todo.id then
                 viewEditTodoItem edt
 
             else
-                viewTodoItemHelp here todo
+                viewTodoItemBase here todo
 
 
 viewEditTodoItem : InlineEditTodo -> Html Msg
@@ -1119,7 +1119,7 @@ viewEditTodoItem edt =
         ]
 
 
-viewTodoItemHelp here todo =
+viewTodoItemBase here todo =
     div
         [ class "flex items-center hs1 lh-copy db "
         , tabindex 0
