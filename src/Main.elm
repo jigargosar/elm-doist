@@ -737,11 +737,8 @@ sortedInProject pid todoList =
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     let
-        sidebarWidth =
-            px 250
-
-        negativeSidebarWidth =
-            px -250
+        sidebarWidthNum =
+            250
 
         headerHeight =
             rem 2
@@ -786,11 +783,11 @@ masterLayout title content model =
             [ div
                 [ class "fixed overflow-auto ph3"
                 , css
-                    [ width sidebarWidth
+                    [ width (px sidebarWidthNum)
                     , top headerHeight
                     , bottom zero
                     , sm
-                        [ transforms [ translateX <| negativeSidebarWidth ] ]
+                        [ transforms [ translateX <| px -sidebarWidthNum ] ]
                     , transition [ Transition.transform 1000 ]
                     ]
                 ]
@@ -801,7 +798,7 @@ masterLayout title content model =
                 , css
                     [ marginLeft zero
                     , ns
-                        [ marginLeft sidebarWidth ]
+                        [ marginLeft <| px sidebarWidthNum ]
                     , transition [ Transition.marginLeft 1000 ]
                     ]
                 ]
