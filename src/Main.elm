@@ -1179,7 +1179,7 @@ viewTodoItemContent here todo =
 
         viewDueAtInline : String -> Html Msg
         viewDueAtInline txt =
-            div [ class "di pr2", onClick <| OnEditDueStart todo.id ]
+            div [ class "di ", onClick <| OnEditDueStart todo.id ]
                 [ div
                     [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
                     , class "bg-red white"
@@ -1188,7 +1188,7 @@ viewTodoItemContent here todo =
                 ]
 
         viewTitle =
-            div [ class "di" ] [ text title ]
+            div [ class "di pl2", onClick (OnEdit todo.id) ] [ text title ]
     in
     div
         [ class
@@ -1196,7 +1196,6 @@ viewTodoItemContent here todo =
                 ++ " "
                 ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
             )
-        , onClick (OnEdit todo.id)
         ]
         [ viewMaybe viewDueAtInline dueAtText, viewTitle ]
 
