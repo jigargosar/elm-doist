@@ -1,15 +1,20 @@
 module Todo exposing
     ( CompareBy(..)
-    , DueAt
+    , DueAt(..)
     , Filter(..)
     , Msg(..)
     , Todo
     , TodoDict
     , TodoList
+    , compareDueDate
     , concatCompareBy
     , decoder
     , dueAtDecoder
     , dueAtEncoder
+    , dueAtToMillis
+    , dueDate
+    , dueDateEq
+    , dueMilli
     , encoder
     , filter
     , filterSingle
@@ -24,29 +29,58 @@ module Todo exposing
     , sortWith
     )
 
+import Calendar
 import Compare exposing (Comparator)
 import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
+import Time
 import TodoId exposing (TodoId)
 
 
-type alias DueAt =
-    Maybe Millis
+type DueAt
+    = DueAt Millis
+    | NoDue
 
 
 dueAtDecoder : Decoder DueAt
 dueAtDecoder =
-    JD.nullable JD.int
+    let
+        tagDecoder tag =
+            case tag of
+                "DueAt" ->
+                    JD.field "millis" JD.int
+                        |> JD.map DueAt
+
+                "NoDue" ->
+                    JD.succeed NoDue
+
+                _ ->
+                    JD.fail ("Invalid dueAt tag: " ++ tag)
+    in
+    JD.oneOf
+        [ JD.int |> JD.map DueAt
+        , JD.null NoDue
+        , JD.field "tag" JD.string |> JD.andThen tagDecoder
+        ]
 
 
 dueAtEncoder : DueAt -> Value
-dueAtEncoder =
-    Maybe.Extra.unwrap JE.null JE.int
+dueAtEncoder due =
+    case due of
+        DueAt mi ->
+            JE.object
+                [ ( "tag", JE.string "DueAt" )
+                , ( "millis", JE.int mi )
+                ]
+
+        NoDue ->
+            JE.object
+                [ ( "tag", JE.string "NoDue" )
+                ]
 
 
 type alias Todo =
@@ -71,7 +105,7 @@ decoder =
         |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
         |> JDP.optional "projectIdModifiedAt" JD.int 0
         |> JDP.required "isDone" JD.bool
-        |> JDP.optional "dueAt" dueAtDecoder Nothing
+        |> JDP.optional "dueAt" dueAtDecoder NoDue
         |> JDP.required "createdAt" JD.int
         |> JDP.required "modifiedAt" JD.int
 
@@ -107,7 +141,7 @@ newForProject now pid =
     , projectId = pid
     , projectIdModifiedAt = now
     , isDone = False
-    , dueAt = Nothing
+    , dueAt = NoDue
     , createdAt = now
     , modifiedAt = now
     }
@@ -122,7 +156,7 @@ newToday now dueAt =
     , projectId = ProjectId.default
     , projectIdModifiedAt = now
     , isDone = False
-    , dueAt = Just dueAt
+    , dueAt = DueAt dueAt
     , createdAt = now
     , modifiedAt = now
     }
@@ -187,6 +221,61 @@ modifyWithNow now msg model =
 modify : Msg -> Millis -> Todo -> Maybe Todo
 modify msg now model =
     modifyWithNow now msg model
+
+
+dueDate : Todo -> Maybe Calendar.Date
+dueDate model =
+    case model.dueAt of
+        NoDue ->
+            Nothing
+
+        DueAt mi ->
+            mi
+                |> Time.millisToPosix
+                |> Calendar.fromPosix
+                |> Just
+
+
+dueAtToMillis : DueAt -> Maybe Millis
+dueAtToMillis dueAt =
+    case dueAt of
+        NoDue ->
+            Nothing
+
+        DueAt mi ->
+            mi |> Just
+
+
+dueMilli : Todo -> Maybe Millis
+dueMilli model =
+    dueAtToMillis model.dueAt
+
+
+dueDateEq : Calendar.Date -> Todo -> Bool
+dueDateEq dt model =
+    case model.dueAt of
+        NoDue ->
+            False
+
+        DueAt mi ->
+            mi
+                |> Time.millisToPosix
+                |> Calendar.fromPosix
+                |> (==) dt
+
+
+compareDueDate : Calendar.Date -> Todo -> Maybe Order
+compareDueDate dt model =
+    case model.dueAt of
+        NoDue ->
+            Nothing
+
+        DueAt mi ->
+            mi
+                |> Time.millisToPosix
+                |> Calendar.fromPosix
+                |> Calendar.compare dt
+                |> Just
 
 
 setModifiedAt now todo =

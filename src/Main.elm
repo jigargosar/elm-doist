@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
-import BasicsExtra exposing (callWith)
+import BasicsExtra exposing (callWith, eq_)
 import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
@@ -32,7 +32,7 @@ import Return
 import Route exposing (Route)
 import Size exposing (Size)
 import Task
-import Time
+import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, effect, pure)
@@ -131,7 +131,7 @@ inlineEditTodoDecoder : Decoder InlineEditTodo
 inlineEditTodoDecoder =
     JD.succeed InlineEditTodo
         |> JDP.required "todo" Todo.decoder
-        |> JDP.required "title" (JD.nullable JD.string)
+        |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
 
 
@@ -139,10 +139,14 @@ inlineEditTodoEncoder =
     Maybe.Extra.unwrap JE.null
         (\{ todo, title, dueAt } ->
             JE.object
-                [ ( "todo", Todo.encoder todo )
-                , ( "title", title |> Maybe.Extra.unwrap JE.null JE.string )
-                , ( "dueAt", dueAt |> Maybe.Extra.unwrap JE.null Todo.dueAtEncoder )
-                ]
+                (( "todo", Todo.encoder todo )
+                    :: Maybe.Extra.unwrap []
+                        (\t -> [ ( "title", JE.string t ) ])
+                        title
+                    ++ Maybe.Extra.unwrap []
+                        (\da -> [ ( "dueAt", Todo.dueAtEncoder da ) ])
+                        dueAt
+                )
         )
 
 
@@ -1033,17 +1037,17 @@ viewDueDialog zone now _ =
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Nothing)
+                , onClick (OnSetDue <| Todo.NoDue)
                 ]
                 [ text <| "No Due Date" ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Just <| Calendar.toMillis today)
+                , onClick (OnSetDue <| Todo.DueAt <| Calendar.toMillis today)
                 ]
                 [ text <| "Today: " ++ todayFmt ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Just <| Calendar.toMillis yesterday)
+                , onClick (OnSetDue <| Todo.DueAt <| Calendar.toMillis yesterday)
                 ]
                 [ text <| "Yesterday: " ++ yesterdayFmt ]
             ]
@@ -1069,30 +1073,24 @@ dateFromMillis =
     Time.millisToPosix >> Calendar.fromPosix
 
 
-eqByDay m1 m2 =
-    dateFromMillis m1 == dateFromMillis m2
-
-
-compareDate m1 m2 =
-    Calendar.compare (dateFromMillis m1) (dateFromMillis m2)
-
-
 todayContent : Model -> Html Msg
 todayContent model =
     let
         now =
             model.now
 
+        nowDate =
+            dateFromMillis now
+
         displayTodoList =
-            List.filter (.dueAt >> Maybe.Extra.unwrap False (eqByDay now))
+            List.filter (Todo.dueDateEq nowDate)
                 model.todoList
                 |> List.filter (.isDone >> not)
 
         overDueList =
             List.filter
-                (.dueAt
-                    >> Maybe.Extra.unwrap False
-                        (\dueAt -> compareDate dueAt now == LT)
+                (Todo.compareDueDate nowDate
+                    >> Maybe.Extra.unwrap False (eq_ LT)
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
@@ -1168,6 +1166,7 @@ viewEditTodoItem here edt =
         dueAtValue =
             edt.dueAt
                 |> Maybe.withDefault edt.todo.dueAt
+                |> Todo.dueAtToMillis
     in
     div
         [ class "vs3"
@@ -1200,6 +1199,7 @@ viewEditTodoItem here edt =
         ]
 
 
+viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase here todo =
     div
         [ class "flex items-center hs1 lh-copy db "
@@ -1214,14 +1214,15 @@ viewTodoItemBase here todo =
         ]
 
 
+viewDueAt : Zone -> Todo -> Html msg
 viewDueAt here todo =
     let
-        viewDueAt_ dueAt =
+        viewDueAt_ dueMillis =
             div [ class "dn truncate flex-shrink-0 f7 code" ]
-                [ text <| Millis.formatDate "ddd MMM" here dueAt
+                [ text <| Millis.formatDate "ddd MMM" here dueMillis
                 ]
     in
-    todo.dueAt
+    Todo.dueMilli todo
         |> Maybe.Extra.unwrap
             HtmlStyledExtra.empty
             viewDueAt_
@@ -1256,7 +1257,7 @@ viewTodoItemContent here todo =
                 ( todo.title, "" )
 
         dueAtText =
-            todo.dueAt |> Maybe.map (Millis.formatDate "dd MMM" here)
+            todo |> Todo.dueMilli |> Maybe.map (Millis.formatDate "dd MMM" here)
 
         viewDueAtInline : String -> Html Msg
         viewDueAtInline txt =
