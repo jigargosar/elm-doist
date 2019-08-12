@@ -1090,7 +1090,7 @@ todayContent model =
         overDueList =
             List.filter
                 (Todo.compareDueDate nowDate
-                    >> Maybe.Extra.unwrap False (eq_ LT)
+                    >> Maybe.Extra.unwrap False (eq_ GT)
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
@@ -1268,7 +1268,7 @@ viewTodoItemContent here todo =
 
         viewDueAtInline : String -> Html Msg
         viewDueAtInline txt =
-            div [ class "di ", onClick <| OnEditDueStart todo.id ]
+            div [ class "di mr2 pointer ", onClick <| OnEditDueStart todo.id ]
                 [ div
                     [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
                     , class "bg-red white"
@@ -1277,7 +1277,7 @@ viewTodoItemContent here todo =
                 ]
 
         viewTitle =
-            div [ class "di pl2", onClick (OnEdit todo.id) ] [ text title ]
+            div [ class "di viewDueAtInline", onClick (OnEdit todo.id) ] [ text title ]
     in
     div
         [ class
