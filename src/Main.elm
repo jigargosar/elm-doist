@@ -71,6 +71,7 @@ type alias Model =
 
 type alias Cache =
     { dialog : Dialog
+    , inlineEditTodo : Maybe InlineEditTodo
     }
 
 
@@ -126,10 +127,18 @@ dialogDecoderForTag tag =
             JD.fail ("Invalid Dialog Tag:" ++ tag)
 
 
+inlineEditTodoDecoder : Decoder InlineEditTodo
+inlineEditTodoDecoder =
+    JD.succeed InlineEditTodo
+        |> JDP.required "todo" Todo.decoder
+        |> JDP.required "title" (JD.maybe JD.string)
+
+
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
         |> JDP.optional "dialog" dialogDecoder NoDialog
+        |> JDP.optional "inlineEditTodo" (JD.maybe inlineEditTodoDecoder) Nothing
 
 
 cacheEncoder : Cache -> Value
@@ -140,13 +149,18 @@ cacheEncoder { dialog } =
 
 
 setModelFromCache : Cache -> Model -> Model
-setModelFromCache { dialog } model =
-    { model | dialog = dialog }
+setModelFromCache { dialog, inlineEditTodo } model =
+    { model
+        | dialog = dialog
+        , inlineEditTodo = inlineEditTodo
+    }
 
 
 cacheFromModel : Model -> Cache
-cacheFromModel model =
-    { dialog = model.dialog }
+cacheFromModel { dialog, inlineEditTodo } =
+    { dialog = dialog
+    , inlineEditTodo = inlineEditTodo
+    }
 
 
 flagsDecoder : Decoder Flags
