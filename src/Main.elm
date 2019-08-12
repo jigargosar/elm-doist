@@ -5,7 +5,7 @@ import BasicsExtra exposing (callWith)
 import Browser
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (auto, bottom, calc, height, left, marginLeft, maxWidth, minus, position, px, rem, sticky, top, width, zero)
+import Css exposing (auto, bottom, calc, height, left, marginLeft, maxWidth, minus, position, px, rem, sticky, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (only, screen, withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -716,6 +716,9 @@ masterLayout title content model =
         sidebarWidth =
             px 250
 
+        negativeSidebarWidth =
+            px -250
+
         headerHeight =
             rem 2
 
@@ -759,8 +762,8 @@ masterLayout title content model =
                     , top headerHeight
                     , bottom zero
                     , sm
-                        [ left <| calc (px 0) minus sidebarWidth ]
-                    , transition [ Transition.left 1000 ]
+                        [ transforms [ translateX <| negativeSidebarWidth ] ]
+                    , transition [ Transition.transform 1000 ]
                     ]
                 ]
                 [ viewSidebar model
@@ -768,8 +771,10 @@ masterLayout title content model =
             , div
                 [ class "ph3"
                 , css
-                    [ ns
+                    [ marginLeft zero
+                    , ns
                         [ marginLeft sidebarWidth ]
+                    , transition [ Transition.marginLeft 1000 ]
                     ]
                 ]
                 [ content
