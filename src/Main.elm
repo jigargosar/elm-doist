@@ -64,6 +64,7 @@ type alias Model =
     , route : Route
     , now : Millis
     , here : Time.Zone
+    , browserSize : Size
     }
 
 
@@ -182,6 +183,7 @@ init encodedFlags url key =
             , route = route
             , now = 0
             , here = Time.utc
+            , browserSize = Size.initial
             }
     in
     model
@@ -291,7 +293,7 @@ update message model =
                 _ =
                     Debug.log "__onResize" size
             in
-            pure model
+            pure { model | browserSize = size }
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
