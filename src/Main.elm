@@ -465,9 +465,10 @@ update message model =
                                 (Todo.SetDueAt dueAt)
                             )
 
-                ( Just inlineEditTodo, NoDialog ) ->
+                ( Just inlineEditTodo, DueDialog _ ) ->
                     updateInlineEditTodo (Just { inlineEditTodo | dueAt = dueAt })
                         model
+                        |> andThen (updateDialog NoDialog)
 
                 _ ->
                     pure model
