@@ -131,8 +131,8 @@ inlineEditTodoDecoder : Decoder InlineEditTodo
 inlineEditTodoDecoder =
     JD.succeed InlineEditTodo
         |> JDP.required "todo" Todo.decoder
-        |> JDP.required "title" (JD.maybe JD.string)
-        |> JDP.optional "dueAt" (JD.maybe Todo.dueAtDecoder) Nothing
+        |> JDP.required "title" (JD.nullable JD.string)
+        |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
 
 
 inlineEditTodoEncoder =
@@ -445,7 +445,7 @@ update message model =
                     pure model
 
                 MoveToProjectDialog todo ->
-                    updateDialog NoDialog model
+                    updateDialogAndCache NoDialog model
                         |> command
                             (patchTodoCmd
                                 todo.id
@@ -458,7 +458,7 @@ update message model =
         OnSetDue dueAt ->
             case ( model.inlineEditTodo, model.dialog ) of
                 ( Nothing, DueDialog todo ) ->
-                    updateDialog NoDialog model
+                    updateDialogAndCache NoDialog model
                         |> command
                             (patchTodoCmd
                                 todo.id
@@ -466,9 +466,10 @@ update message model =
                             )
 
                 ( Just inlineEditTodo, DueDialog _ ) ->
-                    updateInlineEditTodo (Just { inlineEditTodo | dueAt = Just dueAt })
-                        model
-                        |> andThen (updateDialog NoDialog)
+                    model
+                        |> setInlineEditTodo
+                            (Just { inlineEditTodo | dueAt = Just dueAt })
+                        |> updateDialogAndCache NoDialog
 
                 _ ->
                     pure model
@@ -479,13 +480,13 @@ update message model =
                     pure model
 
                 MoveToProjectDialog _ ->
-                    updateDialog NoDialog model
+                    updateDialogAndCache NoDialog model
 
                 DueDialog _ ->
-                    updateDialog NoDialog model
+                    updateDialogAndCache NoDialog model
 
         OnEditCancel ->
-            updateInlineEditTodo Nothing model
+            updateInlineEditTodoAndCache Nothing model
 
         OnEditSave ->
             model.inlineEditTodo
@@ -503,36 +504,42 @@ update message model =
                                     |> Maybe.Extra.unwrap Cmd.none
                                         (Todo.SetTitle >> patchTodoCmd todo.id)
                         in
-                        updateInlineEditTodo Nothing
+                        updateInlineEditTodoAndCache Nothing
                             >> command cmd1
                             >> command cmd2
                     )
                 |> callWith model
 
 
-updateInlineEditTodo : Maybe InlineEditTodo -> Model -> Return
-updateInlineEditTodo inlineEditTodo model =
-    pure { model | inlineEditTodo = inlineEditTodo }
+updateInlineEditTodoAndCache : Maybe InlineEditTodo -> Model -> Return
+updateInlineEditTodoAndCache inlineEditTodo model =
+    setInlineEditTodo inlineEditTodo model
+        |> pure
         |> effect cacheEffect
+
+
+setInlineEditTodo : Maybe InlineEditTodo -> Model -> Model
+setInlineEditTodo inlineEditTodo model =
+    { model | inlineEditTodo = inlineEditTodo }
 
 
 startEditing : Todo -> Model -> Return
 startEditing todo =
-    updateInlineEditTodo <| Just { todo = todo, title = Nothing, dueAt = Nothing }
+    updateInlineEditTodoAndCache <| Just { todo = todo, title = Nothing, dueAt = Nothing }
 
 
 startMoving : Todo -> Model -> Return
 startMoving todo =
-    updateDialog (MoveToProjectDialog todo)
+    updateDialogAndCache (MoveToProjectDialog todo)
 
 
 startEditingDue : Todo -> Model -> Return
 startEditingDue todo =
-    updateDialog (DueDialog todo)
+    updateDialogAndCache (DueDialog todo)
 
 
-updateDialog : Dialog -> Model -> Return
-updateDialog dialog model =
+updateDialogAndCache : Dialog -> Model -> Return
+updateDialogAndCache dialog model =
     pure { model | dialog = dialog }
         |> effect cacheEffect
 
