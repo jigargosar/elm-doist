@@ -1177,8 +1177,9 @@ viewTodoItemContent here todo =
         dueAtText =
             todo.dueAt |> Maybe.map (Millis.formatDate "dd MMM" here)
 
+        viewDueAtInline : String -> Html Msg
         viewDueAtInline txt =
-            div [ class "dib pr2" ]
+            div [ class "dib pr2", onClick <| OnEditDueStart todo.id ]
                 [ div
                     [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
                     , class "bg-red white"
