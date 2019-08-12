@@ -6,7 +6,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (bottom, height, int, left, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
+import Css exposing (bottom, height, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -749,15 +749,6 @@ masterLayout title content model =
         maxContentWidth =
             px maxContentWidthNum
 
-        viewDebugContent =
-            div [ class "pa3 vs3" ]
-                [ HasErrors.detailView model
-                , div [ class " flex hs3" ]
-                    [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-                    , AuthState.view model.authState
-                    ]
-                ]
-
         bpSmall =
             600
 
@@ -803,12 +794,22 @@ masterLayout title content model =
                     ]
                 ]
                 [ content
-                , viewDebugContent
+                , viewDebugContent model
                 ]
             ]
         , viewFooter model
         ]
     }
+
+
+viewDebugContent model =
+    div [ class "pa3 vs3" ]
+        [ HasErrors.detailView model
+        , div [ class " flex hs3" ]
+            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+            , AuthState.view model.authState
+            ]
+        ]
 
 
 
