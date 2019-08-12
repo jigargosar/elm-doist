@@ -255,7 +255,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
-    | OnSetDue (Maybe DueAt)
+    | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
     | OnEdit TodoId
@@ -466,7 +466,7 @@ update message model =
                             )
 
                 ( Just inlineEditTodo, DueDialog _ ) ->
-                    updateInlineEditTodo (Just { inlineEditTodo | dueAt = dueAt })
+                    updateInlineEditTodo (Just { inlineEditTodo | dueAt = Just dueAt })
                         model
                         |> andThen (updateDialog NoDialog)
 
@@ -488,7 +488,26 @@ update message model =
             updateInlineEditTodo Nothing model
 
         OnEditSave ->
-            updateInlineEditTodo Nothing model
+            model.inlineEditTodo
+                |> Maybe.Extra.unwrap pure
+                    (\{ todo, dueAt, title } ->
+                        let
+                            cmd1 =
+                                dueAt
+                                    |> Maybe.Extra.unwrap Cmd.none
+                                        (Todo.SetDueAt >> patchTodoCmd todo.id)
+
+                            cmd2 : Cmd Msg
+                            cmd2 =
+                                title
+                                    |> Maybe.Extra.unwrap Cmd.none
+                                        (Todo.SetTitle >> patchTodoCmd todo.id)
+                        in
+                        updateInlineEditTodo Nothing
+                            >> command cmd1
+                            >> command cmd2
+                    )
+                |> callWith model
 
 
 updateInlineEditTodo : Maybe InlineEditTodo -> Model -> Return

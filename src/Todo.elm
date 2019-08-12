@@ -36,17 +36,17 @@ import TodoId exposing (TodoId)
 
 
 type alias DueAt =
-    Millis
+    Maybe Millis
 
 
 dueAtDecoder : Decoder DueAt
 dueAtDecoder =
-    JD.int
+    JD.nullable JD.int
 
 
 dueAtEncoder : DueAt -> Value
 dueAtEncoder =
-    JE.int
+    Maybe.Extra.unwrap JE.null JE.int
 
 
 type alias Todo =
@@ -56,7 +56,7 @@ type alias Todo =
     , projectId : ProjectId
     , projectIdModifiedAt : Millis
     , isDone : Bool
-    , dueAt : Maybe DueAt
+    , dueAt : DueAt
     , createdAt : Millis
     , modifiedAt : Millis
     }
@@ -71,7 +71,7 @@ decoder =
         |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
         |> JDP.optional "projectIdModifiedAt" JD.int 0
         |> JDP.required "isDone" JD.bool
-        |> JDP.optional "dueAt" (JD.maybe JD.int) Nothing
+        |> JDP.optional "dueAt" dueAtDecoder Nothing
         |> JDP.required "createdAt" JD.int
         |> JDP.required "modifiedAt" JD.int
 
@@ -85,7 +85,7 @@ encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, dueAt, cre
         , ( "projectId", ProjectId.encoder projectId )
         , ( "projectIdModifiedAt", JE.int projectIdModifiedAt )
         , ( "isDone", JE.bool isDone )
-        , ( "dueAt", dueAt |> Maybe.map JE.int |> Maybe.withDefault JE.null )
+        , ( "dueAt", dueAtEncoder dueAt )
         , ( "createdAt", JE.int createdAt )
         , ( "modifiedAt", JE.int modifiedAt )
         ]
@@ -96,7 +96,7 @@ type Msg
     | SetProjectId ProjectId
     | SetTitle String
     | SetSortIdx Int
-    | SetDueAt (Maybe DueAt)
+    | SetDueAt DueAt
 
 
 newForProject : Millis -> ProjectId -> Value
@@ -148,7 +148,7 @@ modifyPatch msg now =
                     [ ( "sortIdx", JE.int sortIdx ) ]
 
                 SetDueAt dueAt ->
-                    [ ( "dueAt", dueAt |> Maybe.Extra.unwrap JE.null dueAtEncoder ) ]
+                    [ ( "dueAt", dueAt |> dueAtEncoder ) ]
            )
 
 
