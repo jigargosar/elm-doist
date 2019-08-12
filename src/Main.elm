@@ -1130,20 +1130,26 @@ viewEditTodoItem edt =
                 |> Maybe.withDefault edt.todo.title
     in
     div
-        [ class ""
+        [ class "vs3"
         , tabindex 0
         ]
         [ div [ class "flex" ]
             [ input
-                [ class "flex-grow-1"
+                [ class "pa1 flex-grow-1"
                 , type_ "text"
                 , value titleValue
                 ]
                 []
             ]
-        , div [ class "flex hs3" ]
-            [ button [ onClick OnEditCancel ] [ text "Cancel" ]
-            , button [ onClick OnEditSave ] [ text "Save" ]
+        , div [ class "flex items-center" ]
+            [ div [ class "flex-grow-1 flex items-center hs3" ]
+                [ div [] [ text "Due" ]
+                , input [ class " pa1 ", type_ "text", value "" ] []
+                ]
+            , div [ class "flex flex-row-reverse justify-start" ]
+                [ button [ class "ml3", onClick OnEditSave ] [ text "Save" ]
+                , button [ class "ml3", onClick OnEditCancel ] [ text "Cancel" ]
+                ]
             ]
         ]
 
