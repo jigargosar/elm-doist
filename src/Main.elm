@@ -6,7 +6,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (bottom, height, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
+import Css exposing (bottom, height, int, left, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -288,7 +288,7 @@ update message model =
                 _ =
                     Debug.log "domVP" domVP
             in
-            pure model
+            pure { model | browserSize = Size.fromViewport domVP.viewport }
 
         OnBrowserResize size ->
             let
@@ -748,7 +748,10 @@ masterLayout title content model =
             rem 2
 
         maxContentWidth =
-            px 1024
+            px maxContentWidthNum
+
+        maxContentWidthNum =
+            800
 
         viewDebugContent =
             div [ class "pa3 vs3" ]
@@ -769,6 +772,14 @@ masterLayout title content model =
         ns =
             withMedia
                 [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
+
+        contentLeft =
+            if model.browserSize.width < maxContentWidthNum then
+                0
+
+            else
+                toFloat (model.browserSize.width - maxContentWidthNum)
+                    / 2
     in
     { title = title
     , body =
@@ -776,7 +787,13 @@ masterLayout title content model =
             [ class "bg-black white"
             , css [ position sticky, top zero, height headerHeight ]
             ]
-            [ div [ class "center", css [ maxWidth maxContentWidth ] ]
+            [ div
+                [ class "absolute"
+                , css
+                    [ maxWidth maxContentWidth
+                    , left (px contentLeft)
+                    ]
+                ]
                 [ viewHeader model ]
             ]
         , div [ class "center", css [ maxWidth maxContentWidth ] ]

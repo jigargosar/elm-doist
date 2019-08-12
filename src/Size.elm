@@ -1,4 +1,4 @@
-module Size exposing (Size, decoder, encoder, initial, onBrowserResize)
+module Size exposing (Size, decoder, encoder, fromViewport, initial, onBrowserResize)
 
 import Browser.Events
 import Json.Decode as JD exposing (Decoder)
@@ -33,3 +33,8 @@ encoder { width, height } =
 onBrowserResize : (Size -> msg) -> Sub msg
 onBrowserResize tagger =
     Browser.Events.onResize (\w h -> Size w h |> tagger)
+
+
+fromViewport : { a | width : Float, height : Float } -> Size
+fromViewport vp =
+    Size (round vp.width) (round vp.height)
