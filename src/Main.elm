@@ -33,7 +33,7 @@ import Route exposing (Route)
 import Size exposing (Size)
 import Task
 import Time
-import Todo exposing (Todo, TodoList)
+import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
@@ -44,7 +44,7 @@ import Url exposing (Url)
 
 
 type alias InlineEditTodo =
-    { todo : Todo, title : Maybe String }
+    { todo : Todo, title : Maybe String, dueAt : Maybe DueAt }
 
 
 type Dialog
@@ -132,14 +132,16 @@ inlineEditTodoDecoder =
     JD.succeed InlineEditTodo
         |> JDP.required "todo" Todo.decoder
         |> JDP.required "title" (JD.maybe JD.string)
+        |> JDP.optional "dueAt" (JD.maybe Todo.dueAtDecoder) Nothing
 
 
 inlineEditTodoEncoder =
     Maybe.Extra.unwrap JE.null
-        (\{ todo, title } ->
+        (\{ todo, title, dueAt } ->
             JE.object
                 [ ( "todo", Todo.encoder todo )
                 , ( "title", title |> Maybe.Extra.unwrap JE.null JE.string )
+                , ( "dueAt", dueAt |> Maybe.Extra.unwrap JE.null Todo.dueAtEncoder )
                 ]
         )
 
@@ -253,7 +255,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
-    | OnSetDue Millis
+    | OnSetDue (Maybe DueAt)
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
     | OnEdit TodoId
@@ -454,20 +456,21 @@ update message model =
                     pure model
 
         OnSetDue dueAt ->
-            case model.dialog of
-                NoDialog ->
-                    pure model
-
-                MoveToProjectDialog _ ->
-                    pure model
-
-                DueDialog todo ->
+            case ( model.inlineEditTodo, model.dialog ) of
+                ( Nothing, DueDialog todo ) ->
                     updateDialog NoDialog model
                         |> command
                             (patchTodoCmd
                                 todo.id
                                 (Todo.SetDueAt dueAt)
                             )
+
+                ( Just inlineEditTodo, NoDialog ) ->
+                    updateInlineEditTodo (Just { inlineEditTodo | dueAt = dueAt })
+                        model
+
+                _ ->
+                    pure model
 
         OnDialogOverlayClicked ->
             case model.dialog of
@@ -487,6 +490,7 @@ update message model =
             updateInlineEditTodo Nothing model
 
 
+updateInlineEditTodo : Maybe InlineEditTodo -> Model -> Return
 updateInlineEditTodo inlineEditTodo model =
     pure { model | inlineEditTodo = inlineEditTodo }
         |> effect cacheEffect
@@ -494,7 +498,7 @@ updateInlineEditTodo inlineEditTodo model =
 
 startEditing : Todo -> Model -> Return
 startEditing todo =
-    updateInlineEditTodo <| Just { todo = todo, title = Nothing }
+    updateInlineEditTodo <| Just { todo = todo, title = Nothing, dueAt = Nothing }
 
 
 startMoving : Todo -> Model -> Return
@@ -1002,12 +1006,12 @@ viewDueDialog zone now _ =
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Calendar.toMillis today)
+                , onClick (OnSetDue <| Just <| Calendar.toMillis today)
                 ]
                 [ text <| "Today: " ++ todayFmt ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Calendar.toMillis yesterday)
+                , onClick (OnSetDue <| Just <| Calendar.toMillis yesterday)
                 ]
                 [ text <| "Yesterday: " ++ yesterdayFmt ]
             ]
@@ -1145,6 +1149,7 @@ viewEditTodoItem edt =
             [ div [ class "flex-grow-1 flex items-center hs3" ]
                 [ div [] [ text "Due" ]
                 , input [ class " pa1 ", type_ "text", value "" ] []
+                , viewCharBtn (OnEditDueStart edt.todo.id) 'D'
                 ]
             , div [ class "flex flex-row-reverse justify-start" ]
                 [ button [ class "ml3", onClick OnEditSave ] [ text "Save" ]

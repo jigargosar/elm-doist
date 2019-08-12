@@ -1,5 +1,6 @@
 module Todo exposing
     ( CompareBy(..)
+    , DueAt
     , Filter(..)
     , Msg(..)
     , Todo
@@ -7,6 +8,8 @@ module Todo exposing
     , TodoList
     , concatCompareBy
     , decoder
+    , dueAtDecoder
+    , dueAtEncoder
     , encoder
     , filter
     , filterSingle
@@ -26,9 +29,24 @@ import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra
 import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
+
+
+type alias DueAt =
+    Millis
+
+
+dueAtDecoder : Decoder DueAt
+dueAtDecoder =
+    JD.int
+
+
+dueAtEncoder : DueAt -> Value
+dueAtEncoder =
+    JE.int
 
 
 type alias Todo =
@@ -38,7 +56,7 @@ type alias Todo =
     , projectId : ProjectId
     , projectIdModifiedAt : Millis
     , isDone : Bool
-    , dueAt : Maybe Millis
+    , dueAt : Maybe DueAt
     , createdAt : Millis
     , modifiedAt : Millis
     }
@@ -78,7 +96,7 @@ type Msg
     | SetProjectId ProjectId
     | SetTitle String
     | SetSortIdx Int
-    | SetDueAt Millis
+    | SetDueAt (Maybe DueAt)
 
 
 newForProject : Millis -> ProjectId -> Value
@@ -130,7 +148,7 @@ modifyPatch msg now =
                     [ ( "sortIdx", JE.int sortIdx ) ]
 
                 SetDueAt dueAt ->
-                    [ ( "dueAt", JE.int dueAt ) ]
+                    [ ( "dueAt", dueAt |> Maybe.Extra.unwrap JE.null dueAtEncoder ) ]
            )
 
 
@@ -150,7 +168,7 @@ update msg model =
             { model | sortIdx = sortIdx }
 
         SetDueAt dueAt ->
-            { model | dueAt = Just dueAt }
+            { model | dueAt = dueAt }
 
 
 modifyWithNow : Millis -> Msg -> Todo -> Maybe Todo
