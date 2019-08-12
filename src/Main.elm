@@ -289,7 +289,7 @@ update message model =
             pure { model | browserSize = Size.fromViewport domVP.viewport }
 
         OnBrowserResize size ->
-            pure { model | browserSize = size }
+            setBrowserSize size model |> pure
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
@@ -522,6 +522,7 @@ updateFromFlags flags model =
         |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
         |> setModelFromCache flags.cache
+        |> setBrowserSize flags.browserSize
         |> pure
 
 
@@ -599,6 +600,10 @@ updateProjectListAndCleanupFromFirestore projectList model =
 setAuthState : AuthState -> Model -> Model
 setAuthState authState model =
     { model | authState = authState }
+
+
+setBrowserSize browserSize model =
+    { model | browserSize = browserSize }
 
 
 onAuthStateChanged : AuthState -> Model -> Return
