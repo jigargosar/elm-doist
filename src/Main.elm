@@ -284,17 +284,9 @@ update message model =
             pure { model | here = here }
 
         GotViewport domVP ->
-            let
-                _ =
-                    Debug.log "domVP" domVP
-            in
             pure { model | browserSize = Size.fromViewport domVP.viewport }
 
         OnBrowserResize size ->
-            let
-                _ =
-                    Debug.log "__onResize" size
-            in
             pure { model | browserSize = size }
 
         OnAuthStateChanged encodedValue ->
@@ -792,6 +784,7 @@ masterLayout title content model =
                 , css
                     [ maxWidth maxContentWidth
                     , left (px contentLeft)
+                    , transition [ Transition.left 1000 ]
                     ]
                 ]
                 [ viewHeader model ]
