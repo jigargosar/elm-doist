@@ -17,7 +17,7 @@ import Html.Styled exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
-import HtmlStyledExtra
+import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -802,7 +802,7 @@ masterLayout title content model =
 
 
 viewDebugContent model =
-    div [ class "pa3 vs3" ]
+    div [ class "dn pa3 vs3" ]
         [ HasErrors.detailView model
         , div [ class " flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
@@ -1126,7 +1126,7 @@ viewTodoItemBase here todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
-        , viewTodoTitle todo
+        , viewTodoTitle here todo
         , viewCharBtn (OnDelete todo.id) 'X'
         , viewCharBtn (OnMoveStart todo.id) 'M'
         , viewCharBtn (OnEditDueStart todo.id) 'D'
@@ -1136,7 +1136,7 @@ viewTodoItemBase here todo =
 viewDueAt here todo =
     let
         viewDueAt_ dueAt =
-            div [ class "truncate flex-shrink-0 f7 code" ]
+            div [ class "dn truncate flex-shrink-0 f7 code" ]
                 [ text <| Millis.formatDate "ddd MMM" here dueAt
                 ]
     in
@@ -1164,7 +1164,8 @@ viewCheck isChecked onCheckMsg =
         ]
 
 
-viewTodoTitle todo =
+viewTodoTitle : Time.Zone -> Todo -> Html Msg
+viewTodoTitle here todo =
     let
         ( title, titleClass ) =
             if String.trim todo.title |> String.isEmpty then
@@ -1172,6 +1173,18 @@ viewTodoTitle todo =
 
             else
                 ( todo.title, "" )
+
+        dueAtText =
+            todo.dueAt |> Maybe.map (Millis.formatDate "dd MMM" here)
+
+        viewDueAtInline txt =
+            div [ class "dib pr2" ]
+                [ div
+                    [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
+                    , class "bg-red white"
+                    ]
+                    [ text txt ]
+                ]
     in
     div
         [ class
@@ -1181,7 +1194,7 @@ viewTodoTitle todo =
             )
         , onClick (OnEdit todo.id)
         ]
-        [ text title ]
+        [ viewMaybe viewDueAtInline dueAtText, text title ]
 
 
 

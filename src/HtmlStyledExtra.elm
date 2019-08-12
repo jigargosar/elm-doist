@@ -1,8 +1,9 @@
-module HtmlStyledExtra exposing (empty, viewIf, viewUnless)
+module HtmlStyledExtra exposing (empty, viewIf, viewMaybe, viewUnless)
 
 -- VIEW HELPERS
 
 import Html.Styled exposing (Html, text)
+import Maybe.Extra
 
 
 viewIf bool v =
@@ -20,3 +21,8 @@ viewUnless bool v =
 empty : Html msg
 empty =
     text ""
+
+
+viewMaybe : (a -> Html msg) -> Maybe a -> Html msg
+viewMaybe fn =
+    Maybe.Extra.unwrap empty fn
