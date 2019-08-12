@@ -746,11 +746,11 @@ masterLayout title content model =
         headerHeight =
             rem 2
 
-        maxContentWidth =
-            px maxContentWidthNum
-
         maxContentWidthNum =
             800
+
+        maxContentWidth =
+            px maxContentWidthNum
 
         viewDebugContent =
             div [ class "pa3 vs3" ]
@@ -771,14 +771,6 @@ masterLayout title content model =
         ns =
             withMedia
                 [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
-
-        contentLeft =
-            if model.browserSize.width < maxContentWidthNum then
-                0
-
-            else
-                toFloat (model.browserSize.width - maxContentWidthNum)
-                    / 2
     in
     { title = title
     , body =
@@ -787,11 +779,9 @@ masterLayout title content model =
             , css [ position sticky, top zero, height headerHeight ]
             ]
             [ div
-                [ class "absolute"
+                [ class "center"
                 , css
                     [ maxWidth maxContentWidth
-                    , left (px contentLeft)
-                    , transition [ Transition.left 1000 ]
                     ]
                 ]
                 [ viewHeader model ]
@@ -803,13 +793,9 @@ masterLayout title content model =
                     [ width sidebarWidth
                     , top headerHeight
                     , bottom zero
-                    , left (px contentLeft)
                     , sm
                         [ transforms [ translateX <| negativeSidebarWidth ] ]
-                    , transition
-                        [ Transition.transform 1000
-                        , Transition.left 1000
-                        ]
+                    , transition [ Transition.transform 1000 ]
                     ]
                 ]
                 [ viewSidebar model
