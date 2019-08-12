@@ -1179,13 +1179,16 @@ viewTodoItemContent here todo =
 
         viewDueAtInline : String -> Html Msg
         viewDueAtInline txt =
-            div [ class "dib pr2", onClick <| OnEditDueStart todo.id ]
+            div [ class "di pr2", onClick <| OnEditDueStart todo.id ]
                 [ div
                     [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
                     , class "bg-red white"
                     ]
                     [ text txt ]
                 ]
+
+        viewTitle =
+            div [ class "di" ] [ text title ]
     in
     div
         [ class
@@ -1195,7 +1198,7 @@ viewTodoItemContent here todo =
             )
         , onClick (OnEdit todo.id)
         ]
-        [ viewMaybe viewDueAtInline dueAtText, text title ]
+        [ viewMaybe viewDueAtInline dueAtText, viewTitle ]
 
 
 
