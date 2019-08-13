@@ -1,38 +1,17 @@
-module FlipList exposing (FlipItem, FlipList, Msg, empty, init, update, view)
+module FlipList exposing (FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
+import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
 import Html.Styled.Attributes exposing (class)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as K
 import Http
-import Json.Decode as JD exposing (Decoder)
-import Json.Decode.Pipeline as JDP
 import Random
 import Random.List
 import Result exposing (Result)
 import Result.Extra
 import UpdateExtra exposing (pure)
-
-
-type alias FlipItem =
-    { id : Int
-    , title : String
-    , done : Bool
-    }
-
-
-fiDecoder : Decoder FlipItem
-fiDecoder =
-    JD.succeed FlipItem
-        |> JDP.required "id" JD.int
-        |> JDP.required "title" JD.string
-        |> JDP.required "completed" JD.bool
-
-
-fiListDecoder : Decoder (List FlipItem)
-fiListDecoder =
-    JD.list fiDecoder
 
 
 type FlipList
@@ -60,7 +39,7 @@ init =
     ( empty
     , Http.get
         { url = "http://jsonplaceholder.typicode.com/todos"
-        , expect = Http.expectJson GotTodos fiListDecoder
+        , expect = Http.expectJson GotTodos FlipItem.fiListDecoder
         }
     )
 
