@@ -119,7 +119,7 @@ view model =
                 , viewList fl
                 ]
 
-        Flipping _ to ->
+        FlipStart _ to ->
             div [ class "measure-wide center vs3" ]
                 [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
                 , div [ class "flex hs3" ]
@@ -128,7 +128,7 @@ view model =
                 , viewList to
                 ]
 
-        FlipStart _ to ->
+        Flipping _ to ->
             div [ class "measure-wide center vs3" ]
                 [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
                 , div [ class "flex hs3" ]
