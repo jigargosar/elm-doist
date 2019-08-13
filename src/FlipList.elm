@@ -135,5 +135,5 @@ viewItem fi =
         [ class "bg-black-80 white ba br-pill lh-copy pv1"
         , class "ph3"
         ]
-        [ text fi.title ]
+        [ text <| strId ++ ": " ++ fi.title ]
     )
