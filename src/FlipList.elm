@@ -37,10 +37,7 @@ empty =
 init : ( FlipList, Cmd Msg )
 init =
     ( empty
-    , Http.get
-        { url = "http://jsonplaceholder.typicode.com/todos"
-        , expect = Http.expectJson GotFlipItems FlipItem.listDecoder
-        }
+    , FlipItem.fetch GotFlipItems
     )
 
 
