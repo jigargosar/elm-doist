@@ -1,8 +1,9 @@
 module FlipList exposing (FlipItem, FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
-import Html.Styled exposing (Html, div, text)
+import Html.Styled exposing (Html, button, div, text)
 import Html.Styled.Attributes exposing (class)
+import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as K
 import Http
 import Json.Decode as JD exposing (Decoder)
@@ -109,8 +110,11 @@ onGotFIList fiList _ =
 
 view : FlipList -> Html Msg
 view (FlipList fl) =
-    div [ class "measure-wide center" ]
-        [ div [ class "mb3 pv1 b " ] [ text "FlipListDemo" ]
+    div [ class "measure-wide center vs3" ]
+        [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
+        , div [ class "flex hs3" ]
+            [ button [ onClick OnShuffle ] [ text "Shuffle" ]
+            ]
         , viewList fl
         ]
 
