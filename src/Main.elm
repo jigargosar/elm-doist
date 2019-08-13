@@ -14,6 +14,7 @@ import Dict.Extra
 import Errors exposing (Errors)
 import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
+import FontAwesome.Regular
 import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
@@ -941,7 +942,7 @@ viewNav model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , viewCharBtn OnAddProjectStart '+'
+            , faBtn OnAddProjectStart FontAwesome.Solid.plus
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
