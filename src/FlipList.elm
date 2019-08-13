@@ -19,10 +19,16 @@ import Task exposing (Task)
 import UpdateExtra exposing (pure)
 
 
+type AnimState
+    = NotStarted
+    | Start FlipDomInfo
+    | Playing FlipDomInfo
+
+
 type alias FlippingModel =
     { from : List FlipItem
     , to : List FlipItem
-    , domInfo : Maybe FlipDomInfo
+    , animState : AnimState
     }
 
 
@@ -137,7 +143,7 @@ onGotShuffled shuffled model =
                         (getFIClientRectById "from" from)
                         (getFIClientRectById "to" to)
             in
-            ( Flipping <| { from = from, to = to, domInfo = Nothing }
+            ( Flipping <| { from = from, to = to, animState = NotStarted }
             , flipDomInfoTask |> Task.attempt OnGotFlipDomInfo
             )
 
@@ -155,11 +161,14 @@ onGotFlipDomInfo domInfo model =
             pure model
 
         Flipping rec ->
-            case rec.domInfo of
-                Nothing ->
-                    ( { rec | domInfo = Just domInfo } |> Flipping, Cmd.none )
+            case rec.animState of
+                NotStarted ->
+                    ( { rec | animState = Start domInfo } |> Flipping, Cmd.none )
 
-                Just _ ->
+                Start di ->
+                    pure model
+
+                Playing di ->
                     pure model
 
 
@@ -220,21 +229,21 @@ view model =
                 , div [ class "relative" ]
                     [ K.node "div"
                         [ class "absolute vs1" ]
-                        (List.map (viewItem Nothing "to-") rec.to)
+                        (List.map (viewItem NotStarted "to-") rec.to)
                     , K.node "div"
                         [ class "o-50 absolute vs1" ]
-                        (List.map (viewItem rec.domInfo "from-") rec.from)
+                        (List.map (viewItem rec.animState "from-") rec.from)
                     ]
                 ]
 
 
 viewList : String -> List FlipItem -> Html msg
 viewList idPrefix fl =
-    K.node "div" [ class "vs1" ] (List.map (viewItem Nothing idPrefix) fl)
+    K.node "div" [ class "vs1" ] (List.map (viewItem NotStarted idPrefix) fl)
 
 
-viewItem : Maybe FlipDomInfo -> String -> FlipItem -> ( String, Html msg )
-viewItem fdi idPrefix fi =
+viewItem : AnimState -> String -> FlipItem -> ( String, Html msg )
+viewItem animState idPrefix fi =
     let
         domId =
             idPrefix ++ FlipItem.strId fi
@@ -243,17 +252,25 @@ viewItem fdi idPrefix fi =
             FlipItem.strId fi
 
         flipStyles =
-            fdi
-                |> Maybe.andThen (.from >> Dict.get fi.id)
-                |> Maybe.Extra.unwrap []
-                    (\cr ->
-                        [ position fixed
-                        , left (px cr.x)
-                        , top (px cr.y)
-                        , width (px cr.width)
-                        , height (px cr.height)
-                        ]
-                    )
+            case animState of
+                NotStarted ->
+                    []
+
+                Start fdi ->
+                    fdi.from
+                        |> Dict.get fi.id
+                        |> Maybe.Extra.unwrap []
+                            (\cr ->
+                                [ position fixed
+                                , left (px cr.x)
+                                , top (px cr.y)
+                                , width (px cr.width)
+                                , height (px cr.height)
+                                ]
+                            )
+
+                Playing fdi ->
+                    []
     in
     ( strId
     , div
