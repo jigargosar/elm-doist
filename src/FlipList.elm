@@ -111,10 +111,6 @@ update message model =
                 |> callWith model
 
         OnPlay ->
-            let
-                _ =
-                    Debug.log "onPlay" model
-            in
             case model of
                 Stable _ ->
                     pure model
@@ -195,13 +191,6 @@ onGotShuffled shuffled model =
 
 
 onGotFlipDomInfo domInfo model =
-    let
-        _ =
-            Debug.log "domInfo" domInfo
-
-        _ =
-            Debug.log "model" model
-    in
     case model of
         Stable _ ->
             pure model
@@ -274,38 +263,14 @@ view model =
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , case rec.animState of
-                    NotStarted ->
-                        div [ class "relative" ]
-                            [ K.node "div"
-                                [ class "o-0 absolute vs1" ]
-                                (List.map (viewItem NotStarted "to-") rec.to)
-                            , K.node "div"
-                                [ class "o-0 absolute vs1" ]
-                                (List.map (viewItem rec.animState "from-") rec.from)
-                            ]
-
-                    Start fdi ->
-                        let
-                            _ =
-                                Debug.log "Start" "Start"
-                        in
-                        div [ class "" ]
-                            [ K.node "div"
-                                [ class " vs1" ]
-                                (List.map (viewItem rec.animState "from-") rec.from)
-                            ]
-
-                    Playing fdi ->
-                        let
-                            _ =
-                                Debug.log "Playing" "Playing"
-                        in
-                        div [ class "" ]
-                            [ K.node "div"
-                                [ class " vs1" ]
-                                (List.map (viewItem rec.animState "from-") rec.from)
-                            ]
+                , div [ class "relative" ]
+                    [ K.node "div"
+                        [ class "o-0 absolute vs1" ]
+                        (List.map (viewItem NotStarted "to-") rec.to)
+                    , K.node "div"
+                        [ class "absolute vs1" ]
+                        (List.map (viewItem rec.animState "from-") rec.from)
+                    ]
                 ]
 
 
@@ -353,30 +318,13 @@ viewItem animState idPrefix fi =
                                 , height (px cr.height)
                                 ]
                             )
-
-        flipStyleAttrs =
-            case animState of
-                NotStarted ->
-                    []
-
-                Start fdi ->
-                    []
-
-                Playing fdi ->
-                    fdi.to
-                        |> Dict.get fi.id
-                        |> Maybe.Extra.unwrap []
-                            (\cr ->
-                                [ style "top" (String.fromFloat cr.y ++ "px")
-                                ]
-                            )
     in
     ( strId
     , div
-        ([ class "bg-black-80 white ba br-pill lh-copy pv1"
-         , class "ph3"
-         , A.id domId
-         , css
+        [ class "bg-black-80 white ba br-pill lh-copy pv1"
+        , class "ph3"
+        , A.id domId
+        , css
             (flipStyles
                 ++ [ transition
                         [ Transitions.left 3000
@@ -386,8 +334,6 @@ viewItem animState idPrefix fi =
                         ]
                    ]
             )
-         ]
-            ++ flipStyleAttrs
-        )
+        ]
         [ text <| strId ++ ": " ++ fi.title ]
     )
