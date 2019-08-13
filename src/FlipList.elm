@@ -147,8 +147,10 @@ view model =
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , viewList "to-" rec.to
-                , viewList "from-" rec.from
+                , div []
+                    [ viewList "to-" rec.to
+                    , viewList "from-" rec.from
+                    ]
                 ]
 
 
