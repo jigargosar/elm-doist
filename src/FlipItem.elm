@@ -1,4 +1,4 @@
-module FlipItem exposing (FlipItem, fetch)
+module FlipItem exposing (FlipItem, fetch, strId)
 
 import Http
 import Json.Decode as JD exposing (Decoder)
@@ -35,3 +35,8 @@ fetch tagger =
         { url = "http://jsonplaceholder.typicode.com/todos"
         , expect = Http.expectJson tagger listDecoder
         }
+
+
+strId fi =
+    fi.id
+        |> String.fromInt

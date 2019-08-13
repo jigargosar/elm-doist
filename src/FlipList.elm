@@ -36,7 +36,7 @@ type Msg
     | GotFlipItems (HttpResult (List FlipItem))
     | OnShuffle
     | GotRandomShuffled (List FlipItem)
-    | OnGotElement (Result Dom.Error Element)
+    | OnGotElement (Result Dom.Error (List ( String, FlipItem, Element )))
 
 
 empty : FlipList
@@ -81,8 +81,44 @@ update message model =
 onGotShuffled shuffled model =
     case model of
         Stable fl ->
-            ( Flipping <| { from = fl, to = shuffled }
-            , Dom.getElement "foo" |> Task.attempt OnGotElement
+            let
+                from =
+                    fl
+
+                to =
+                    shuffled
+
+                fromTasks =
+                    from
+                        |> List.map
+                            (\fi ->
+                                let
+                                    domId =
+                                        "from-" ++ FlipItem.strId fi
+                                in
+                                Dom.getElement domId
+                                    |> Task.map (\el -> ( "from", fi, el ))
+                            )
+
+                toTasks =
+                    from
+                        |> List.map
+                            (\fi ->
+                                let
+                                    domId =
+                                        "to-" ++ FlipItem.strId fi
+                                in
+                                Dom.getElement domId
+                                    |> Task.map (\el -> ( "to", fi, el ))
+                            )
+
+                sequencedTask =
+                    fromTasks
+                        ++ toTasks
+                        |> Task.sequence
+            in
+            ( Flipping <| { from = from, to = to }
+            , sequencedTask |> Task.attempt OnGotElement
             )
 
         Flipping _ ->
@@ -90,6 +126,10 @@ onGotShuffled shuffled model =
 
 
 onGotElement el model =
+    let
+        _ =
+            Debug.log "el" el
+    in
     pure model
 
 
@@ -166,12 +206,11 @@ viewList idPrefix fl =
 viewItem : String -> FlipItem -> ( String, Html msg )
 viewItem idPrefix fi =
     let
-        strId =
-            fi.id
-                |> String.fromInt
-
         domId =
-            idPrefix ++ strId
+            idPrefix ++ FlipItem.strId fi
+
+        strId =
+            FlipItem.strId fi
     in
     ( strId
     , div
