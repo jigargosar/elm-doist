@@ -277,7 +277,23 @@ viewItem animState idPrefix fi =
                             )
 
                 Playing fdi ->
-                    []
+                    fdi.to
+                        |> Dict.get fi.id
+                        |> Maybe.Extra.unwrap []
+                            (\cr ->
+                                [ position fixed
+                                , left (px cr.x)
+                                , top (px cr.y)
+                                , width (px cr.width)
+                                , height (px cr.height)
+                                , transition
+                                    [ Transitions.left 1000
+                                    , Transitions.top 1000
+                                    , Transitions.width 1000
+                                    , Transitions.height 1000
+                                    ]
+                                ]
+                            )
     in
     ( strId
     , div
