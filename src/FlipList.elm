@@ -138,7 +138,7 @@ view model =
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , viewList fl
+                , viewList "" fl
                 ]
 
         Flipping rec ->
@@ -147,13 +147,13 @@ view model =
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , viewList rec.to
+                , viewList "new-" rec.to
                 ]
 
 
-viewList : List FlipItem -> Html msg
-viewList fl =
-    K.node "div" [ class "vs1" ] (List.map (viewItem "old-") fl)
+viewList : String -> List FlipItem -> Html msg
+viewList idPrefix fl =
+    K.node "div" [ class "vs1" ] (List.map (viewItem idPrefix) fl)
 
 
 viewItem : String -> FlipItem -> ( String, Html msg )
