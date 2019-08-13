@@ -2,13 +2,15 @@ module FlipList exposing (FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
 import Browser.Dom as Dom exposing (Element)
+import Css exposing (absolute, fixed, height, left, position, px, top, width)
 import Dict exposing (Dict)
 import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
-import Html.Styled.Attributes as A exposing (class)
+import Html.Styled.Attributes as A exposing (class, css)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as K
 import Http
+import Maybe.Extra
 import Random
 import Random.List
 import Result exposing (Result)
@@ -239,12 +241,26 @@ viewItem fdi idPrefix fi =
 
         strId =
             FlipItem.strId fi
+
+        flipStyles =
+            fdi
+                |> Maybe.andThen (.from >> Dict.get fi.id)
+                |> Maybe.Extra.unwrap []
+                    (\cr ->
+                        [ position fixed
+                        , left (px cr.x)
+                        , top (px cr.y)
+                        , width (px cr.width)
+                        , height (px cr.height)
+                        ]
+                    )
     in
     ( strId
     , div
         [ class "bg-black-80 white ba br-pill lh-copy pv1"
         , class "ph3"
         , A.id domId
+        , css flipStyles
         ]
         [ text <| strId ++ ": " ++ fi.title ]
     )
