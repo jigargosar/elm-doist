@@ -163,13 +163,15 @@ viewItem idPrefix fi =
         strId =
             fi.id
                 |> String.fromInt
-                |> (++) idPrefix
+
+        domId =
+            idPrefix ++ strId
     in
     ( strId
     , div
         [ class "bg-black-80 white ba br-pill lh-copy pv1"
         , class "ph3"
-        , A.id strId
+        , A.id domId
         ]
         [ text <| strId ++ ": " ++ fi.title ]
     )
