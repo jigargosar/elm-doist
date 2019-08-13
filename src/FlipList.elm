@@ -2,6 +2,8 @@ module FlipList exposing (FlipItem, FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
 import Html.Styled exposing (Html, div, text)
+import Html.Styled.Attributes exposing (class)
+import Html.Styled.Keyed as K
 import Http
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -87,6 +89,17 @@ onGotFIList fiList _ =
 
 view : FlipList -> Html Msg
 view (FlipList fl) =
-    div []
-        [ text "FL"
+    div [ class "measure-wide center" ]
+        [ div [] [ text "FlipListDemo" ]
+        , viewList fl
         ]
+
+
+viewList : List FlipItem -> Html msg
+viewList fl =
+    let
+        viewItem : FlipItem -> ( String, Html msg )
+        viewItem fi =
+            ( fi.id |> String.fromInt, div [] [ text fi.title ] )
+    in
+    K.node "div" [] (List.map viewItem fl)
