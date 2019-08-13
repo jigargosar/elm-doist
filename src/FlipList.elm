@@ -48,6 +48,7 @@ type Msg
     | OnShuffle
     | GotRandomShuffled (List FlipItem)
     | OnGotFlipDomInfo (Result Dom.Error FlipDomInfo)
+    | OnPlay
 
 
 empty : FlipList
@@ -87,6 +88,22 @@ update message model =
             res
                 |> Result.Extra.unpack onDomError onGotFlipDomInfo
                 |> callWith model
+
+        OnPlay ->
+            case model of
+                Stable _ ->
+                    pure model
+
+                Flipping rec ->
+                    case rec.animState of
+                        NotStarted ->
+                            pure model
+
+                        Start fdi ->
+                            pure ({ rec | animState = Playing fdi } |> Flipping)
+
+                        Playing _ ->
+                            pure model
 
 
 type alias ClientRect =
@@ -164,7 +181,7 @@ onGotFlipDomInfo domInfo model =
         Flipping rec ->
             case rec.animState of
                 NotStarted ->
-                    ( { rec | animState = Start domInfo } |> Flipping, Cmd.none )
+                    ( { rec | animState = Start domInfo } |> Flipping, Cmd.map (\_ -> OnPlay) Cmd.none )
 
                 Start di ->
                     pure model
