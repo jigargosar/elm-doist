@@ -1,10 +1,10 @@
-module FlipList exposing (FlipItem, FlipList(..), Msg, empty, init, update)
+module FlipList exposing (FlipItem, FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
+import Html.Styled exposing (Html, div, text)
 import Http
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
 import Result exposing (Result)
 import Result.Extra
 import UpdateExtra exposing (pure)
@@ -75,7 +75,7 @@ update message model =
 
 
 onHttpError : Http.Error -> FlipList -> Return
-onHttpError err =
+onHttpError _ =
     pure
 
 
@@ -83,3 +83,10 @@ onGotFIList : List FlipItem -> FlipList -> Return
 onGotFIList fiList _ =
     FlipList fiList
         |> pure
+
+
+view : FlipList -> Html Msg
+view (FlipList fl) =
+    div []
+        [ text "FL"
+        ]

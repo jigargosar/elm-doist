@@ -816,7 +816,12 @@ viewRoute route model =
 
 viewFlipDemo : FlipList -> StyledDocument Msg
 viewFlipDemo flipList =
-    { title = "FlipList Demo", body = [ div [] [] ] }
+    { title = "FlipList Demo"
+    , body =
+        [ FlipList.view flipList
+            |> H.map OnFlipListMsg
+        ]
+    }
 
 
 sortedInProject pid todoList =
