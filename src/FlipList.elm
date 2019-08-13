@@ -92,11 +92,13 @@ type alias FIClientRect =
 
 
 type alias FlipDomInfo =
-    { from : Dict FlipItem.Id ClientRect, to : Dict FlipItem.Id ClientRect }
+    { from : Dict FlipItem.Id ClientRect
+    , to : Dict FlipItem.Id ClientRect
+    }
 
 
-getEl : String -> FlipItem -> Task Dom.Error FIClientRect
-getEl idPrefix fi =
+getFIClientRect : String -> FlipItem -> Task Dom.Error FIClientRect
+getFIClientRect idPrefix fi =
     let
         domId =
             idPrefix ++ "-" ++ FlipItem.strId fi
@@ -117,13 +119,13 @@ onGotShuffled shuffled model =
 
                 fromTasks =
                     from
-                        |> List.map (getEl "from")
+                        |> List.map (getFIClientRect "from")
                         |> Task.sequence
                         |> Task.map Dict.fromList
 
                 toTasks =
                     to
-                        |> List.map (getEl "to")
+                        |> List.map (getFIClientRect "to")
                         |> Task.sequence
                         |> Task.map Dict.fromList
 
