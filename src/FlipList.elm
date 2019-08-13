@@ -16,6 +16,7 @@ import UpdateExtra exposing (pure)
 
 type FlipList
     = Stable (List FlipItem)
+    | FlipStart (List FlipItem) (List FlipItem)
     | Flipping (List FlipItem) (List FlipItem)
 
 
@@ -64,11 +65,26 @@ update message model =
             pure (Stable fl)
 
 
+onGotShuffled shuffled model =
+    case model of
+        Stable fl ->
+            ( Flipping fl shuffled, Cmd.none )
+
+        FlipStart _ _ ->
+            pure model
+
+        Flipping _ _ ->
+            pure model
+
+
 onShuffle : FlipList -> Return
 onShuffle model =
     case model of
         Stable fl ->
             ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
+
+        FlipStart _ _ ->
+            pure model
 
         Flipping _ _ ->
             pure model
@@ -104,6 +120,15 @@ view model =
                 ]
 
         Flipping _ to ->
+            div [ class "measure-wide center vs3" ]
+                [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
+                , div [ class "flex hs3" ]
+                    [ button [ onClick OnShuffle ] [ text "Shuffle" ]
+                    ]
+                , viewList to
+                ]
+
+        FlipStart _ to ->
             div [ class "measure-wide center vs3" ]
                 [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
                 , div [ class "flex hs3" ]
