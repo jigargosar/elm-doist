@@ -327,10 +327,10 @@ viewItem animState idPrefix fi =
         , css
             (flipStyles
                 ++ [ transition
-                        [ Transitions.left 3000
-                        , Transitions.top 3000
-                        , Transitions.width 3000
-                        , Transitions.height 3000
+                        [ Transitions.left 1000
+                        , Transitions.top 1000
+                        , Transitions.width 1000
+                        , Transitions.height 1000
                         ]
                    ]
             )
