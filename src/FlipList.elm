@@ -12,7 +12,7 @@ import Random
 import Random.List
 import Result exposing (Result)
 import Result.Extra
-import Task
+import Task exposing (Task)
 import UpdateExtra exposing (pure)
 
 
@@ -78,6 +78,11 @@ update message model =
                 |> callWith model
 
 
+type alias ElRes =
+    ( String, FlipItem, Element )
+
+
+getEl : String -> FlipItem -> Task Dom.Error ElRes
 getEl idPrefix fi =
     let
         domId =
