@@ -15,7 +15,8 @@ import UpdateExtra exposing (pure)
 
 
 type FlipList
-    = FlipList (List FlipItem)
+    = Stable (List FlipItem)
+    | Flipping (List FlipItem) (List FlipItem)
 
 
 type alias HttpResult a =
@@ -31,7 +32,7 @@ type Msg
 
 empty : FlipList
 empty =
-    FlipList []
+    Stable []
 
 
 init : ( FlipList, Cmd Msg )
@@ -60,15 +61,17 @@ update message model =
             onShuffle model
 
         GotRandomShuffled fl ->
-            pure (FlipList fl)
+            pure (Stable fl)
 
 
+onShuffle : FlipList -> Return
 onShuffle model =
-    let
-        (FlipList fl) =
-            model
-    in
-    ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
+    case model of
+        Stable fl ->
+            ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
+
+        Flipping _ _ ->
+            pure model
 
 
 onHttpError : Http.Error -> FlipList -> Return
@@ -84,19 +87,30 @@ onGotFIList : List FlipItem -> FlipList -> Return
 onGotFIList fiList _ =
     fiList
         |> List.take 10
-        |> FlipList
+        |> Stable
         |> pure
 
 
 view : FlipList -> Html Msg
-view (FlipList fl) =
-    div [ class "measure-wide center vs3" ]
-        [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
-        , div [ class "flex hs3" ]
-            [ button [ onClick OnShuffle ] [ text "Shuffle" ]
-            ]
-        , viewList fl
-        ]
+view model =
+    case model of
+        Stable fl ->
+            div [ class "measure-wide center vs3" ]
+                [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
+                , div [ class "flex hs3" ]
+                    [ button [ onClick OnShuffle ] [ text "Shuffle" ]
+                    ]
+                , viewList fl
+                ]
+
+        Flipping _ to ->
+            div [ class "measure-wide center vs3" ]
+                [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
+                , div [ class "flex hs3" ]
+                    [ button [ onClick OnShuffle ] [ text "Shuffle" ]
+                    ]
+                , viewList to
+                ]
 
 
 viewList : List FlipItem -> Html msg
