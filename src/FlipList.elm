@@ -24,7 +24,7 @@ type alias HttpResult a =
 
 type Msg
     = NoOp
-    | GotTodos (HttpResult (List FlipItem))
+    | GotFlipItems (HttpResult (List FlipItem))
     | OnShuffle
     | GotRandomShuffled (List FlipItem)
 
@@ -39,7 +39,7 @@ init =
     ( empty
     , Http.get
         { url = "http://jsonplaceholder.typicode.com/todos"
-        , expect = Http.expectJson GotTodos FlipItem.listDecoder
+        , expect = Http.expectJson GotFlipItems FlipItem.listDecoder
         }
     )
 
@@ -54,7 +54,7 @@ update message model =
         NoOp ->
             ( model, Cmd.none )
 
-        GotTodos res ->
+        GotFlipItems res ->
             res
                 |> Result.Extra.unpack onHttpError onGotFIList
                 |> callWith model
