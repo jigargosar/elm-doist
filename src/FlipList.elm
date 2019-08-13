@@ -90,6 +90,10 @@ update message model =
                 |> callWith model
 
         OnPlay ->
+            let
+                _ =
+                    Debug.log "onPlay" model
+            in
             case model of
                 Stable _ ->
                     pure model
@@ -173,6 +177,9 @@ onGotFlipDomInfo domInfo model =
     let
         _ =
             Debug.log "domInfo" domInfo
+
+        _ =
+            Debug.log "model" model
     in
     case model of
         Stable _ ->
@@ -181,7 +188,9 @@ onGotFlipDomInfo domInfo model =
         Flipping rec ->
             case rec.animState of
                 NotStarted ->
-                    ( { rec | animState = Start domInfo } |> Flipping, Cmd.map (\_ -> OnPlay) Cmd.none )
+                    ( { rec | animState = Start domInfo } |> Flipping
+                    , OnPlay |> (Task.succeed >> Task.perform identity)
+                    )
 
                 Start di ->
                     pure model
@@ -284,12 +293,6 @@ viewItem animState idPrefix fi =
                                 , top (px cr.y)
                                 , width (px cr.width)
                                 , height (px cr.height)
-                                , transition
-                                    [ Transitions.left 1000
-                                    , Transitions.top 1000
-                                    , Transitions.width 1000
-                                    , Transitions.height 1000
-                                    ]
                                 ]
                             )
 
@@ -303,12 +306,6 @@ viewItem animState idPrefix fi =
                                 , top (px cr.y)
                                 , width (px cr.width)
                                 , height (px cr.height)
-                                , transition
-                                    [ Transitions.left 1000
-                                    , Transitions.top 1000
-                                    , Transitions.width 1000
-                                    , Transitions.height 1000
-                                    ]
                                 ]
                             )
     in
@@ -317,7 +314,16 @@ viewItem animState idPrefix fi =
         [ class "bg-black-80 white ba br-pill lh-copy pv1"
         , class "ph3"
         , A.id domId
-        , css flipStyles
+        , css
+            (flipStyles
+                ++ [ transition
+                        [ Transitions.left 3000
+                        , Transitions.top 3000
+                        , Transitions.width 3000
+                        , Transitions.height 3000
+                        ]
+                   ]
+            )
         ]
         [ text <| strId ++ ": " ++ fi.title ]
     )
