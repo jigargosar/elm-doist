@@ -36,7 +36,7 @@ type Msg
     | GotFlipItems (HttpResult (List FlipItem))
     | OnShuffle
     | GotRandomShuffled (List FlipItem)
-    | OnGotElement (Result Dom.Error (List ( String, FlipItem, Element )))
+    | OnGotElement (Result Dom.Error (List ElInfo))
 
 
 empty : FlipList
