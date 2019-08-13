@@ -10,6 +10,7 @@ type Route
     | Project String
     | Today
     | NotFound Url
+    | FlipDemo
 
 
 routeParser : Parser (Route -> a) a
@@ -19,6 +20,7 @@ routeParser =
         , map Inbox (s "inbox")
         , map Today (s "today")
         , map Project (s "project" </> string)
+        , map FlipDemo (s "flip-demo")
         ]
 
 
@@ -41,3 +43,8 @@ inboxUrl =
 todayUrl : String
 todayUrl =
     B.absolute [ "today" ] []
+
+
+toFlipDemoUrl : String
+toFlipDemoUrl =
+    B.absolute [ "flip-demo" ] []
