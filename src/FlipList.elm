@@ -91,9 +91,13 @@ type alias FIClientRect =
     ( FlipItem.Id, ClientRect )
 
 
+type alias FIClientRectById =
+    Dict FlipItem.Id ClientRect
+
+
 type alias FlipDomInfo =
-    { from : Dict FlipItem.Id ClientRect
-    , to : Dict FlipItem.Id ClientRect
+    { from : FIClientRectById
+    , to : FIClientRectById
     }
 
 
@@ -107,6 +111,14 @@ getFIClientRect idPrefix fi =
         |> Task.map (\el -> ( fi.id, el.element ))
 
 
+getFIClientRectById : String -> List FlipItem -> Task Dom.Error FIClientRectById
+getFIClientRectById idPrefix fiList =
+    fiList
+        |> List.map (getFIClientRect idPrefix)
+        |> Task.sequence
+        |> Task.map Dict.fromList
+
+
 onGotShuffled shuffled model =
     case model of
         Stable fl ->
@@ -117,23 +129,13 @@ onGotShuffled shuffled model =
                 to =
                     shuffled
 
-                fromTasks =
-                    from
-                        |> List.map (getFIClientRect "from")
-                        |> Task.sequence
-                        |> Task.map Dict.fromList
-
-                toTasks =
-                    to
-                        |> List.map (getFIClientRect "to")
-                        |> Task.sequence
-                        |> Task.map Dict.fromList
-
-                sequencedTask =
-                    Task.map2 FlipDomInfo fromTasks toTasks
+                flipDomInfoTask =
+                    Task.map2 FlipDomInfo
+                        (getFIClientRectById "from" from)
+                        (getFIClientRectById "to" to)
             in
             ( Flipping <| { from = from, to = to }
-            , sequencedTask |> Task.attempt OnGotFlipDomInfo
+            , flipDomInfoTask |> Task.attempt OnGotFlipDomInfo
             )
 
         Flipping _ ->
