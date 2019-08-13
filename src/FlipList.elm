@@ -36,7 +36,7 @@ type Msg
     | GotFlipItems (HttpResult (List FlipItem))
     | OnShuffle
     | GotRandomShuffled (List FlipItem)
-    | OnGotElement (Result Dom.Error (List ElInfo))
+    | OnGotFlipDomInfo (Result Dom.Error FlipDomInfo)
 
 
 empty : FlipList
@@ -72,14 +72,18 @@ update message model =
         GotRandomShuffled fl ->
             onGotShuffled fl model
 
-        OnGotElement res ->
+        OnGotFlipDomInfo res ->
             res
-                |> Result.Extra.unpack onDomError onGotElement
+                |> Result.Extra.unpack onDomError onGotFlipDomInfo
                 |> callWith model
 
 
 type alias ElInfo =
     ( String, FlipItem, Element )
+
+
+type alias FlipDomInfo =
+    { from : List ElInfo, to : List ElInfo }
 
 
 getEl : String -> FlipItem -> Task Dom.Error ElInfo
@@ -103,25 +107,23 @@ onGotShuffled shuffled model =
                     shuffled
 
                 fromTasks =
-                    from |> List.map (getEl "from")
+                    from |> List.map (getEl "from") |> Task.sequence
 
                 toTasks =
-                    to |> List.map (getEl "to")
+                    to |> List.map (getEl "to") |> Task.sequence
 
                 sequencedTask =
-                    fromTasks
-                        ++ toTasks
-                        |> Task.sequence
+                    Task.map2 FlipDomInfo fromTasks toTasks
             in
             ( Flipping <| { from = from, to = to }
-            , sequencedTask |> Task.attempt OnGotElement
+            , sequencedTask |> Task.attempt OnGotFlipDomInfo
             )
 
         Flipping _ ->
             pure model
 
 
-onGotElement el model =
+onGotFlipDomInfo el model =
     let
         _ =
             Debug.log "el" el
