@@ -3,6 +3,7 @@ module FlipList exposing (FlipList, Msg, empty, init, update, view)
 import BasicsExtra exposing (callWith)
 import Browser.Dom as Dom exposing (Element)
 import Css exposing (absolute, fixed, height, left, position, px, top, width)
+import Css.Transitions as Transitions exposing (transition)
 import Dict exposing (Dict)
 import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
@@ -266,6 +267,12 @@ viewItem animState idPrefix fi =
                                 , top (px cr.y)
                                 , width (px cr.width)
                                 , height (px cr.height)
+                                , transition
+                                    [ Transitions.left 1000
+                                    , Transitions.top 1000
+                                    , Transitions.width 1000
+                                    , Transitions.height 1000
+                                    ]
                                 ]
                             )
 
