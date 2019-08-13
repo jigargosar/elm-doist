@@ -14,10 +14,15 @@ import Result.Extra
 import UpdateExtra exposing (pure)
 
 
+type alias FlippingModel =
+    { from : List FlipItem
+    , to : List FlipItem
+    }
+
+
 type FlipList
     = Stable (List FlipItem)
-    | FlipStart (List FlipItem) (List FlipItem)
-    | Flipping (List FlipItem) (List FlipItem)
+    | Flipping FlippingModel
 
 
 type alias HttpResult a =
@@ -62,18 +67,15 @@ update message model =
             onShuffle model
 
         GotRandomShuffled fl ->
-            pure (Stable fl)
+            onGotShuffled fl model
 
 
 onGotShuffled shuffled model =
     case model of
         Stable fl ->
-            ( Flipping fl shuffled, Cmd.none )
+            ( Flipping <| { from = fl, to = shuffled }, Cmd.none )
 
-        FlipStart _ _ ->
-            pure model
-
-        Flipping _ _ ->
+        Flipping _ ->
             pure model
 
 
@@ -83,10 +85,7 @@ onShuffle model =
         Stable fl ->
             ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
 
-        FlipStart _ _ ->
-            pure model
-
-        Flipping _ _ ->
+        Flipping _ ->
             pure model
 
 
@@ -119,22 +118,13 @@ view model =
                 , viewList fl
                 ]
 
-        FlipStart _ to ->
+        Flipping rec ->
             div [ class "measure-wide center vs3" ]
                 [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , viewList to
-                ]
-
-        Flipping _ to ->
-            div [ class "measure-wide center vs3" ]
-                [ div [ class "pv1 b " ] [ text "FlipListDemo" ]
-                , div [ class "flex hs3" ]
-                    [ button [ onClick OnShuffle ] [ text "Shuffle" ]
-                    ]
-                , viewList to
+                , viewList rec.to
                 ]
 
 
