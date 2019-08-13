@@ -1,10 +1,17 @@
 module FlipList exposing (FlipItem, FlipList(..), Msg, empty, init, update)
 
+import Array
+import List.Extra
+
 
 type alias FlipItem =
     { id : Int
     , text : String
     }
+
+
+fiFromInt i =
+    FlipItem i
 
 
 type FlipList
@@ -13,6 +20,15 @@ type FlipList
 
 type Msg
     = NoOp
+
+
+times : Int -> (Int -> a) -> List a
+times =
+    List.Extra.initialize
+
+
+flipItems =
+    times 10 fiFromInt
 
 
 empty : FlipList
