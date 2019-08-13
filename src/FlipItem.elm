@@ -1,12 +1,16 @@
-module FlipItem exposing (FlipItem, fetch, strId)
+module FlipItem exposing (FlipItem, Id, fetch, strId)
 
 import Http
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 
 
+type alias Id =
+    Int
+
+
 type alias FlipItem =
-    { id : Int
+    { id : Id
     , title : String
     , done : Bool
     }

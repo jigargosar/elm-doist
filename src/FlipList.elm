@@ -79,7 +79,7 @@ update message model =
 
 
 type alias ElInfo =
-    ( FlipItem, Element )
+    ( FlipItem.Id, Element )
 
 
 type alias FlipDomInfo =
@@ -93,7 +93,7 @@ getEl idPrefix fi =
             idPrefix ++ "-" ++ FlipItem.strId fi
     in
     Dom.getElement domId
-        |> Task.map (\el -> ( fi, el ))
+        |> Task.map (\el -> ( fi.id, el ))
 
 
 onGotShuffled shuffled model =
