@@ -1,13 +1,14 @@
-module FlipList exposing (FlipList, Msg, empty, init, update, view)
+module FlipList exposing (FlipList, Msg, empty, init, subscriptions, update, view)
 
 import BasicsExtra exposing (callWith)
 import Browser.Dom as Dom exposing (Element)
+import Browser.Events
 import Css exposing (absolute, fixed, height, left, position, px, top, width)
 import Css.Transitions as Transitions exposing (transition)
 import Dict exposing (Dict)
 import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
-import Html.Styled.Attributes as A exposing (class, css)
+import Html.Styled.Attributes as A exposing (class, css, style)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as K
 import Http
@@ -65,6 +66,26 @@ init =
 
 type alias Return =
     ( FlipList, Cmd Msg )
+
+
+subscriptions : FlipList -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ case model of
+            Stable _ ->
+                Sub.none
+
+            Flipping rec ->
+                case rec.animState of
+                    NotStarted ->
+                        Sub.none
+
+                    Start _ ->
+                        Browser.Events.onAnimationFrame (\_ -> OnPlay)
+
+                    Playing _ ->
+                        Sub.none
+        ]
 
 
 update : Msg -> FlipList -> Return
@@ -189,7 +210,7 @@ onGotFlipDomInfo domInfo model =
             case rec.animState of
                 NotStarted ->
                     ( { rec | animState = Start domInfo } |> Flipping
-                    , OnPlay |> (Task.succeed >> Task.perform identity)
+                    , Cmd.none
                     )
 
                 Start di ->
@@ -253,14 +274,38 @@ view model =
                 , div [ class "flex hs3" ]
                     [ button [ onClick OnShuffle ] [ text "Shuffle" ]
                     ]
-                , div [ class "relative" ]
-                    [ K.node "div"
-                        [ class "absolute vs1" ]
-                        (List.map (viewItem NotStarted "to-") rec.to)
-                    , K.node "div"
-                        [ class "o-50 absolute vs1" ]
-                        (List.map (viewItem rec.animState "from-") rec.from)
-                    ]
+                , case rec.animState of
+                    NotStarted ->
+                        div [ class "relative" ]
+                            [ K.node "div"
+                                [ class "o-0 absolute vs1" ]
+                                (List.map (viewItem NotStarted "to-") rec.to)
+                            , K.node "div"
+                                [ class "o-0 absolute vs1" ]
+                                (List.map (viewItem rec.animState "from-") rec.from)
+                            ]
+
+                    Start fdi ->
+                        let
+                            _ =
+                                Debug.log "Start" "Start"
+                        in
+                        div [ class "" ]
+                            [ K.node "div"
+                                [ class " vs1" ]
+                                (List.map (viewItem rec.animState "from-") rec.from)
+                            ]
+
+                    Playing fdi ->
+                        let
+                            _ =
+                                Debug.log "Playing" "Playing"
+                        in
+                        div [ class "" ]
+                            [ K.node "div"
+                                [ class " vs1" ]
+                                (List.map (viewItem rec.animState "from-") rec.from)
+                            ]
                 ]
 
 
@@ -308,13 +353,30 @@ viewItem animState idPrefix fi =
                                 , height (px cr.height)
                                 ]
                             )
+
+        flipStyleAttrs =
+            case animState of
+                NotStarted ->
+                    []
+
+                Start fdi ->
+                    []
+
+                Playing fdi ->
+                    fdi.to
+                        |> Dict.get fi.id
+                        |> Maybe.Extra.unwrap []
+                            (\cr ->
+                                [ style "top" (String.fromFloat cr.y ++ "px")
+                                ]
+                            )
     in
     ( strId
     , div
-        [ class "bg-black-80 white ba br-pill lh-copy pv1"
-        , class "ph3"
-        , A.id domId
-        , css
+        ([ class "bg-black-80 white ba br-pill lh-copy pv1"
+         , class "ph3"
+         , A.id domId
+         , css
             (flipStyles
                 ++ [ transition
                         [ Transitions.left 3000
@@ -324,6 +386,8 @@ viewItem animState idPrefix fi =
                         ]
                    ]
             )
-        ]
+         ]
+            ++ flipStyleAttrs
+        )
         [ text <| strId ++ ": " ++ fi.title ]
     )

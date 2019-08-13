@@ -289,12 +289,13 @@ type Msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , Time.every 1000 (Time.posixToMillis >> OnNow)
         , Size.onBrowserResize OnBrowserResize
+        , FlipList.subscriptions model.flipList |> Sub.map OnFlipListMsg
         ]
 
 
