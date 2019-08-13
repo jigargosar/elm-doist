@@ -20,6 +20,7 @@ import UpdateExtra exposing (pure)
 type alias FlippingModel =
     { from : List FlipItem
     , to : List FlipItem
+    , domInfo : Maybe FlipDomInfo
     }
 
 
@@ -134,7 +135,7 @@ onGotShuffled shuffled model =
                         (getFIClientRectById "from" from)
                         (getFIClientRectById "to" to)
             in
-            ( Flipping <| { from = from, to = to }
+            ( Flipping <| { from = from, to = to, domInfo = Nothing }
             , flipDomInfoTask |> Task.attempt OnGotFlipDomInfo
             )
 
@@ -142,12 +143,17 @@ onGotShuffled shuffled model =
             pure model
 
 
-onGotFlipDomInfo el model =
+onGotFlipDomInfo domInfo model =
     let
         _ =
-            Debug.log "el" el
+            Debug.log "domInfo" domInfo
     in
-    pure model
+    case model of
+        Stable _ ->
+            pure model
+
+        Flipping rec ->
+            ( { rec | domInfo = Just domInfo } |> Flipping, Cmd.none )
 
 
 onShuffle : FlipList -> Return
