@@ -87,7 +87,9 @@ onHttpError err =
 
 onGotFIList : List FlipItem -> FlipList -> Return
 onGotFIList fiList _ =
-    FlipList fiList
+    fiList
+        |> List.take 10
+        |> FlipList
         |> pure
 
 
