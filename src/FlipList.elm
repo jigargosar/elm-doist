@@ -4,7 +4,7 @@ import BasicsExtra exposing (callWith)
 import Browser.Dom as Dom exposing (Element)
 import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
-import Html.Styled.Attributes exposing (class)
+import Html.Styled.Attributes as A exposing (class)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as K
 import Http
@@ -153,19 +153,22 @@ view model =
 
 viewList : List FlipItem -> Html msg
 viewList fl =
-    K.node "div" [ class "vs1" ] (List.map viewItem fl)
+    K.node "div" [ class "vs1" ] (List.map (viewItem "old-") fl)
 
 
-viewItem : FlipItem -> ( String, Html msg )
-viewItem fi =
+viewItem : String -> FlipItem -> ( String, Html msg )
+viewItem idPrefix fi =
     let
         strId =
-            fi.id |> String.fromInt
+            fi.id
+                |> String.fromInt
+                |> (++) idPrefix
     in
     ( strId
     , div
         [ class "bg-black-80 white ba br-pill lh-copy pv1"
         , class "ph3"
+        , A.id strId
         ]
         [ text <| strId ++ ": " ++ fi.title ]
     )
