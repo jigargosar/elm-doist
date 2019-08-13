@@ -1,4 +1,4 @@
-module FlipItem exposing (FlipItem, fiDecoder, fiListDecoder)
+module FlipItem exposing (FlipItem, decoder, listDecoder)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -11,14 +11,14 @@ type alias FlipItem =
     }
 
 
-fiDecoder : Decoder FlipItem
-fiDecoder =
+decoder : Decoder FlipItem
+decoder =
     JD.succeed FlipItem
         |> JDP.required "id" JD.int
         |> JDP.required "title" JD.string
         |> JDP.required "completed" JD.bool
 
 
-fiListDecoder : Decoder (List FlipItem)
-fiListDecoder =
-    JD.list fiDecoder
+listDecoder : Decoder (List FlipItem)
+listDecoder =
+    JD.list decoder
