@@ -78,11 +78,11 @@ update message model =
                 |> callWith model
 
 
-type alias ElRes =
+type alias ElInfo =
     ( String, FlipItem, Element )
 
 
-getEl : String -> FlipItem -> Task Dom.Error ElRes
+getEl : String -> FlipItem -> Task Dom.Error ElInfo
 getEl idPrefix fi =
     let
         domId =
