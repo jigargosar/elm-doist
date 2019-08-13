@@ -21,6 +21,7 @@ import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
+import Html.Styled.Lazy exposing (lazy)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
@@ -818,7 +819,7 @@ viewFlipDemo : FlipList -> StyledDocument Msg
 viewFlipDemo flipList =
     { title = "FlipList Demo"
     , body =
-        [ FlipList.view flipList
+        [ lazy FlipList.view flipList
             |> H.map OnFlipListMsg
         ]
     }
