@@ -87,8 +87,12 @@ update message model =
             pure (FlipList fl)
 
 
-onShuffle (FlipList fl) =
-    ( FlipList fl, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
+onShuffle model =
+    let
+        (FlipList fl) =
+            model
+    in
+    ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
 
 
 onHttpError : Http.Error -> FlipList -> Return
