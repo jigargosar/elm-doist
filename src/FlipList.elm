@@ -7,6 +7,8 @@ import Html.Styled.Keyed as K
 import Http
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
+import Random
+import Random.List
 import Result exposing (Result)
 import Result.Extra
 import UpdateExtra exposing (pure)
@@ -43,6 +45,8 @@ type alias HttpResult a =
 type Msg
     = NoOp
     | GotTodos (HttpResult (List FlipItem))
+    | OnShuffle
+    | GotRandomShuffled (List FlipItem)
 
 
 empty : FlipList
@@ -74,6 +78,16 @@ update message model =
             res
                 |> Result.Extra.unpack onHttpError onGotFIList
                 |> callWith model
+
+        OnShuffle ->
+            onShuffle model
+
+        GotRandomShuffled fl ->
+            pure (FlipList fl)
+
+
+onShuffle (FlipList fl) =
+    ( FlipList fl, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
 
 
 onHttpError : Http.Error -> FlipList -> Return
