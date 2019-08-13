@@ -265,10 +265,10 @@ view model =
                     ]
                 , div [ class "relative" ]
                     [ K.node "div"
-                        [ class "o-0 absolute vs1" ]
+                        [ class "o-0 absolute vs1 w-100" ]
                         (List.map (viewItem NotStarted "to-") rec.to)
                     , K.node "div"
-                        [ class "absolute vs1" ]
+                        [ class "absolute vs1 w-100" ]
                         (List.map (viewItem rec.animState "from-") rec.from)
                     ]
                 ]
