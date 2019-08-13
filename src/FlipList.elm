@@ -153,7 +153,12 @@ onGotFlipDomInfo domInfo model =
             pure model
 
         Flipping rec ->
-            ( { rec | domInfo = Just domInfo } |> Flipping, Cmd.none )
+            case rec.domInfo of
+                Nothing ->
+                    ( { rec | domInfo = Just domInfo } |> Flipping, Cmd.none )
+
+                Just _ ->
+                    pure model
 
 
 onShuffle : FlipList -> Return
