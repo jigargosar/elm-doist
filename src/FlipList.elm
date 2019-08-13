@@ -104,6 +104,12 @@ viewList fl =
     let
         viewItem : FlipItem -> ( String, Html msg )
         viewItem fi =
-            ( fi.id |> String.fromInt, div [ class "lh-copy pv1" ] [ text fi.title ] )
+            ( fi.id |> String.fromInt
+            , div
+                [ class "bg-black-80 white ba br-pill lh-copy pv1"
+                , class "ph3"
+                ]
+                [ text fi.title ]
+            )
     in
     K.node "div" [ class "vs1" ] (List.map viewItem fl)
