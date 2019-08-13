@@ -213,10 +213,16 @@ onShuffle : FlipList -> Return
 onShuffle model =
     case model of
         Stable fl ->
-            ( model, Random.List.shuffle fl |> Random.generate GotRandomShuffled )
+            ( model
+            , Random.List.shuffle fl
+                |> Random.generate GotRandomShuffled
+            )
 
-        Flipping _ ->
-            pure model
+        Flipping rec ->
+            ( Stable rec.to
+            , Random.List.shuffle rec.to
+                |> Random.generate GotRandomShuffled
+            )
 
 
 onHttpError : Http.Error -> FlipList -> Return
