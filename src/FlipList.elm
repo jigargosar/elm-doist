@@ -78,6 +78,15 @@ update message model =
                 |> callWith model
 
 
+getEl idPrefix fi =
+    let
+        domId =
+            idPrefix ++ "-" ++ FlipItem.strId fi
+    in
+    Dom.getElement domId
+        |> Task.map (\el -> ( idPrefix, fi, el ))
+
+
 onGotShuffled shuffled model =
     case model of
         Stable fl ->
@@ -89,28 +98,10 @@ onGotShuffled shuffled model =
                     shuffled
 
                 fromTasks =
-                    from
-                        |> List.map
-                            (\fi ->
-                                let
-                                    domId =
-                                        "from-" ++ FlipItem.strId fi
-                                in
-                                Dom.getElement domId
-                                    |> Task.map (\el -> ( "from", fi, el ))
-                            )
+                    from |> List.map (getEl "from")
 
                 toTasks =
-                    from
-                        |> List.map
-                            (\fi ->
-                                let
-                                    domId =
-                                        "to-" ++ FlipItem.strId fi
-                                in
-                                Dom.getElement domId
-                                    |> Task.map (\el -> ( "to", fi, el ))
-                            )
+                    to |> List.map (getEl "to")
 
                 sequencedTask =
                     fromTasks
