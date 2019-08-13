@@ -22,9 +22,9 @@ type alias FlipItem =
 fiDecoder : Decoder FlipItem
 fiDecoder =
     JD.succeed FlipItem
-        |> JDP.required "Id" JD.int
-        |> JDP.required "Title" JD.string
-        |> JDP.required "Completed" JD.bool
+        |> JDP.required "id" JD.int
+        |> JDP.required "title" JD.string
+        |> JDP.required "completed" JD.bool
 
 
 fiListDecoder : Decoder (List FlipItem)
@@ -77,7 +77,11 @@ update message model =
 
 
 onHttpError : Http.Error -> FlipList -> Return
-onHttpError _ =
+onHttpError err =
+    let
+        _ =
+            Debug.log "HTTP Err" err
+    in
     pure
 
 
