@@ -218,21 +218,21 @@ view model =
                 , div [ class "relative" ]
                     [ K.node "div"
                         [ class "absolute vs1" ]
-                        (List.map (viewItem "to-") rec.to)
+                        (List.map (viewItem Nothing "to-") rec.to)
                     , K.node "div"
                         [ class "o-50 absolute vs1" ]
-                        (List.map (viewItem "from-") rec.from)
+                        (List.map (viewItem rec.domInfo "from-") rec.from)
                     ]
                 ]
 
 
 viewList : String -> List FlipItem -> Html msg
 viewList idPrefix fl =
-    K.node "div" [ class "vs1" ] (List.map (viewItem idPrefix) fl)
+    K.node "div" [ class "vs1" ] (List.map (viewItem Nothing idPrefix) fl)
 
 
-viewItem : String -> FlipItem -> ( String, Html msg )
-viewItem idPrefix fi =
+viewItem : Maybe FlipDomInfo -> String -> FlipItem -> ( String, Html msg )
+viewItem fdi idPrefix fi =
     let
         domId =
             idPrefix ++ FlipItem.strId fi
