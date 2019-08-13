@@ -121,15 +121,19 @@ view (FlipList fl) =
 
 viewList : List FlipItem -> Html msg
 viewList fl =
-    let
-        viewItem : FlipItem -> ( String, Html msg )
-        viewItem fi =
-            ( fi.id |> String.fromInt
-            , div
-                [ class "bg-black-80 white ba br-pill lh-copy pv1"
-                , class "ph3"
-                ]
-                [ text fi.title ]
-            )
-    in
     K.node "div" [ class "vs1" ] (List.map viewItem fl)
+
+
+viewItem : FlipItem -> ( String, Html msg )
+viewItem fi =
+    let
+        strId =
+            fi.id |> String.fromInt
+    in
+    ( strId
+    , div
+        [ class "bg-black-80 white ba br-pill lh-copy pv1"
+        , class "ph3"
+        ]
+        [ text fi.title ]
+    )
