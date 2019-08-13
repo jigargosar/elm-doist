@@ -2,6 +2,7 @@ module FlipList exposing (FlipList, Msg, empty, init, update, view)
 
 import BasicsExtra exposing (callWith)
 import Browser.Dom as Dom exposing (Element)
+import Dict exposing (Dict)
 import FlipItem exposing (FlipItem)
 import Html.Styled exposing (Html, button, div, text)
 import Html.Styled.Attributes as A exposing (class)
@@ -91,7 +92,7 @@ type alias FIClientRect =
 
 
 type alias FlipDomInfo =
-    { from : List FIClientRect, to : List FIClientRect }
+    { from : Dict FlipItem.Id ClientRect, to : Dict FlipItem.Id ClientRect }
 
 
 getEl : String -> FlipItem -> Task Dom.Error FIClientRect
@@ -115,10 +116,16 @@ onGotShuffled shuffled model =
                     shuffled
 
                 fromTasks =
-                    from |> List.map (getEl "from") |> Task.sequence
+                    from
+                        |> List.map (getEl "from")
+                        |> Task.sequence
+                        |> Task.map Dict.fromList
 
                 toTasks =
-                    to |> List.map (getEl "to") |> Task.sequence
+                    to
+                        |> List.map (getEl "to")
+                        |> Task.sequence
+                        |> Task.map Dict.fromList
 
                 sequencedTask =
                     Task.map2 FlipDomInfo fromTasks toTasks
