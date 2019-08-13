@@ -152,7 +152,7 @@ view model =
                         [ class "absolute vs1" ]
                         (List.map (viewItem "to-") rec.to)
                     , K.node "div"
-                        [ class "absolute vs1" ]
+                        [ class "o-50 absolute vs1" ]
                         (List.map (viewItem "from-") rec.from)
                     ]
                 ]
