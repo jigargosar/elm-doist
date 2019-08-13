@@ -78,22 +78,30 @@ update message model =
                 |> callWith model
 
 
-type alias ElInfo =
-    ( FlipItem.Id, Element )
+type alias ClientRect =
+    { x : Float
+    , y : Float
+    , width : Float
+    , height : Float
+    }
+
+
+type alias FIClientRect =
+    ( FlipItem.Id, ClientRect )
 
 
 type alias FlipDomInfo =
-    { from : List ElInfo, to : List ElInfo }
+    { from : List FIClientRect, to : List FIClientRect }
 
 
-getEl : String -> FlipItem -> Task Dom.Error ElInfo
+getEl : String -> FlipItem -> Task Dom.Error FIClientRect
 getEl idPrefix fi =
     let
         domId =
             idPrefix ++ "-" ++ FlipItem.strId fi
     in
     Dom.getElement domId
-        |> Task.map (\el -> ( fi.id, el ))
+        |> Task.map (\el -> ( fi.id, el.element ))
 
 
 onGotShuffled shuffled model =
