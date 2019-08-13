@@ -94,7 +94,7 @@ onGotFIList fiList _ =
 view : FlipList -> Html Msg
 view (FlipList fl) =
     div [ class "measure-wide center" ]
-        [ div [] [ text "FlipListDemo" ]
+        [ div [ class "mb3 pv1 b " ] [ text "FlipListDemo" ]
         , viewList fl
         ]
 
@@ -104,6 +104,6 @@ viewList fl =
     let
         viewItem : FlipItem -> ( String, Html msg )
         viewItem fi =
-            ( fi.id |> String.fromInt, div [] [ text fi.title ] )
+            ( fi.id |> String.fromInt, div [ class "lh-copy pv1" ] [ text fi.title ] )
     in
-    K.node "div" [] (List.map viewItem fl)
+    K.node "div" [ class "vs1" ] (List.map viewItem fl)
