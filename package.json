@@ -3,8 +3,10 @@
   "description": "elm-doist",
   "version": "1.0.0",
   "main": "index.js",
+  "browserslist": ["last 2 Chrome versions"],
   "scripts": {
-    "start": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
+    "start_": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
+    "start": "npx parcel src/index.html",
     "build": "env NODE_ENV=production webpack -p",
     "deploy": "firebase deploy --only hosting:elmdoist",
     "stage": "npm run build && npm run deploy"
@@ -35,5 +37,8 @@
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.7.2"
+  },
+  "devDependencies": {
+    "elm-hot": "^1.1.2"
   }
 }
