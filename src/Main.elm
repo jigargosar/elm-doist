@@ -1176,11 +1176,8 @@ viewTodoItem model todo =
     let
         { inlineEditTodo, here } =
             model
-
-        edit =
-            inlineEditTodo
     in
-    case edit of
+    case inlineEditTodo of
         Nothing ->
             viewTodoItemBase here todo
 
