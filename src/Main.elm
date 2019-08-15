@@ -283,7 +283,7 @@ type Msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
@@ -454,7 +454,7 @@ update message model =
                 |> Maybe.Extra.unwrap pure startEditingDue
                 |> callWith model
 
-        OnTodoMenuClicked todoId ->
+        OnTodoMenuClicked _ ->
             pure model
 
         OnMoveToProject pid ->
@@ -753,8 +753,7 @@ viewRoute route model =
             masterLayout title
                 (pendingForProjectContent ProjectId.default
                     title
-                    model.inlineEditTodo
-                    model.here
+                    model
                     displayTodoList
                 )
                 model
@@ -776,8 +775,7 @@ viewRoute route model =
                     masterLayout title
                         (pendingForProjectContent project.id
                             title
-                            model.inlineEditTodo
-                            model.here
+                            model
                             displayTodoList
                         )
                         model
@@ -1135,7 +1133,7 @@ todayContent model =
                     ]
                 , div [ class "" ]
                     (List.map
-                        (viewTodoItem model.inlineEditTodo model.here)
+                        (viewTodoItem model)
                         overDueList
                     )
                 ]
@@ -1146,7 +1144,7 @@ todayContent model =
                 ]
             , div [ class "" ]
                 (List.map
-                    (viewTodoItem model.inlineEditTodo model.here)
+                    (viewTodoItem model)
                     displayTodoList
                 )
             ]
@@ -1160,22 +1158,28 @@ todayContent model =
 pendingForProjectContent :
     ProjectId
     -> String
-    -> Maybe InlineEditTodo
-    -> Time.Zone
+    -> Model
     -> TodoList
     -> Html Msg
-pendingForProjectContent pid title edit here displayTodoList =
+pendingForProjectContent pid title model displayTodoList =
     div [ class "vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
             ]
-        , div [ class "" ] (List.map (viewTodoItem edit here) displayTodoList)
+        , div [ class "" ] (List.map (viewTodoItem model) displayTodoList)
         ]
 
 
-viewTodoItem : Maybe InlineEditTodo -> Time.Zone -> Todo -> Html Msg
-viewTodoItem edit here todo =
+viewTodoItem : Model -> Todo -> Html Msg
+viewTodoItem model todo =
+    let
+        { inlineEditTodo, here } =
+            model
+
+        edit =
+            inlineEditTodo
+    in
     case edit of
         Nothing ->
             viewTodoItemBase here todo
