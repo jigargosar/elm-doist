@@ -263,6 +263,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
+    | OnTodoMenuClicked TodoId
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -446,6 +447,9 @@ update message model =
                 |> List.Extra.find (.id >> (==) todoId)
                 |> Maybe.Extra.unwrap pure startEditingDue
                 |> callWith model
+
+        OnTodoMenuClicked todoId ->
+            pure model
 
         OnMoveToProject pid ->
             case model.dialog of
@@ -1240,6 +1244,7 @@ viewTodoItemBase here todo =
         , viewCharBtn (OnDelete todo.id) 'X'
         , viewCharBtn (OnMoveStart todo.id) 'M'
         , viewCharBtn (OnEditDueStart todo.id) 'D'
+        , faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
         ]
 
 
