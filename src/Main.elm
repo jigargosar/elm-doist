@@ -1179,14 +1179,14 @@ viewTodoItem model todo =
     in
     case inlineEditTodo of
         Nothing ->
-            viewTodoItemBase here todo
+            viewTodoItemBase model todo
 
         Just edt ->
             if edt.todo.id == todo.id then
                 viewEditTodoItem here edt
 
             else
-                viewTodoItemBase here todo
+                viewTodoItemBase model todo
 
 
 viewEditTodoItem : Time.Zone -> InlineEditTodo -> Html Msg
@@ -1239,8 +1239,8 @@ viewEditTodoItem here edt =
         ]
 
 
-viewTodoItemBase : Zone -> Todo -> Html Msg
-viewTodoItemBase here todo =
+viewTodoItemBase : Model -> Todo -> Html Msg
+viewTodoItemBase { here } todo =
     div
         [ class "pa2 flex items-center hs1 lh-copy db "
         , tabindex 0
