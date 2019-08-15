@@ -222,7 +222,7 @@ init encodedFlags url key =
             , todoMenu = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
-            , errors = Errors.fromStrings [ "Testing Error View" ]
+            , errors = Errors.fromStrings []
             , key = key
             , route = route
             , now = 0
@@ -910,7 +910,7 @@ masterLayout title content model =
 
 
 viewDebugContent model =
-    div [ class "dn pa3 vs3" ]
+    div [ class "pa3 vs3" ]
         [ HasErrors.detailView model
         , div [ class " flex hs3" ]
             [ div [ class "ttu tracked" ] [ text "AuthState:" ]
