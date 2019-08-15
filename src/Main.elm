@@ -12,7 +12,6 @@ import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
-import FlipList exposing (FlipList)
 import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
 import FontAwesome.Solid
@@ -21,7 +20,6 @@ import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
-import Html.Styled.Lazy exposing (lazy)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
@@ -62,7 +60,6 @@ type Dialog
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , flipList : FlipList
     , inlineEditTodo : Maybe InlineEditTodo
     , dialog : Dialog
     , authState : AuthState
@@ -216,7 +213,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , flipList = FlipList.empty
             , inlineEditTodo = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
@@ -235,14 +231,6 @@ init encodedFlags url key =
         |> command (Millis.nowCmd OnNow)
         |> command (Millis.hereCmd OnHere)
         |> command (Dom.getViewport |> Task.perform GotViewport)
-        |> andThen
-            (\m ->
-                let
-                    ( flipList, cmd ) =
-                        FlipList.init
-                in
-                ( { m | flipList = flipList }, Cmd.map OnFlipListMsg cmd )
-            )
 
 
 
@@ -281,7 +269,6 @@ type Msg
     | OnEdit TodoId
     | OnEditCancel
     | OnEditSave
-    | OnFlipListMsg FlipList.Msg
 
 
 
@@ -295,7 +282,6 @@ subscriptions model =
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , Time.every 1000 (Time.posixToMillis >> OnNow)
         , Size.onBrowserResize OnBrowserResize
-        , FlipList.subscriptions model.flipList |> Sub.map OnFlipListMsg
         ]
 
 
@@ -531,19 +517,6 @@ update message model =
                             >> command cmd2
                     )
                 |> callWith model
-
-        OnFlipListMsg msg ->
-            updateFlipList msg model
-
-
-updateFlipList message model =
-    let
-        ( flipList, cmd ) =
-            FlipList.update message model.flipList
-    in
-    ( { model | flipList = flipList }
-    , Cmd.map OnFlipListMsg cmd
-    )
 
 
 updateInlineEditTodoAndCache : Maybe InlineEditTodo -> Model -> Return
@@ -811,19 +784,6 @@ viewRoute route model =
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
-
-        Route.FlipDemo ->
-            viewFlipDemo model.flipList
-
-
-viewFlipDemo : FlipList -> StyledDocument Msg
-viewFlipDemo flipList =
-    { title = "FlipList Demo"
-    , body =
-        [ lazy FlipList.view flipList
-            |> H.map OnFlipListMsg
-        ]
-    }
 
 
 sortedInProject pid todoList =
