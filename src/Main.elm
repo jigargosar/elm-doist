@@ -57,10 +57,15 @@ type Dialog
     | DueDialog Todo
 
 
+type alias TodoMenu =
+    { todoId : TodoId }
+
+
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo
+    , todoMenu : Maybe TodoMenu
     , dialog : Dialog
     , authState : AuthState
     , errors : Errors
@@ -214,6 +219,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
+            , todoMenu = Nothing
             , dialog = NoDialog
             , authState = AuthState.initial
             , errors = Errors.fromStrings [ "Testing Error View" ]
