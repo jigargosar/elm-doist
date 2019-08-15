@@ -19,7 +19,7 @@ import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
 import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
-import Html.Styled.Events exposing (onCheck, onClick)
+import Html.Styled.Events as E exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
@@ -271,6 +271,7 @@ type Msg
     | OnEditDueStart TodoId
     | OnTodoMenuClicked TodoId
     | OnTodoMenuFocusResult (Result Dom.Error ())
+    | OnTodoMenuFocusOut TodoId
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -472,6 +473,18 @@ update message model =
                             model
                     )
                     (\_ -> model)
+                |> pure
+
+        OnTodoMenuFocusOut todoId ->
+            model.todoMenu
+                |> Maybe.Extra.unwrap model
+                    (\todoMenu ->
+                        if todoMenu.todoId == todoId then
+                            { model | todoMenu = Nothing }
+
+                        else
+                            model
+                    )
                 |> pure
 
         OnMoveToProject pid ->
@@ -1291,6 +1304,8 @@ viewTodoItemBase { here, todoMenu } todo =
                             , tabindex 0
                             , class "absolute right-0 top-1"
                             , class "bg-white shadow-1 w5"
+                            , E.on "focusout"
+                                (JD.succeed (OnTodoMenuFocusOut todo.id))
                             ]
                             [ div [] [ text "todo item menu 1" ]
                             , div [] [ text "todo item menu 2" ]
