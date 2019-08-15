@@ -270,6 +270,7 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuClicked TodoId
+    | OnTodoMenuFocusResult (Result Dom.Error ())
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -460,6 +461,14 @@ update message model =
                     { todoId = todoId }
             in
             pure { model | todoMenu = Just tm }
+                |> command (focusTodoMenuCmd todoId)
+
+        OnTodoMenuFocusResult res ->
+            res
+                |> Result.Extra.unpack
+                    (\_ -> HasErrors.prependString "OnTodoMenuFocusResult: Error" model)
+                    (\_ -> model)
+                |> pure
 
         OnMoveToProject pid ->
             case model.dialog of
@@ -531,6 +540,18 @@ update message model =
                             >> command cmd2
                     )
                 |> callWith model
+
+
+todoMenuDomId todoId =
+    "todo-menu-dom-id" ++ todoId
+
+
+focusTodoMenuCmd todoId =
+    let
+        domId =
+            todoMenuDomId todoId
+    in
+    Dom.focus domId |> Task.attempt OnTodoMenuFocusResult
 
 
 updateInlineEditTodoAndCache : Maybe InlineEditTodo -> Model -> Return
