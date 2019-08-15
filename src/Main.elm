@@ -18,7 +18,7 @@ import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
+import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
 import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
@@ -466,7 +466,11 @@ update message model =
         OnTodoMenuFocusResult res ->
             res
                 |> Result.Extra.unpack
-                    (\_ -> HasErrors.prependString "OnTodoMenuFocusResult: Error" model)
+                    (\(Dom.NotFound domId) ->
+                        HasErrors.prependString
+                            ("OnTodoMenuFocusResult: NotFound: " ++ domId)
+                            model
+                    )
                     (\_ -> model)
                 |> pure
 
@@ -543,7 +547,7 @@ update message model =
 
 
 todoMenuDomId todoId =
-    "todo-menu-dom-id" ++ todoId
+    "todo-menu-dom-id--" ++ todoId
 
 
 focusTodoMenuCmd todoId =
@@ -1114,7 +1118,7 @@ viewDialogOverlay =
     div
         [ class "fixed absolute--fill bg-black-50"
         , class "flex items-center justify-center "
-        , Html.Styled.Attributes.id "overlay"
+        , A.id "overlay"
         , onDomIdClicked "overlay" OnDialogOverlayClicked
         ]
 
@@ -1268,7 +1272,8 @@ viewTodoItemBase : Model -> Todo -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
         [ class "pa2 flex items-center hs1 lh-copy db "
-        , tabindex 0
+
+        --        , tabindex 0
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
@@ -1282,7 +1287,9 @@ viewTodoItemBase { here, todoMenu } todo =
                 Just tm ->
                     if tm.todoId == todo.id then
                         div
-                            [ class "absolute right-0 top-1"
+                            [ A.id <| todoMenuDomId todo.id
+                            , tabindex 0
+                            , class "absolute right-0 top-1"
                             , class "bg-white shadow-1 w5"
                             ]
                             [ div [] [ text "todo item menu 1" ]
