@@ -454,8 +454,12 @@ update message model =
                 |> Maybe.Extra.unwrap pure startEditingDue
                 |> callWith model
 
-        OnTodoMenuClicked _ ->
-            pure model
+        OnTodoMenuClicked todoId ->
+            let
+                tm =
+                    { todoId = todoId }
+            in
+            pure { model | todoMenu = Just tm }
 
         OnMoveToProject pid ->
             case model.dialog of
@@ -1240,7 +1244,7 @@ viewEditTodoItem here edt =
 
 
 viewTodoItemBase : Model -> Todo -> Html Msg
-viewTodoItemBase { here } todo =
+viewTodoItemBase { here, todoMenu } todo =
     div
         [ class "pa2 flex items-center hs1 lh-copy db "
         , tabindex 0
@@ -1251,7 +1255,26 @@ viewTodoItemBase { here } todo =
         , viewCharBtn (OnDelete todo.id) 'X'
         , viewCharBtn (OnMoveStart todo.id) 'M'
         , viewCharBtn (OnEditDueStart todo.id) 'D'
-        , faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
+        , div [ class "relative" ]
+            [ faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
+            , case todoMenu of
+                Just tm ->
+                    if tm.todoId == todo.id then
+                        div
+                            [ class "absolute right-0 top-1"
+                            , class "bg-white shadow-1 w5"
+                            ]
+                            [ div [] [ text "todo item menu 1" ]
+                            , div [] [ text "todo item menu 2" ]
+                            , div [] [ text "todo item menu 3" ]
+                            ]
+
+                    else
+                        HtmlStyledExtra.empty
+
+                Nothing ->
+                    HtmlStyledExtra.empty
+            ]
         ]
 
 
