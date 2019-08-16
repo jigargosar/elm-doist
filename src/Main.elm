@@ -564,6 +564,10 @@ todoMenuDomId todoId =
     "todo-menu-dom-id--" ++ todoId
 
 
+todoFirstFocusableDomId todoId =
+    "todo-menu--first-focusable--dom-id--" ++ todoId
+
+
 focusTodoMenuCmd todoId =
     let
         domId =
@@ -1310,7 +1314,11 @@ viewTodoItemBase { here, todoMenu } todo =
                             , class "absolute right-0 top-1"
                             , class "bg-white shadow-1 w5"
                             ]
-                            [ div [ tabindex 0 ] [ text "todo item menu 1" ]
+                            [ div
+                                [ tabindex 0
+                                , A.id <| todoFirstFocusableDomId todo.id
+                                ]
+                                [ text "todo item menu 1" ]
                             , div [] [ text "todo item menu 2" ]
                             , div [] [ text "todo item menu 3" ]
                             ]
