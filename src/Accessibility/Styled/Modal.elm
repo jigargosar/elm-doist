@@ -52,7 +52,7 @@ import Browser.Dom exposing (focus)
 import Browser.Events
 import Html.Styled as Root
 import Html.Styled.Attributes as A exposing (id, style, tabindex)
-import Html.Styled.Events as E exposing (onClick)
+import Html.Styled.Events exposing (on, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Task
 
@@ -161,9 +161,9 @@ viewFocusTrapper :
     -> Html msg
 viewFocusTrapper config =
     Root.div
-        [ A.id focusTrapperId
+        [ id focusTrapperId
         , tabindex 0
-        , E.on "focusout"
+        , on "focusout"
             (isRelatedTargetOutsideOfElWithId focusTrapperId
                 |> JD.andThen
                     (\isOut ->
