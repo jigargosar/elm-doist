@@ -19,7 +19,18 @@ import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Html, a, button, div, input, text)
-import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex, type_, value)
+import Html.Styled.Attributes as A
+    exposing
+        ( checked
+        , class
+        , classList
+        , css
+        , disabled
+        , href
+        , tabindex
+        , type_
+        , value
+        )
 import Html.Styled.Events as E exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
