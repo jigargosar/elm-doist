@@ -30,7 +30,7 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (onCheck, onClick)
+import Html.Styled.Events exposing (on, onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
@@ -283,6 +283,7 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuClicked TodoId
+    | CloseTodoMenu TodoId
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -480,6 +481,17 @@ update message model =
             in
             pure { model | todoMenu = Just tm }
                 |> command (focusTodoMenuCmd todoId)
+
+        CloseTodoMenu todoId ->
+            model.todoMenu
+                |> Maybe.Extra.unwrap (pure model)
+                    (\todoMenu ->
+                        if todoMenu.todoId == todoId then
+                            pure { model | todoMenu = Nothing }
+
+                        else
+                            pure model
+                    )
 
         OnMoveToProject pid ->
             case model.dialog of
@@ -1332,6 +1344,17 @@ viewTodoItemBase { here, todoMenu } todo =
                             , tabindex 0
                             , class "absolute right-0 top-1"
                             , class "bg-white shadow-1 w5"
+                            , on "focusout"
+                                (isRelatedTargetOutsideOfElWithId (todoMenuDomId todo.id)
+                                    |> JD.andThen
+                                        (\isOut ->
+                                            if isOut then
+                                                JD.succeed (CloseTodoMenu (todoMenuDomId todo.id))
+
+                                            else
+                                                JD.fail "not interested"
+                                        )
+                                )
                             ]
                             [ div
                                 [ tabindex 0
@@ -1348,6 +1371,34 @@ viewTodoItemBase { here, todoMenu } todo =
                 Nothing ->
                     HtmlStyledExtra.empty
             ]
+        ]
+
+
+isOutsideElementWithIdDecoder : String -> Decoder Bool
+isOutsideElementWithIdDecoder dropdownId =
+    JD.oneOf
+        [ JD.field "id" JD.string
+            |> JD.andThen
+                (\id ->
+                    if dropdownId == id then
+                        -- found match by id
+                        JD.succeed False
+
+                    else
+                        -- try next decoder
+                        JD.fail "continue"
+                )
+        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
+
+        -- fallback if all previous decoders failed
+        , JD.succeed True
+        ]
+
+
+isRelatedTargetOutsideOfElWithId elId =
+    JD.oneOf
+        [ JD.field "relatedTarget" (JD.null False)
+        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
         ]
 
 
