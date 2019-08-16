@@ -283,8 +283,6 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuClicked TodoId
-    | OnTodoMenuFocusResult (Result Dom.Error ())
-    | OnTodoMenuFocusOut TodoId
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -298,7 +296,7 @@ type Msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
@@ -483,29 +481,6 @@ update message model =
             pure { model | todoMenu = Just tm }
                 |> command (focusTodoMenuCmd todoId)
 
-        OnTodoMenuFocusResult res ->
-            res
-                |> Result.Extra.unpack
-                    (\(Dom.NotFound domId) ->
-                        HasErrors.prependString
-                            ("OnTodoMenuFocusResult: NotFound: " ++ domId)
-                            model
-                    )
-                    (\_ -> model)
-                |> pure
-
-        OnTodoMenuFocusOut todoId ->
-            model.todoMenu
-                |> Maybe.Extra.unwrap model
-                    (\todoMenu ->
-                        if todoMenu.todoId == todoId then
-                            { model | todoMenu = Nothing }
-
-                        else
-                            model
-                    )
-                |> pure
-
         OnMoveToProject pid ->
             case model.dialog of
                 NoDialog ->
@@ -591,7 +566,7 @@ focusTodoMenuCmd todoId =
         domId =
             todoFirstFocusableDomId todoId
     in
-    Dom.focus domId |> Task.attempt OnTodoMenuFocusResult
+    focus domId |> Task.attempt Focused
 
 
 updateInlineEditTodoAndCache : Maybe InlineEditTodo -> Model -> Return
