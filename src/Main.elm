@@ -28,6 +28,7 @@ import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra
 import Millis exposing (Millis)
+import ModalDemo
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -1032,6 +1033,10 @@ faBtn clickHandler icon =
 
 viewFooter : Model -> Html Msg
 viewFooter model =
+    let
+        _ =
+            ModalDemo.view
+    in
     div []
         [ case model.dialog of
             NoDialog ->
