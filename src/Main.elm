@@ -1309,17 +1309,6 @@ viewTodoItemBase { here, todoMenu } todo =
                             , tabindex 0
                             , class "absolute right-0 top-1"
                             , class "bg-white shadow-1 w5"
-                            , E.on "focusout"
-                                (JD.at [ "target", "id" ] JD.string
-                                    |> JD.andThen
-                                        (\targetDomId ->
-                                            if targetDomId == todoMenuDomId todo.id then
-                                                JD.succeed (OnTodoMenuFocusOut todo.id)
-
-                                            else
-                                                JD.fail "Not Interested"
-                                        )
-                                )
                             ]
                             [ div [ tabindex 0 ] [ text "todo item menu 1" ]
                             , div [] [ text "todo item menu 2" ]
