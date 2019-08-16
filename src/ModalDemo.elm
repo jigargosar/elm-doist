@@ -1,6 +1,6 @@
 module ModalDemo exposing (..)
 
-import Accessibility.Styled exposing (Html, button, div, text)
+import Accessibility.Styled exposing (Html, button, div, p, text)
 import Accessibility.Styled.Modal as Modal exposing (Model, Msg)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Events exposing (onClick)
@@ -22,13 +22,15 @@ view wrapMsg =
             ]
         , title = ( "Intro Modal", [] )
         , content =
-            \{ onlyFocusableElement } ->
+            \{ firstFocusableElement, lastFocusableElement } ->
                 div
                     [ style "display" "flex"
                     ]
                     [ text "Welcome to this modal! I'm so happy to have you here with me."
+                    , button firstFocusableElement [ text "fst btn" ]
                     , button
-                        (onClick (Modal.close |> wrapMsg) :: onlyFocusableElement)
+                        (Modal.closeOnClick wrapMsg)
                         [ text "Close intro modal" ]
+                    , button lastFocusableElement [ text "lst btn" ]
                     ]
         }

@@ -2,6 +2,7 @@ module Accessibility.Styled.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
     , view, openOnClick
+    , closeOnClick
     )
 
 {-|
@@ -288,6 +289,13 @@ viewTitle ( title, titleAttrs ) =
     h1
         (id modalTitleId :: titleAttrs)
         [ text title ]
+
+
+{-| -}
+closeOnClick : (Msg -> msg) -> List (Attribute msg)
+closeOnClick wrapMsg =
+    [ A.map wrapMsg (onClick close)
+    ]
 
 
 {-| -}
