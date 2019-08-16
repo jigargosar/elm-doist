@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import Accessibility.Styled.Modal as Modal
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith, eq_)
 import Browser
@@ -31,7 +30,7 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events as E exposing (onCheck, onClick)
+import Html.Styled.Events exposing (onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
@@ -40,7 +39,6 @@ import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra
 import Millis exposing (Millis)
-import ModalDemo
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -88,7 +86,6 @@ type alias Model =
     , here : Time.Zone
     , browserSize : Size
     , masterContentWidth : Int
-    , demoModal : Modal.Model
     }
 
 
@@ -243,7 +240,6 @@ init encodedFlags url key =
             , here = Time.utc
             , browserSize = Size.initial
             , masterContentWidth = 0
-            , demoModal = Modal.init
             }
     in
     model
@@ -252,7 +248,6 @@ init encodedFlags url key =
         |> command (Millis.nowCmd OnNow)
         |> command (Millis.hereCmd OnHere)
         |> command (Dom.getViewport |> Task.perform GotViewport)
-        |> andThen (update <| OnModalMsg (Modal.open ""))
 
 
 
@@ -269,7 +264,6 @@ type Msg
     | OnBrowserResize Size
     | Focus String
     | Focused (Result Dom.Error ())
-    | OnModalMsg Modal.Msg
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
@@ -310,7 +304,6 @@ subscriptions model =
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , Time.every 1000 (Time.posixToMillis >> OnNow)
         , Size.onBrowserResize OnBrowserResize
-        , Modal.subscriptions model.demoModal |> Sub.map OnModalMsg
         ]
 
 
@@ -360,10 +353,6 @@ update message model =
 
         Focused _ ->
             pure model
-
-        OnModalMsg msg ->
-            Modal.update { dismissOnEscAndOverlayClick = False } msg model.demoModal
-                |> Tuple.mapBoth (\dm -> { model | demoModal = dm }) (Cmd.map OnModalMsg)
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
@@ -1076,7 +1065,6 @@ viewFooter model =
 
             DueDialog todo ->
                 viewDueDialog model.here model.now todo
-        , ModalDemo.view OnModalMsg model.demoModal
         ]
 
 
