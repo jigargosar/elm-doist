@@ -1,10 +1,10 @@
 module Main exposing (main)
 
-import Accessibility.Modal as Modal
+import Accessibility.Styled.Modal as Modal
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith, eq_)
 import Browser
-import Browser.Dom as Dom
+import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import Calendar
 import Css exposing (bottom, height, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
@@ -256,6 +256,8 @@ type Msg
     | OnHere Time.Zone
     | GotViewport Dom.Viewport
     | OnBrowserResize Size
+    | Focus String
+    | Focused (Result Dom.Error ())
     | OnModalMsg Modal.Msg
     | OnAuthStateChanged Value
     | OnTodoListChanged Value
@@ -341,6 +343,12 @@ update message model =
 
         OnBrowserResize size ->
             setBrowserSize size model |> pure
+
+        Focus domId ->
+            ( model, focus domId |> Task.attempt Focused )
+
+        Focused _ ->
+            pure model
 
         OnModalMsg msg ->
             Modal.update { dismissOnEscAndOverlayClick = False } msg model.demoModal
@@ -1057,8 +1065,65 @@ viewFooter model =
 
             DueDialog todo ->
                 viewDueDialog model.here model.now todo
-        , ModalDemo.view OnModalMsg model.demoModal
+        , div
+            [ A.id "demo-modal"
+            , tabindex 0
+            , E.on "focusout"
+                (isRelatedTargetOutsideOfElWithId "demo-modal"
+                    |> JD.andThen
+                        (\isOut ->
+                            if isOut then
+                                JD.succeed (Focus "modal__first-focusable-element")
+
+                            else
+                                JD.fail "not interested"
+                        )
+                )
+            ]
+            [ ModalDemo.view OnModalMsg model.demoModal ]
         ]
+
+
+isOutsideElementWithIdDecoder : String -> Decoder Bool
+isOutsideElementWithIdDecoder dropdownId =
+    JD.oneOf
+        [ JD.field "id" JD.string
+            |> JD.andThen
+                (\id ->
+                    if dropdownId == id then
+                        -- found match by id
+                        JD.succeed False
+
+                    else
+                        -- try next decoder
+                        JD.fail "continue"
+                )
+        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
+
+        -- fallback if all previous decoders failed
+        , JD.succeed True
+        ]
+
+
+isRelatedTargetOutsideOfElWithId elId =
+    JD.oneOf
+        [ JD.field "relatedTarget" (JD.null False)
+        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+        ]
+
+
+
+--outsideTarget : String -> Decoder Msg
+--outsideTarget dropdownId =
+--    JD.field "target" (isOutsideElementWithIdDecoder dropdownId)
+--        |> JD.andThen
+--            (\isOutside ->
+--                if isOutside then
+--                    JD.succeed Close
+--
+--                else
+--                    JD.fail "inside dropdown"
+--            )
 
 
 type alias DisplayProject =
@@ -1366,15 +1431,11 @@ viewCheck isChecked onCheckMsg =
         ]
         [ input
             [ class "pointer w-100 h-100"
-
-            --            , style "-webkit-appearance" "none"
             , type_ "checkbox"
             , checked isChecked
             , onCheck onCheckMsg
             ]
             []
-
-        --        , H.fromUnstyled <| Ionicon.Android.checkboxOutlineBlank 32 (RGBA 0 0 0 0)
         ]
 
 

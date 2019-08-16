@@ -1,22 +1,18 @@
 module ModalDemo exposing (..)
 
-import Accessibility exposing (Html, button, div, text)
-import Accessibility.Modal as Modal exposing (Model)
-import Accessibility.Styled
-import Html.Attributes exposing (style)
-import Html.Events as E exposing (onClick)
+import Accessibility.Styled exposing (Html, button, div, text)
+import Accessibility.Styled.Modal as Modal exposing (Model)
 import Html.Styled
+import Html.Styled.Attributes exposing (style)
+import Html.Styled.Events exposing (onClick)
 
 
-view : (Modal.Msg -> msg) -> Model -> Html.Styled.Html msg
 view wrapMsg m =
     view_ wrapMsg m
-        |> Accessibility.Styled.fromUnstyled
         |> Accessibility.Styled.toUnstyled
         |> Html.Styled.fromUnstyled
 
 
-view_ : (Modal.Msg -> msg) -> Model -> Html msg
 view_ wrapMsg modal =
     Modal.view
         { overlayColor = "rgba(128, 0, 128, 0.7)"
