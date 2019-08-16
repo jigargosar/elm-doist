@@ -132,17 +132,19 @@ view :
 view config model =
     case model of
         Opened _ ->
-            div
-                [ style "position" "fixed"
-                , style "top" "0"
-                , style "left" "0"
-                , style "width" "100%"
-                , style "height" "100%"
-                ]
-                [ viewBackdrop config
-                , div (style "position" "relative" :: config.modalAttributes)
-                    [ viewModal config ]
-                , Root.node "style" [] [ text "body {overflow: hidden;} " ]
+            viewFocusTrapper config
+                [ div
+                    [ style "position" "fixed"
+                    , style "top" "0"
+                    , style "left" "0"
+                    , style "width" "100%"
+                    , style "height" "100%"
+                    ]
+                    [ viewBackdrop config
+                    , div (style "position" "relative" :: config.modalAttributes)
+                        [ viewModal config ]
+                    , Root.node "style" [] [ text "body {overflow: hidden;} " ]
+                    ]
                 ]
 
         Closed ->
@@ -153,7 +155,11 @@ view config model =
 when none of the focusable elements have focus
 i.e when user clicks on say title of modal.
 -}
-viewFocusTrapper =
+viewFocusTrapper :
+    { a | wrapMsg : Msg -> msg }
+    -> List (Html msg)
+    -> Html msg
+viewFocusTrapper config =
     Root.div
         [ A.id focusTrapperId
         , tabindex 0
@@ -162,7 +168,7 @@ viewFocusTrapper =
                 |> JD.andThen
                     (\isOut ->
                         if isOut then
-                            JD.succeed (Focus firstId)
+                            JD.succeed (config.wrapMsg (Focus firstId))
 
                         else
                             JD.fail "not interested"
