@@ -1076,65 +1076,38 @@ viewFooter model =
 
             DueDialog todo ->
                 viewDueDialog model.here model.now todo
-        , div
-            [ A.id "demo-modal"
-            , tabindex 0
-            , E.on "focusout"
-                (isRelatedTargetOutsideOfElWithId "demo-modal"
-                    |> JD.andThen
-                        (\isOut ->
-                            if isOut then
-                                JD.succeed (Focus "modal__first-focusable-element")
-
-                            else
-                                JD.fail "not interested"
-                        )
-                )
-            ]
-            [ ModalDemo.view OnModalMsg model.demoModal ]
-        ]
-
-
-isOutsideElementWithIdDecoder : String -> Decoder Bool
-isOutsideElementWithIdDecoder dropdownId =
-    JD.oneOf
-        [ JD.field "id" JD.string
-            |> JD.andThen
-                (\id ->
-                    if dropdownId == id then
-                        -- found match by id
-                        JD.succeed False
-
-                    else
-                        -- try next decoder
-                        JD.fail "continue"
-                )
-        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
-
-        -- fallback if all previous decoders failed
-        , JD.succeed True
-        ]
-
-
-isRelatedTargetOutsideOfElWithId elId =
-    JD.oneOf
-        [ JD.field "relatedTarget" (JD.null False)
-        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+        , ModalDemo.view OnModalMsg model.demoModal
         ]
 
 
 
---outsideTarget : String -> Decoder Msg
---outsideTarget dropdownId =
---    JD.field "target" (isOutsideElementWithIdDecoder dropdownId)
---        |> JD.andThen
---            (\isOutside ->
---                if isOutside then
---                    JD.succeed Close
+--isOutsideElementWithIdDecoder : String -> Decoder Bool
+--isOutsideElementWithIdDecoder dropdownId =
+--    JD.oneOf
+--        [ JD.field "id" JD.string
+--            |> JD.andThen
+--                (\id ->
+--                    if dropdownId == id then
+--                        -- found match by id
+--                        JD.succeed False
 --
---                else
---                    JD.fail "inside dropdown"
---            )
+--                    else
+--                        -- try next decoder
+--                        JD.fail "continue"
+--                )
+--        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
+--
+--        -- fallback if all previous decoders failed
+--        , JD.succeed True
+--        ]
+--
+--
+--isRelatedTargetOutsideOfElWithId elId =
+--    JD.oneOf
+--        [ JD.field "relatedTarget" (JD.null False)
+--        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+--        ]
+--
 
 
 type alias DisplayProject =
