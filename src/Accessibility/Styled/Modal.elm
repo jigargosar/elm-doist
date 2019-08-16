@@ -51,8 +51,9 @@ import Accessibility.Styled.Role as Role
 import Browser.Dom exposing (focus)
 import Browser.Events
 import Html.Styled as Root
-import Html.Styled.Attributes exposing (id, style)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Attributes as A exposing (id, style, tabindex)
+import Html.Styled.Events as E exposing (onClick)
+import Json.Decode as JD exposing (Decoder)
 import Task
 
 
@@ -148,6 +149,60 @@ view config model =
             text ""
 
 
+{-| BUG FIX: prevent shift+Tab/Tab from moving focus outside overlay
+when none of the focusable elements have focus
+i.e when user clicks on say title of modal.
+-}
+viewFocusTrapper =
+    Root.div
+        [ A.id focusTrapperId
+        , tabindex 0
+        , E.on "focusout"
+            (isRelatedTargetOutsideOfElWithId focusTrapperId
+                |> JD.andThen
+                    (\isOut ->
+                        if isOut then
+                            JD.succeed (Focus firstId)
+
+                        else
+                            JD.fail "not interested"
+                    )
+            )
+        ]
+
+
+focusTrapperId =
+    "modal__focus-trapper-element"
+
+
+isOutsideElementWithIdDecoder : String -> Decoder Bool
+isOutsideElementWithIdDecoder dropdownId =
+    JD.oneOf
+        [ JD.field "id" JD.string
+            |> JD.andThen
+                (\id ->
+                    if dropdownId == id then
+                        -- found match by id
+                        JD.succeed False
+
+                    else
+                        -- try next decoder
+                        JD.fail "continue"
+                )
+        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
+
+        -- fallback if all previous decoders failed
+        , JD.succeed True
+        ]
+
+
+isRelatedTargetOutsideOfElWithId elId =
+    JD.oneOf
+        [ JD.field "relatedTarget" (JD.null False)
+        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+        ]
+
+
 viewBackdrop :
     { a | wrapMsg : Msg -> msg, overlayColor : String }
     -> Html msg
@@ -192,17 +247,17 @@ viewModal config =
                     ]
                 , id firstId
                 ]
-                    |> List.map (Html.Styled.Attributes.map config.wrapMsg)
+                    |> List.map (A.map config.wrapMsg)
             , firstFocusableElement =
                 [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
                 , id firstId
                 ]
-                    |> List.map (Html.Styled.Attributes.map config.wrapMsg)
+                    |> List.map (A.map config.wrapMsg)
             , lastFocusableElement =
                 [ Key.onKeyDown [ Key.tab (Focus firstId) ]
                 , id lastId
                 ]
-                    |> List.map (Html.Styled.Attributes.map config.wrapMsg)
+                    |> List.map (A.map config.wrapMsg)
             }
         ]
 
@@ -237,7 +292,7 @@ openOnClick wrapMsg uniqueId =
             "modal__launch-element-" ++ uniqueId
     in
     [ id elementId
-    , Html.Styled.Attributes.map wrapMsg (onClick (OpenModal elementId))
+    , A.map wrapMsg (onClick (OpenModal elementId))
     ]
 
 
