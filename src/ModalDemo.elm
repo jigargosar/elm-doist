@@ -1,15 +1,26 @@
 module ModalDemo exposing (..)
 
 import Accessibility exposing (Html, button, div, text)
-import Accessibility.Modal as Modal
+import Accessibility.Modal as Modal exposing (Model)
+import Accessibility.Styled
 import Html.Attributes exposing (style)
-import Html.Events exposing (onClick)
+import Html.Events as E exposing (onClick)
+import Html.Styled
 
 
-view =
+view : (Modal.Msg -> msg) -> Model -> Html.Styled.Html msg
+view wrapMsg m =
+    view_ wrapMsg m
+        |> Accessibility.Styled.fromUnstyled
+        |> Accessibility.Styled.toUnstyled
+        |> Html.Styled.fromUnstyled
+
+
+view_ : (Modal.Msg -> msg) -> Model -> Html msg
+view_ wrapMsg modal =
     Modal.view
         { overlayColor = "rgba(128, 0, 128, 0.7)"
-        , wrapMsg = identity
+        , wrapMsg = wrapMsg
         , modalAttributes =
             [ style "background-color" "white"
             , style "border-radius" "4px"
@@ -27,7 +38,8 @@ view =
                     ]
                     [ text "Welcome to this modal! I'm so happy to have you here with me."
                     , button
-                        (onClick Modal.close :: onlyFocusableElement)
+                        (onClick (Modal.close |> wrapMsg) :: onlyFocusableElement)
                         [ text "Close intro modal" ]
                     ]
         }
+        modal
