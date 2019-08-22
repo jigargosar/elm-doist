@@ -64,7 +64,7 @@ import Url exposing (Url)
 
 type Dialog
     = NoDialog
-    | MoveToProjectDialog Todo
+    | MoveToProjectDialog TodoId ProjectId
     | DueDialog TodoId
 
 
@@ -116,10 +116,11 @@ dialogEncoder dialog =
         NoDialog ->
             JE.object [ ( "tag", JE.string "NoDialog" ) ]
 
-        MoveToProjectDialog todo ->
+        MoveToProjectDialog todoId projectId ->
             JE.object
                 [ ( "tag", JE.string "MoveToProjectDialog" )
-                , ( "todo", Todo.encoder todo )
+                , ( "todoId", TodoId.encoder todoId )
+                , ( "projectId", ProjectId.encoder projectId )
                 ]
 
         DueDialog todoId ->
@@ -136,8 +137,9 @@ dialogDecoderForTag tag =
             JD.succeed NoDialog
 
         "MoveToProjectDialog" ->
-            JD.field "todo" Todo.decoder
-                |> JD.map MoveToProjectDialog
+            JD.map2 MoveToProjectDialog
+                (JD.field "todoId" TodoId.decoder)
+                (JD.field "projectId" ProjectId.decoder)
 
         "DueDialog" ->
             JD.field "todoId" TodoId.decoder
@@ -263,7 +265,7 @@ type Msg
     | OnTodoMenuTriggered TodoId
     | CloseTodoMenu TodoId Bool
     | OnSetDue DueAt
-    | OnMoveToProject ProjectId
+    | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClicked
     | OnEdit TodoId
     | OnEditCancel
@@ -463,16 +465,16 @@ update message model =
                         )
                     )
 
-        OnMoveToProject pid ->
+        OnMoveToProject todoId_ pid ->
             case model.dialog of
                 NoDialog ->
                     pure model
 
-                MoveToProjectDialog todo ->
+                MoveToProjectDialog todoId _ ->
                     updateDialogAndCache NoDialog model
                         |> command
                             (patchTodoCmd
-                                todo.id
+                                todoId
                                 [ Todo.SetProjectId pid ]
                             )
 
@@ -503,7 +505,7 @@ update message model =
                 NoDialog ->
                     pure model
 
-                MoveToProjectDialog _ ->
+                MoveToProjectDialog _ _ ->
                     updateDialogAndCache NoDialog model
 
                 DueDialog _ ->
@@ -572,7 +574,7 @@ startEditing todo =
 
 startMoving : Todo -> Model -> Return
 startMoving todo =
-    updateDialogAndCache (MoveToProjectDialog todo)
+    updateDialogAndCache (MoveToProjectDialog todo.id todo.projectId)
 
 
 startEditingDue : TodoId -> Model -> Return
@@ -1046,8 +1048,8 @@ viewFooter model =
             NoDialog ->
                 HX.empty
 
-            MoveToProjectDialog todo ->
-                viewMoveDialog todo.projectId (Project.filterActive model.projectList)
+            MoveToProjectDialog todoId projectId ->
+                viewMoveDialog todoId projectId (Project.filterActive model.projectList)
 
             DueDialog _ ->
                 viewDueDialog model.here model.today
@@ -1073,15 +1075,15 @@ toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
 
 
-viewMoveDialog : ProjectId -> List Project -> Html Msg
-viewMoveDialog projectId projectList =
+viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
+viewMoveDialog todoId projectId projectList =
     let
         viewPLI dp =
             div
                 [ tabindex 0
                 , class "lh-copy pa2 pointer"
                 , classList [ ( "b", dp.id == projectId ) ]
-                , onClick (OnMoveToProject dp.id)
+                , onClick (OnMoveToProject todoId dp.id)
                 ]
                 [ div [] [ text dp.title ] ]
     in
