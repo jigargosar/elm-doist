@@ -7,7 +7,6 @@ module Project exposing
     , listDecoder
     , listEncoder
     , new
-    , setModifiedAt
     )
 
 import Json.Decode as JD exposing (Decoder)
@@ -34,7 +33,7 @@ type alias ProjectList =
 decoder : Decoder Project
 decoder =
     JD.succeed Project
-        |> JD.required "id" JD.string
+        |> JD.required "id" ProjectId.decoder
         |> JD.required "title" JD.string
         |> JD.required "sortIdx" JD.int
         |> JD.optional "deleted" JD.bool False
@@ -50,7 +49,7 @@ listDecoder =
 encoder : Project -> Value
 encoder { id, title, sortIdx, deleted, createdAt, modifiedAt } =
     JE.object
-        [ ( "id", JE.string id )
+        [ ( "id", ProjectId.encoder id )
         , ( "title", JE.string title )
         , ( "sortIdx", JE.int sortIdx )
         , ( "deleted", JE.bool deleted )
@@ -61,7 +60,7 @@ encoder { id, title, sortIdx, deleted, createdAt, modifiedAt } =
 
 new : Millis -> Value
 new now =
-    { id = ""
+    { id = ProjectId.default
     , title = ""
     , sortIdx = 0
     , deleted = False
@@ -69,10 +68,6 @@ new now =
     , modifiedAt = now
     }
         |> encoder
-
-
-setModifiedAt now todo =
-    { todo | modifiedAt = now }
 
 
 listEncoder : ProjectList -> Value

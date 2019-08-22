@@ -379,7 +379,7 @@ update message model =
         OnDeleteProject projectId ->
             ( model
             , Ports.updateFirestoreDoc
-                { userDocPath = "projects/" ++ projectId
+                { userDocPath = "projects/" ++ ProjectId.toString projectId
                 , data =
                     JE.object
                         [ ( "deleted", JE.bool True )
@@ -648,21 +648,21 @@ updateTodoListFromFirestore todoList model =
 cleanupTodoList : Model -> Return
 cleanupTodoList model =
     let
-        todoByPid : Dict ProjectId (List Todo)
+        todoByPid : Dict String (List Todo)
         todoByPid =
-            Dict.Extra.groupBy .projectId model.todoList
+            Dict.Extra.groupBy (.projectId >> ProjectId.toString) model.todoList
 
         deleteProjectsCmd =
             model.projectList
                 |> List.filter .deleted
                 |> List.filter
                     (\p ->
-                        Dict.get p.id todoByPid |> MX.unwrap True List.isEmpty
+                        Dict.get (ProjectId.toString p.id) todoByPid |> MX.unwrap True List.isEmpty
                     )
                 |> List.map
                     (.id
                         >> (\projectId ->
-                                Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ projectId }
+                                Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ ProjectId.toString projectId }
                            )
                     )
                 |> Cmd.batch
@@ -671,7 +671,7 @@ cleanupTodoList model =
         deleteTodosCmd =
             model.projectList
                 |> List.filter .deleted
-                |> List.filterMap (\p -> Dict.get p.id todoByPid)
+                |> List.filterMap (\p -> Dict.get (ProjectId.toString p.id) todoByPid)
                 |> List.concat
                 |> List.map
                     (.id
@@ -807,7 +807,7 @@ viewRoute route model =
                 Just project ->
                     let
                         displayTodoList =
-                            sortedInProject pid model.todoList
+                            sortedInProject project.id model.todoList
 
                         title =
                             project.title
@@ -834,6 +834,7 @@ viewRoute route model =
             viewRoute Route.Inbox model
 
 
+sortedInProject : ProjectId -> TodoList -> TodoList
 sortedInProject pid todoList =
     Todo.filterSort
         (Todo.BelongsToProject pid)
