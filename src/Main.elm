@@ -1318,11 +1318,9 @@ viewTodoItemBase { here, todoMenu } todo =
                                 (isRelatedTargetOutsideOfElWithId (todoMenuDomId todo.id)
                                     |> JD.andThen
                                         (\isOut ->
-                                            if isOut then
-                                                JD.succeed (CloseTodoMenu todo.id)
-
-                                            else
-                                                JD.fail "not interested"
+                                            ifElse isOut
+                                                (JD.succeed (CloseTodoMenu todo.id))
+                                                (JD.fail "not interested")
                                         )
                                 )
                             ]
