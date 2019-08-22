@@ -47,6 +47,7 @@ import Result.Extra
 import Return
 import Route exposing (Route)
 import Size exposing (Size)
+import String.Extra as SX
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
@@ -1402,10 +1403,8 @@ viewTodoItemContent : Time.Zone -> Todo -> Html Msg
 viewTodoItemContent here todo =
     let
         ( title, titleClass ) =
-            if String.trim todo.title |> String.isEmpty then
+            ifElse (SX.isBlank todo.title)
                 ( "<no title>", "i black-70" )
-
-            else
                 ( todo.title, "" )
 
         dueAtText =
