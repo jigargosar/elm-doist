@@ -1308,32 +1308,34 @@ viewTodoItemBase { here, todoMenu } todo =
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
                 |> HX.viewMaybe
-                    (\_ ->
-                        div
-                            [ A.id <| todoMenuDomId todo.id
-                            , tabindex 0
-                            , class "absolute right-0 top-1"
-                            , class "bg-white shadow-1 w5"
-                            , on "focusout"
-                                (isRelatedTargetOutsideOfElWithId (todoMenuDomId todo.id)
-                                    |> JD.andThen
-                                        (\isOut ->
-                                            ifElse isOut
-                                                (JD.succeed (CloseTodoMenu todo.id))
-                                                (JD.fail "not interested")
-                                        )
-                                )
-                            ]
-                            [ div
-                                [ tabindex 0
-                                , A.id <| todoFirstFocusableDomId todo.id
-                                ]
-                                [ text "todo item menu 1" ]
-                            , div [] [ text "todo item menu 2" ]
-                            , div [] [ text "todo item menu 3" ]
-                            ]
-                    )
+                    (\_ -> viewTodoMenu todo)
             ]
+        ]
+
+
+viewTodoMenu todo =
+    div
+        [ A.id <| todoMenuDomId todo.id
+        , tabindex 0
+        , class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , on "focusout"
+            (isRelatedTargetOutsideOfElWithId (todoMenuDomId todo.id)
+                |> JD.andThen
+                    (\isOut ->
+                        ifElse isOut
+                            (JD.succeed (CloseTodoMenu todo.id))
+                            (JD.fail "not interested")
+                    )
+            )
+        ]
+        [ div
+            [ tabindex 0
+            , A.id <| todoFirstFocusableDomId todo.id
+            ]
+            [ text "todo item menu 1" ]
+        , div [] [ text "todo item menu 2" ]
+        , div [] [ text "todo item menu 3" ]
         ]
 
 
