@@ -13,16 +13,20 @@ onFocusOutsideDomId domId tagger =
             [ JD.field "relatedTarget"
                 (JD.null (tagger { hasRelatedTarget = False }))
             , JD.field "relatedTarget"
-                (isOutsideElIdDecoder domId
-                    |> JD.andThen
-                        (\isOut ->
-                            ifElse isOut
-                                (JD.succeed (tagger { hasRelatedTarget = True }))
-                                (JD.fail "")
-                        )
-                )
+                (outsideElIdDecoder domId (tagger { hasRelatedTarget = True }))
             ]
         )
+
+
+outsideElIdDecoder : String -> msg -> Decoder msg
+outsideElIdDecoder domId msg =
+    isOutsideElIdDecoder domId
+        |> JD.andThen
+            (\isOut ->
+                ifElse isOut
+                    (JD.succeed msg)
+                    (JD.fail "")
+            )
 
 
 isOutsideElIdDecoder : String -> Decoder Bool
