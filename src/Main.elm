@@ -830,15 +830,6 @@ sortedInProject pid todoList =
 
 
 
-{- sortedPendingInProject pid todoList =
-   Todo.filterSort
-       (Todo.AndFilter Todo.Pending (Todo.BelongsToProject pid))
-       [ Todo.ByIdx
-       , Todo.ByRecentlyModifiedProjectId
-       , Todo.ByRecentlyCreated
-       ]
-       todoList
--}
 -- MASTER LAYOUT
 
 
