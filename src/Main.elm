@@ -1054,36 +1054,6 @@ viewFooter model =
         ]
 
 
-
---isOutsideElementWithIdDecoder : String -> Decoder Bool
---isOutsideElementWithIdDecoder dropdownId =
---    JD.oneOf
---        [ JD.field "id" JD.string
---            |> JD.andThen
---                (\id ->
---                    if dropdownId == id then
---                        -- found match by id
---                        JD.succeed False
---
---                    else
---                        -- try next decoder
---                        JD.fail "continue"
---                )
---        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
---
---        -- fallback if all previous decoders failed
---        , JD.succeed True
---        ]
---
---
---isRelatedTargetOutsideOfElWithId elId =
---    JD.oneOf
---        [ JD.field "relatedTarget" (JD.null False)
---        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
---        ]
---
-
-
 type alias DisplayProject =
     { id : ProjectId
     , title : String
