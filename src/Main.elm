@@ -82,7 +82,6 @@ type alias Model =
     , errors : Errors
     , key : Nav.Key
     , route : Route
-    , now : Millis
     , today : Calendar.Date
     , here : Time.Zone
     , browserSize : Size
@@ -218,7 +217,6 @@ init encodedFlags url key =
             , errors = Errors.fromStrings []
             , key = key
             , route = route
-            , now = now
             , today = dateFromMillis now
             , here = Time.utc
             , browserSize = Size.initial
@@ -227,7 +225,6 @@ init encodedFlags url key =
     model
         |> pure
         |> andThen (updateFromEncodedFlags encodedFlags)
-        |> command (Millis.nowCmd OnNow)
         |> command (Millis.hereCmd OnHere)
         |> command (Dom.getViewport |> Task.perform GotViewport)
 
@@ -240,7 +237,6 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
-    | OnNow Millis
     | OnHere Time.Zone
     | GotViewport Dom.Viewport
     | OnBrowserResize Size
@@ -283,7 +279,6 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , Time.every 1000 (Time.posixToMillis >> OnNow)
         , Size.onBrowserResize OnBrowserResize
         ]
 
@@ -314,9 +309,6 @@ update message model =
                     Route.fromUrl url
             in
             ( { model | route = route }, {- queryTodoListForRouteCmd route -} Cmd.none )
-
-        OnNow now ->
-            pure { model | now = now }
 
         OnHere here ->
             pure { model | here = here }
@@ -421,7 +413,7 @@ update message model =
             ( model
             , Ports.addFirestoreDoc
                 { userCollectionName = "todos"
-                , data = Todo.newToday now model.now
+                , data = Todo.newToday now now
                 }
             )
 
@@ -1059,7 +1051,7 @@ viewFooter model =
                 viewMoveDialog todo (Project.filterActive model.projectList)
 
             DueDialog todo ->
-                viewDueDialog model.here model.now todo
+                viewDueDialog model.here model.today todo
         ]
 
 
@@ -1136,15 +1128,11 @@ viewMoveDialog todo projectList =
         ]
 
 
-viewDueDialog : Time.Zone -> Millis -> Todo -> Html Msg
-viewDueDialog zone now _ =
+viewDueDialog : Time.Zone -> Calendar.Date -> Todo -> Html Msg
+viewDueDialog zone today _ =
     let
-        today : Calendar.Date
-        today =
-            dateFromMillis now
-
         todayFmt =
-            Millis.formatDate "ddd MMM yyyy" zone now
+            Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
 
         yesterday =
             Calendar.decrementDay today
@@ -1196,11 +1184,8 @@ dateFromMillis =
 todayContent : Model -> Html Msg
 todayContent model =
     let
-        now =
-            model.now
-
         nowDate =
-            dateFromMillis now
+            model.today
 
         displayTodoList =
             List.filter (Todo.dueDateEq nowDate)
