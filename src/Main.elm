@@ -32,7 +32,7 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (on, onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
-import HtmlStyledExtra exposing (viewMaybe)
+import HtmlStyledExtra as HX exposing (viewMaybe)
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -1021,7 +1021,7 @@ viewFooter model =
     div []
         [ case model.dialog of
             NoDialog ->
-                HtmlStyledExtra.empty
+                HX.empty
 
             MoveToProjectDialog todo ->
                 viewMoveDialog todo (Project.filterActive model.projectList)
@@ -1184,17 +1184,20 @@ todayContent model =
                 |> List.filter (.isDone >> not)
     in
     div [ class "vs3" ]
-        [ HtmlStyledExtra.viewUnless (overDueList |> List.isEmpty) <|
-            div [ class "ph3 vs3" ]
-                [ div [ class "flex items-center hs3" ]
-                    [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
-                    ]
-                , div [ class "" ]
-                    (List.map
-                        (viewTodoItem model)
-                        overDueList
-                    )
-                ]
+        [ overDueList
+            |> HX.viewNotEmpty
+                (\_ ->
+                    div [ class "ph3 vs3" ]
+                        [ div [ class "flex items-center hs3" ]
+                            [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
+                            ]
+                        , div [ class "" ]
+                            (List.map
+                                (viewTodoItem model)
+                                overDueList
+                            )
+                        ]
+                )
         , div [ class "ph3 vs3" ]
             [ div [ class "flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text "Today" ]
@@ -1311,7 +1314,7 @@ viewTodoItemBase { here, todoMenu } todo =
             [ faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
-                |> MX.unpack (\_ -> HtmlStyledExtra.empty)
+                |> HX.viewMaybe
                     (\_ ->
                         div
                             [ A.id <| todoMenuDomId todo.id
@@ -1375,16 +1378,14 @@ isRelatedTargetOutsideOfElWithId elId =
 
 viewDueAt : Zone -> Todo -> Html msg
 viewDueAt here todo =
-    let
-        viewDueAt_ dueMillis =
-            div [ class "dn truncate flex-shrink-0 f7 code" ]
-                [ text <| Millis.formatDate "ddd MMM" here dueMillis
-                ]
-    in
-    Todo.dueMilli todo
-        |> MX.unwrap
-            HtmlStyledExtra.empty
-            viewDueAt_
+    todo
+        |> Todo.dueMilli
+        |> HX.viewMaybe
+            (\dueMillis ->
+                div [ class "dn truncate flex-shrink-0 f7 code" ]
+                    [ text <| Millis.formatDate "ddd MMM" here dueMillis
+                    ]
+            )
 
 
 viewCharBtn : msg -> Char -> Html msg

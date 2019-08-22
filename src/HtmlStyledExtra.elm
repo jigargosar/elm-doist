@@ -1,4 +1,4 @@
-module HtmlStyledExtra exposing (empty, viewIf, viewMaybe, viewUnless)
+module HtmlStyledExtra exposing (empty, viewIf, viewMaybe, viewNotEmpty, viewUnless)
 
 -- VIEW HELPERS
 
@@ -26,3 +26,8 @@ empty =
 viewMaybe : (a -> Html msg) -> Maybe a -> Html msg
 viewMaybe fn =
     Maybe.Extra.unwrap empty fn
+
+
+viewNotEmpty : (List a -> Html msg) -> List a -> Html msg
+viewNotEmpty vfn list =
+    viewUnless (List.isEmpty list) (vfn list)
