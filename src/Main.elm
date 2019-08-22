@@ -1359,7 +1359,8 @@ viewTodoMenu todo =
     in
     div
         [ A.id <| todoMenuDomId todo.id
-        , tabindex 0
+        , tabindex -1
+        , css [ outline none ]
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , on "focusout"
