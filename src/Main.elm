@@ -474,34 +474,25 @@ update message model =
                     )
 
         OnSetDue todoId dueAt ->
-            case
-                ( model.inlineEditTodo
+            ifElse (model.dialog == DueDialog todoId)
+                (model.inlineEditTodo
                     |> MX.filter (InlineEditTodo.idEq todoId)
-                , model.dialog
+                    |> MX.unpack
+                        (\_ ->
+                            updateDialogAndCache NoDialog model
+                                |> command
+                                    (patchTodoCmd
+                                        todoId
+                                        [ Todo.SetDueAt dueAt ]
+                                    )
+                        )
+                        (\_ ->
+                            model
+                                |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
+                                |> updateDialogAndCache NoDialog
+                        )
                 )
-            of
-                ( Nothing, DueDialog todoId_ ) ->
-                    ifElse (todoId == todoId_)
-                        (updateDialogAndCache NoDialog model
-                            |> command
-                                (patchTodoCmd
-                                    todoId
-                                    [ Todo.SetDueAt dueAt ]
-                                )
-                        )
-                        (pure model)
-
-                ( Just _, DueDialog todoId_ ) ->
-                    ifElse
-                        (todoId_ == todoId)
-                        (model
-                            |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
-                            |> updateDialogAndCache NoDialog
-                        )
-                        (pure model)
-
-                _ ->
-                    pure model
+                (pure model)
 
         OnDialogOverlayClicked ->
             case model.dialog of
