@@ -38,7 +38,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import List.Extra
-import Maybe.Extra as MX exposing ()
+import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
@@ -1274,15 +1274,15 @@ viewEditTodoItem here edt_ =
                 , class "pointer"
                 , onClick <| OnEditDueStart edt.todo.id
                 ]
-                [ case dueAtValue of
-                    Nothing ->
-                        div [] [ text "No Due Date" ]
-
-                    Just mi ->
-                        div [ class "" ]
-                            [ text "Due: "
-                            , text <| Millis.formatDate "ddd MMM" here <| mi
-                            ]
+                [ dueAtValue
+                    |> MX.unpack
+                        (\_ -> div [] [ text "No Due Date" ])
+                        (\mi ->
+                            div [ class "" ]
+                                [ text "Due: "
+                                , text <| Millis.formatDate "ddd MMM" here <| mi
+                                ]
+                        )
                 , div [ class "pointer underline blue" ] [ text "edit" ]
                 ]
             , div [ class "flex-grow-1" ] []
@@ -1309,9 +1309,10 @@ viewTodoItemBase { here, todoMenu } todo =
         , viewCharBtn (OnEditDueStart todo.id) 'D'
         , div [ class "relative" ]
             [ faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
-            , case todoMenu of
-                Just tm ->
-                    if tm.todoId == todo.id then
+            , todoMenu
+                |> MX.filter (.todoId >> eq_ todo.id)
+                |> MX.unpack (\_ -> HtmlStyledExtra.empty)
+                    (\_ ->
                         div
                             [ A.id <| todoMenuDomId todo.id
                             , tabindex 0
@@ -1337,12 +1338,7 @@ viewTodoItemBase { here, todoMenu } todo =
                             , div [] [ text "todo item menu 2" ]
                             , div [] [ text "todo item menu 3" ]
                             ]
-
-                    else
-                        HtmlStyledExtra.empty
-
-                Nothing ->
-                    HtmlStyledExtra.empty
+                    )
             ]
         ]
 
