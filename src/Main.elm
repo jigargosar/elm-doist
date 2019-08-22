@@ -1352,7 +1352,7 @@ isOutsideElIdDecoder containerDomId =
                 )
         , JD.lazy (\_ -> isOutsideElIdDecoder containerDomId |> JD.field "parentNode")
 
-        -- fallback if all previous decoders failed
+        -- fallback when all previous decoders failed
         , JD.succeed True
         ]
 
