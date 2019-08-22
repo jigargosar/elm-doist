@@ -308,7 +308,7 @@ update message model =
                 route =
                     Route.fromUrl url
             in
-            ( { model | route = route }, {- queryTodoListForRouteCmd route -} Cmd.none )
+            ( { model | route = route }, Cmd.none )
 
         OnHere here ->
             pure { model | here = here }
