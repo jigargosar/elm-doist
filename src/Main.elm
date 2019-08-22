@@ -1230,18 +1230,13 @@ viewTodoItem model todo =
 
 
 viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
-viewEditTodoItem here edt_ =
+viewEditTodoItem here edt =
     let
-        edt =
-            InlineEditTodo.toRecord edt_
-
         titleValue =
-            edt.title
-                |> Maybe.withDefault edt.todo.title
+            InlineEditTodo.titleOrDefault edt
 
         dueAtValue =
-            edt.dueAt
-                |> Maybe.withDefault edt.todo.dueAt
+            InlineEditTodo.dueAtOrDefault edt
                 |> Todo.dueAtToMillis
     in
     div
@@ -1260,7 +1255,7 @@ viewEditTodoItem here edt_ =
             [ div
                 [ class "flex items-center hs3"
                 , class "pointer"
-                , onClick <| OnEditDueStart edt.todo.id
+                , onClick <| OnEditDueStart <| InlineEditTodo.todoId edt
                 ]
                 [ dueAtValue
                     |> MX.unpack

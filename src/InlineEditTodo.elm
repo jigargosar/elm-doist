@@ -1,4 +1,4 @@
-module InlineEditTodo exposing (Model, decoder, fromTodo, idEq, maybeEncoder, setDueAt, toRecord, toUpdateMessages)
+module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, titleOrDefault, toRecord, toUpdateMessages, todoId)
 
 import BasicsExtra exposing (ifElse)
 import Json.Decode as JD exposing (Decoder)
@@ -67,8 +67,8 @@ toRecord (Model modelRecord) =
 
 
 idEq : TodoId -> Model -> Bool
-idEq todoId (Model modelRecord) =
-    modelRecord.todo.id == todoId
+idEq todoId_ (Model modelRecord) =
+    modelRecord.todo.id == todoId_
 
 
 toUpdateMessages : Model -> Maybe ( Todo, List Todo.Msg )
@@ -76,3 +76,19 @@ toUpdateMessages (Model { todo, dueAt, title }) =
     [ dueAt |> M.map Todo.SetDueAt, title |> M.map Todo.SetTitle ]
         |> List.filterMap identity
         |> (\l -> ifElse (List.isEmpty l) Nothing (Just ( todo, l )))
+
+
+todoId : Model -> TodoId
+todoId (Model { todo }) =
+    todo.id
+
+
+titleOrDefault : Model -> String
+titleOrDefault (Model { todo, title }) =
+    title
+        |> Maybe.withDefault todo.title
+
+
+dueAtOrDefault : Model -> DueAt
+dueAtOrDefault (Model { todo, dueAt }) =
+    dueAt |> Maybe.withDefault todo.dueAt
