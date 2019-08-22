@@ -1313,6 +1313,7 @@ viewTodoItemBase { here, todoMenu } todo =
         ]
 
 
+viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     div
         [ A.id <| todoMenuDomId todo.id
