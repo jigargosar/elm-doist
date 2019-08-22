@@ -18,7 +18,9 @@
 
 - cleanup
   - [x] remove now timer.
-  - todo menu
+- todo menu
+    - make menu btn larger
+  
 
 ## Known Issues:
 

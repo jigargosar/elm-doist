@@ -1031,6 +1031,7 @@ btn action attrs =
             JD.oneOf [ Key.enter msg, Key.space msg ]
          , tabindex 0
          , A.attribute "role" "button"
+         , class "pointer"
          ]
             ++ attrs
         )
