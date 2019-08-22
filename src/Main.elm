@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Accessibility.Styled.Key as Key
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
@@ -1010,13 +1011,13 @@ faBtn action icon =
 btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 btn action attrs =
     let
-        msgDecoderOnKeyDown =
-            JD.oneOf [ KE.enterKeyDecoder action, KE.spaceKeyDecoder action ]
-                |> JD.map (\msg -> ( msg, True ))
+        msg =
+            ( action, True )
     in
     div
         ([ onClick action
-         , preventDefaultOn "keydown" msgDecoderOnKeyDown
+         , preventDefaultOn "keydown" <|
+            JD.oneOf [ Key.enter msg, Key.space msg ]
          , tabindex 0
          , A.attribute "role" "button"
          ]
@@ -1375,6 +1376,7 @@ viewTodoMenu todo =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , on "focusout" msgDecoderOnFocusout
+        , preventDefaultOn "keydown" (Key.escape ( CloseTodoMenu todo.id, True ))
         ]
         menuItemsViewList
 
@@ -1408,12 +1410,6 @@ viewDueAt here todo =
                     [ text <| Millis.formatDate "ddd MMM" here dueMillis
                     ]
             )
-
-
-viewCharBtn : msg -> Char -> Html msg
-viewCharBtn clickHandler chr =
-    div [ class "flex items-center" ]
-        [ button [ onClick clickHandler, class "code" ] [ text <| String.fromChar chr ] ]
 
 
 viewCheck isChecked onCheckMsg =

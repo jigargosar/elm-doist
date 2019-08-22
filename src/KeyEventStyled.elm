@@ -1,4 +1,4 @@
-module KeyEventStyled exposing (enterKeyDecoder, spaceKeyDecoder)
+module KeyEventStyled exposing (enterKeyDecoder, escKeyDecoder, spaceKeyDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Html.Styled exposing (Attribute)
@@ -25,3 +25,8 @@ enterKeyDecoder =
 spaceKeyDecoder : a -> Decoder a
 spaceKeyDecoder =
     keyDecoder " "
+
+
+escKeyDecoder : a -> Decoder a
+escKeyDecoder =
+    keyDecoder "Escape"
