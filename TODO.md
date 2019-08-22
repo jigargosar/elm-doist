@@ -17,8 +17,8 @@
 ## 2.5
 
 - cleanup
-  - todo menu
   - [x] remove now timer.
+  - todo menu
 
 ## Known Issues:
 
