@@ -1311,9 +1311,6 @@ viewTodoItemBase { here, todoMenu } todo =
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
         , viewTodoItemContent here todo
-        , viewCharBtn (OnDelete todo.id) 'X'
-        , viewCharBtn (OnMoveStart todo.id) 'M'
-        , viewCharBtn (OnEditDueStart todo.id) 'D'
         , div [ class "relative" ]
             [ faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
             , todoMenu
