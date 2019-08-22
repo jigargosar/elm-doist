@@ -13,6 +13,7 @@ import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
+import Focus
 import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
 import FontAwesome.Solid
@@ -31,14 +32,13 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (on, onCheck, onClick, preventDefaultOn)
+import Html.Styled.Events exposing (onCheck, onClick, preventDefaultOn)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra as HX exposing (viewMaybe)
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import KeyEventStyled as KE
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -1330,18 +1330,6 @@ viewTodoItemBase { here, todoMenu } todo =
 viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
-        msgDecoderOnFocusout =
-            JD.oneOf
-                [ JD.at [ "relatedTarget" ] (JD.null True)
-                , JD.field "relatedTarget" (isOutsideElIdDecoder (todoMenuDomId todo.id))
-                ]
-                |> JD.andThen
-                    (\isFocusOutside ->
-                        ifElse isFocusOutside
-                            (JD.succeed (CloseTodoMenu todo.id))
-                            (JD.fail "not interested")
-                    )
-
         miModel =
             [ ( OnDelete, "Delete" )
             , ( OnMoveStart, "Move to..." )
@@ -1361,34 +1349,21 @@ viewTodoMenu todo =
                             ]
                             [ text label ]
                     )
+
+        menuDomId =
+            todoMenuDomId todo.id
+
+        closeMsg =
+            CloseTodoMenu todo.id
     in
     div
-        [ A.id <| todoMenuDomId todo.id
+        [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
-        , on "focusout" msgDecoderOnFocusout
-        , preventDefaultOn "keydown" (Key.escape ( CloseTodoMenu todo.id, True ))
+        , Focus.onFocusOutsideDomId menuDomId closeMsg
+        , preventDefaultOn "keydown" (Key.escape ( closeMsg, True ))
         ]
         menuItemsViewList
-
-
-isOutsideElIdDecoder : String -> Decoder Bool
-isOutsideElIdDecoder containerDomId =
-    JD.oneOf
-        [ JD.field "id" JD.string
-            |> JD.andThen
-                (\id ->
-                    ifElse (containerDomId == id)
-                        -- found match by id
-                        (JD.succeed False)
-                        -- try next decoder
-                        (JD.fail "continue")
-                )
-        , JD.lazy (\_ -> isOutsideElIdDecoder containerDomId |> JD.field "parentNode")
-
-        -- fallback when all previous decoders failed
-        , JD.succeed True
-        ]
 
 
 viewDueAt : Zone -> Todo -> Html msg
