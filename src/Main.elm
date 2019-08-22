@@ -541,14 +541,14 @@ todoMenuTriggerDomId todoId =
     "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
 
 
-todoFirstFocusableDomId todoId =
+todoMenuFirstFocusableDomId todoId =
     "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId
 
 
 focusTodoMenuCmd todoId =
     let
         domId =
-            todoFirstFocusableDomId todoId
+            todoMenuFirstFocusableDomId todoId
     in
     focus domId |> Task.attempt Focused
 
@@ -1017,7 +1017,7 @@ viewProjectNavItem project =
 faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
     btn action
-        ([ class "gray hover-dark-gray"
+        ([ class "gray hover-dark-gray_"
          ]
             ++ attrs
         )
@@ -1316,11 +1316,11 @@ viewTodoItemBase { here, todoMenu } todo =
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
         , viewDueAt here todo
-        , div [ class "relative child flex" ]
+        , div [ class "relative flex" ]
             [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
-                , class "pa2 tc"
+                , class "pa2 tc child"
                 ]
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
@@ -1334,9 +1334,9 @@ viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
         miModel =
-            [ ( OnDelete, "Delete" )
-            , ( OnMoveStart, "Move to..." )
+            [ ( OnMoveStart, "Move to..." )
             , ( OnEditDueStart, "Change Due At..." )
+            , ( OnDelete, "Delete" )
             ]
 
         menuItemsViewList =
@@ -1347,8 +1347,9 @@ viewTodoMenu todo =
                         btn msg
                             [ A.id <|
                                 ifElse (idx == 0)
-                                    (todoFirstFocusableDomId todo.id)
+                                    (todoMenuFirstFocusableDomId todo.id)
                                     ""
+                            , class "pa2"
                             ]
                             [ text label ]
                     )
@@ -1364,6 +1365,7 @@ viewTodoMenu todo =
         [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
+        , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId menuDomId
             (\{ hasRelatedTarget } -> closeMsg (not hasRelatedTarget))
         , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
