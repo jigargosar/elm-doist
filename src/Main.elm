@@ -474,7 +474,12 @@ update message model =
                     )
 
         OnSetDue todoId dueAt ->
-            (case ( model.inlineEditTodo, model.dialog ) of
+            case
+                ( model.inlineEditTodo
+                    |> MX.filter (InlineEditTodo.idEq todoId)
+                , model.dialog
+                )
+            of
                 ( Nothing, DueDialog todoId_ ) ->
                     ifElse (todoId == todoId_)
                         (updateDialogAndCache NoDialog model
@@ -484,21 +489,19 @@ update message model =
                                     [ Todo.SetDueAt dueAt ]
                                 )
                         )
+                        (pure model)
 
-                ( Just edt, DueDialog todoId_ ) ->
+                ( Just _, DueDialog todoId_ ) ->
                     ifElse
-                        (InlineEditTodo.idEq todoId edt
-                            && (todoId_ == todoId)
-                        )
+                        (todoId_ == todoId)
                         (model
                             |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
                             |> updateDialogAndCache NoDialog
                         )
+                        (pure model)
 
                 _ ->
-                    identity
-            )
-                |> callWith (pure model)
+                    pure model
 
         OnDialogOverlayClicked ->
             case model.dialog of
