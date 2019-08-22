@@ -1,8 +1,9 @@
-module UpdateExtra exposing (andThen, command, effect, pure)
+module UpdateExtra exposing (andThen, command, effect, maybeUnpackPure, pure)
 
 -- UPDATE HELPERS
 
-import Return
+import Maybe.Extra as MX
+import Return exposing (Return)
 
 
 pure =
@@ -19,3 +20,12 @@ andThen =
 
 command =
     Return.command
+
+
+maybeUnpackPure :
+    (a -> model -> Return msg model)
+    -> model
+    -> Maybe a
+    -> Return msg model
+maybeUnpackPure rfn model =
+    MX.unpack (\_ -> pure model) (\val -> rfn val model)

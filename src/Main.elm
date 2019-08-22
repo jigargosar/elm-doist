@@ -52,7 +52,7 @@ import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, command, effect, pure)
+import UpdateExtra as UX exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -513,7 +513,7 @@ update message model =
         OnEditSave ->
             model.inlineEditTodo
                 |> Maybe.andThen InlineEditTodo.toUpdateMessages
-                |> MX.unwrap pure
+                |> UX.maybeUnpackPure
                     (\( todo, todoUpdateMsgList ) ->
                         let
                             cmd =
@@ -524,7 +524,7 @@ update message model =
                         updateInlineEditTodoAndCache Nothing
                             >> command cmd
                     )
-                |> callWith model
+                    model
 
 
 todoMenuDomId todoId =
