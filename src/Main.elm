@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
-import BasicsExtra exposing (callWith, eq_)
+import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
@@ -293,10 +293,8 @@ update message model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    if Route.fromUrl url == model.route then
+                    ifElse (Route.fromUrl url == model.route)
                         ( model, Nav.replaceUrl model.key (Url.toString url) )
-
-                    else
                         ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
