@@ -83,9 +83,9 @@ type alias Model =
     , key : Nav.Key
     , route : Route
     , now : Millis
+    , today : Calendar.Date
     , here : Time.Zone
     , browserSize : Size
-    , masterContentWidth : Int
     }
 
 
@@ -202,6 +202,9 @@ init encodedFlags url key =
         route =
             Route.fromUrl url
 
+        now =
+            0
+
         model : Model
         model =
             { todoList = []
@@ -213,10 +216,10 @@ init encodedFlags url key =
             , errors = Errors.fromStrings []
             , key = key
             , route = route
-            , now = 0
+            , now = now
+            , today = dateFromMillis now
             , here = Time.utc
             , browserSize = Size.initial
-            , masterContentWidth = 0
             }
     in
     model
