@@ -1334,8 +1334,9 @@ viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
         miModel =
-            [ ( OnMoveStart, "Move to..." )
-            , ( OnEditDueStart, "Change Due At..." )
+            [ ( OnEdit, "Edit" )
+            , ( OnMoveStart, "Move to Project" )
+            , ( OnEditDueStart, "Schedule" )
             , ( OnDelete, "Delete" )
             ]
 
