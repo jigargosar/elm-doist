@@ -260,7 +260,7 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuClicked TodoId
-    | CloseTodoMenu TodoId
+    | CloseTodoMenu TodoId Bool
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
     | OnDialogOverlayClicked
@@ -457,13 +457,15 @@ update message model =
             pure { model | todoMenu = Just tm }
                 |> command (focusTodoMenuCmd todoId)
 
-        CloseTodoMenu todoId ->
+        CloseTodoMenu todoId restoreFocus ->
             model.todoMenu
                 |> MX.filter (.todoId >> eq_ todoId)
                 |> MX.unpack (\_ -> pure model)
                     (\_ ->
                         ( { model | todoMenu = Nothing }
-                        , focusDomIdCmd <| todoMenuTriggerDomId todoId
+                        , ifElse restoreFocus
+                            (focusDomIdCmd <| todoMenuTriggerDomId todoId)
+                            Cmd.none
                         )
                     )
 
@@ -1370,6 +1372,7 @@ viewTodoMenu todo =
         menuDomId =
             todoMenuDomId todo.id
 
+        closeMsg : Bool -> Msg
         closeMsg =
             CloseTodoMenu todo.id
     in
@@ -1377,8 +1380,9 @@ viewTodoMenu todo =
         [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
-        , Focus.onFocusOutsideDomId menuDomId closeMsg
-        , preventDefaultOn "keydown" (Key.escape ( closeMsg, True ))
+        , Focus.onFocusOutsideDomId menuDomId
+            (\{ hasRelatedTarget } -> closeMsg (not hasRelatedTarget))
+        , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
         ]
         menuItemsViewList
 

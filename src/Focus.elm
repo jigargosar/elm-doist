@@ -6,36 +6,32 @@ import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
 
 
-onFocusOutsideDomId : String -> msg -> Attribute msg
-onFocusOutsideDomId domId msg =
+onFocusOutsideDomId : String -> ({ hasRelatedTarget : Bool } -> msg) -> Attribute msg
+onFocusOutsideDomId domId tagger =
     on "focusout"
         (JD.oneOf
-            [ JD.field "relatedTarget" (JD.null True)
-            , JD.field "relatedTarget" (isOutsideElIdDecoder domId)
+            [ JD.field "relatedTarget"
+                (JD.null (tagger { hasRelatedTarget = False }))
+            , JD.field "relatedTarget"
+                (outsideElIdDecoder domId (tagger { hasRelatedTarget = True }))
             ]
-            |> JD.andThen
-                (\isFocusOutside ->
-                    ifElse isFocusOutside
-                        (JD.succeed msg)
-                        (JD.fail "not interested")
-                )
         )
 
 
-isOutsideElIdDecoder : String -> Decoder Bool
-isOutsideElIdDecoder containerDomId =
+outsideElIdDecoder : String -> msg -> Decoder msg
+outsideElIdDecoder containerDomId msg =
     JD.oneOf
         [ JD.field "id" JD.string
             |> JD.andThen
                 (\id ->
                     ifElse (containerDomId == id)
                         -- found match by id
-                        (JD.succeed False)
+                        (JD.succeed msg)
                         -- try next decoder
                         (JD.fail "continue")
                 )
-        , JD.lazy (\_ -> isOutsideElIdDecoder containerDomId |> JD.field "parentNode")
+        , JD.lazy (\_ -> outsideElIdDecoder containerDomId msg |> JD.field "parentNode")
 
         -- fallback when all previous decoders failed
-        , JD.succeed True
+        , JD.succeed msg
         ]
