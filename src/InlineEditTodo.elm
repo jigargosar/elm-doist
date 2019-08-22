@@ -1,4 +1,4 @@
-module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, titleOrDefault, toUpdateMessages, todoId)
+module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, setTitle, titleOrDefault, toUpdateMessages, todoId)
 
 import BasicsExtra exposing (ifElse)
 import Json.Decode as JD exposing (Decoder)
@@ -58,6 +58,12 @@ fromTodo todo =
 setDueAt : DueAt -> Model -> Model
 setDueAt dueAt (Model modelRecord) =
     { modelRecord | dueAt = Just dueAt }
+        |> Model
+
+
+setTitle : String -> Model -> Model
+setTitle title (Model modelRecord) =
+    { modelRecord | title = Just title }
         |> Model
 
 

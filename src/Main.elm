@@ -33,7 +33,7 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (onCheck, onClick, preventDefaultOn)
+import Html.Styled.Events exposing (onCheck, onClick, onInput, preventDefaultOn)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra as HX exposing (viewMaybe)
 import InlineEditTodo
@@ -266,6 +266,7 @@ type Msg
     | OnTodoMenuTriggered TodoId
     | CloseTodoMenu TodoId Bool
     | OnSetDue TodoId DueAt
+    | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClicked
     | OnEdit TodoId
@@ -494,6 +495,17 @@ update message model =
                         )
                 )
                 (pure model)
+
+        OnSetTitle todoId title ->
+            model.inlineEditTodo
+                |> MX.filter (InlineEditTodo.idEq todoId)
+                |> MX.unpack
+                    (\_ -> pure model)
+                    (\_ ->
+                        model
+                            |> mapInlineEditTodo (InlineEditTodo.setTitle title)
+                            |> updateDialogAndCache NoDialog
+                    )
 
         OnDialogOverlayClicked ->
             case model.dialog of
@@ -1246,6 +1258,9 @@ viewEditTodoItem here edt =
         dueAtValue =
             InlineEditTodo.dueAtOrDefault edt
                 |> Todo.dueAtToMillis
+
+        todoId =
+            InlineEditTodo.todoId edt
     in
     div
         [ class "pa3 vs3"
@@ -1256,6 +1271,7 @@ viewEditTodoItem here edt =
                 [ class "pa1 flex-grow-1 lh-copy"
                 , type_ "text"
                 , value titleValue
+                , onInput (OnSetTitle todoId)
                 ]
                 []
             ]
@@ -1263,7 +1279,7 @@ viewEditTodoItem here edt =
             [ div
                 [ class "flex items-center hs3"
                 , class "pointer"
-                , onClick <| OnEditDueStart <| InlineEditTodo.todoId edt
+                , onClick <| OnEditDueStart <| todoId
                 ]
                 [ dueAtValue
                     |> MX.unpack
