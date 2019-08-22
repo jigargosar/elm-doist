@@ -15,15 +15,6 @@ type Model
     = Model ModelRecord
 
 
-decoder : Decoder Model
-decoder =
-    JD.succeed ModelRecord
-        |> JDP.required "todo" Todo.decoder
-        |> JDP.optional "title" (JD.nullable JD.string) Nothing
-        |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
-        |> JD.map Model
-
-
 encoder : Model -> Value
 encoder (Model { todo, title, dueAt }) =
     JE.object
@@ -42,10 +33,13 @@ maybeEncoder =
     Maybe.Extra.unwrap JE.null encoder
 
 
-setDueAt : Maybe DueAt -> Model -> Model
-setDueAt dueAt (Model modelRecord) =
-    { modelRecord | dueAt = dueAt }
-        |> Model
+decoder : Decoder Model
+decoder =
+    JD.succeed ModelRecord
+        |> JDP.required "todo" Todo.decoder
+        |> JDP.optional "title" (JD.nullable JD.string) Nothing
+        |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
+        |> JD.map Model
 
 
 toRecord : Model -> ModelRecord
@@ -61,3 +55,9 @@ fromRecord =
 fromTodo : Todo -> Model
 fromTodo todo =
     { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
+
+
+setDueAt : Maybe DueAt -> Model -> Model
+setDueAt dueAt (Model modelRecord) =
+    { modelRecord | dueAt = dueAt }
+        |> Model
