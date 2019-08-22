@@ -6,7 +6,7 @@ import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import Calendar
-import Css exposing (bottom, height, marginLeft, maxWidth, position, px, rem, sticky, top, transforms, translateX, width, zero)
+import Css exposing (bottom, height, marginLeft, maxWidth, minHeight, minWidth, none, outline, position, px, rem, sticky, top, transforms, translateX, vh, vw, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -734,8 +734,24 @@ onDecodeError error model =
 view : Model -> Browser.Document Msg
 view model =
     viewRoute model.route model
-        |> toUnStyledDocument
-        |> prependFontAwesomeCss
+        |> (\{ title, body } ->
+                { title = title
+                , body =
+                    [ H.toUnstyled <|
+                        div
+                            [ A.id "root"
+                            , tabindex -1
+                            , css
+                                [ minHeight <| vh 100
+                                , minWidth <| vw 100
+                                , outline none
+                                ]
+                            ]
+                            body
+                    ]
+                }
+                    |> prependFontAwesomeCss
+           )
 
 
 prependFontAwesomeCss : Browser.Document Msg -> Browser.Document Msg
@@ -745,11 +761,6 @@ prependFontAwesomeCss doc =
 
 type alias StyledDocument msg =
     { title : String, body : List (Html msg) }
-
-
-toUnStyledDocument : StyledDocument msg -> Browser.Document msg
-toUnStyledDocument { title, body } =
-    { title = title, body = body |> List.map H.toUnstyled }
 
 
 viewRoute : Route -> Model -> StyledDocument Msg
@@ -1318,14 +1329,12 @@ viewTodoMenu todo =
     let
         msgDecoderOnFocusout =
             JD.oneOf
-                [ {- JD.field "relatedTarget" (JD.null False)
-                     ,
-                  -}
-                  JD.field "relatedTarget" (isOutsideElIdDecoder (todoMenuDomId todo.id))
+                [ JD.at [ "relatedTarget" ] (JD.null False)
+                , JD.field "relatedTarget" (isOutsideElIdDecoder (todoMenuDomId todo.id))
                 ]
                 |> JD.andThen
-                    (\isOut ->
-                        ifElse isOut
+                    (\isFocusOutside ->
+                        ifElse isFocusOutside
                             (JD.succeed (CloseTodoMenu todo.id))
                             (JD.fail "not interested")
                     )
