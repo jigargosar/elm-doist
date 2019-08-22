@@ -1,9 +1,11 @@
-module InlineEditTodo exposing (Model, decoder, fromTodo, idEq, maybeEncoder, setDueAt, toRecord)
+module InlineEditTodo exposing (Model, decoder, fromTodo, idEq, maybeEncoder, setDueAt, toRecord, toUpdateMessages)
 
+import BasicsExtra exposing (ifElse)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
+import Maybe as M
+import Maybe.Extra as MX
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 
@@ -20,10 +22,10 @@ encoder : Model -> Value
 encoder (Model { todo, title, dueAt }) =
     JE.object
         (( "todo", Todo.encoder todo )
-            :: Maybe.Extra.unwrap []
+            :: MX.unwrap []
                 (\t -> [ ( "title", JE.string t ) ])
                 title
-            ++ Maybe.Extra.unwrap []
+            ++ MX.unwrap []
                 (\da -> [ ( "dueAt", Todo.dueAtEncoder da ) ])
                 dueAt
         )
@@ -31,7 +33,7 @@ encoder (Model { todo, title, dueAt }) =
 
 maybeEncoder : Maybe Model -> Value
 maybeEncoder =
-    Maybe.Extra.unwrap JE.null encoder
+    MX.unwrap JE.null encoder
 
 
 decoder : Decoder Model
@@ -67,3 +69,10 @@ toRecord (Model modelRecord) =
 idEq : TodoId -> Model -> Bool
 idEq todoId (Model modelRecord) =
     modelRecord.todo.id == todoId
+
+
+toUpdateMessages : Model -> Maybe ( Todo, List Todo.Msg )
+toUpdateMessages (Model { todo, dueAt, title }) =
+    [ dueAt |> M.map Todo.SetDueAt, title |> M.map Todo.SetTitle ]
+        |> List.filterMap identity
+        |> (\l -> ifElse (List.isEmpty l) Nothing (Just ( todo, l )))

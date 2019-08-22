@@ -512,25 +512,17 @@ update message model =
 
         OnEditSave ->
             model.inlineEditTodo
+                |> Maybe.andThen InlineEditTodo.toUpdateMessages
                 |> MX.unwrap pure
-                    (InlineEditTodo.toRecord
-                        >> (\{ todo, dueAt, title } ->
-                                let
-                                    cmd1 =
-                                        dueAt
-                                            |> MX.unwrap Cmd.none
-                                                (Todo.SetDueAt >> patchTodoCmd todo.id)
-
-                                    cmd2 : Cmd Msg
-                                    cmd2 =
-                                        title
-                                            |> MX.unwrap Cmd.none
-                                                (Todo.SetTitle >> patchTodoCmd todo.id)
-                                in
-                                updateInlineEditTodoAndCache Nothing
-                                    >> command cmd1
-                                    >> command cmd2
-                           )
+                    (\( todo, todoUpdateMsgList ) ->
+                        let
+                            cmd =
+                                todoUpdateMsgList
+                                    |> List.map (patchTodoCmd todo.id)
+                                    |> Cmd.batch
+                        in
+                        updateInlineEditTodoAndCache Nothing
+                            >> command cmd
                     )
                 |> callWith model
 
