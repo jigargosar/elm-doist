@@ -1315,20 +1315,28 @@ viewTodoItemBase { here, todoMenu } todo =
 
 viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
-    div
-        [ A.id <| todoMenuDomId todo.id
-        , tabindex 0
-        , class "absolute right-0 top-1"
-        , class "bg-white shadow-1 w5"
-        , on "focusout"
-            (isRelatedTargetOutsideOfElWithId (todoMenuDomId todo.id)
+    let
+        msgDecoderOnFocusout =
+            JD.oneOf
+                [ {- JD.field "relatedTarget" (JD.null False)
+                     ,
+                  -}
+                  JD.field "relatedTarget" (isOutsideElIdDecoder (todoMenuDomId todo.id))
+                ]
                 |> JD.andThen
                     (\isOut ->
                         ifElse isOut
                             (JD.succeed (CloseTodoMenu todo.id))
                             (JD.fail "not interested")
                     )
-            )
+    in
+    div
+        [ A.id <| todoMenuDomId todo.id
+        , tabindex 0
+        , class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , on "focusout"
+            msgDecoderOnFocusout
         ]
         [ div
             [ tabindex 0
@@ -1356,15 +1364,6 @@ isOutsideElIdDecoder containerDomId =
 
         -- fallback when all previous decoders failed
         , JD.succeed True
-        ]
-
-
-isRelatedTargetOutsideOfElWithId elId =
-    JD.oneOf
-        [ {- JD.field "relatedTarget" (JD.null False)
-             ,
-          -}
-          JD.field "relatedTarget" (isOutsideElIdDecoder elId)
         ]
 
 
