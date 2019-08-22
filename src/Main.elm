@@ -1296,8 +1296,8 @@ viewTodoItemBase { here, todoMenu } todo =
         [ class "pa2 flex hs1 lh-copy db "
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
-        , viewDueAt here todo
         , viewTodoItemContent here todo
+        , viewDueAt here todo
         , div [ class "relative" ]
             [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
@@ -1359,8 +1359,8 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> HX.viewMaybe
             (\dueMillis ->
-                div [ class "dn truncate flex-shrink-0 f7 code" ]
-                    [ text <| Millis.formatDate "ddd MMM" here dueMillis
+                div [ class "truncate flex-shrink-0 f7 ph1" ]
+                    [ text <| Millis.formatDate "MMM dd" here dueMillis
                     ]
             )
 
