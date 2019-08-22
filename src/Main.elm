@@ -264,7 +264,7 @@ type Msg
     | OnEditDueStart TodoId
     | OnTodoMenuTriggered TodoId
     | CloseTodoMenu TodoId Bool
-    | OnSetDue DueAt
+    | OnSetDue TodoId DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClicked
     | OnEdit TodoId
@@ -473,24 +473,32 @@ update message model =
                         [ Todo.SetProjectId pid ]
                     )
 
-        OnSetDue dueAt ->
-            case ( model.inlineEditTodo, model.dialog ) of
-                ( Nothing, DueDialog todoId ) ->
-                    updateDialogAndCache NoDialog model
-                        |> command
-                            (patchTodoCmd
-                                todoId
-                                [ Todo.SetDueAt dueAt ]
-                            )
+        OnSetDue todoId dueAt ->
+            (case ( model.inlineEditTodo, model.dialog ) of
+                ( Nothing, DueDialog todoId_ ) ->
+                    ifElse (todoId == todoId_)
+                        (updateDialogAndCache NoDialog model
+                            |> command
+                                (patchTodoCmd
+                                    todoId
+                                    [ Todo.SetDueAt dueAt ]
+                                )
+                        )
 
-                ( Just _, DueDialog _ ) ->
-                    model
-                        |> mapInlineEditTodo
-                            (InlineEditTodo.setDueAt dueAt)
-                        |> updateDialogAndCache NoDialog
+                ( Just edt, DueDialog todoId_ ) ->
+                    ifElse
+                        (InlineEditTodo.idEq todoId edt
+                            && (todoId_ == todoId)
+                        )
+                        (model
+                            |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
+                            |> updateDialogAndCache NoDialog
+                        )
 
                 _ ->
-                    pure model
+                    identity
+            )
+                |> callWith (pure model)
 
         OnDialogOverlayClicked ->
             case model.dialog of
@@ -1043,8 +1051,8 @@ viewFooter model =
             MoveToProjectDialog todoId projectId ->
                 viewMoveDialog todoId projectId (Project.filterActive model.projectList)
 
-            DueDialog _ ->
-                viewDueDialog model.here model.today
+            DueDialog todoId ->
+                viewDueDialog model.here model.today todoId
         ]
 
 
@@ -1091,8 +1099,8 @@ viewMoveDialog todoId projectId projectList =
         ]
 
 
-viewDueDialog : Time.Zone -> Calendar.Date -> Html Msg
-viewDueDialog zone today =
+viewDueDialog : Time.Zone -> Calendar.Date -> TodoId -> Html Msg
+viewDueDialog zone today todoId =
     let
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
@@ -1102,23 +1110,26 @@ viewDueDialog zone today =
 
         yesterdayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
+
+        setDueMsg =
+            OnSetDue todoId
     in
     viewDialogOverlay
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Todo.NoDue)
+                , onClick (setDueMsg <| Todo.NoDue)
                 ]
                 [ text <| "No Due Date" ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Todo.DueAt <| Calendar.toMillis today)
+                , onClick (setDueMsg <| Todo.DueAt <| Calendar.toMillis today)
                 ]
                 [ text <| "Today: " ++ todayFmt ]
             , div
                 [ class "pa3 b pointer"
-                , onClick (OnSetDue <| Todo.DueAt <| Calendar.toMillis yesterday)
+                , onClick (setDueMsg <| Todo.DueAt <| Calendar.toMillis yesterday)
                 ]
                 [ text <| "Yesterday: " ++ yesterdayFmt ]
             ]
