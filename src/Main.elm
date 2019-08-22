@@ -37,6 +37,7 @@ import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
+import KeyEventStyled as KE
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -48,7 +49,6 @@ import Return
 import Route exposing (Route)
 import Size exposing (Size)
 import String.Extra as SX
-import StyledKeyEvent as KE
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
