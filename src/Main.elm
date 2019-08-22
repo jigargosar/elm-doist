@@ -1288,7 +1288,7 @@ viewEditTodoItem here edt =
         ]
         [ div [ class "flex" ]
             [ input
-                [ class "pa1 flex-grow-1"
+                [ class "pa1 flex-grow-1 lh-copy"
                 , type_ "text"
                 , value titleValue
                 ]
