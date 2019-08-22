@@ -260,7 +260,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
-    | OnTodoMenuClicked TodoId
+    | OnTodoMenuTriggered TodoId
     | CloseTodoMenu TodoId Bool
     | OnSetDue DueAt
     | OnMoveToProject ProjectId
@@ -446,7 +446,7 @@ update message model =
                 |> MX.unwrap pure startEditingDue
                 |> callWith model
 
-        OnTodoMenuClicked todoId ->
+        OnTodoMenuTriggered todoId ->
             let
                 tm =
                     { todoId = todoId }
@@ -1332,7 +1332,7 @@ viewTodoItemBase { here, todoMenu } todo =
         , viewDueAt here todo
         , viewTodoItemContent here todo
         , div [ class "relative" ]
-            [ faBtn (OnTodoMenuClicked todo.id)
+            [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisV
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa1 tc"
