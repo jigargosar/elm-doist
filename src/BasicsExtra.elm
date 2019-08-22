@@ -1,4 +1,4 @@
-module BasicsExtra exposing (callWith, eq_, unpackErr)
+module BasicsExtra exposing (callWith, eq_, ifElse, unpackErr)
 
 -- CORE HELPERS
 
@@ -21,3 +21,12 @@ callWith =
 eq_ : a -> a -> Bool
 eq_ =
     (==)
+
+
+ifElse : Bool -> c -> c -> c
+ifElse bool a b =
+    if bool then
+        a
+
+    else
+        b
