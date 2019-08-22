@@ -1293,14 +1293,14 @@ viewTodoItemBase :
     -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
-        [ class "pa2 flex items-center hs1 lh-copy db "
+        [ class "pa2 flex hs1 lh-copy db "
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
         , viewTodoItemContent here todo
         , div [ class "relative" ]
             [ faBtn (OnTodoMenuTriggered todo.id)
-                FontAwesome.Solid.ellipsisV
+                FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa1 tc"
                 ]
@@ -1408,7 +1408,7 @@ viewTodoItemContent here todo =
         [ class
             (titleClass
                 ++ " "
-                ++ "flex-grow-1 pointer hover-bg-light-yellow lh-solid pa2"
+                ++ "flex-grow-1 pointer hover-bg-light-yellow lh-copy ph2"
             )
         ]
         [ viewMaybe viewDueAtInline dueAtText, viewTitle ]
