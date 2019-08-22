@@ -1329,7 +1329,7 @@ viewTodoMenu todo =
     let
         msgDecoderOnFocusout =
             JD.oneOf
-                [ JD.at [ "relatedTarget" ] (JD.null False)
+                [ JD.at [ "relatedTarget" ] (JD.null True)
                 , JD.field "relatedTarget" (isOutsideElIdDecoder (todoMenuDomId todo.id))
                 ]
                 |> JD.andThen
