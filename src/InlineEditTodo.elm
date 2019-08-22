@@ -7,20 +7,25 @@ import Maybe.Extra
 import Todo exposing (DueAt, Todo, TodoList)
 
 
-type alias Model =
+type alias ModelRecord =
     { todo : Todo, title : Maybe String, dueAt : Maybe DueAt }
+
+
+type Model
+    = Model ModelRecord
 
 
 decoder : Decoder Model
 decoder =
-    JD.succeed Model
+    JD.succeed ModelRecord
         |> JDP.required "todo" Todo.decoder
         |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
+        |> JD.map Model
 
 
 encoder : Model -> Value
-encoder { todo, title, dueAt } =
+encoder (Model { todo, title, dueAt }) =
     JE.object
         (( "todo", Todo.encoder todo )
             :: Maybe.Extra.unwrap []
@@ -35,3 +40,19 @@ encoder { todo, title, dueAt } =
 maybeEncoder : Maybe Model -> Value
 maybeEncoder =
     Maybe.Extra.unwrap JE.null encoder
+
+
+setDueAt : Maybe DueAt -> Model -> Model
+setDueAt dueAt (Model modelRecord) =
+    { modelRecord | dueAt = dueAt }
+        |> Model
+
+
+toRecord : Model -> ModelRecord
+toRecord (Model modelRecord) =
+    modelRecord
+
+
+fromRecord : ModelRecord -> Model
+fromRecord =
+    Model

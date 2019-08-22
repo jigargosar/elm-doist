@@ -496,7 +496,7 @@ update message model =
                 ( Just inlineEditTodo, DueDialog _ ) ->
                     model
                         |> setInlineEditTodo
-                            (Just { inlineEditTodo | dueAt = Just dueAt })
+                            (Just <| InlineEditTodo.setDueAt (Just dueAt) inlineEditTodo)
                         |> updateDialogAndCache NoDialog
 
                 _ ->
@@ -519,22 +519,24 @@ update message model =
         OnEditSave ->
             model.inlineEditTodo
                 |> Maybe.Extra.unwrap pure
-                    (\{ todo, dueAt, title } ->
-                        let
-                            cmd1 =
-                                dueAt
-                                    |> Maybe.Extra.unwrap Cmd.none
-                                        (Todo.SetDueAt >> patchTodoCmd todo.id)
+                    (InlineEditTodo.toRecord
+                        >> (\{ todo, dueAt, title } ->
+                                let
+                                    cmd1 =
+                                        dueAt
+                                            |> Maybe.Extra.unwrap Cmd.none
+                                                (Todo.SetDueAt >> patchTodoCmd todo.id)
 
-                            cmd2 : Cmd Msg
-                            cmd2 =
-                                title
-                                    |> Maybe.Extra.unwrap Cmd.none
-                                        (Todo.SetTitle >> patchTodoCmd todo.id)
-                        in
-                        updateInlineEditTodoAndCache Nothing
-                            >> command cmd1
-                            >> command cmd2
+                                    cmd2 : Cmd Msg
+                                    cmd2 =
+                                        title
+                                            |> Maybe.Extra.unwrap Cmd.none
+                                                (Todo.SetTitle >> patchTodoCmd todo.id)
+                                in
+                                updateInlineEditTodoAndCache Nothing
+                                    >> command cmd1
+                                    >> command cmd2
+                           )
                     )
                 |> callWith model
 
@@ -569,7 +571,7 @@ setInlineEditTodo inlineEditTodo model =
 
 startEditing : Todo -> Model -> Return
 startEditing todo =
-    updateInlineEditTodoAndCache <| Just { todo = todo, title = Nothing, dueAt = Nothing }
+    updateInlineEditTodoAndCache <| Just <| InlineEditTodo.fromRecord { todo = todo, title = Nothing, dueAt = Nothing }
 
 
 startMoving : Todo -> Model -> Return
@@ -1238,7 +1240,7 @@ viewTodoItem model todo =
             viewTodoItemBase model todo
 
         Just edt ->
-            if edt.todo.id == todo.id then
+            if (InlineEditTodo.toRecord edt |> .todo |> .id) == todo.id then
                 viewEditTodoItem here edt
 
             else
@@ -1246,8 +1248,11 @@ viewTodoItem model todo =
 
 
 viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
-viewEditTodoItem here edt =
+viewEditTodoItem here edt_ =
     let
+        edt =
+            InlineEditTodo.toRecord edt_
+
         titleValue =
             edt.title
                 |> Maybe.withDefault edt.todo.title
