@@ -96,7 +96,7 @@ type alias Todo =
 decoder : Decoder Todo
 decoder =
     JD.succeed Todo
-        |> JDP.required "id" JD.string
+        |> JDP.required "id" TodoId.decoder
         |> JDP.required "title" JD.string
         |> JDP.required "sortIdx" JD.int
         |> JDP.optional "projectId" ProjectId.decoder ProjectId.default
@@ -110,7 +110,7 @@ decoder =
 encoder : Todo -> Value
 encoder { id, title, sortIdx, projectId, projectIdModifiedAt, isDone, dueAt, createdAt, modifiedAt } =
     JE.object
-        [ ( "id", JE.string id )
+        [ ( "id", TodoId.encoder id )
         , ( "title", JE.string title )
         , ( "sortIdx", JE.int sortIdx )
         , ( "projectId", ProjectId.encoder projectId )
@@ -132,7 +132,7 @@ type Msg
 
 newForProject : Millis -> ProjectId -> Value
 newForProject now pid =
-    { id = ""
+    { id = TodoId.new
     , title = ""
     , sortIdx = 0
     , projectId = pid
@@ -147,7 +147,7 @@ newForProject now pid =
 
 newToday : Millis -> Millis -> Value
 newToday now dueAt =
-    { id = ""
+    { id = TodoId.new
     , title = ""
     , sortIdx = 0
     , projectId = ProjectId.default

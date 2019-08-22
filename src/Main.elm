@@ -348,7 +348,7 @@ update message model =
             )
 
         OnChangeTitleRequested todoId ->
-            ( model, Ports.changeTodoTitle todoId )
+            ( model, Ports.changeTodoTitle (TodoId.toString todoId) )
 
         OnFirestoreQueryResponse qs ->
             case qs.id of
@@ -374,7 +374,7 @@ update message model =
             ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
 
         OnDelete todoId ->
-            ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId } )
+            ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ TodoId.toString todoId } )
 
         OnDeleteProject projectId ->
             ( model
@@ -390,7 +390,7 @@ update message model =
         PatchTodo todoId todoMsgList now ->
             ( model
             , Ports.updateFirestoreDoc
-                { userDocPath = "todos/" ++ todoId
+                { userDocPath = "todos/" ++ TodoId.toString todoId
                 , data = JE.object (Todo.patch todoMsgList now)
                 }
             )
@@ -524,15 +524,15 @@ update message model =
 
 
 todoMenuDomId todoId =
-    "todo-menu-dom-id--" ++ todoId
+    "todo-menu-dom-id--" ++ TodoId.toString todoId
 
 
 todoMenuTriggerDomId todoId =
-    "todo-menu-trigger-dom-id--" ++ todoId
+    "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
 
 
 todoFirstFocusableDomId todoId =
-    "todo-menu--first-focusable--dom-id--" ++ todoId
+    "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId
 
 
 focusTodoMenuCmd todoId =
@@ -677,7 +677,7 @@ cleanupTodoList model =
                     (.id
                         >> (\todoId ->
                                 Ports.deleteFirestoreDoc
-                                    { userDocPath = "todos/" ++ todoId }
+                                    { userDocPath = "todos/" ++ TodoId.toString todoId }
                            )
                     )
                 |> Cmd.batch
