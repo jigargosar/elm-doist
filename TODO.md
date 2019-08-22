@@ -16,7 +16,10 @@
 * cleanup
     * todo menu
     * remove now timer.
-    * update today in model.
+    
+
+## Known Issues: 
+* update today in model.
 
 ## SLICE 3
 * DueAt
