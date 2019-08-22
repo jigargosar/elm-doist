@@ -29,6 +29,7 @@ const app = Elm.Main.init({
       localStorage.getItem('cachedAuthState') || 'null',
     ),
     browserSize: { width: window.innerWidth, height: window.innerHeight },
+    now: Date.now(),
     cache: JSON.parse(localStorage.getItem(storageKey) || 'null'),
   },
 })

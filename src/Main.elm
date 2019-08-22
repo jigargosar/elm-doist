@@ -100,6 +100,7 @@ type alias Flags =
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
     , browserSize : Size
+    , now : Millis
     , cache : Cache
     }
 
@@ -185,6 +186,7 @@ flagsDecoder =
         |> JDP.required "cachedAuthState"
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
         |> JDP.required "browserSize" Size.decoder
+        |> JDP.required "now" JD.int
         |> JDP.required "cache" cacheDecoder
 
 
@@ -635,6 +637,7 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setModelFromCache flags.cache
         |> setBrowserSize flags.browserSize
+        |> setTodayFromNow flags.now
         |> pure
 
 
@@ -716,6 +719,11 @@ setAuthState authState model =
 
 setBrowserSize browserSize model =
     { model | browserSize = browserSize }
+
+
+setTodayFromNow : Int -> { b | today : Calendar.Date } -> { b | today : Calendar.Date }
+setTodayFromNow millis model =
+    { model | today = dateFromMillis millis }
 
 
 onAuthStateChanged : AuthState -> Model -> Return
