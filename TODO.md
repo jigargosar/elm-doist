@@ -12,6 +12,10 @@
 * InBox
 * Deploy to elmdoist.web.app
 
+## 2.5
+* cleanup
+    * todo menu
+    * remove now timer.
 
 ## SLICE 3
 * DueAt
