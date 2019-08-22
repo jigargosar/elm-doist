@@ -1321,8 +1321,6 @@ viewTodoItemBase :
 viewTodoItemBase { here, todoMenu } todo =
     div
         [ class "pa2 flex items-center hs1 lh-copy db "
-
-        --        , tabindex 0
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewDueAt here todo
