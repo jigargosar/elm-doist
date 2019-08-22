@@ -1291,7 +1291,7 @@ viewEditTodoItem here edt =
                                 , text <| Millis.formatDate "ddd MMM" here <| mi
                                 ]
                         )
-                , div [ class "pointer underline blue" ] [ text "edit" ]
+                , btn (OnEditDueStart <| todoId) [ class "underline blue pa1" ] [ text "edit" ]
                 ]
             , div [ class "flex-grow-1" ] []
             , div [ class "flex flex-row-reverse justify-start" ]
