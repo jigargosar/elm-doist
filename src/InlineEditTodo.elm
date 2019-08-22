@@ -53,9 +53,9 @@ fromTodo todo =
     { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
 
 
-setDueAt : Maybe DueAt -> Model -> Model
+setDueAt : DueAt -> Model -> Model
 setDueAt dueAt (Model modelRecord) =
-    { modelRecord | dueAt = dueAt }
+    { modelRecord | dueAt = Just dueAt }
         |> Model
 
 
