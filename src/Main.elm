@@ -866,7 +866,7 @@ masterLayout title content model =
             250
 
         maxContentWidthNum =
-            800
+            900
 
         headerHeight =
             rem 2
@@ -1311,16 +1311,16 @@ viewTodoItemBase :
     -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
-        [ class "pa2 flex lh-copy db hide-child"
+        [ class "flex hide-child"
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
-        , viewTodoItemContent here todo
+        , viewTodoItemTitle todo
         , viewDueAt here todo
         , div [ class "relative child flex" ]
             [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
-                , class "ph1 tc"
+                , class "pa2 tc"
                 ]
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
@@ -1379,11 +1379,11 @@ viewDueAt here todo =
             (\_ ->
                 faBtn (OnEditDueStart todo.id)
                     FontAwesome.Regular.calendarPlus
-                    [ class "ph2 child" ]
+                    [ class "pa2 child" ]
             )
             (\dueMillis ->
                 btn (OnEditDueStart todo.id)
-                    [ class "ph2 flex-shrink-0 f7 lh-copy"
+                    [ class "pa2 flex-shrink-0 f7 lh-copy"
                     ]
                     [ text <| Millis.formatDate "MMM dd" here dueMillis
                     ]
@@ -1392,10 +1392,10 @@ viewDueAt here todo =
 
 viewCheck isChecked onCheckMsg =
     div
-        [ class "flex-shrink-0 hover-bg-light-yellow pt1"
+        [ class "pa2"
         ]
         [ input
-            [ class "pointer w-100 h-100"
+            [ class "pointer "
             , type_ "checkbox"
             , css [ width <| px 24, height <| px 24 ]
             , checked isChecked
@@ -1405,8 +1405,8 @@ viewCheck isChecked onCheckMsg =
         ]
 
 
-viewTodoItemContent : Time.Zone -> Todo -> Html Msg
-viewTodoItemContent here todo =
+viewTodoItemTitle : Todo -> Html Msg
+viewTodoItemTitle todo =
     let
         ( title, titleClass ) =
             ifElse (SX.isBlank todo.title)
@@ -1417,11 +1417,9 @@ viewTodoItemContent here todo =
             div [ class "", onClick (OnEdit todo.id) ] [ text title ]
     in
     div
-        [ class
-            (titleClass
-                ++ " "
-                ++ "flex-grow-1 hover-bg-light-yellow ph2"
-            )
+        [ class titleClass
+        , class "pa2 flex-grow-1 hover-bg-light-yellow"
+        , class " lh-title"
         ]
         [ viewTitle ]
 
