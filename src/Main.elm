@@ -1046,7 +1046,7 @@ viewFooter model =
                 HX.empty
 
             MoveToProjectDialog todo ->
-                viewMoveDialog todo (Project.filterActive model.projectList)
+                viewMoveDialog todo.projectId (Project.filterActive model.projectList)
 
             DueDialog _ ->
                 viewDueDialog model.here model.today
@@ -1102,14 +1102,14 @@ toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
 
 
-viewMoveDialog : Todo -> ProjectList -> Html Msg
-viewMoveDialog todo projectList =
+viewMoveDialog : ProjectId -> List Project -> Html Msg
+viewMoveDialog projectId projectList =
     let
         viewPLI dp =
             div
                 [ tabindex 0
                 , class "lh-copy pa2 pointer"
-                , classList [ ( "b", dp.id == todo.projectId ) ]
+                , classList [ ( "b", dp.id == projectId ) ]
                 , onClick (OnMoveToProject dp.id)
                 ]
                 [ div [] [ text dp.title ] ]
