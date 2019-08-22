@@ -1337,21 +1337,19 @@ viewTodoItemBase { here, todoMenu } todo =
         ]
 
 
-isOutsideElementWithIdDecoder : String -> Decoder Bool
-isOutsideElementWithIdDecoder dropdownId =
+isOutsideElIdDecoder : String -> Decoder Bool
+isOutsideElIdDecoder containerDomId =
     JD.oneOf
         [ JD.field "id" JD.string
             |> JD.andThen
                 (\id ->
-                    if dropdownId == id then
+                    ifElse (containerDomId == id)
                         -- found match by id
-                        JD.succeed False
-
-                    else
+                        (JD.succeed False)
                         -- try next decoder
-                        JD.fail "continue"
+                        (JD.fail "continue")
                 )
-        , JD.lazy (\_ -> isOutsideElementWithIdDecoder dropdownId |> JD.field "parentNode")
+        , JD.lazy (\_ -> isOutsideElIdDecoder containerDomId |> JD.field "parentNode")
 
         -- fallback if all previous decoders failed
         , JD.succeed True
@@ -1363,7 +1361,7 @@ isRelatedTargetOutsideOfElWithId elId =
         [ {- JD.field "relatedTarget" (JD.null False)
              ,
           -}
-          JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+          JD.field "relatedTarget" (isOutsideElIdDecoder elId)
         ]
 
 
