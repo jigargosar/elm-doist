@@ -9,12 +9,12 @@ import Json.Decode as JD exposing (Decoder)
 onFocusOutsideDomId : String -> ({ hasRelatedTarget : Bool } -> msg) -> Attribute msg
 onFocusOutsideDomId domId tagger =
     on "focusout"
-        (JD.oneOf
-            [ JD.field "relatedTarget"
-                (JD.null (tagger { hasRelatedTarget = False }))
-            , JD.field "relatedTarget"
-                (outsideElIdDecoder domId (tagger { hasRelatedTarget = True }))
-            ]
+        (JD.field "relatedTarget"
+            (JD.oneOf
+                [ JD.null (tagger { hasRelatedTarget = False })
+                , outsideElIdDecoder domId (tagger { hasRelatedTarget = True })
+                ]
+            )
         )
 
 
