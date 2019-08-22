@@ -1375,9 +1375,16 @@ viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
     todo
         |> Todo.dueMilli
-        |> MX.unpack (\_ -> faBtn NoOp FontAwesome.Regular.calendarPlus [ class "ph2" ])
+        |> MX.unpack
+            (\_ ->
+                faBtn (OnEditDueStart todo.id)
+                    FontAwesome.Regular.calendarPlus
+                    [ class "ph2 child" ]
+            )
             (\dueMillis ->
-                div [ class "truncate flex-shrink-0 f7 lh-copy ph1" ]
+                btn (OnEditDueStart todo.id)
+                    [ class "ph2 flex-shrink-0 f7 lh-copy"
+                    ]
                     [ text <| Millis.formatDate "MMM dd" here dueMillis
                     ]
             )
