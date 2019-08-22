@@ -94,3 +94,9 @@ a {
 .c-default {
   cursor: default;
 }
+
+
+.hide-child .child:focus-within {
+  opacity: 1;
+  transition: opacity .15s ease-in;
+}

@@ -1293,7 +1293,7 @@ viewTodoItemBase :
     -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
-        [ class "pa2 flex hs1 lh-copy db hide-child"
+        [ class "pa2 flex hs1 lh-title db hide-child"
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemContent here todo
@@ -1359,7 +1359,7 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> HX.viewMaybe
             (\dueMillis ->
-                div [ class "truncate flex-shrink-0 f7 ph1" ]
+                div [ class "truncate flex-shrink-0 f7 lh-copy ph1" ]
                     [ text <| Millis.formatDate "MMM dd" here dueMillis
                     ]
             )
@@ -1367,12 +1367,12 @@ viewDueAt here todo =
 
 viewCheck isChecked onCheckMsg =
     div
-        [ class "flex-shrink-0 hover-bg-light-yellow "
-        , css [ width <| px 32, height <| px 32 ]
+        [ class "flex-shrink-0 hover-bg-light-yellow pt1"
         ]
         [ input
             [ class "pointer w-100 h-100"
             , type_ "checkbox"
+            , css [ width <| px 24, height <| px 24 ]
             , checked isChecked
             , onCheck onCheckMsg
             ]
@@ -1388,30 +1388,17 @@ viewTodoItemContent here todo =
                 ( "<no title>", "i black-70" )
                 ( todo.title, "" )
 
-        dueAtText =
-            todo |> Todo.dueMilli |> Maybe.map (Millis.formatDate "dd MMM" here)
-
-        viewDueAtInline : String -> Html Msg
-        viewDueAtInline txt =
-            div [ class "di mr2 pointer ", onClick <| OnEditDueStart todo.id ]
-                [ div
-                    [ class "ttu f7 lh-solid dib code br-pill ba ph2 pv1"
-                    , class "bg-red white"
-                    ]
-                    [ text txt ]
-                ]
-
         viewTitle =
-            div [ class "di viewDueAtInline", onClick (OnEdit todo.id) ] [ text title ]
+            div [ class "", onClick (OnEdit todo.id) ] [ text title ]
     in
     div
         [ class
             (titleClass
                 ++ " "
-                ++ "flex-grow-1 pointer hover-bg-light-yellow lh-copy ph2"
+                ++ "flex-grow-1 hover-bg-light-yellow ph2"
             )
         ]
-        [ viewMaybe viewDueAtInline dueAtText, viewTitle ]
+        [ viewTitle ]
 
 
 
