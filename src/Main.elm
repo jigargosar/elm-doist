@@ -1045,6 +1045,27 @@ btn action attrs =
         )
 
 
+textBtn : msg -> List (Attribute msg) -> String -> Html msg
+textBtn action attrs txt =
+    btn action
+        (class "underline pa1" :: attrs)
+        [ text txt ]
+
+
+primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
+primaryTxtBtn action attrs txt =
+    textBtn action
+        (class "blue" :: attrs)
+        txt
+
+
+secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
+secondaryTxtBtn action attrs txt =
+    textBtn action
+        (class "gray" :: attrs)
+        txt
+
+
 
 -- LAYOUT FOOTER & DIALOG
 
@@ -1262,42 +1283,44 @@ viewEditTodoItem here edt =
 
         todoId =
             InlineEditTodo.todoId edt
+
+        viewIP =
+            div [ class "flex-grow-1 flex ba b--moon-gray" ]
+                [ input
+                    [ class "pa2 flex-grow-1 lh-copy bn"
+                    , type_ "text"
+                    , value titleValue
+                    , onInput (OnSetTitle todoId)
+                    ]
+                    []
+                ]
+
+        viewDue =
+            primaryTxtBtn (OnEditDueStart <| todoId)
+                [ class "flex items-center"
+                , class "pointer pa3 ba b--moon-gray"
+                , class "w4"
+                , onClick <| OnEditDueStart <| todoId
+                ]
+                (dueAtValue
+                    |> MX.unpack
+                        (\_ -> "Schedule")
+                        (\mi ->
+                            Millis.formatDate "MMM dd" here <| mi
+                        )
+                )
     in
     div
         [ class "pa3 vs3"
         , tabindex 0
         ]
         [ div [ class "flex" ]
-            [ input
-                [ class "pa1 flex-grow-1 lh-copy"
-                , type_ "text"
-                , value titleValue
-                , onInput (OnSetTitle todoId)
-                ]
-                []
+            [ viewIP
+            , viewDue
             ]
-        , div [ class "flex items-center" ]
-            [ div
-                [ class "flex items-center hs3"
-                , class "pointer"
-                , onClick <| OnEditDueStart <| todoId
-                ]
-                [ dueAtValue
-                    |> MX.unpack
-                        (\_ -> div [] [ text "No Due Date" ])
-                        (\mi ->
-                            div [ class "" ]
-                                [ text "Due: "
-                                , text <| Millis.formatDate "ddd MMM" here <| mi
-                                ]
-                        )
-                , btn (OnEditDueStart <| todoId) [ class "underline blue pa1" ] [ text "edit" ]
-                ]
-            , div [ class "flex-grow-1" ] []
-            , div [ class "flex flex-row-reverse justify-start" ]
-                [ button [ class "ml3", onClick OnEditSave ] [ text "Save" ]
-                , button [ class "ml3", onClick OnEditCancel ] [ text "Cancel" ]
-                ]
+        , div [ class "flex hs3" ]
+            [ primaryTxtBtn OnEditSave [ class "" ] "Save"
+            , secondaryTxtBtn OnEditCancel [ class "" ] "Cancel"
             ]
         ]
 
