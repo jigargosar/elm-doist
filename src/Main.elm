@@ -1000,6 +1000,7 @@ faBtn clickHandler icon =
     div
         [ class "gray hover-dark-gray pointer"
         , onClick clickHandler
+        , tabindex 0
         ]
         [ icon
             |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
