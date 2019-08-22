@@ -513,7 +513,7 @@ update message model =
         OnEditSave ->
             model.inlineEditTodo
                 |> Maybe.andThen InlineEditTodo.toUpdateMessages
-                |> UX.maybeUnpackPure
+                |> MX.unpack (\_ -> pure model)
                     (\( todo, todoUpdateMsgList ) ->
                         let
                             cmd =
@@ -521,10 +521,10 @@ update message model =
                                     |> List.map (patchTodoCmd todo.id)
                                     |> Cmd.batch
                         in
-                        updateInlineEditTodoAndCache Nothing
-                            >> command cmd
+                        model
+                            |> updateInlineEditTodoAndCache Nothing
+                            |> command cmd
                     )
-                    model
 
 
 todoMenuDomId todoId =
