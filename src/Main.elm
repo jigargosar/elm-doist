@@ -1217,7 +1217,14 @@ pendingForProjectContent pid title model displayTodoList =
         ]
 
 
-viewTodoItem : Model -> Todo -> Html Msg
+viewTodoItem :
+    { a
+        | inlineEditTodo : Maybe InlineEditTodo.Model
+        , here : Zone
+        , todoMenu : Maybe TodoMenu
+    }
+    -> Todo
+    -> Html Msg
 viewTodoItem model todo =
     let
         { inlineEditTodo, here } =
@@ -1277,7 +1284,13 @@ viewEditTodoItem here edt =
         ]
 
 
-viewTodoItemBase : Model -> Todo -> Html Msg
+viewTodoItemBase :
+    { a
+        | here : Zone
+        , todoMenu : Maybe { b | todoId : TodoId }
+    }
+    -> Todo
+    -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
         [ class "pa2 flex items-center hs1 lh-copy db "
