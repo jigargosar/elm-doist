@@ -456,14 +456,9 @@ update message model =
 
         CloseTodoMenu todoId ->
             model.todoMenu
-                |> MX.unwrap (pure model)
-                    (\todoMenu ->
-                        if todoMenu.todoId == todoId then
-                            pure { model | todoMenu = Nothing }
-
-                        else
-                            pure model
-                    )
+                |> MX.filter (.todoId >> eq_ todoId)
+                |> MX.unpack (\_ -> pure model)
+                    (\_ -> pure { model | todoMenu = Nothing })
 
         OnMoveToProject pid ->
             case model.dialog of
