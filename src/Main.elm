@@ -465,21 +465,13 @@ update message model =
                         )
                     )
 
-        OnMoveToProject todoId_ pid ->
-            case model.dialog of
-                NoDialog ->
-                    pure model
-
-                MoveToProjectDialog todoId _ ->
-                    updateDialogAndCache NoDialog model
-                        |> command
-                            (patchTodoCmd
-                                todoId
-                                [ Todo.SetProjectId pid ]
-                            )
-
-                DueDialog _ ->
-                    pure model
+        OnMoveToProject todoId pid ->
+            updateDialogAndCache NoDialog model
+                |> command
+                    (patchTodoCmd
+                        todoId
+                        [ Todo.SetProjectId pid ]
+                    )
 
         OnSetDue dueAt ->
             case ( model.inlineEditTodo, model.dialog ) of
