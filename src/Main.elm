@@ -526,10 +526,11 @@ update message model =
                 |> Maybe.andThen InlineEditTodo.toUpdateMessages
                 |> MX.unpack (\_ -> pure model)
                     (\( todo, todoUpdateMsgList ) ->
-                        model
-                            |> updateInlineEditTodoAndCache Nothing
-                            |> command (patchTodoCmd todo.id todoUpdateMsgList)
+                        ( model
+                        , patchTodoCmd todo.id todoUpdateMsgList
+                        )
                     )
+                |> andThen (updateInlineEditTodoAndCache Nothing)
 
 
 todoMenuDomId todoId =
