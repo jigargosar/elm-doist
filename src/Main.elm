@@ -1360,15 +1360,14 @@ viewTodoMenu todo =
 
         menuItemsViewList =
             miModel
+                |> List.map (Tuple.mapFirst <| callWith todo.id)
                 |> List.indexedMap
                     (\idx ( msg, label ) ->
-                        div
-                            [ tabindex 0
-                            , A.id <|
+                        btn msg
+                            [ A.id <|
                                 ifElse (idx == 0)
                                     (todoFirstFocusableDomId todo.id)
                                     ""
-                            , onClick <| msg todo.id
                             ]
                             [ text label ]
                     )
@@ -1377,8 +1376,7 @@ viewTodoMenu todo =
         [ A.id <| todoMenuDomId todo.id
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
-        , on "focusout"
-            msgDecoderOnFocusout
+        , on "focusout" msgDecoderOnFocusout
         ]
         menuItemsViewList
 
