@@ -461,7 +461,7 @@ update message model =
             model.todoMenu
                 |> MX.filter (.todoId >> eq_ todoId)
                 |> MX.unpack (\_ -> pure model)
-                    (\_ -> pure { model | todoMenu = Nothing })
+                    (\_ -> ( { model | todoMenu = Nothing }, focusTodoMenuCmd todoId ))
 
         OnMoveToProject pid ->
             case model.dialog of
