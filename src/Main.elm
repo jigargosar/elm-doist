@@ -1338,6 +1338,27 @@ viewTodoMenu todo =
                             (JD.succeed (CloseTodoMenu todo.id))
                             (JD.fail "not interested")
                     )
+
+        miModel =
+            [ ( OnDelete, "Delete" )
+            , ( OnMoveStart, "Move to..." )
+            , ( OnEditDueStart, "Change Due At..." )
+            ]
+
+        menuItemsViewList =
+            miModel
+                |> List.indexedMap
+                    (\idx ( msg, label ) ->
+                        div
+                            [ tabindex 0
+                            , A.id <|
+                                ifElse (idx == 0)
+                                    (todoFirstFocusableDomId todo.id)
+                                    ""
+                            , onClick <| msg todo.id
+                            ]
+                            [ text label ]
+                    )
     in
     div
         [ A.id <| todoMenuDomId todo.id
@@ -1347,14 +1368,7 @@ viewTodoMenu todo =
         , on "focusout"
             msgDecoderOnFocusout
         ]
-        [ div
-            [ tabindex 0
-            , A.id <| todoFirstFocusableDomId todo.id
-            ]
-            [ text "todo item menu 1" ]
-        , div [] [ text "todo item menu 2" ]
-        , div [] [ text "todo item menu 3" ]
-        ]
+        menuItemsViewList
 
 
 isOutsideElIdDecoder : String -> Decoder Bool
