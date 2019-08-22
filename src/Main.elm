@@ -1009,7 +1009,7 @@ viewProjectNavItem project =
 faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
     btn action
-        ([ class "gray hover-dark-gray pointer"
+        ([ class "gray hover-dark-gray"
          ]
             ++ attrs
         )
