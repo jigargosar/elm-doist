@@ -33,6 +33,7 @@ import Html.Styled.Attributes as A
 import Html.Styled.Events exposing (on, onCheck, onClick)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra exposing (viewMaybe)
+import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -58,10 +59,6 @@ import Url exposing (Url)
 -- MODEL
 
 
-type alias InlineEditTodo =
-    { todo : Todo, title : Maybe String, dueAt : Maybe DueAt }
-
-
 type Dialog
     = NoDialog
     | MoveToProjectDialog Todo
@@ -75,7 +72,7 @@ type alias TodoMenu =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , inlineEditTodo : Maybe InlineEditTodo
+    , inlineEditTodo : Maybe InlineEditTodo.Model
     , todoMenu : Maybe TodoMenu
     , dialog : Dialog
     , authState : AuthState
@@ -91,7 +88,7 @@ type alias Model =
 
 type alias Cache =
     { dialog : Dialog
-    , inlineEditTodo : Maybe InlineEditTodo
+    , inlineEditTodo : Maybe InlineEditTodo.Model
     }
 
 
@@ -147,9 +144,9 @@ dialogDecoderForTag tag =
             JD.fail ("Invalid Dialog Tag:" ++ tag)
 
 
-inlineEditTodoDecoder : Decoder InlineEditTodo
+inlineEditTodoDecoder : Decoder InlineEditTodo.Model
 inlineEditTodoDecoder =
-    JD.succeed InlineEditTodo
+    JD.succeed InlineEditTodo.Model
         |> JDP.required "todo" Todo.decoder
         |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
@@ -581,14 +578,14 @@ focusTodoMenuCmd todoId =
     focus domId |> Task.attempt Focused
 
 
-updateInlineEditTodoAndCache : Maybe InlineEditTodo -> Model -> Return
+updateInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
 updateInlineEditTodoAndCache inlineEditTodo model =
     setInlineEditTodo inlineEditTodo model
         |> pure
         |> effect cacheEffect
 
 
-setInlineEditTodo : Maybe InlineEditTodo -> Model -> Model
+setInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
 setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
@@ -1271,7 +1268,7 @@ viewTodoItem model todo =
                 viewTodoItemBase model todo
 
 
-viewEditTodoItem : Time.Zone -> InlineEditTodo -> Html Msg
+viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem here edt =
     let
         titleValue =
