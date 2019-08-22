@@ -1295,30 +1295,33 @@ viewEditTodoItem here edt =
                     []
                 ]
 
+        ( txt, cls ) =
+            dueAtValue
+                |> MX.unpack
+                    (\_ -> ( "Schedule", "gray" ))
+                    (\mi ->
+                        ( Millis.formatDate "MMM dd" here <| mi, "near-black" )
+                    )
+
         viewDue =
-            primaryTxtBtn (OnEditDueStart <| todoId)
-                [ class "flex items-center"
-                , class "pointer pa3 ba b--moon-gray"
+            textBtn (OnEditDueStart <| todoId)
+                [ class "flex"
+                , class "pa3 ba b--moon-gray"
                 , class "w4"
+                , class cls
                 , onClick <| OnEditDueStart <| todoId
                 ]
-                (dueAtValue
-                    |> MX.unpack
-                        (\_ -> "Schedule")
-                        (\mi ->
-                            Millis.formatDate "MMM dd" here <| mi
-                        )
-                )
+                txt
     in
     div
-        [ class "pa3 vs3"
+        [ class "pv3 ph2"
         , tabindex 0
         ]
         [ div [ class "flex" ]
             [ viewIP
             , viewDue
             ]
-        , div [ class "flex hs3" ]
+        , div [ class "flex hs3 lh-copy" ]
             [ primaryTxtBtn OnEditSave [ class "" ] "Save"
             , secondaryTxtBtn OnEditCancel [ class "" ] "Cancel"
             ]
