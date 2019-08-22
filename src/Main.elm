@@ -144,41 +144,18 @@ dialogDecoderForTag tag =
             JD.fail ("Invalid Dialog Tag:" ++ tag)
 
 
-inlineEditTodoDecoder : Decoder InlineEditTodo.Model
-inlineEditTodoDecoder =
-    JD.succeed InlineEditTodo.Model
-        |> JDP.required "todo" Todo.decoder
-        |> JDP.optional "title" (JD.nullable JD.string) Nothing
-        |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
-
-
-inlineEditTodoEncoder =
-    Maybe.Extra.unwrap JE.null
-        (\{ todo, title, dueAt } ->
-            JE.object
-                (( "todo", Todo.encoder todo )
-                    :: Maybe.Extra.unwrap []
-                        (\t -> [ ( "title", JE.string t ) ])
-                        title
-                    ++ Maybe.Extra.unwrap []
-                        (\da -> [ ( "dueAt", Todo.dueAtEncoder da ) ])
-                        dueAt
-                )
-        )
-
-
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
         |> JDP.optional "dialog" dialogDecoder NoDialog
-        |> JDP.optional "inlineEditTodo" (JD.maybe inlineEditTodoDecoder) Nothing
+        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
 
 
 cacheEncoder : Cache -> Value
 cacheEncoder { dialog, inlineEditTodo } =
     JE.object
         [ ( "dialog", dialogEncoder dialog )
-        , ( "inlineEditTodo", inlineEditTodoEncoder inlineEditTodo )
+        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
         ]
 
 
