@@ -13,25 +13,32 @@ onFocusOutsideDomId domId tagger =
             [ JD.field "relatedTarget"
                 (JD.null (tagger { hasRelatedTarget = False }))
             , JD.field "relatedTarget"
-                (outsideElIdDecoder domId (tagger { hasRelatedTarget = True }))
+                (isOutsideElIdDecoder domId
+                    |> JD.andThen
+                        (\isOut ->
+                            ifElse isOut
+                                (JD.succeed (tagger { hasRelatedTarget = True }))
+                                (JD.fail "")
+                        )
+                )
             ]
         )
 
 
-outsideElIdDecoder : String -> msg -> Decoder msg
-outsideElIdDecoder containerDomId msg =
+isOutsideElIdDecoder : String -> Decoder Bool
+isOutsideElIdDecoder containerDomId =
     JD.oneOf
         [ JD.field "id" JD.string
             |> JD.andThen
                 (\id ->
                     ifElse (containerDomId == id)
                         -- found match by id
-                        (JD.succeed msg)
+                        (JD.succeed False)
                         -- try next decoder
                         (JD.fail "continue")
                 )
-        , JD.lazy (\_ -> outsideElIdDecoder containerDomId msg |> JD.field "parentNode")
+        , JD.lazy (\_ -> isOutsideElIdDecoder containerDomId |> JD.field "parentNode")
 
         -- fallback when all previous decoders failed
-        , JD.succeed msg
+        , JD.succeed True
         ]
