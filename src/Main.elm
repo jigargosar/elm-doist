@@ -740,7 +740,6 @@ view model =
                     [ H.toUnstyled <|
                         div
                             [ A.id "root"
-                            , tabindex -1
                             , css
                                 [ minHeight <| vh 100
                                 , minWidth <| vw 100
@@ -1359,8 +1358,6 @@ viewTodoMenu todo =
     in
     div
         [ A.id <| todoMenuDomId todo.id
-        , tabindex -1
-        , css [ outline none ]
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , on "focusout"
