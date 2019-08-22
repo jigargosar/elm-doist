@@ -38,7 +38,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import List.Extra
-import Maybe.Extra
+import Maybe.Extra as MX exposing ()
 import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
@@ -433,19 +433,19 @@ update message model =
         OnEdit todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
-                |> Maybe.Extra.unwrap pure startEditing
+                |> MX.unwrap pure startEditing
                 |> callWith model
 
         OnMoveStart todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
-                |> Maybe.Extra.unwrap pure startMoving
+                |> MX.unwrap pure startMoving
                 |> callWith model
 
         OnEditDueStart todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
-                |> Maybe.Extra.unwrap pure startEditingDue
+                |> MX.unwrap pure startEditingDue
                 |> callWith model
 
         OnTodoMenuClicked todoId ->
@@ -458,7 +458,7 @@ update message model =
 
         CloseTodoMenu todoId ->
             model.todoMenu
-                |> Maybe.Extra.unwrap (pure model)
+                |> MX.unwrap (pure model)
                     (\todoMenu ->
                         if todoMenu.todoId == todoId then
                             pure { model | todoMenu = Nothing }
@@ -518,19 +518,19 @@ update message model =
 
         OnEditSave ->
             model.inlineEditTodo
-                |> Maybe.Extra.unwrap pure
+                |> MX.unwrap pure
                     (InlineEditTodo.toRecord
                         >> (\{ todo, dueAt, title } ->
                                 let
                                     cmd1 =
                                         dueAt
-                                            |> Maybe.Extra.unwrap Cmd.none
+                                            |> MX.unwrap Cmd.none
                                                 (Todo.SetDueAt >> patchTodoCmd todo.id)
 
                                     cmd2 : Cmd Msg
                                     cmd2 =
                                         title
-                                            |> Maybe.Extra.unwrap Cmd.none
+                                            |> MX.unwrap Cmd.none
                                                 (Todo.SetTitle >> patchTodoCmd todo.id)
                                 in
                                 updateInlineEditTodoAndCache Nothing
@@ -660,7 +660,7 @@ cleanupTodoList model =
                 |> List.filter .deleted
                 |> List.filter
                     (\p ->
-                        Dict.get p.id todoByPid |> Maybe.Extra.unwrap True List.isEmpty
+                        Dict.get p.id todoByPid |> MX.unwrap True List.isEmpty
                     )
                 |> List.map
                     (.id
@@ -1178,7 +1178,7 @@ todayContent model =
         overDueList =
             List.filter
                 (Todo.compareDueDate nowDate
-                    >> Maybe.Extra.unwrap False (eq_ GT)
+                    >> MX.unwrap False (eq_ GT)
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
@@ -1235,16 +1235,10 @@ viewTodoItem model todo =
         { inlineEditTodo, here } =
             model
     in
-    case inlineEditTodo of
-        Nothing ->
-            viewTodoItemBase model todo
-
-        Just edt ->
-            if edt |> InlineEditTodo.idEq todo.id then
-                viewEditTodoItem here edt
-
-            else
-                viewTodoItemBase model todo
+    inlineEditTodo
+        |> MX.filter (InlineEditTodo.idEq todo.id)
+        |> MX.unpack (\_ -> viewTodoItemBase model todo)
+            (viewEditTodoItem here)
 
 
 viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
@@ -1392,7 +1386,7 @@ viewDueAt here todo =
                 ]
     in
     Todo.dueMilli todo
-        |> Maybe.Extra.unwrap
+        |> MX.unwrap
             HtmlStyledExtra.empty
             viewDueAt_
 
