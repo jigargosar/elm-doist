@@ -1033,6 +1033,7 @@ btn action attrs =
         ([ onClick action
          , preventDefaultOn "keydown" msgDecoderOnKeyDown
          , tabindex 0
+         , A.attribute "role" "button"
          ]
             ++ attrs
         )
