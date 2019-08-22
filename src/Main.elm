@@ -43,7 +43,7 @@ import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
-import Result.Extra
+import Result.Extra as RX
 import Return
 import Route exposing (Route)
 import Size exposing (Size)
@@ -52,7 +52,7 @@ import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import UpdateExtra as UX exposing (andThen, command, effect, pure)
+import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -328,12 +328,12 @@ update message model =
 
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
-                |> Result.Extra.unpack onDecodeError onAuthStateChanged
+                |> RX.unpack onDecodeError onAuthStateChanged
                 |> callWith model
 
         OnTodoListChanged encodedValue ->
             JD.decodeValue Todo.listDecoder encodedValue
-                |> Result.Extra.unpack onDecodeError updateTodoListFromFirestore
+                |> RX.unpack onDecodeError updateTodoListFromFirestore
                 |> callWith model
 
         OnSignInClicked ->
@@ -356,15 +356,15 @@ update message model =
                 "todoList" ->
                     qs.docDataList
                         |> List.map (JD.decodeValue Todo.decoder)
-                        |> Result.Extra.combine
-                        |> Result.Extra.unpack onDecodeError updateTodoListFromFirestore
+                        |> RX.combine
+                        |> RX.unpack onDecodeError updateTodoListFromFirestore
                         |> callWith model
 
                 "projectList" ->
                     qs.docDataList
                         |> List.map (JD.decodeValue Project.decoder)
-                        |> Result.Extra.combine
-                        |> Result.Extra.unpack onDecodeError updateProjectListAndCleanupFromFirestore
+                        |> RX.combine
+                        |> RX.unpack onDecodeError updateProjectListAndCleanupFromFirestore
                         |> callWith model
 
                 _ ->
@@ -372,7 +372,7 @@ update message model =
                         |> pure
 
         OnChecked todoId checked ->
-            ( model, patchTodoCmd todoId (Todo.SetCompleted checked) )
+            ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
 
         OnDelete todoId ->
             ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ todoId } )
@@ -471,7 +471,7 @@ update message model =
                         |> command
                             (patchTodoCmd
                                 todo.id
-                                (Todo.SetProjectId pid)
+                                [ Todo.SetProjectId pid ]
                             )
 
                 DueDialog _ ->
@@ -484,7 +484,7 @@ update message model =
                         |> command
                             (patchTodoCmd
                                 todo.id
-                                (Todo.SetDueAt dueAt)
+                                [ Todo.SetDueAt dueAt ]
                             )
 
                 ( Just _, DueDialog _ ) ->
@@ -515,15 +515,9 @@ update message model =
                 |> Maybe.andThen InlineEditTodo.toUpdateMessages
                 |> MX.unpack (\_ -> pure model)
                     (\( todo, todoUpdateMsgList ) ->
-                        let
-                            cmd =
-                                todoUpdateMsgList
-                                    |> List.map (patchTodoCmd todo.id)
-                                    |> Cmd.batch
-                        in
                         model
                             |> updateInlineEditTodoAndCache Nothing
-                            |> command cmd
+                            |> command (patchTodoCmd todo.id todoUpdateMsgList)
                     )
 
 
@@ -586,13 +580,8 @@ cacheEffect model =
     Ports.setCache (cacheEncoder (cacheFromModel model))
 
 
-patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
-patchTodoCmd todoId todoMsg =
-    multiPatchTodoCmd todoId [ todoMsg ]
-
-
-multiPatchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
-multiPatchTodoCmd todoId todoMsgList =
+patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
+patchTodoCmd todoId todoMsgList =
     PatchTodo todoId todoMsgList |> Millis.nowCmd
 
 
@@ -615,7 +604,7 @@ queryProjectListCmd =
 updateFromEncodedFlags : Value -> Model -> Return
 updateFromEncodedFlags encodedFlags model =
     JD.decodeValue flagsDecoder encodedFlags
-        |> Result.Extra.unpack onDecodeError updateFromFlags
+        |> RX.unpack onDecodeError updateFromFlags
         |> callWith model
 
 
