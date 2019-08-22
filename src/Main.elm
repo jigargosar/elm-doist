@@ -248,7 +248,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | OnDeleteProject ProjectId
-    | PatchTodo TodoId Todo.Msg Millis
+    | PatchTodo TodoId (List Todo.Msg) Millis
     | OnAddTodoStart ProjectId
     | OnAddTodoTodayStart
     | AddTodoToday Millis
@@ -388,11 +388,11 @@ update message model =
                 }
             )
 
-        PatchTodo todoId todoMsg now ->
+        PatchTodo todoId todoMsgList now ->
             ( model
             , Ports.updateFirestoreDoc
                 { userDocPath = "todos/" ++ todoId
-                , data = JE.object (Todo.modifyPatch todoMsg now)
+                , data = JE.object (Todo.patch todoMsgList now)
                 }
             )
 
@@ -588,7 +588,12 @@ cacheEffect model =
 
 patchTodoCmd : TodoId -> Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsg =
-    PatchTodo todoId todoMsg |> Millis.nowCmd
+    multiPatchTodoCmd todoId [ todoMsg ]
+
+
+multiPatchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
+multiPatchTodoCmd todoId todoMsgList =
+    PatchTodo todoId todoMsgList |> Millis.nowCmd
 
 
 queryTodoListCmd =

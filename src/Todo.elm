@@ -12,20 +12,17 @@ module Todo exposing
     , dueAtDecoder
     , dueAtEncoder
     , dueAtToMillis
-    , dueDate
     , dueDateEq
     , dueMilli
     , encoder
     , filter
-    , filterSingle
     , filterSort
     , listDecoder
     , listEncoder
     , matchesFilter
-    , modify
-    , modifyPatch
     , newForProject
     , newToday
+    , patch
     , sortWith
     )
 
@@ -163,77 +160,31 @@ newToday now dueAt =
         |> encoder
 
 
-modifyPatch : Msg -> Millis -> List ( String, Value )
-modifyPatch msg now =
+patch : List Msg -> Millis -> List ( String, Value )
+patch msgList now =
     ( "modifiedAt", JE.int now )
-        :: (case msg of
-                SetCompleted bool ->
-                    [ ( "isDone", JE.bool bool ) ]
-
-                SetProjectId projectId ->
-                    [ ( "projectId", ProjectId.encoder projectId )
-                    , ( "projectIdModifiedAt", JE.int now )
-                    ]
-
-                SetTitle title ->
-                    [ ( "title", JE.string title ) ]
-
-                SetSortIdx sortIdx ->
-                    [ ( "sortIdx", JE.int sortIdx ) ]
-
-                SetDueAt dueAt ->
-                    [ ( "dueAt", dueAt |> dueAtEncoder ) ]
-           )
+        :: List.concatMap (patchHelp now) msgList
 
 
-update : Msg -> Todo -> Todo
-update msg model =
+patchHelp : Int -> Msg -> List ( String, Value )
+patchHelp now msg =
     case msg of
         SetCompleted bool ->
-            { model | isDone = bool }
+            [ ( "isDone", JE.bool bool ) ]
 
         SetProjectId projectId ->
-            { model | projectId = projectId }
+            [ ( "projectId", ProjectId.encoder projectId )
+            , ( "projectIdModifiedAt", JE.int now )
+            ]
 
         SetTitle title ->
-            { model | title = title }
+            [ ( "title", JE.string title ) ]
 
         SetSortIdx sortIdx ->
-            { model | sortIdx = sortIdx }
+            [ ( "sortIdx", JE.int sortIdx ) ]
 
         SetDueAt dueAt ->
-            { model | dueAt = dueAt }
-
-
-modifyWithNow : Millis -> Msg -> Todo -> Maybe Todo
-modifyWithNow now msg model =
-    let
-        newModel =
-            update msg model
-    in
-    if newModel == model then
-        Nothing
-
-    else
-        newModel |> setModifiedAt now |> Just
-
-
-modify : Msg -> Millis -> Todo -> Maybe Todo
-modify msg now model =
-    modifyWithNow now msg model
-
-
-dueDate : Todo -> Maybe Calendar.Date
-dueDate model =
-    case model.dueAt of
-        NoDue ->
-            Nothing
-
-        DueAt mi ->
-            mi
-                |> Time.millisToPosix
-                |> Calendar.fromPosix
-                |> Just
+            [ ( "dueAt", dueAt |> dueAtEncoder ) ]
 
 
 dueAtToMillis : DueAt -> Maybe Millis
@@ -276,10 +227,6 @@ compareDueDate dt model =
                 |> Calendar.fromPosix
                 |> Calendar.compare dt
                 |> Just
-
-
-setModifiedAt now todo =
-    { todo | modifiedAt = now }
 
 
 type Filter
@@ -330,11 +277,6 @@ listEncoder =
 filter : Filter -> TodoList -> TodoList
 filter filter_ =
     List.filter (matchesFilter filter_)
-
-
-filterSingle : Filter -> Todo -> Maybe Todo
-filterSingle filter_ =
-    List.singleton >> filter filter_ >> List.head
 
 
 type CompareBy
