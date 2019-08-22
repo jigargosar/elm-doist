@@ -16,6 +16,7 @@ import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
+import FontAwesome.Regular
 import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
@@ -1008,7 +1009,7 @@ faBtn action icon attrs =
             ++ attrs
         )
         [ icon
-            |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
+            |> FAIcon.viewStyled [{- FontAwesome.Attributes.sm -}]
             |> H.fromUnstyled
         ]
 
@@ -1293,7 +1294,7 @@ viewTodoItemBase :
     -> Html Msg
 viewTodoItemBase { here, todoMenu } todo =
     div
-        [ class "pa2 flex hs1 lh-title db hide-child"
+        [ class "pa2 flex lh-copy db hide-child"
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemContent here todo
@@ -1302,7 +1303,7 @@ viewTodoItemBase { here, todoMenu } todo =
             [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
-                , class "pa1 tc"
+                , class "ph1 tc"
                 ]
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
@@ -1353,11 +1354,11 @@ viewTodoMenu todo =
         menuItemsViewList
 
 
-viewDueAt : Zone -> Todo -> Html msg
+viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
     todo
         |> Todo.dueMilli
-        |> HX.viewMaybe
+        |> MX.unpack (\_ -> faBtn NoOp FontAwesome.Regular.calendarPlus [ class "ph2" ])
             (\dueMillis ->
                 div [ class "truncate flex-shrink-0 f7 lh-copy ph1" ]
                     [ text <| Millis.formatDate "MMM dd" here dueMillis
