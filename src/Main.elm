@@ -65,7 +65,7 @@ import Url exposing (Url)
 type Dialog
     = NoDialog
     | MoveToProjectDialog Todo
-    | DueDialog Todo
+    | DueDialog TodoId
 
 
 type alias TodoMenu =
@@ -122,10 +122,10 @@ dialogEncoder dialog =
                 , ( "todo", Todo.encoder todo )
                 ]
 
-        DueDialog todo ->
+        DueDialog todoId ->
             JE.object
                 [ ( "tag", JE.string "DueDialog" )
-                , ( "todo", Todo.encoder todo )
+                , ( "todoId", TodoId.encoder todoId )
                 ]
 
 
@@ -140,7 +140,7 @@ dialogDecoderForTag tag =
                 |> JD.map MoveToProjectDialog
 
         "DueDialog" ->
-            JD.field "todo" Todo.decoder
+            JD.field "todoId" TodoId.decoder
                 |> JD.map DueDialog
 
         _ ->
@@ -441,10 +441,7 @@ update message model =
                 |> callWith model
 
         OnEditDueStart todoId ->
-            model.todoList
-                |> List.Extra.find (.id >> (==) todoId)
-                |> MX.unwrap pure startEditingDue
-                |> callWith model
+            startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
             let
@@ -484,11 +481,11 @@ update message model =
 
         OnSetDue dueAt ->
             case ( model.inlineEditTodo, model.dialog ) of
-                ( Nothing, DueDialog todo ) ->
+                ( Nothing, DueDialog todoId ) ->
                     updateDialogAndCache NoDialog model
                         |> command
                             (patchTodoCmd
-                                todo.id
+                                todoId
                                 [ Todo.SetDueAt dueAt ]
                             )
 
@@ -578,9 +575,9 @@ startMoving todo =
     updateDialogAndCache (MoveToProjectDialog todo)
 
 
-startEditingDue : Todo -> Model -> Return
-startEditingDue todo =
-    updateDialogAndCache (DueDialog todo)
+startEditingDue : TodoId -> Model -> Return
+startEditingDue todoId =
+    updateDialogAndCache (DueDialog todoId)
 
 
 updateDialogAndCache : Dialog -> Model -> Return
@@ -1051,8 +1048,8 @@ viewFooter model =
             MoveToProjectDialog todo ->
                 viewMoveDialog todo (Project.filterActive model.projectList)
 
-            DueDialog todo ->
-                viewDueDialog model.here model.today todo
+            DueDialog _ ->
+                viewDueDialog model.here model.today
         ]
 
 
@@ -1129,8 +1126,8 @@ viewMoveDialog todo projectList =
         ]
 
 
-viewDueDialog : Time.Zone -> Calendar.Date -> Todo -> Html Msg
-viewDueDialog zone today _ =
+viewDueDialog : Time.Zone -> Calendar.Date -> Html Msg
+viewDueDialog zone today =
     let
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
