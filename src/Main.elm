@@ -17,7 +17,7 @@ import FontAwesome.Icon as FAIcon
 import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
-import Html.Styled as H exposing (Html, a, button, div, input, text)
+import Html.Styled as H exposing (Attribute, Html, a, button, div, input, text)
 import Html.Styled.Attributes as A
     exposing
         ( checked
@@ -30,7 +30,7 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (on, onCheck, onClick)
+import Html.Styled.Events exposing (on, onCheck, onClick, preventDefaultOn)
 import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra as HX exposing (viewMaybe)
 import InlineEditTodo
@@ -995,17 +995,47 @@ viewProjectNavItem project =
         ]
 
 
+keyDecoder : String -> a -> Decoder a
+keyDecoder targetKey tagger =
+    JD.at [ "key" ] JD.string
+        |> JD.andThen (\key -> ifElse (key == targetKey) (JD.succeed tagger) (JD.fail ""))
+
+
+enterKeyDecoder : a -> Decoder a
+enterKeyDecoder =
+    keyDecoder "Enter"
+
+
+spaceKeyDecoder : a -> Decoder a
+spaceKeyDecoder =
+    keyDecoder " "
+
+
 faBtn : msg -> FAIcon.Icon -> Html msg
-faBtn clickHandler icon =
-    div
+faBtn action icon =
+    btn action
         [ class "gray hover-dark-gray pointer"
-        , onClick clickHandler
-        , tabindex 0
         ]
         [ icon
             |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
             |> H.fromUnstyled
         ]
+
+
+btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+btn action attrs =
+    let
+        msgDecoderOnKeyDown =
+            JD.oneOf [ enterKeyDecoder action, spaceKeyDecoder action ]
+                |> JD.map (\msg -> ( msg, True ))
+    in
+    div
+        ([ onClick action
+         , preventDefaultOn "keydown" msgDecoderOnKeyDown
+         , tabindex 0
+         ]
+            ++ attrs
+        )
 
 
 
