@@ -1334,7 +1334,9 @@ viewTodoItemBase { here, todoMenu } todo =
         , div [ class "relative" ]
             [ faBtn (OnTodoMenuClicked todo.id)
                 FontAwesome.Solid.ellipsisV
-                [ A.id <| todoMenuTriggerDomId todo.id ]
+                [ A.id <| todoMenuTriggerDomId todo.id
+                , class "pa1 tc"
+                ]
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
                 |> HX.viewMaybe
