@@ -487,10 +487,10 @@ update message model =
                                 (Todo.SetDueAt dueAt)
                             )
 
-                ( Just inlineEditTodo, DueDialog _ ) ->
+                ( Just _, DueDialog _ ) ->
                     model
-                        |> setInlineEditTodo
-                            (Just <| InlineEditTodo.setDueAt (Just dueAt) inlineEditTodo)
+                        |> mapInlineEditTodo
+                            (Maybe.map <| InlineEditTodo.setDueAt (Just dueAt))
                         |> updateDialogAndCache NoDialog
 
                 _ ->
@@ -561,6 +561,11 @@ updateInlineEditTodoAndCache inlineEditTodo model =
 setInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
 setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
+
+
+mapInlineEditTodo : (Maybe InlineEditTodo.Model -> Maybe InlineEditTodo.Model) -> Model -> Model
+mapInlineEditTodo mfn model =
+    setInlineEditTodo (mfn model.inlineEditTodo) model
 
 
 startEditing : Todo -> Model -> Return
