@@ -1240,7 +1240,7 @@ viewTodoItem model todo =
             viewTodoItemBase model todo
 
         Just edt ->
-            if (InlineEditTodo.toRecord edt |> .todo |> .id) == todo.id then
+            if edt |> InlineEditTodo.idEq todo.id then
                 viewEditTodoItem here edt
 
             else

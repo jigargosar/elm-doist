@@ -1,10 +1,11 @@
-module InlineEditTodo exposing (Model, decoder, fromTodo, maybeEncoder, setDueAt, toRecord)
+module InlineEditTodo exposing (Model, decoder, fromTodo, idEq, maybeEncoder, setDueAt, toRecord)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Todo exposing (DueAt, Todo, TodoList)
+import TodoId exposing (TodoId)
 
 
 type alias ModelRecord =
@@ -61,3 +62,8 @@ setDueAt dueAt (Model modelRecord) =
 toRecord : Model -> ModelRecord
 toRecord (Model modelRecord) =
     modelRecord
+
+
+idEq : TodoId -> Model -> Bool
+idEq todoId (Model modelRecord) =
+    modelRecord.todo.id == todoId
