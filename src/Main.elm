@@ -1349,7 +1349,7 @@ viewTodoItemBase { here, todoMenu } todo =
                                     |> JD.andThen
                                         (\isOut ->
                                             if isOut then
-                                                JD.succeed (CloseTodoMenu (todoMenuDomId todo.id))
+                                                JD.succeed (CloseTodoMenu todo.id)
 
                                             else
                                                 JD.fail "not interested"
@@ -1397,8 +1397,10 @@ isOutsideElementWithIdDecoder dropdownId =
 
 isRelatedTargetOutsideOfElWithId elId =
     JD.oneOf
-        [ JD.field "relatedTarget" (JD.null False)
-        , JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
+        [ {- JD.field "relatedTarget" (JD.null False)
+             ,
+          -}
+          JD.field "relatedTarget" (isOutsideElementWithIdDecoder elId)
         ]
 
 
