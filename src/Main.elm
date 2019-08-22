@@ -48,6 +48,7 @@ import Return
 import Route exposing (Route)
 import Size exposing (Size)
 import String.Extra as SX
+import StyledKeyEvent as KE
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
@@ -995,22 +996,6 @@ viewProjectNavItem project =
         ]
 
 
-keyDecoder : String -> a -> Decoder a
-keyDecoder targetKey tagger =
-    JD.at [ "key" ] JD.string
-        |> JD.andThen (\key -> ifElse (key == targetKey) (JD.succeed tagger) (JD.fail ""))
-
-
-enterKeyDecoder : a -> Decoder a
-enterKeyDecoder =
-    keyDecoder "Enter"
-
-
-spaceKeyDecoder : a -> Decoder a
-spaceKeyDecoder =
-    keyDecoder " "
-
-
 faBtn : msg -> FAIcon.Icon -> Html msg
 faBtn action icon =
     btn action
@@ -1026,7 +1011,7 @@ btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 btn action attrs =
     let
         msgDecoderOnKeyDown =
-            JD.oneOf [ enterKeyDecoder action, spaceKeyDecoder action ]
+            JD.oneOf [ KE.enterKeyDecoder action, KE.spaceKeyDecoder action ]
                 |> JD.map (\msg -> ( msg, True ))
     in
     div
