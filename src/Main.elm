@@ -571,7 +571,7 @@ setInlineEditTodo inlineEditTodo model =
 
 startEditing : Todo -> Model -> Return
 startEditing todo =
-    updateInlineEditTodoAndCache <| Just <| InlineEditTodo.fromRecord { todo = todo, title = Nothing, dueAt = Nothing }
+    updateInlineEditTodoAndCache <| Just <| InlineEditTodo.fromTodo todo
 
 
 startMoving : Todo -> Model -> Return

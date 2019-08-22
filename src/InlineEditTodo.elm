@@ -1,4 +1,4 @@
-module InlineEditTodo exposing (..)
+module InlineEditTodo exposing (Model, decoder, fromTodo, maybeEncoder, setDueAt, toRecord)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -56,3 +56,8 @@ toRecord (Model modelRecord) =
 fromRecord : ModelRecord -> Model
 fromRecord =
     Model
+
+
+fromTodo : Todo -> Model
+fromTodo todo =
+    { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
