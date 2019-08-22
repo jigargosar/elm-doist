@@ -42,11 +42,6 @@ decoder =
         |> JD.map Model
 
 
-toRecord : Model -> ModelRecord
-toRecord (Model modelRecord) =
-    modelRecord
-
-
 fromRecord : ModelRecord -> Model
 fromRecord =
     Model
@@ -61,3 +56,8 @@ setDueAt : Maybe DueAt -> Model -> Model
 setDueAt dueAt (Model modelRecord) =
     { modelRecord | dueAt = dueAt }
         |> Model
+
+
+toRecord : Model -> ModelRecord
+toRecord (Model modelRecord) =
+    modelRecord
