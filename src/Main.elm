@@ -461,7 +461,11 @@ update message model =
             model.todoMenu
                 |> MX.filter (.todoId >> eq_ todoId)
                 |> MX.unpack (\_ -> pure model)
-                    (\_ -> ( { model | todoMenu = Nothing }, focusTodoMenuCmd todoId ))
+                    (\_ ->
+                        ( { model | todoMenu = Nothing }
+                        , focusDomIdCmd <| todoMenuTriggerDomId todoId
+                        )
+                    )
 
         OnMoveToProject pid ->
             case model.dialog of
@@ -527,6 +531,10 @@ todoMenuDomId todoId =
     "todo-menu-dom-id--" ++ todoId
 
 
+todoMenuTriggerDomId todoId =
+    "todo-menu-trigger-dom-id--" ++ todoId
+
+
 todoFirstFocusableDomId todoId =
     "todo-menu--first-focusable--dom-id--" ++ todoId
 
@@ -536,6 +544,11 @@ focusTodoMenuCmd todoId =
         domId =
             todoFirstFocusableDomId todoId
     in
+    focus domId |> Task.attempt Focused
+
+
+focusDomIdCmd : String -> Cmd Msg
+focusDomIdCmd domId =
     focus domId |> Task.attempt Focused
 
 
@@ -965,7 +978,7 @@ viewNav model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , faBtn OnAddProjectStart FontAwesome.Solid.plus
+            , faBtn OnAddProjectStart FontAwesome.Solid.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -984,15 +997,17 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash
+        , faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash []
         ]
 
 
-faBtn : msg -> FAIcon.Icon -> Html msg
-faBtn action icon =
+faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
+faBtn action icon attrs =
     btn action
-        [ class "gray hover-dark-gray pointer"
-        ]
+        ([ class "gray hover-dark-gray pointer"
+         ]
+            ++ attrs
+        )
         [ icon
             |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
             |> H.fromUnstyled
@@ -1318,7 +1333,9 @@ viewTodoItemBase { here, todoMenu } todo =
         , viewDueAt here todo
         , viewTodoItemContent here todo
         , div [ class "relative" ]
-            [ faBtn (OnTodoMenuClicked todo.id) FontAwesome.Solid.ellipsisV
+            [ faBtn (OnTodoMenuClicked todo.id)
+                FontAwesome.Solid.ellipsisV
+                [ A.id <| todoMenuTriggerDomId todo.id ]
             , todoMenu
                 |> MX.filter (.todoId >> eq_ todo.id)
                 |> HX.viewMaybe
