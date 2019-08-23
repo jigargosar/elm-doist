@@ -287,12 +287,12 @@ subscriptions _ =
 -- UPDATE
 
 
-getTodoById todoId model =
+findTodoById todoId model =
     model.todoList
         |> List.Extra.find (.id >> (==) todoId)
 
 
-getActiveProjectById pid model =
+findActiveProjectById pid model =
     model.projectList
         |> Project.filterActive
         |> List.Extra.find (.id >> (==) pid)
@@ -449,7 +449,7 @@ update message model =
                                 (Just <| InlineEditTodo.fromTodo todo)
                             )
             in
-            getTodoById todoId model
+            findTodoById todoId model
                 |> MX.unpack (\_ -> pure model) startEditHelp
 
         OnEditCancel ->
@@ -460,7 +460,7 @@ update message model =
                 |> andThen (setInlineEditTodoAndCache Nothing)
 
         OnMoveStart todoId ->
-            getTodoById todoId model
+            findTodoById todoId model
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
@@ -816,7 +816,7 @@ viewRoute route model =
 
         Route.Project pid ->
             case
-                getActiveProjectById pid model
+                findActiveProjectById pid model
             of
                 Just project ->
                     let
