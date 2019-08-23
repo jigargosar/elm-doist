@@ -1,10 +1,10 @@
-module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, setTitle, titleOrDefault, toUpdateMessages, todoId)
+module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, setTitle, startEditing, titleOrDefault, toUpdateMessages, todoId)
 
 import BasicsExtra exposing (ifElse)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import Maybe as M
+import Maybe as M exposing (Maybe)
 import Maybe.Extra as MX
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -53,6 +53,11 @@ fromRecord =
 fromTodo : Todo -> Model
 fromTodo todo =
     { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
+
+
+startEditing : Todo -> Model -> ( Model, Maybe ( Todo, List Todo.Msg ) )
+startEditing todo (Model modelRecord) =
+    ( fromTodo todo, toUpdateMessages (Model modelRecord) )
 
 
 setDueAt : DueAt -> Model -> Model

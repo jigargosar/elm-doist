@@ -429,20 +429,34 @@ update message model =
             )
 
         OnStartInlineEditTodo todoId ->
-            model.todoList
-                |> List.Extra.find (.id >> (==) todoId)
-                |> MX.unpack (\_ -> pure model)
-                    (\todo ->
-                        model.inlineEditTodo
-                            |> Maybe.andThen InlineEditTodo.toUpdateMessages
-                            |> MX.unpack (\_ -> pure model)
-                                (\( todoOld, oldTodoUpdateMsgList ) ->
-                                    ( model
-                                    , patchTodoCmd todoOld.id oldTodoUpdateMsgList
+            let
+                updateHelpFn todo edt =
+                    let
+                        ( newEdt, maybeOldTodoUpdates ) =
+                            InlineEditTodo.startEditing todo edt
+                                |> Tuple.mapFirst Just
+
+                        cmd =
+                            maybeOldTodoUpdates
+                                |> MX.unwrap Cmd.none
+                                    (\( todoOld, oldTodoUpdateMsgList ) ->
+                                        patchTodoCmd todoOld.id oldTodoUpdateMsgList
                                     )
-                                )
-                            |> andThen (setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo))
-                    )
+                    in
+                    setInlineEditTodoAndCache newEdt model
+                        |> command cmd
+            in
+            case
+                ( model.todoList
+                    |> List.Extra.find (.id >> (==) todoId)
+                , model.inlineEditTodo
+                )
+            of
+                ( Just todo, Just edt ) ->
+                    updateHelpFn todo edt
+
+                _ ->
+                    pure model
 
         OnMoveStart todoId ->
             model.todoList
