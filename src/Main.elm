@@ -760,9 +760,7 @@ view model =
                         div
                             [ A.id "root"
                             , class "h-100"
-                            , css
-                                [ outline none
-                                ]
+                            , css [ outline none ]
                             ]
                             body
                     ]
