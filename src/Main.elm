@@ -8,7 +8,7 @@ import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
-import Css exposing (bottom, height, marginLeft, maxWidth, minHeight, minWidth, none, outline, position, px, rem, sticky, top, transforms, translateX, vh, vw, width, zero)
+import Css exposing (bottom, fixed, height, left, marginLeft, maxWidth, minHeight, minWidth, none, outline, paddingTop, position, px, rem, right, sticky, top, transforms, translateX, vh, vw, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -758,10 +758,9 @@ view model =
                     [ H.toUnstyled <|
                         div
                             [ A.id "root"
+                            , class "h-100"
                             , css
-                                [ minHeight <| vh 100
-                                , minWidth <| vw 100
-                                , outline none
+                                [ outline none
                                 ]
                             ]
                             body
@@ -877,14 +876,14 @@ masterLayout title content model =
     { title = title
     , body =
         [ div
-            [ class "bg-black white"
-            , css [ position sticky, top zero, height headerHeight ]
+            [ class "bg-black white w-100"
+            , css [ position fixed, height headerHeight ]
             ]
             [ div
                 [ class "center", css [ maxWidth maxContentWidth ] ]
                 [ viewHeader model ]
             ]
-        , div [ class "center", css [ maxWidth maxContentWidth ] ]
+        , div [ class "center", css [ maxWidth maxContentWidth, paddingTop headerHeight ] ]
             [ div
                 [ class "fixed overflow-auto ph3"
                 , css
@@ -893,7 +892,7 @@ masterLayout title content model =
                     , bottom zero
                     , sm
                         [ transforms [ translateX <| px -sidebarWidthNum ] ]
-                    , transition [ Transition.transform 1000 ]
+                    , transition [ Transition.transform 150 ]
                     ]
                 ]
                 [ viewSidebar model
@@ -903,7 +902,7 @@ masterLayout title content model =
                 , css
                     [ marginLeft zero
                     , ns [ marginLeft <| px sidebarWidthNum ]
-                    , transition [ Transition.marginLeft 1000 ]
+                    , transition [ Transition.marginLeft 150 ]
                     ]
                 ]
                 [ content
