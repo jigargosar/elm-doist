@@ -60,7 +60,7 @@ port addFirestoreDoc : { userCollectionName : String, data : Value } -> Cmd msg
 
 
 type alias FirestoreQueryResponse =
-    { id : String, docDataList : List Value }
+    { id : String, docDataList : Value }
 
 
 port onFirestoreQueryResponse :

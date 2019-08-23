@@ -253,6 +253,13 @@ subscriptions _ =
 -- UPDATE
 
 
+decodeValueAndUnpack : ( Decoder a, a -> b, JD.Error -> b ) -> JD.Value -> b
+decodeValueAndUnpack ( decoder, onOk, onErr ) enc =
+    enc
+        |> JD.decodeValue decoder
+        |> RX.unpack onErr onOk
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -289,9 +296,10 @@ update message model =
             pure model
 
         OnAuthStateChanged encodedValue ->
-            JD.decodeValue AuthState.decoder encodedValue
-                |> RX.unpack onDecodeError onAuthStateChanged
-                |> callWith model
+            model
+                |> decodeValueAndUnpack
+                    ( AuthState.decoder, onAuthStateChanged, onDecodeError )
+                    encodedValue
 
         OnSignInClicked ->
             ( model, Ports.signIn () )
@@ -308,18 +316,16 @@ update message model =
         OnFirestoreQueryResponse qs ->
             case qs.id of
                 "todoList" ->
-                    qs.docDataList
-                        |> List.map (JD.decodeValue Todo.decoder)
-                        |> RX.combine
-                        |> RX.unpack onDecodeError updateTodoListFromFirestore
-                        |> callWith model
+                    model
+                        |> decodeValueAndUnpack
+                            ( Todo.listDecoder, updateTodoListFromFirestore, onDecodeError )
+                            qs.docDataList
 
                 "projectList" ->
-                    qs.docDataList
-                        |> List.map (JD.decodeValue Project.decoder)
-                        |> RX.combine
-                        |> RX.unpack onDecodeError updateProjectListAndCleanupFromFirestore
-                        |> callWith model
+                    model
+                        |> decodeValueAndUnpack
+                            ( Project.listDecoder, updateProjectListAndCleanupFromFirestore, onDecodeError )
+                            qs.docDataList
 
                 _ ->
                     HasErrors.prependString ("Invalid QueryId" ++ qs.id) model
