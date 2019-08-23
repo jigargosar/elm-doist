@@ -14,7 +14,6 @@ import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import Focus
-import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
 import FontAwesome.Regular
 import FontAwesome.Solid
@@ -35,7 +34,7 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onCheck, onClick, onInput, preventDefaultOn)
 import HtmlStyledEvent exposing (onDomIdClicked)
-import HtmlStyledExtra as HX exposing (viewMaybe)
+import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -445,16 +444,12 @@ update message model =
             startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
-            let
-                tm =
-                    { todoId = todoId }
-            in
-            pure { model | todoMenu = Just tm }
+            pure { model | todoMenu = Just <| TodoMenu.forTodoId todoId }
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
             model.todoMenu
-                |> MX.filter (.todoId >> eq_ todoId)
+                |> MX.filter (TodoMenu.isOpenForTodoId todoId)
                 |> MX.unpack (\_ -> pure model)
                     (\_ ->
                         ( { model | todoMenu = Nothing }
@@ -1346,7 +1341,7 @@ viewTodoItemBase { here, todoMenu } todo =
                 , class "pa2 tc child"
                 ]
             , todoMenu
-                |> MX.filter (.todoId >> eq_ todo.id)
+                |> MX.filter (TodoMenu.isOpenForTodoId todo.id)
                 |> HX.viewMaybe
                     (\_ -> viewTodoMenu todo)
             ]
