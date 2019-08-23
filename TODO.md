@@ -29,6 +29,10 @@
 - [x] Overdue
 - [x] Deploy to elmdoist.web.app
 
+## Slice 4
+
+- fix horizontal scroll issue when there is vertical scrollbar
+
 ## Known Issues:
 
 - update today in model.
