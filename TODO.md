@@ -19,20 +19,22 @@
 - [x] cleanup
   - [x] remove now timer.
 - [x] todo menu
-    - make menu btn larger
-  
+
+  - make menu btn larger
+
+## SLICE 3 : DONE
+
+- [x] DueAt
+- [x] Today
+- [x] Overdue
+- [x] Deploy to elmdoist.web.app
 
 ## Known Issues:
 
 - update today in model.
 
-## SLICE 3
-
-- [x] DueAt
-- [x] Today
-- [x] Overdue
-
 ## Next Slice
+
 - Next Seven Days
 
 ## IceBox
