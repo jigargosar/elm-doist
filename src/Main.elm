@@ -99,7 +99,7 @@ type alias Cache =
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
-        |> JDP.optional "dialog" Dialog.decoder Dialog.None
+        |> JDP.optional "dialog" Dialog.decoder Dialog.Closed
         |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
 
 
@@ -181,7 +181,7 @@ init encodedFlags url key =
             , projectList = []
             , inlineEditTodo = Nothing
             , todoMenu = TodoMenu.init
-            , dialog = Dialog.None
+            , dialog = Dialog.Closed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -425,7 +425,7 @@ update message model =
                 (pure model)
 
         OnMoveToProject todoId pid ->
-            updateDialogAndCache Dialog.None model
+            updateDialogAndCache Dialog.Closed model
                 |> command
                     (patchTodoCmd
                         todoId
@@ -438,7 +438,7 @@ update message model =
                     |> MX.filter (InlineEditTodo.idEq todoId)
                     |> MX.unpack
                         (\_ ->
-                            updateDialogAndCache Dialog.None model
+                            updateDialogAndCache Dialog.Closed model
                                 |> command
                                     (patchTodoCmd
                                         todoId
@@ -448,7 +448,7 @@ update message model =
                         (\_ ->
                             model
                                 |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
-                                |> updateDialogAndCache Dialog.None
+                                |> updateDialogAndCache Dialog.Closed
                         )
                 )
                 (pure model)
@@ -461,19 +461,19 @@ update message model =
                     (\_ ->
                         model
                             |> mapInlineEditTodo (InlineEditTodo.setTitle title)
-                            |> updateDialogAndCache Dialog.None
+                            |> updateDialogAndCache Dialog.Closed
                     )
 
         OnDialogOverlayClicked ->
             case model.dialog of
-                Dialog.None ->
+                Dialog.Closed ->
                     pure model
 
                 Dialog.MoveToProjectDialog _ _ ->
-                    updateDialogAndCache Dialog.None model
+                    updateDialogAndCache Dialog.Closed model
 
                 Dialog.DueDialog _ ->
-                    updateDialogAndCache Dialog.None model
+                    updateDialogAndCache Dialog.Closed model
 
 
 todoMenuDomId todoId =
@@ -953,7 +953,7 @@ viewFooter : Model -> Html Msg
 viewFooter model =
     div []
         [ case model.dialog of
-            Dialog.None ->
+            Dialog.Closed ->
                 HX.empty
 
             Dialog.MoveToProjectDialog todoId projectId ->

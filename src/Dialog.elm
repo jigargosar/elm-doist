@@ -10,7 +10,7 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = None
+    = Closed
     | MoveToProjectDialog TodoId ProjectId
     | DueDialog TodoId
 
@@ -24,8 +24,8 @@ decoder =
 encoder : Model -> Value
 encoder dialog =
     case dialog of
-        None ->
-            JE.object [ ( "tag", JE.string "NoDialog" ) ]
+        Closed ->
+            JE.object [ ( "tag", JE.string "Closed" ) ]
 
         MoveToProjectDialog todoId projectId ->
             JE.object
@@ -44,8 +44,8 @@ encoder dialog =
 dialogDecoderForTag : String -> Decoder Model
 dialogDecoderForTag tag =
     case tag of
-        "NoDialog" ->
-            JD.succeed None
+        "Closed" ->
+            JD.succeed Closed
 
         "MoveToProjectDialog" ->
             JD.map2 MoveToProjectDialog
@@ -63,7 +63,7 @@ dialogDecoderForTag tag =
 view : msg -> List (Html msg) -> Html msg
 view onOverlayClick content =
     div
-        [ class "absolute absolute--fill flex items-center justify-center"
+        [ class "z-1 fixed absolute--fill flex items-center justify-center"
         ]
         [ div
             [ class "absolute absolute--fill bg-black-50"
