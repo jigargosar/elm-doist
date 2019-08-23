@@ -73,7 +73,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , todoMenu : Maybe TodoMenu.Model
+    , todoMenu : TodoMenu.Model
     , dialog : Dialog
     , authState : AuthState
     , errors : Errors
@@ -210,7 +210,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , todoMenu = Nothing
+            , todoMenu = TodoMenu.init
             , dialog = NoDialog
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -444,20 +444,17 @@ update message model =
             startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
-            pure { model | todoMenu = Just <| TodoMenu.openFor todoId }
+            pure { model | todoMenu = TodoMenu.openFor todoId }
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
-            model.todoMenu
-                |> MX.filter (TodoMenu.isOpenFor todoId)
-                |> MX.unpack (\_ -> pure model)
-                    (\_ ->
-                        ( { model | todoMenu = Nothing }
-                        , ifElse restoreFocus
-                            (focusDomIdCmd <| todoMenuTriggerDomId todoId)
-                            Cmd.none
-                        )
-                    )
+            ifElse (TodoMenu.isOpenFor todoId model.todoMenu)
+                ( { model | todoMenu = TodoMenu.init }
+                , ifElse restoreFocus
+                    (focusDomIdCmd <| todoMenuTriggerDomId todoId)
+                    Cmd.none
+                )
+                (pure model)
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache NoDialog model
@@ -1248,7 +1245,7 @@ viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
-        , todoMenu : Maybe TodoMenu.Model
+        , todoMenu : TodoMenu.Model
     }
     -> Todo
     -> Html Msg
@@ -1323,7 +1320,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase :
     { a
         | here : Zone
-        , todoMenu : Maybe TodoMenu.Model
+        , todoMenu : TodoMenu.Model
     }
     -> Todo
     -> Html Msg
@@ -1340,10 +1337,8 @@ viewTodoItemBase { here, todoMenu } todo =
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-            , todoMenu
-                |> MX.filter (TodoMenu.isOpenFor todo.id)
-                |> HX.viewMaybe
-                    (\_ -> viewTodoMenu todo)
+            , HX.viewIf (TodoMenu.isOpenFor todo.id todoMenu)
+                (viewTodoMenu todo)
             ]
         ]
 

@@ -8,6 +8,10 @@ type Model
     | Closed
 
 
+init =
+    Closed
+
+
 openFor : TodoId -> Model
 openFor todoId_ =
     Open todoId_
