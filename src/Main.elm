@@ -292,6 +292,12 @@ getTodoById todoId model =
         |> List.Extra.find (.id >> (==) todoId)
 
 
+getProjectById pid model =
+    model.projectList
+        |> Project.filterActive
+        |> List.Extra.find (.id >> (==) pid)
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -454,8 +460,7 @@ update message model =
                 |> andThen (setInlineEditTodoAndCache Nothing)
 
         OnMoveStart todoId ->
-            model.todoList
-                |> List.Extra.find (.id >> (==) todoId)
+            getTodoById todoId model
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
@@ -811,9 +816,7 @@ viewRoute route model =
 
         Route.Project pid ->
             case
-                model.projectList
-                    |> Project.filterActive
-                    |> List.Extra.find (.id >> (==) pid)
+                getProjectById pid model
             of
                 Just project ->
                     let
