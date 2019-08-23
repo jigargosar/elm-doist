@@ -525,14 +525,12 @@ persistInlineEditTodo model =
 startEditingTodoId : TodoId -> Model -> Maybe Return
 startEditingTodoId todoId model =
     findTodoById todoId model
-        |> Maybe.map (\todo -> startEditingTodo todo model)
-
-
-startEditingTodo : Todo -> Model -> Return
-startEditingTodo todo model =
-    model
-        |> persistInlineEditTodo
-        |> andThen (setInlineEditTodoAndCache todo)
+        |> Maybe.map
+            (\todo ->
+                model
+                    |> persistInlineEditTodo
+                    |> andThen (setInlineEditTodoAndCache todo)
+            )
 
 
 setInlineEditTodoAndCache : Todo -> Model -> Return
