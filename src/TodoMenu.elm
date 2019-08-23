@@ -3,7 +3,7 @@ module TodoMenu exposing (..)
 import TodoId exposing (TodoId)
 
 
-type alias TodoMenu =
+type alias Model =
     { todoId : TodoId }
 
 

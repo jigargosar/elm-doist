@@ -73,7 +73,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , todoMenu : Maybe TodoMenu.TodoMenu
+    , todoMenu : Maybe TodoMenu.Model
     , dialog : Dialog
     , authState : AuthState
     , errors : Errors
@@ -1248,7 +1248,7 @@ viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
-        , todoMenu : Maybe TodoMenu.TodoMenu
+        , todoMenu : Maybe TodoMenu.Model
     }
     -> Todo
     -> Html Msg
@@ -1323,7 +1323,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase :
     { a
         | here : Zone
-        , todoMenu : Maybe TodoMenu.TodoMenu
+        , todoMenu : Maybe TodoMenu.Model
     }
     -> Todo
     -> Html Msg
