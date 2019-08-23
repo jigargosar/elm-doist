@@ -432,19 +432,18 @@ update message model =
             let
                 updateHelpFn todo edt =
                     let
-                        ( newEdt, maybeOldTodoUpdates ) =
+                        ( newEdt, oldTodoUpdateCmd ) =
                             InlineEditTodo.startEditing todo edt
                                 |> Tuple.mapFirst Just
-
-                        cmd =
-                            maybeOldTodoUpdates
-                                |> MX.unwrap Cmd.none
-                                    (\( todoOld, oldTodoUpdateMsgList ) ->
-                                        patchTodoCmd todoOld.id oldTodoUpdateMsgList
+                                |> Tuple.mapSecond
+                                    (MX.unwrap Cmd.none
+                                        (\( todoOld, oldTodoUpdateMsgList ) ->
+                                            patchTodoCmd todoOld.id oldTodoUpdateMsgList
+                                        )
                                     )
                     in
                     setInlineEditTodoAndCache newEdt model
-                        |> command cmd
+                        |> command oldTodoUpdateCmd
             in
             case
                 ( model.todoList
@@ -454,6 +453,11 @@ update message model =
             of
                 ( Just todo, Just edt ) ->
                     updateHelpFn todo edt
+
+                ( Just todo, Nothing ) ->
+                    setInlineEditTodoAndCache
+                        (Just <| InlineEditTodo.fromTodo todo)
+                        model
 
                 _ ->
                     pure model
