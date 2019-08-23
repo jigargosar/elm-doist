@@ -1,4 +1,4 @@
-module Dialog exposing (..)
+module Dialog exposing (Dialog(..), decoder, encoder)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -12,14 +12,14 @@ type Dialog
     | DueDialog TodoId
 
 
-dialogDecoder : Decoder Dialog
-dialogDecoder =
+decoder : Decoder Dialog
+decoder =
     JD.field "tag" JD.string
         |> JD.andThen dialogDecoderForTag
 
 
-dialogEncoder : Dialog -> Value
-dialogEncoder dialog =
+encoder : Dialog -> Value
+encoder dialog =
     case dialog of
         NoDialog ->
             JE.object [ ( "tag", JE.string "NoDialog" ) ]

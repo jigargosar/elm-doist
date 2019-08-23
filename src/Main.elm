@@ -99,14 +99,14 @@ type alias Cache =
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
-        |> JDP.optional "dialog" Dialog.dialogDecoder Dialog.NoDialog
+        |> JDP.optional "dialog" Dialog.decoder Dialog.NoDialog
         |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
 
 
 cacheEncoder : Cache -> Value
 cacheEncoder { dialog, inlineEditTodo } =
     JE.object
-        [ ( "dialog", Dialog.dialogEncoder dialog )
+        [ ( "dialog", Dialog.encoder dialog )
         , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
         ]
 
