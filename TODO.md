@@ -31,7 +31,8 @@
 
 ## Slice 4
 
-- fix horizontal scroll issue when there is vertical scrollbar
+- [x] fix horizontal scroll issue when there is vertical scrollbar
+- [x] fixed top bar sticky position issue, now using fixed.
 
 ## Known Issues:
 
