@@ -265,7 +265,7 @@ type Msg
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClicked
-    | OnEdit TodoId
+    | OnStartInlineEditTodo TodoId
     | OnEditCancel
     | OnEditSave
 
@@ -428,12 +428,20 @@ update message model =
                 }
             )
 
-        OnEdit todoId ->
+        OnStartInlineEditTodo todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
                 |> MX.unpack (\_ -> pure model)
                     (\todo ->
-                        setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo) model
+                        model.inlineEditTodo
+                            |> Maybe.andThen InlineEditTodo.toUpdateMessages
+                            |> MX.unpack (\_ -> pure model)
+                                (\( todoOld, oldTodoUpdateMsgList ) ->
+                                    ( model
+                                    , patchTodoCmd todoOld.id oldTodoUpdateMsgList
+                                    )
+                                )
+                            |> andThen (setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo))
                     )
 
         OnMoveStart todoId ->
@@ -1344,7 +1352,7 @@ viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
         miModel =
-            [ ( OnEdit, "Edit" )
+            [ ( OnStartInlineEditTodo, "Edit" )
             , ( OnMoveStart, "Move to Project" )
             , ( OnEditDueStart, "Schedule" )
             , ( OnDelete, "Delete" )
@@ -1427,7 +1435,7 @@ viewTodoItemTitle todo =
                 ( todo.title, "" )
 
         viewTitle =
-            div [ class "", onClick (OnEdit todo.id) ] [ text title ]
+            div [ class "", onClick (OnStartInlineEditTodo todo.id) ] [ text title ]
     in
     div
         [ class titleClass
