@@ -292,7 +292,7 @@ getTodoById todoId model =
         |> List.Extra.find (.id >> (==) todoId)
 
 
-getProjectById pid model =
+getActiveProjectById pid model =
     model.projectList
         |> Project.filterActive
         |> List.Extra.find (.id >> (==) pid)
@@ -816,7 +816,7 @@ viewRoute route model =
 
         Route.Project pid ->
             case
-                getProjectById pid model
+                getActiveProjectById pid model
             of
                 Just project ->
                     let
