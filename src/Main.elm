@@ -35,7 +35,6 @@ import Html.Styled.Attributes as A
         , value
         )
 import Html.Styled.Events exposing (onCheck, onClick, onInput, preventDefaultOn)
-import HtmlStyledEvent exposing (onDomIdClicked)
 import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
