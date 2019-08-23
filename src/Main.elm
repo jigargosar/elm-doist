@@ -246,7 +246,6 @@ type Msg
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
     | OnSignOutClicked
-    | OnChangeTitleRequested TodoId
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | OnDeleteProject ProjectId
@@ -357,9 +356,6 @@ update message model =
                 , Ports.disposeFirestoreQuery "projectList"
                 ]
             )
-
-        OnChangeTitleRequested todoId ->
-            ( model, Ports.changeTodoTitle (TodoId.toString todoId) )
 
         OnFirestoreQueryResponse qs ->
             case qs.id of

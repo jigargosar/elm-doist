@@ -1,7 +1,6 @@
 port module Ports exposing
     ( FirestoreQueryResponse
     , addFirestoreDoc
-    , changeTodoTitle
     , deleteFirestoreDoc
     , disposeFirestoreQuery
     , localStorageSetJsonItem
@@ -42,9 +41,6 @@ port signOut : () -> Cmd msg
 
 
 port persistTodoList : Value -> Cmd msg
-
-
-port changeTodoTitle : String -> Cmd msg
 
 
 port queryFirestore :
