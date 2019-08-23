@@ -3,13 +3,14 @@ module TodoMenu exposing (..)
 import TodoId exposing (TodoId)
 
 
-type alias Model =
-    { todoId : TodoId }
+type Model
+    = Model TodoId
 
 
-forTodoId todoId =
-    { todoId = todoId }
+forTodoId todoId_ =
+    Model todoId_
 
 
-isOpenForTodoId todoId model =
-    model.todoId == todoId
+isOpenForTodoId : TodoId -> Model -> Bool
+isOpenForTodoId todoId_ (Model todoId) =
+    todoId_ == todoId
