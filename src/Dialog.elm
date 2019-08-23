@@ -1,4 +1,4 @@
-module Dialog exposing (Dialog(..), decoder, encoder, view)
+module Dialog exposing (Model(..), decoder, encoder, view)
 
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class)
@@ -9,19 +9,19 @@ import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
 
 
-type Dialog
+type Model
     = NoDialog
     | MoveToProjectDialog TodoId ProjectId
     | DueDialog TodoId
 
 
-decoder : Decoder Dialog
+decoder : Decoder Model
 decoder =
     JD.field "tag" JD.string
         |> JD.andThen dialogDecoderForTag
 
 
-encoder : Dialog -> Value
+encoder : Model -> Value
 encoder dialog =
     case dialog of
         NoDialog ->
@@ -41,7 +41,7 @@ encoder dialog =
                 ]
 
 
-dialogDecoderForTag : String -> Decoder Dialog
+dialogDecoderForTag : String -> Decoder Model
 dialogDecoderForTag tag =
     case tag of
         "NoDialog" ->

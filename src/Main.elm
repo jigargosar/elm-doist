@@ -91,7 +91,7 @@ flagsDecoder =
 
 
 type alias Cache =
-    { dialog : Dialog.Dialog
+    { dialog : Dialog.Model
     , inlineEditTodo : Maybe InlineEditTodo.Model
     }
 
@@ -120,7 +120,7 @@ type alias Model =
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
     , todoMenu : TodoMenu.Model
-    , dialog : Dialog.Dialog
+    , dialog : Dialog.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -540,7 +540,7 @@ startEditingDue todoId =
     updateDialogAndCache (Dialog.DueDialog todoId)
 
 
-updateDialogAndCache : Dialog.Dialog -> Model -> Return
+updateDialogAndCache : Dialog.Model -> Model -> Return
 updateDialogAndCache dialog model =
     pure { model | dialog = dialog }
         |> effect cacheEffect
