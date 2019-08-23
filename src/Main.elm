@@ -130,6 +130,32 @@ type alias Model =
     }
 
 
+setModelFromCache : Cache -> Model -> Model
+setModelFromCache { dialog, inlineEditTodo } model =
+    { model
+        | dialog = dialog
+        , inlineEditTodo = inlineEditTodo
+    }
+
+
+cacheFromModel : Model -> Cache
+cacheFromModel { dialog, inlineEditTodo } =
+    { dialog = dialog
+    , inlineEditTodo = inlineEditTodo
+    }
+
+
+findTodoById todoId model =
+    model.todoList
+        |> List.Extra.find (.id >> (==) todoId)
+
+
+findActiveProjectById pid model =
+    model.projectList
+        |> Project.filterActive
+        |> List.Extra.find (.id >> (==) pid)
+
+
 
 -- Dialog
 
@@ -183,21 +209,6 @@ dialogDecoderForTag tag =
 
         _ ->
             JD.fail ("Invalid Dialog Tag:" ++ tag)
-
-
-setModelFromCache : Cache -> Model -> Model
-setModelFromCache { dialog, inlineEditTodo } model =
-    { model
-        | dialog = dialog
-        , inlineEditTodo = inlineEditTodo
-    }
-
-
-cacheFromModel : Model -> Cache
-cacheFromModel { dialog, inlineEditTodo } =
-    { dialog = dialog
-    , inlineEditTodo = inlineEditTodo
-    }
 
 
 
@@ -293,17 +304,6 @@ subscriptions _ =
 
 
 -- UPDATE
-
-
-findTodoById todoId model =
-    model.todoList
-        |> List.Extra.find (.id >> (==) todoId)
-
-
-findActiveProjectById pid model =
-    model.projectList
-        |> Project.filterActive
-        |> List.Extra.find (.id >> (==) pid)
 
 
 update : Msg -> Model -> Return
@@ -1267,20 +1267,20 @@ viewTodoItemBase :
     }
     -> Todo
     -> Html Msg
-viewTodoItemBase { here, todoMenu } todo =
+viewTodoItemBase model todo =
     div
         [ class "flex hide-child"
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewDueAt here todo
+        , viewDueAt model.here todo
         , div [ class "relative flex" ]
             [ faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-            , HX.viewIf (TodoMenu.isOpenFor todo.id todoMenu)
+            , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
         ]
