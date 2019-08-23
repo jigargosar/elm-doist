@@ -16,9 +16,9 @@
 
 ## 2.5
 
-- cleanup
+- [x] cleanup
   - [x] remove now timer.
-- todo menu
+- [x] todo menu
     - make menu btn larger
   
 
