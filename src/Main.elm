@@ -1022,7 +1022,7 @@ viewDueDialog zone today todoId =
         setDueMsg =
             OnSetDue todoId
     in
-    viewDialogOverlay
+    viewDialog
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
@@ -1044,17 +1044,18 @@ viewDueDialog zone today todoId =
         ]
 
 
-viewDialogOverlay : List (Html Msg) -> Html Msg
-viewDialogOverlay =
-    --    div
-    --        [ class "fixed absolute--fill bg-black-50"
-    --        , class "flex items-center justify-center "
-    --        , A.id "overlay"
-    --        , onDomIdClicked "overlay" OnDialogOverlayClicked
-    --        ]
-    viewDialog
+
+--viewDialogOverlay : List (Html Msg) -> Html Msg
+--viewDialogOverlay =
+--    div
+--        [ class "fixed absolute--fill bg-black-50"
+--        , class "flex items-center justify-center "
+--        , A.id "overlay"
+--        , onDomIdClicked "overlay" OnDialogOverlayClicked
+--        ]
 
 
+viewDialog : List (Html Msg) -> Html Msg
 viewDialog content =
     div
         [ class "fixed absolute--fill flex items-center justify-center"
@@ -1064,8 +1065,8 @@ viewDialog content =
             , onClick OnDialogOverlayClicked
             ]
             []
+        , H.node "style" [] [ text "body { overflow:hidden; }" ]
         , div [ class "absolute" ] content
-        , H.node "style" [] [ text "body { overflow:hidden }" ]
         ]
 
 
