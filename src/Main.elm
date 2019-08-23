@@ -60,13 +60,46 @@ import Url exposing (Url)
 
 
 
+-- Flags
+
+
+type alias Flags =
+    { cachedTodoList : TodoList
+    , cachedProjectList : ProjectList
+    , cachedAuthState : AuthState
+    , browserSize : BrowserSize
+    , now : Millis
+    , cache : Cache
+    }
+
+
+
+-- Cache
+
+
+type alias Cache =
+    { dialog : Dialog
+    , inlineEditTodo : Maybe InlineEditTodo.Model
+    }
+
+
+cacheDecoder : Decoder Cache
+cacheDecoder =
+    JD.succeed Cache
+        |> JDP.optional "dialog" dialogDecoder NoDialog
+        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
+
+
+cacheEncoder : Cache -> Value
+cacheEncoder { dialog, inlineEditTodo } =
+    JE.object
+        [ ( "dialog", dialogEncoder dialog )
+        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
+        ]
+
+
+
 -- MODEL
-
-
-type Dialog
-    = NoDialog
-    | MoveToProjectDialog TodoId ProjectId
-    | DueDialog TodoId
 
 
 type alias Model =
@@ -85,20 +118,14 @@ type alias Model =
     }
 
 
-type alias Cache =
-    { dialog : Dialog
-    , inlineEditTodo : Maybe InlineEditTodo.Model
-    }
+
+-- Dialog
 
 
-type alias Flags =
-    { cachedTodoList : TodoList
-    , cachedProjectList : ProjectList
-    , cachedAuthState : AuthState
-    , browserSize : BrowserSize
-    , now : Millis
-    , cache : Cache
-    }
+type Dialog
+    = NoDialog
+    | MoveToProjectDialog TodoId ProjectId
+    | DueDialog TodoId
 
 
 dialogDecoder : Decoder Dialog
@@ -144,21 +171,6 @@ dialogDecoderForTag tag =
 
         _ ->
             JD.fail ("Invalid Dialog Tag:" ++ tag)
-
-
-cacheDecoder : Decoder Cache
-cacheDecoder =
-    JD.succeed Cache
-        |> JDP.optional "dialog" dialogDecoder NoDialog
-        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
-
-
-cacheEncoder : Cache -> Value
-cacheEncoder { dialog, inlineEditTodo } =
-    JE.object
-        [ ( "dialog", dialogEncoder dialog )
-        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
-        ]
 
 
 setModelFromCache : Cache -> Model -> Model
