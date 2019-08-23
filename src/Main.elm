@@ -915,16 +915,6 @@ viewDebugContent model =
 
 
 
--- LAYOUT SIDEBAR
-
-
-viewSidebar model =
-    div []
-        [ viewNav model
-        ]
-
-
-
 -- LAYOUT HEADER
 
 
@@ -949,8 +939,12 @@ viewHeader model =
         ]
 
 
-viewNav : Model -> Html Msg
-viewNav model =
+
+-- LAYOUT SIDEBAR
+
+
+viewSidebar : Model -> Html Msg
+viewSidebar model =
     let
         navItem link title =
             div [ class "pv2 " ]
@@ -990,58 +984,6 @@ viewProjectNavItem project =
             [ text project.title ]
         , faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash []
         ]
-
-
-faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
-faBtn action icon attrs =
-    btn action
-        ([ class "gray hover-dark-gray_"
-         ]
-            ++ attrs
-        )
-        [ icon
-            |> FAIcon.viewStyled [{- FontAwesome.Attributes.sm -}]
-            |> H.fromUnstyled
-        ]
-
-
-btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-btn action attrs =
-    let
-        msg =
-            ( action, True )
-    in
-    div
-        ([ onClick action
-         , preventDefaultOn "keydown" <|
-            JD.oneOf [ Key.enter msg, Key.space msg ]
-         , tabindex 0
-         , A.attribute "role" "button"
-         , class "pointer"
-         ]
-            ++ attrs
-        )
-
-
-textBtn : msg -> List (Attribute msg) -> String -> Html msg
-textBtn action attrs txt =
-    btn action
-        (class "underline pa1" :: attrs)
-        [ text txt ]
-
-
-primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-primaryTxtBtn action attrs txt =
-    textBtn action
-        (class "blue" :: attrs)
-        txt
-
-
-secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-secondaryTxtBtn action attrs txt =
-    textBtn action
-        (class "gray" :: attrs)
-        txt
 
 
 
@@ -1427,6 +1369,62 @@ viewTodoItemTitle todo =
         , class " lh-title"
         ]
         [ viewTitle ]
+
+
+
+-- Common UI Elements
+
+
+faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
+faBtn action icon attrs =
+    btn action
+        ([ class "gray hover-dark-gray_"
+         ]
+            ++ attrs
+        )
+        [ icon
+            |> FAIcon.viewStyled [{- FontAwesome.Attributes.sm -}]
+            |> H.fromUnstyled
+        ]
+
+
+btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+btn action attrs =
+    let
+        msg =
+            ( action, True )
+    in
+    div
+        ([ onClick action
+         , preventDefaultOn "keydown" <|
+            JD.oneOf [ Key.enter msg, Key.space msg ]
+         , tabindex 0
+         , A.attribute "role" "button"
+         , class "pointer"
+         ]
+            ++ attrs
+        )
+
+
+textBtn : msg -> List (Attribute msg) -> String -> Html msg
+textBtn action attrs txt =
+    btn action
+        (class "underline pa1" :: attrs)
+        [ text txt ]
+
+
+primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
+primaryTxtBtn action attrs txt =
+    textBtn action
+        (class "blue" :: attrs)
+        txt
+
+
+secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
+secondaryTxtBtn action attrs txt =
+    textBtn action
+        (class "gray" :: attrs)
+        txt
 
 
 
