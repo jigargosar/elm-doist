@@ -1,4 +1,4 @@
-module TodoMenu exposing (..)
+module TodoMenu exposing (Model, init, isOpenFor, openFor)
 
 import TodoId exposing (TodoId)
 
