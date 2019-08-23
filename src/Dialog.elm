@@ -10,7 +10,7 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = NoDialog
+    = None
     | MoveToProjectDialog TodoId ProjectId
     | DueDialog TodoId
 
@@ -24,7 +24,7 @@ decoder =
 encoder : Model -> Value
 encoder dialog =
     case dialog of
-        NoDialog ->
+        None ->
             JE.object [ ( "tag", JE.string "NoDialog" ) ]
 
         MoveToProjectDialog todoId projectId ->
@@ -45,7 +45,7 @@ dialogDecoderForTag : String -> Decoder Model
 dialogDecoderForTag tag =
     case tag of
         "NoDialog" ->
-            JD.succeed NoDialog
+            JD.succeed None
 
         "MoveToProjectDialog" ->
             JD.map2 MoveToProjectDialog
