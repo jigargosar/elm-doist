@@ -431,8 +431,10 @@ update message model =
         OnEdit todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
-                |> MX.unwrap pure startEditing
-                |> callWith model
+                |> MX.unpack (\_ -> pure model)
+                    (\todo ->
+                        setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo) model
+                    )
 
         OnMoveStart todoId ->
             model.todoList
@@ -508,7 +510,7 @@ update message model =
                     updateDialogAndCache NoDialog model
 
         OnEditCancel ->
-            updateInlineEditTodoAndCache Nothing model
+            setInlineEditTodoAndCache Nothing model
 
         OnEditSave ->
             model.inlineEditTodo
@@ -519,7 +521,7 @@ update message model =
                         , patchTodoCmd todo.id todoUpdateMsgList
                         )
                     )
-                |> andThen (updateInlineEditTodoAndCache Nothing)
+                |> andThen (setInlineEditTodoAndCache Nothing)
 
 
 todoMenuDomId todoId =
@@ -547,8 +549,8 @@ focusDomIdCmd domId =
     focus domId |> Task.attempt Focused
 
 
-updateInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
-updateInlineEditTodoAndCache inlineEditTodo model =
+setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
+setInlineEditTodoAndCache inlineEditTodo model =
     setInlineEditTodo inlineEditTodo model
         |> pure
         |> effect cacheEffect
@@ -562,11 +564,6 @@ setInlineEditTodo inlineEditTodo model =
 mapInlineEditTodo : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Model
 mapInlineEditTodo mfn model =
     setInlineEditTodo (Maybe.map mfn model.inlineEditTodo) model
-
-
-startEditing : Todo -> Model -> Return
-startEditing todo =
-    updateInlineEditTodoAndCache <| Just <| InlineEditTodo.fromTodo todo
 
 
 startMoving : Todo -> Model -> Return
