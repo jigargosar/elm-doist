@@ -28,10 +28,12 @@
 
 ## SLICE 3
 
-- DueAt
-- Today
+- [x] DueAt
+- [x] Today
+- [x] Overdue
+
+## Next Slice
 - Next Seven Days
-- Overdue
 
 ## IceBox
 
