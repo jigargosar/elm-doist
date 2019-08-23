@@ -1066,8 +1066,8 @@ viewDialog content =
                 , onClick OnDialogOverlayClicked
                 ]
                 []
-            , H.node "style" [] [ text "body { overflow: hidden; }" ]
             , div [ class "absolute" ] content
+            , H.node "style" [] [ text "body { overflow: hidden; }" ]
             ]
         ]
 
