@@ -324,7 +324,10 @@ update message model =
                 "projectList" ->
                     model
                         |> decodeValueAndUnpack
-                            ( Project.listDecoder, updateProjectListAndCleanupFromFirestore, onDecodeError )
+                            ( Project.listDecoder
+                            , updateProjectListAndCleanupFromFirestore
+                            , onDecodeError
+                            )
                             qs.docDataList
 
                 _ ->
@@ -580,9 +583,10 @@ queryProjectListCmd =
 
 updateFromEncodedFlags : Value -> Model -> Return
 updateFromEncodedFlags encodedFlags model =
-    JD.decodeValue flagsDecoder encodedFlags
-        |> RX.unpack onDecodeError updateFromFlags
-        |> callWith model
+    model
+        |> decodeValueAndUnpack
+            ( flagsDecoder, updateFromFlags, onDecodeError )
+            encodedFlags
 
 
 updateFromFlags : Flags -> Model -> Return
