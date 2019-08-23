@@ -462,6 +462,20 @@ update message model =
                 _ ->
                     pure model
 
+        OnEditCancel ->
+            setInlineEditTodoAndCache Nothing model
+
+        OnEditSave ->
+            model.inlineEditTodo
+                |> Maybe.andThen InlineEditTodo.toUpdateMessages
+                |> MX.unpack (\_ -> pure model)
+                    (\( todo, todoUpdateMsgList ) ->
+                        ( model
+                        , patchTodoCmd todo.id todoUpdateMsgList
+                        )
+                    )
+                |> andThen (setInlineEditTodoAndCache Nothing)
+
         OnMoveStart todoId ->
             model.todoList
                 |> List.Extra.find (.id >> (==) todoId)
@@ -534,20 +548,6 @@ update message model =
 
                 DueDialog _ ->
                     updateDialogAndCache NoDialog model
-
-        OnEditCancel ->
-            setInlineEditTodoAndCache Nothing model
-
-        OnEditSave ->
-            model.inlineEditTodo
-                |> Maybe.andThen InlineEditTodo.toUpdateMessages
-                |> MX.unpack (\_ -> pure model)
-                    (\( todo, todoUpdateMsgList ) ->
-                        ( model
-                        , patchTodoCmd todo.id todoUpdateMsgList
-                        )
-                    )
-                |> andThen (setInlineEditTodoAndCache Nothing)
 
 
 todoMenuDomId todoId =
