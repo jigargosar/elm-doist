@@ -430,50 +430,23 @@ update message model =
 
         OnStartInlineEditTodo todoId ->
             let
-                updateHelpFn todo edt =
-                    let
-                        ( newEdt, oldTodoUpdateCmd ) =
-                            InlineEditTodo.startEditing todo edt
-                                |> Tuple.mapFirst Just
-                                |> Tuple.mapSecond
-                                    (MX.unwrap Cmd.none
-                                        (\( todoOld, oldTodoUpdateMsgList ) ->
-                                            patchTodoCmd todoOld.id oldTodoUpdateMsgList
-                                        )
-                                    )
-                    in
-                    setInlineEditTodoAndCache newEdt model
-                        |> command oldTodoUpdateCmd
+                startEditHelp : Todo -> Return
+                startEditHelp todo =
+                    persistInlineEditTodo model
+                        |> andThen
+                            (setInlineEditTodoAndCache
+                                (Just <| InlineEditTodo.fromTodo todo)
+                            )
             in
-            case
-                ( model.todoList
-                    |> List.Extra.find (.id >> (==) todoId)
-                , model.inlineEditTodo
-                )
-            of
-                ( Just todo, Just edt ) ->
-                    updateHelpFn todo edt
-
-                ( Just todo, Nothing ) ->
-                    setInlineEditTodoAndCache
-                        (Just <| InlineEditTodo.fromTodo todo)
-                        model
-
-                _ ->
-                    pure model
+            model.todoList
+                |> List.Extra.find (.id >> (==) todoId)
+                |> MX.unpack (\_ -> pure model) startEditHelp
 
         OnEditCancel ->
             setInlineEditTodoAndCache Nothing model
 
         OnEditSave ->
-            model.inlineEditTodo
-                |> Maybe.andThen InlineEditTodo.toUpdateMessages
-                |> MX.unpack (\_ -> pure model)
-                    (\( todo, todoUpdateMsgList ) ->
-                        ( model
-                        , patchTodoCmd todo.id todoUpdateMsgList
-                        )
-                    )
+            persistInlineEditTodo model
                 |> andThen (setInlineEditTodoAndCache Nothing)
 
         OnMoveStart todoId ->
@@ -573,6 +546,18 @@ focusTodoMenuCmd todoId =
 focusDomIdCmd : String -> Cmd Msg
 focusDomIdCmd domId =
     focus domId |> Task.attempt Focused
+
+
+persistInlineEditTodo : Model -> Return
+persistInlineEditTodo model =
+    model.inlineEditTodo
+        |> Maybe.andThen InlineEditTodo.toUpdateMessages
+        |> MX.unpack (\_ -> pure model)
+            (\( todo, todoUpdateMsgList ) ->
+                ( model
+                , patchTodoCmd todo.id todoUpdateMsgList
+                )
+            )
 
 
 setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
