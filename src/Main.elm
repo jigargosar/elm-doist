@@ -240,7 +240,6 @@ type Msg
     | Focus String
     | Focused (Result Dom.Error ())
     | OnAuthStateChanged Value
-    | OnTodoListChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
     | OnSignOutClicked
@@ -333,11 +332,6 @@ update message model =
         OnAuthStateChanged encodedValue ->
             JD.decodeValue AuthState.decoder encodedValue
                 |> RX.unpack onDecodeError onAuthStateChanged
-                |> callWith model
-
-        OnTodoListChanged encodedValue ->
-            JD.decodeValue Todo.listDecoder encodedValue
-                |> RX.unpack onDecodeError updateTodoListFromFirestore
                 |> callWith model
 
         OnSignInClicked ->
