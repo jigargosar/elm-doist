@@ -8,7 +8,6 @@ port module Ports exposing
     , onAuthStateChanged
     , onFirestoreQueryResponse
     , onTodoListChanged
-    , persistTodoList
     , queryFirestore
     , setCache
     , signIn
@@ -38,9 +37,6 @@ port signIn : () -> Cmd msg
 
 
 port signOut : () -> Cmd msg
-
-
-port persistTodoList : Value -> Cmd msg
 
 
 port queryFirestore :
