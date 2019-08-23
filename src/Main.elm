@@ -6,6 +6,7 @@ import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
+import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (bottom, height, marginLeft, maxWidth, minHeight, minWidth, none, outline, position, px, rem, sticky, top, transforms, translateX, vh, vw, width, zero)
 import Css.Media as Media exposing (withMedia)
@@ -48,7 +49,6 @@ import ProjectId exposing (ProjectId)
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
-import Size exposing (Size)
 import String.Extra as SX
 import Task
 import Time exposing (Zone)
@@ -81,7 +81,7 @@ type alias Model =
     , route : Route
     , today : Calendar.Date
     , here : Time.Zone
-    , browserSize : Size
+    , browserSize : BrowserSize
     }
 
 
@@ -95,7 +95,7 @@ type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
-    , browserSize : Size
+    , browserSize : BrowserSize
     , now : Millis
     , cache : Cache
     }
@@ -183,7 +183,7 @@ flagsDecoder =
         |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
         |> JDP.required "cachedAuthState"
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
-        |> JDP.required "browserSize" Size.decoder
+        |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
         |> JDP.required "cache" cacheDecoder
 
@@ -218,7 +218,7 @@ init encodedFlags url key =
             , route = route
             , today = dateFromMillis now
             , here = Time.utc
-            , browserSize = Size.initial
+            , browserSize = BrowserSize.initial
             }
     in
     model
@@ -238,7 +238,7 @@ type Msg
     | UrlChanged Url
     | OnHere Time.Zone
     | GotViewport Dom.Viewport
-    | OnBrowserResize Size
+    | OnBrowserResize BrowserSize
     | Focus String
     | Focused (Result Dom.Error ())
     | OnAuthStateChanged Value
@@ -278,7 +278,7 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
-        , Size.onBrowserResize OnBrowserResize
+        , BrowserSize.onBrowserResize OnBrowserResize
         ]
 
 
@@ -324,7 +324,7 @@ update message model =
             pure { model | here = here }
 
         GotViewport domVP ->
-            pure { model | browserSize = Size.fromViewport domVP.viewport }
+            pure { model | browserSize = BrowserSize.fromViewport domVP.viewport }
 
         OnBrowserResize size ->
             setBrowserSize size model |> pure

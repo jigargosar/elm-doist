@@ -1,4 +1,4 @@
-module Size exposing (Size, decoder, encoder, fromViewport, initial, onBrowserResize)
+module BrowserSize exposing (BrowserSize, decoder, encoder, fromViewport, initial, onBrowserResize)
 
 import Browser.Events
 import Json.Decode as JD exposing (Decoder)
@@ -6,23 +6,23 @@ import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 
 
-type alias Size =
+type alias BrowserSize =
     { width : Int, height : Int }
 
 
-initial : Size
+initial : BrowserSize
 initial =
     { width = 0, height = 0 }
 
 
-decoder : Decoder Size
+decoder : Decoder BrowserSize
 decoder =
-    JD.succeed Size
+    JD.succeed BrowserSize
         |> JDP.required "width" JD.int
         |> JDP.required "height" JD.int
 
 
-encoder : Size -> Value
+encoder : BrowserSize -> Value
 encoder { width, height } =
     JE.object
         [ ( "width", JE.int width )
@@ -30,11 +30,11 @@ encoder { width, height } =
         ]
 
 
-onBrowserResize : (Size -> msg) -> Sub msg
+onBrowserResize : (BrowserSize -> msg) -> Sub msg
 onBrowserResize tagger =
-    Browser.Events.onResize (\w h -> Size w h |> tagger)
+    Browser.Events.onResize (\w h -> BrowserSize w h |> tagger)
 
 
-fromViewport : { a | width : Float, height : Float } -> Size
+fromViewport : { a | width : Float, height : Float } -> BrowserSize
 fromViewport vp =
-    Size (round vp.width) (round vp.height)
+    BrowserSize (round vp.width) (round vp.height)
