@@ -8,7 +8,7 @@ import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
-import Css exposing (bottom, fixed, height, left, marginLeft, maxWidth, minHeight, minWidth, none, outline, paddingTop, position, px, rem, right, sticky, top, transforms, translateX, vh, vw, width, zero)
+import Css exposing (bottom, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dict exposing (Dict)
@@ -755,7 +755,8 @@ view model =
         |> (\{ title, body } ->
                 { title = title
                 , body =
-                    [ H.toUnstyled <|
+                    [ FontAwesome.Styles.css
+                    , H.toUnstyled <|
                         div
                             [ A.id "root"
                             , class "h-100"
@@ -766,13 +767,7 @@ view model =
                             body
                     ]
                 }
-                    |> prependFontAwesomeCss
            )
-
-
-prependFontAwesomeCss : Browser.Document Msg -> Browser.Document Msg
-prependFontAwesomeCss doc =
-    { doc | body = FontAwesome.Styles.css :: doc.body }
 
 
 type alias StyledDocument msg =
