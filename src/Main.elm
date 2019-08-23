@@ -55,6 +55,7 @@ import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
+import TodoMenu
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
@@ -69,15 +70,11 @@ type Dialog
     | DueDialog TodoId
 
 
-type alias TodoMenu =
-    { todoId : TodoId }
-
-
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , todoMenu : Maybe TodoMenu
+    , todoMenu : Maybe TodoMenu.TodoMenu
     , dialog : Dialog
     , authState : AuthState
     , errors : Errors
@@ -1256,7 +1253,7 @@ viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
-        , todoMenu : Maybe TodoMenu
+        , todoMenu : Maybe TodoMenu.TodoMenu
     }
     -> Todo
     -> Html Msg
@@ -1331,7 +1328,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase :
     { a
         | here : Zone
-        , todoMenu : Maybe { b | todoId : TodoId }
+        , todoMenu : Maybe TodoMenu.TodoMenu
     }
     -> Todo
     -> Html Msg
