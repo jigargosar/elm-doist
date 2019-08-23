@@ -225,7 +225,6 @@ init encodedFlags url key =
         |> pure
         |> andThen (updateFromEncodedFlags encodedFlags)
         |> command (Millis.hereCmd OnHere)
-        |> command (Dom.getViewport |> Task.perform GotViewport)
 
 
 
@@ -237,7 +236,6 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | OnHere Time.Zone
-    | GotViewport Dom.Viewport
     | OnBrowserResize BrowserSize
     | Focus String
     | Focused (Result Dom.Error ())
@@ -322,9 +320,6 @@ update message model =
 
         OnHere here ->
             pure { model | here = here }
-
-        GotViewport domVP ->
-            pure { model | browserSize = BrowserSize.fromViewport domVP.viewport }
 
         OnBrowserResize size ->
             setBrowserSize size model |> pure
