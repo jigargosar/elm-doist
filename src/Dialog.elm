@@ -1,5 +1,8 @@
-module Dialog exposing (Dialog(..), decoder, encoder)
+module Dialog exposing (Dialog(..), decoder, encoder, view)
 
+import Html.Styled as H exposing (Attribute, Html, div, text)
+import Html.Styled.Attributes exposing (class)
+import Html.Styled.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
@@ -55,3 +58,18 @@ dialogDecoderForTag tag =
 
         _ ->
             JD.fail ("Invalid Dialog Tag:" ++ tag)
+
+
+view : msg -> List (Html msg) -> Html msg
+view onOverlayClick content =
+    div
+        [ class "absolute absolute--fill flex items-center justify-center"
+        ]
+        [ div
+            [ class "absolute absolute--fill bg-black-50"
+            , onClick onOverlayClick
+            ]
+            []
+        , div [ class "absolute" ] content
+        , H.node "style" [] [ text "body { overflow: hidden; }" ]
+        ]

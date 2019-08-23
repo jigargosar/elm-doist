@@ -1056,18 +1056,8 @@ viewDueDialog zone today todoId =
 
 
 viewDialog : List (Html Msg) -> Html Msg
-viewDialog content =
-    div
-        [ class "absolute absolute--fill flex items-center justify-center"
-        ]
-        [ div
-            [ class "absolute absolute--fill bg-black-50"
-            , onClick OnDialogOverlayClicked
-            ]
-            []
-        , div [ class "absolute" ] content
-        , H.node "style" [] [ text "body { overflow: hidden; }" ]
-        ]
+viewDialog =
+    Dialog.view OnDialogOverlayClicked
 
 
 
