@@ -73,6 +73,18 @@ type alias Flags =
     }
 
 
+flagsDecoder : Decoder Flags
+flagsDecoder =
+    JD.succeed Flags
+        |> JDP.required "cachedTodoList" (JD.oneOf [ Todo.listDecoder, JD.null [] ])
+        |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
+        |> JDP.required "cachedAuthState"
+            (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
+        |> JDP.required "browserSize" BrowserSize.decoder
+        |> JDP.required "now" JD.int
+        |> JDP.required "cache" cacheDecoder
+
+
 
 -- Cache
 
@@ -186,18 +198,6 @@ cacheFromModel { dialog, inlineEditTodo } =
     { dialog = dialog
     , inlineEditTodo = inlineEditTodo
     }
-
-
-flagsDecoder : Decoder Flags
-flagsDecoder =
-    JD.succeed Flags
-        |> JDP.required "cachedTodoList" (JD.oneOf [ Todo.listDecoder, JD.null [] ])
-        |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
-        |> JDP.required "cachedAuthState"
-            (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
-        |> JDP.required "browserSize" BrowserSize.decoder
-        |> JDP.required "now" JD.int
-        |> JDP.required "cache" cacheDecoder
 
 
 
