@@ -4,13 +4,20 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Model TodoId
+    = Open TodoId
+    | Closed
 
 
-forTodoId todoId_ =
-    Model todoId_
+openFor : TodoId -> Model
+openFor todoId_ =
+    Open todoId_
 
 
-isOpenForTodoId : TodoId -> Model -> Bool
-isOpenForTodoId todoId_ (Model todoId) =
-    todoId_ == todoId
+isOpenFor : TodoId -> Model -> Bool
+isOpenFor todoId_ model =
+    case model of
+        Open tid ->
+            todoId_ == tid
+
+        Closed ->
+            False

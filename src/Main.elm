@@ -444,12 +444,12 @@ update message model =
             startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
-            pure { model | todoMenu = Just <| TodoMenu.forTodoId todoId }
+            pure { model | todoMenu = Just <| TodoMenu.openFor todoId }
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
             model.todoMenu
-                |> MX.filter (TodoMenu.isOpenForTodoId todoId)
+                |> MX.filter (TodoMenu.isOpenFor todoId)
                 |> MX.unpack (\_ -> pure model)
                     (\_ ->
                         ( { model | todoMenu = Nothing }
@@ -1341,7 +1341,7 @@ viewTodoItemBase { here, todoMenu } todo =
                 , class "pa2 tc child"
                 ]
             , todoMenu
-                |> MX.filter (TodoMenu.isOpenForTodoId todo.id)
+                |> MX.filter (TodoMenu.isOpenFor todo.id)
                 |> HX.viewMaybe
                     (\_ -> viewTodoMenu todo)
             ]
