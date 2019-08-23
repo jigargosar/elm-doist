@@ -248,9 +248,9 @@ type Msg
     | OnDeleteProject ProjectId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | OnAddTodoStart ProjectId
+    | AddTodo ProjectId Millis
     | OnAddTodoTodayStart
     | AddTodoToday Millis
-    | AddTodo ProjectId Millis
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
