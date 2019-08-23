@@ -995,7 +995,7 @@ viewMoveDialog todoId projectId projectList =
                 ]
                 [ div [] [ text dp.title ] ]
     in
-    viewDialogOverlay
+    viewDialog
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
@@ -1046,11 +1046,26 @@ viewDueDialog zone today todoId =
 
 viewDialogOverlay : List (Html Msg) -> Html Msg
 viewDialogOverlay =
+    --    div
+    --        [ class "fixed absolute--fill bg-black-50"
+    --        , class "flex items-center justify-center "
+    --        , A.id "overlay"
+    --        , onDomIdClicked "overlay" OnDialogOverlayClicked
+    --        ]
+    viewDialog
+
+
+viewDialog content =
     div
-        [ class "fixed absolute--fill bg-black-50"
-        , class "flex items-center justify-center "
-        , A.id "overlay"
-        , onDomIdClicked "overlay" OnDialogOverlayClicked
+        [ class "fixed absolute--fill flex items-center justify-center"
+        ]
+        [ div
+            [ class "absolute absolute--fill bg-black-50"
+            , onClick OnDialogOverlayClicked
+            ]
+            []
+        , div [ class "absolute" ] content
+        , H.node "style" [] [ text "body { overflow:hidden }" ]
         ]
 
 
