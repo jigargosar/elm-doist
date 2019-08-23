@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Accessibility.Styled.Key as Key
 import AuthState exposing (AuthState)
+import Basics.Extra exposing (uncurry)
 import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
 import Browser.Dom as Dom exposing (focus)
@@ -401,7 +402,8 @@ update message model =
             )
 
         OnStartInlineEditTodo todoId ->
-            model |> maybeUpdate startEditingTodo (findTodoById todoId model)
+            startEditingTodoId todoId model
+                |> Maybe.withDefault (pure model)
 
         OnEditCancel ->
             resetInlineEditTodoAndCache model
@@ -518,6 +520,12 @@ persistInlineEditTodo model =
                 , patchTodoCmd todo.id todoUpdateMsgList
                 )
             )
+
+
+startEditingTodoId : TodoId -> Model -> Maybe Return
+startEditingTodoId todoId model =
+    findTodoById todoId model
+        |> Maybe.map (\todo -> startEditingTodo todo model)
 
 
 startEditingTodo : Todo -> Model -> Return

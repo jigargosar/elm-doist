@@ -1,4 +1,4 @@
-module BasicsExtra exposing (callWith, eq_, ifElse, unpackErr)
+module BasicsExtra exposing (callWith, eq_, ifElse, uncurry, unpackErr)
 
 -- CORE HELPERS
 
@@ -30,3 +30,8 @@ ifElse bool a b =
 
     else
         b
+
+
+uncurry : (a -> b -> c) -> ( a, b ) -> c
+uncurry fn ( a1, a2 ) =
+    fn a1 a2
