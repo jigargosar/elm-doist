@@ -11,6 +11,7 @@ import Calendar
 import Css exposing (bottom, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
+import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
@@ -90,7 +91,7 @@ flagsDecoder =
 
 
 type alias Cache =
-    { dialog : Dialog
+    { dialog : Dialog.Dialog
     , inlineEditTodo : Maybe InlineEditTodo.Model
     }
 
@@ -98,14 +99,14 @@ type alias Cache =
 cacheDecoder : Decoder Cache
 cacheDecoder =
     JD.succeed Cache
-        |> JDP.optional "dialog" dialogDecoder NoDialog
+        |> JDP.optional "dialog" Dialog.dialogDecoder Dialog.NoDialog
         |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
 
 
 cacheEncoder : Cache -> Value
 cacheEncoder { dialog, inlineEditTodo } =
     JE.object
-        [ ( "dialog", dialogEncoder dialog )
+        [ ( "dialog", Dialog.dialogEncoder dialog )
         , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
         ]
 
@@ -119,7 +120,7 @@ type alias Model =
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
     , todoMenu : TodoMenu.Model
-    , dialog : Dialog
+    , dialog : Dialog.Dialog
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -158,60 +159,6 @@ findActiveProjectById pid model =
 
 
 -- Dialog
-
-
-type Dialog
-    = NoDialog
-    | MoveToProjectDialog TodoId ProjectId
-    | DueDialog TodoId
-
-
-dialogDecoder : Decoder Dialog
-dialogDecoder =
-    JD.field "tag" JD.string
-        |> JD.andThen dialogDecoderForTag
-
-
-dialogEncoder : Dialog -> Value
-dialogEncoder dialog =
-    case dialog of
-        NoDialog ->
-            JE.object [ ( "tag", JE.string "NoDialog" ) ]
-
-        MoveToProjectDialog todoId projectId ->
-            JE.object
-                [ ( "tag", JE.string "MoveToProjectDialog" )
-                , ( "todoId", TodoId.encoder todoId )
-                , ( "projectId", ProjectId.encoder projectId )
-                ]
-
-        DueDialog todoId ->
-            JE.object
-                [ ( "tag", JE.string "DueDialog" )
-                , ( "todoId", TodoId.encoder todoId )
-                ]
-
-
-dialogDecoderForTag : String -> Decoder Dialog
-dialogDecoderForTag tag =
-    case tag of
-        "NoDialog" ->
-            JD.succeed NoDialog
-
-        "MoveToProjectDialog" ->
-            JD.map2 MoveToProjectDialog
-                (JD.field "todoId" TodoId.decoder)
-                (JD.field "projectId" ProjectId.decoder)
-
-        "DueDialog" ->
-            JD.field "todoId" TodoId.decoder
-                |> JD.map DueDialog
-
-        _ ->
-            JD.fail ("Invalid Dialog Tag:" ++ tag)
-
-
-
 -- INIT
 
 
@@ -234,7 +181,7 @@ init encodedFlags url key =
             , projectList = []
             , inlineEditTodo = Nothing
             , todoMenu = TodoMenu.init
-            , dialog = NoDialog
+            , dialog = Dialog.NoDialog
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -478,7 +425,7 @@ update message model =
                 (pure model)
 
         OnMoveToProject todoId pid ->
-            updateDialogAndCache NoDialog model
+            updateDialogAndCache Dialog.NoDialog model
                 |> command
                     (patchTodoCmd
                         todoId
@@ -486,12 +433,12 @@ update message model =
                     )
 
         OnSetDue todoId dueAt ->
-            ifElse (model.dialog == DueDialog todoId)
+            ifElse (model.dialog == Dialog.DueDialog todoId)
                 (model.inlineEditTodo
                     |> MX.filter (InlineEditTodo.idEq todoId)
                     |> MX.unpack
                         (\_ ->
-                            updateDialogAndCache NoDialog model
+                            updateDialogAndCache Dialog.NoDialog model
                                 |> command
                                     (patchTodoCmd
                                         todoId
@@ -501,7 +448,7 @@ update message model =
                         (\_ ->
                             model
                                 |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
-                                |> updateDialogAndCache NoDialog
+                                |> updateDialogAndCache Dialog.NoDialog
                         )
                 )
                 (pure model)
@@ -514,19 +461,19 @@ update message model =
                     (\_ ->
                         model
                             |> mapInlineEditTodo (InlineEditTodo.setTitle title)
-                            |> updateDialogAndCache NoDialog
+                            |> updateDialogAndCache Dialog.NoDialog
                     )
 
         OnDialogOverlayClicked ->
             case model.dialog of
-                NoDialog ->
+                Dialog.NoDialog ->
                     pure model
 
-                MoveToProjectDialog _ _ ->
-                    updateDialogAndCache NoDialog model
+                Dialog.MoveToProjectDialog _ _ ->
+                    updateDialogAndCache Dialog.NoDialog model
 
-                DueDialog _ ->
-                    updateDialogAndCache NoDialog model
+                Dialog.DueDialog _ ->
+                    updateDialogAndCache Dialog.NoDialog model
 
 
 todoMenuDomId todoId =
@@ -585,15 +532,15 @@ mapInlineEditTodo mfn model =
 
 startMoving : Todo -> Model -> Return
 startMoving todo =
-    updateDialogAndCache (MoveToProjectDialog todo.id todo.projectId)
+    updateDialogAndCache (Dialog.MoveToProjectDialog todo.id todo.projectId)
 
 
 startEditingDue : TodoId -> Model -> Return
 startEditingDue todoId =
-    updateDialogAndCache (DueDialog todoId)
+    updateDialogAndCache (Dialog.DueDialog todoId)
 
 
-updateDialogAndCache : Dialog -> Model -> Return
+updateDialogAndCache : Dialog.Dialog -> Model -> Return
 updateDialogAndCache dialog model =
     pure { model | dialog = dialog }
         |> effect cacheEffect
@@ -1006,13 +953,13 @@ viewFooter : Model -> Html Msg
 viewFooter model =
     div []
         [ case model.dialog of
-            NoDialog ->
+            Dialog.NoDialog ->
                 HX.empty
 
-            MoveToProjectDialog todoId projectId ->
+            Dialog.MoveToProjectDialog todoId projectId ->
                 viewMoveDialog todoId projectId (Project.filterActive model.projectList)
 
-            DueDialog todoId ->
+            Dialog.DueDialog todoId ->
                 viewDueDialog model.here model.today todoId
         ]
 
