@@ -287,6 +287,11 @@ subscriptions _ =
 -- UPDATE
 
 
+getTodoById todoId model =
+    model.todoList
+        |> List.Extra.find (.id >> (==) todoId)
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -438,8 +443,7 @@ update message model =
                                 (Just <| InlineEditTodo.fromTodo todo)
                             )
             in
-            model.todoList
-                |> List.Extra.find (.id >> (==) todoId)
+            getTodoById todoId model
                 |> MX.unpack (\_ -> pure model) startEditHelp
 
         OnEditCancel ->
