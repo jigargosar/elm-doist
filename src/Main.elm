@@ -259,6 +259,15 @@ decodeValueAndUnpack ( decoder, onOk, onErr ) enc =
         |> RX.unpack onErr onOk
 
 
+maybeUpdate :
+    (a -> model -> Return.Return msg model)
+    -> Maybe a
+    -> model
+    -> Return.Return msg model
+maybeUpdate fn model =
+    model |> MX.unwrap pure fn
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -392,24 +401,14 @@ update message model =
             )
 
         OnStartInlineEditTodo todoId ->
-            let
-                startEditHelp : Todo -> Return
-                startEditHelp todo =
-                    persistInlineEditTodo model
-                        |> andThen
-                            (setInlineEditTodoAndCache
-                                (Just <| InlineEditTodo.fromTodo todo)
-                            )
-            in
-            findTodoById todoId model
-                |> MX.unpack (\_ -> pure model) startEditHelp
+            model |> maybeUpdate startEditingTodo (findTodoById todoId model)
 
         OnEditCancel ->
-            setInlineEditTodoAndCache Nothing model
+            resetInlineEditTodoAndCache model
 
         OnEditSave ->
             persistInlineEditTodo model
-                |> andThen (setInlineEditTodoAndCache Nothing)
+                |> andThen resetInlineEditTodoAndCache
 
         OnMoveStart todoId ->
             findTodoById todoId model
@@ -521,21 +520,45 @@ persistInlineEditTodo model =
             )
 
 
-setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
-setInlineEditTodoAndCache inlineEditTodo model =
-    setInlineEditTodo inlineEditTodo model
+startEditingTodo : Todo -> Model -> Return
+startEditingTodo todo model =
+    model
+        |> persistInlineEditTodo
+        |> andThen (setInlineEditTodoAndCache todo)
+
+
+setInlineEditTodoAndCache : Todo -> Model -> Return
+setInlineEditTodoAndCache todo model =
+    setInlineEditTodo (InlineEditTodo.fromTodo todo) model
         |> pure
         |> effect cacheEffect
 
 
-setInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo inlineEditTodo model =
+resetInlineEditTodoAndCache : Model -> Return
+resetInlineEditTodoAndCache model =
+    resetInlineEditTodo model
+        |> pure
+        |> effect cacheEffect
+
+
+setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
+setInlineEditTodo_ inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
+
+
+setInlineEditTodo : InlineEditTodo.Model -> Model -> Model
+setInlineEditTodo inlineEditTodo model =
+    { model | inlineEditTodo = Just inlineEditTodo }
+
+
+resetInlineEditTodo : Model -> Model
+resetInlineEditTodo model =
+    { model | inlineEditTodo = Nothing }
 
 
 mapInlineEditTodo : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Model
 mapInlineEditTodo mfn model =
-    setInlineEditTodo (Maybe.map mfn model.inlineEditTodo) model
+    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
 
 
 startMoving : Todo -> Model -> Return
