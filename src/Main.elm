@@ -2,12 +2,12 @@ module Main exposing (main)
 
 import Accessibility.Styled.Key as Key
 import AuthState exposing (AuthState)
-import Basics.Extra exposing (uncurry)
 import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
+import Button
 import Calendar
 import Css exposing (bottom, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
@@ -36,8 +36,7 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (on, onCheck, onClick, onInput, preventDefaultOn)
-import Html.Styled.Lazy exposing (lazy2)
+import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
@@ -962,7 +961,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , faBtn OnAddProjectStart FontAwesome.Solid.plus []
+            , Button.faBtn OnAddProjectStart FontAwesome.Solid.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -981,7 +980,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash []
+        , Button.faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash []
         ]
 
 
@@ -1229,7 +1228,7 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            textBtn (OnEditDueStart <| todoId)
+            Button.textBtn (OnEditDueStart <| todoId)
                 [ class "flex"
                 , class "pa3 ba b--moon-gray"
                 , class "w4"
@@ -1247,8 +1246,8 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ primaryTxtBtn OnEditSave [ class "" ] "Save"
-            , secondaryTxtBtn OnEditCancel [ class "" ] "Cancel"
+            [ Button.primaryTxtBtn OnEditSave [ class "" ] "Save"
+            , Button.secondaryTxtBtn OnEditCancel [ class "" ] "Cancel"
             ]
         ]
 
@@ -1268,7 +1267,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ faBtn (OnTodoMenuTriggered todo.id)
+            [ Button.faBtn (OnTodoMenuTriggered todo.id)
                 FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
@@ -1294,7 +1293,7 @@ viewTodoMenu todo =
                 |> List.map (Tuple.mapFirst <| callWith todo.id)
                 |> List.indexedMap
                     (\idx ( msg, label ) ->
-                        btn msg
+                        Button.btn msg
                             [ A.id <|
                                 ifElse (idx == 0)
                                     (todoMenuFirstFocusableDomId todo.id)
@@ -1329,12 +1328,12 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                faBtn (OnEditDueStart todo.id)
+                Button.faBtn (OnEditDueStart todo.id)
                     FontAwesome.Regular.calendarPlus
                     [ class "pa2 child" ]
             )
             (\dueMillis ->
-                btn (OnEditDueStart todo.id)
+                Button.btn (OnEditDueStart todo.id)
                     [ class "pa2 flex-shrink-0 f7 lh-copy"
                     ]
                     [ text <| Millis.formatDate "MMM dd" here dueMillis
@@ -1346,7 +1345,7 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            btn action
+            Button.btn action
                 [ class "dib pa2 gray"
                 ]
                 [ icon
@@ -1380,60 +1379,6 @@ viewTodoItemTitle todo =
         , class " lh-title"
         ]
         [ viewTitle ]
-
-
-
--- Common UI Elements
-
-
-faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
-faBtn action icon attrs =
-    btn action
-        ([ class "dib gray hover-dark-gray_"
-         ]
-            ++ attrs
-        )
-        [ icon
-            |> FAIcon.viewStyled [{- FontAwesome.Attributes.sm -}]
-            |> H.fromUnstyled
-        ]
-
-
-btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-btn action attrs =
-    let
-        btnKDDecoder msg =
-            JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
-    in
-    div
-        ([ preventDefaultOn "click" <| JD.succeed ( action, True )
-         , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
-         , tabindex 0
-         , class "pointer"
-         ]
-            ++ attrs
-        )
-
-
-textBtn : msg -> List (Attribute msg) -> String -> Html msg
-textBtn action attrs txt =
-    btn action
-        (class "underline pa1" :: attrs)
-        [ text txt ]
-
-
-primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-primaryTxtBtn action attrs txt =
-    textBtn action
-        (class "blue" :: attrs)
-        txt
-
-
-secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-secondaryTxtBtn action attrs txt =
-    textBtn action
-        (class "gray" :: attrs)
-        txt
 
 
 
