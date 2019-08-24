@@ -19,19 +19,19 @@ type Role
     | Secondary
 
 
-type alias Options =
+type alias Config =
     { role : Role
     , icon : Maybe FontAwesome.Icon.Icon
     , text : Maybe String
     }
 
 
-defaults : Options
+defaults : Config
 defaults =
     { role = Primary, icon = Nothing, text = Nothing }
 
 
-buttonHelp : Options -> msg -> List (Attribute msg) -> Html msg
+buttonHelp : Config -> msg -> List (Attribute msg) -> Html msg
 buttonHelp options action attrs =
     let
         btnKDDecoder msg =
