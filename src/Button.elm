@@ -103,12 +103,4 @@ secondaryTxtBtn =
 
 faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
-    btn action
-        ([ class "dib gray hover-dark-gray_"
-         ]
-            ++ attrs
-        )
-        [ icon
-            |> FontAwesome.Icon.viewStyled [{- FontAwesome.Attributes.sm -}]
-            |> H.fromUnstyled
-        ]
+    button { defaults | icon = Just icon } action attrs
