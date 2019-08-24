@@ -36,7 +36,8 @@ import Html.Styled.Attributes as A
         , type_
         , value
         )
-import Html.Styled.Events exposing (onCheck, onClick, onInput, preventDefaultOn)
+import Html.Styled.Events exposing (on, onCheck, onClick, onInput, preventDefaultOn)
+import Html.Styled.Lazy exposing (lazy2)
 import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
@@ -1401,15 +1402,13 @@ faBtn action icon attrs =
 btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 btn action attrs =
     let
-        msg =
-            ( action, True )
+        btnKDDecoder msg =
+            JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
     in
     div
-        ([ onClick action
-         , preventDefaultOn "keydown" <|
-            JD.oneOf [ Key.enter msg, Key.space msg ]
+        ([ preventDefaultOn "click" <| JD.succeed ( action, True )
+         , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
          , tabindex 0
-         , A.attribute "role" "button"
          , class "pointer"
          ]
             ++ attrs
