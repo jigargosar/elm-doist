@@ -146,14 +146,23 @@ textBtn =
 
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 primaryTxtBtn action attrs txt =
-    buttonHelp { defaults | text = Just txt, role = Primary } action attrs
+    button action
+        |> withText txt
+        |> withRole Primary
+        |> toHtml
 
 
 secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 secondaryTxtBtn action attrs txt =
-    buttonHelp { defaults | text = Just txt, role = Secondary } action attrs
+    button action
+        |> withText txt
+        |> withRole Secondary
+        |> toHtml
 
 
 faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
-    buttonHelp { defaults | icon = Just icon } action attrs
+    button action
+        |> withRole Secondary
+        |> withIcon icon
+        |> toHtml
