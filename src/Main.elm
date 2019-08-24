@@ -1340,6 +1340,7 @@ viewDueAt here todo =
             )
 
 
+viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     div
         [ class "pa2"
@@ -1352,6 +1353,7 @@ viewCheck isChecked onCheckMsg =
             , onCheck onCheckMsg
             ]
             []
+        , faBtn (onCheckMsg (not isChecked)) FontAwesome.Regular.checkCircle []
         ]
 
 
@@ -1381,7 +1383,7 @@ viewTodoItemTitle todo =
 faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
     btn action
-        ([ class "gray hover-dark-gray_"
+        ([ class "dib gray hover-dark-gray_"
          ]
             ++ attrs
         )
