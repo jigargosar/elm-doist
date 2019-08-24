@@ -31,8 +31,8 @@ defaults =
     { role = Primary, icon = Nothing, text = Nothing }
 
 
-button : Options -> msg -> List (Attribute msg) -> Html msg
-button options action attrs =
+buttonHelp : Options -> msg -> List (Attribute msg) -> Html msg
+buttonHelp options action attrs =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -88,12 +88,12 @@ btn action attrs =
 
 textBtn : msg -> List (Attribute msg) -> String -> Html msg
 textBtn action attrs txt =
-    button { defaults | text = Just txt, role = Secondary } action attrs
+    buttonHelp { defaults | text = Just txt, role = Secondary } action attrs
 
 
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 primaryTxtBtn action attrs txt =
-    button { defaults | text = Just txt, role = Primary } action attrs
+    buttonHelp { defaults | text = Just txt, role = Primary } action attrs
 
 
 secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
@@ -103,4 +103,4 @@ secondaryTxtBtn =
 
 faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
-    button { defaults | icon = Just icon } action attrs
+    buttonHelp { defaults | icon = Just icon } action attrs
