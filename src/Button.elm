@@ -26,10 +26,12 @@ type alias Options =
     }
 
 
+defaults : Options
 defaults =
     { role = Primary, icon = Nothing, text = Nothing }
 
 
+button : Options -> msg -> List (Attribute msg) -> Html msg
 button options action attrs =
     let
         btnKDDecoder msg =
@@ -86,21 +88,17 @@ btn action attrs =
 
 textBtn : msg -> List (Attribute msg) -> String -> Html msg
 textBtn action attrs txt =
-    button { defaults | text = Just txt } action attrs
+    button { defaults | text = Just txt, role = Secondary } action attrs
 
 
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 primaryTxtBtn action attrs txt =
-    textBtn action
-        (class "blue" :: attrs)
-        txt
+    button { defaults | text = Just txt, role = Primary } action attrs
 
 
 secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-secondaryTxtBtn action attrs txt =
-    textBtn action
-        (class "gray" :: attrs)
-        txt
+secondaryTxtBtn =
+    textBtn
 
 
 faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
