@@ -140,8 +140,8 @@ btn action attrs =
 
 
 textBtn : msg -> List (Attribute msg) -> String -> Html msg
-textBtn action attrs txt =
-    buttonHelp { defaults | text = Just txt, role = Secondary } action attrs
+textBtn =
+    secondaryTxtBtn
 
 
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
@@ -150,8 +150,8 @@ primaryTxtBtn action attrs txt =
 
 
 secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-secondaryTxtBtn =
-    textBtn
+secondaryTxtBtn action attrs txt =
+    buttonHelp { defaults | text = Just txt, role = Secondary } action attrs
 
 
 faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
