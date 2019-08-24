@@ -37,6 +37,7 @@
     - Due Dialog
     - Move to Project Dialog.
 - add task, signInOut, ... buttons.
+- fa checkbox btn
 
 ## Slice 6:
 - home page, describing the project.
