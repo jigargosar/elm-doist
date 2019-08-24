@@ -36,11 +36,15 @@
 - cleanup dialog ui.
     - Due Dialog
     - Move to Project Dialog.
+- add task, signInOut, ... buttons.
 
+## Slice 6:
+- home page, describing the project.
+- non-empty first use experience.
 
 # Slice 5 : Incomplete Features
 * toggle sidebar when in small screen.
-* show project in group pending by due date view.
+* show todo item project in "group pending by due date list view".
  
 
 ## Known Issues:
