@@ -46,7 +46,17 @@ button options action attrs =
                         |> FontAwesome.Icon.viewStyled [ Svg.Attributes.class "gray" ]
                         |> H.fromUnstyled
                 )
-        , text options.text
+        , div
+            [ class "underline pa1"
+            , class <|
+                case options.role of
+                    Primary ->
+                        "blue"
+
+                    Secondary ->
+                        "gray"
+            ]
+            [ text options.text ]
         ]
 
 
