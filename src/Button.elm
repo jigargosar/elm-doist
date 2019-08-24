@@ -1,7 +1,7 @@
 module Button exposing (btn, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn)
 
 import Accessibility.Styled.Key as Key
-import FontAwesome.Icon as FAIcon
+import FontAwesome.Icon
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes
     exposing
@@ -10,6 +10,21 @@ import Html.Styled.Attributes
         )
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
+
+
+type Role
+    = Primary
+    | Secondary
+
+
+type alias Options =
+    { role : Role
+    , icon : Maybe FontAwesome.Icon.Icon
+    }
+
+
+button options msg text =
+    1
 
 
 btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
@@ -49,7 +64,7 @@ secondaryTxtBtn action attrs txt =
         txt
 
 
-faBtn : msg -> FAIcon.Icon -> List (Attribute msg) -> Html msg
+faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
 faBtn action icon attrs =
     btn action
         ([ class "dib gray hover-dark-gray_"
@@ -57,6 +72,6 @@ faBtn action icon attrs =
             ++ attrs
         )
         [ icon
-            |> FAIcon.viewStyled [{- FontAwesome.Attributes.sm -}]
+            |> FontAwesome.Icon.viewStyled [{- FontAwesome.Attributes.sm -}]
             |> H.fromUnstyled
         ]
