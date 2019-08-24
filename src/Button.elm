@@ -9,7 +9,9 @@ import Html.Styled.Attributes
         , tabindex
         )
 import Html.Styled.Events exposing (preventDefaultOn)
+import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
+import Svg.Attributes
 
 
 type Role
@@ -20,11 +22,32 @@ type Role
 type alias Options =
     { role : Role
     , icon : Maybe FontAwesome.Icon.Icon
+    , text : String
     }
 
 
-button options msg text =
-    1
+button options action attrs =
+    let
+        btnKDDecoder msg =
+            JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
+    in
+    div
+        ([ preventDefaultOn "click" <| JD.succeed ( action, True )
+         , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
+         , tabindex 0
+         , class "pointer"
+         ]
+            ++ attrs
+        )
+        [ options.icon
+            |> viewMaybe
+                (\icon ->
+                    icon
+                        |> FontAwesome.Icon.viewStyled [ Svg.Attributes.class "gray" ]
+                        |> H.fromUnstyled
+                )
+        , text options.text
+        ]
 
 
 btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
@@ -37,7 +60,7 @@ btn action attrs =
         ([ preventDefaultOn "click" <| JD.succeed ( action, True )
          , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
          , tabindex 0
-         , class "pointer"
+         , class "dib pointer"
          ]
             ++ attrs
         )
