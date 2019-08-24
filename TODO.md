@@ -29,10 +29,19 @@
 - [x] Overdue
 - [x] Deploy to elmdoist.web.app
 
-## Slice 4
+## Slice 4: Cleanup existing features.
 
 - [x] fix horizontal scroll issue when there is vertical scrollbar
 - [x] fixed top bar sticky position issue, now using fixed.
+- cleanup dialog ui.
+    - Due Dialog
+    - Move to Project Dialog.
+
+
+# Slice 5 : Incomplete Features
+* toggle sidebar when in small screen.
+* show project in group pending by due date view.
+ 
 
 ## Known Issues:
 
