@@ -17,6 +17,7 @@ import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import Focus
+import FontAwesome.Attributes
 import FontAwesome.Icon as FAIcon
 import FontAwesome.Regular
 import FontAwesome.Solid
@@ -1342,18 +1343,22 @@ viewDueAt here todo =
 
 viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
+    let
+        faCheckBtn action icon =
+            btn action
+                [ class "dib pa2 gray"
+                ]
+                [ icon
+                    |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
+                    |> H.fromUnstyled
+                ]
+    in
     div
         [ class "pa2"
         ]
-        [ input
-            [ class "pointer "
-            , type_ "checkbox"
-            , css [ width <| px 24, height <| px 24 ]
-            , checked isChecked
-            , onCheck onCheckMsg
-            ]
-            []
-        , faBtn (onCheckMsg (not isChecked)) FontAwesome.Regular.checkCircle []
+        [ ifElse isChecked
+            (faCheckBtn (onCheckMsg False) FontAwesome.Regular.checkCircle)
+            (faCheckBtn (onCheckMsg True) FontAwesome.Regular.circle)
         ]
 
 
