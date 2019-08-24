@@ -22,8 +22,12 @@ type Role
 type alias Options =
     { role : Role
     , icon : Maybe FontAwesome.Icon.Icon
-    , text : String
+    , text : Maybe String
     }
+
+
+defaults =
+    { role = Primary, icon = Nothing, text = Nothing }
 
 
 button options action attrs =
@@ -46,17 +50,21 @@ button options action attrs =
                         |> FontAwesome.Icon.viewStyled [ Svg.Attributes.class "gray" ]
                         |> H.fromUnstyled
                 )
-        , div
-            [ class "underline pa1"
-            , class <|
-                case options.role of
-                    Primary ->
-                        "blue"
+        , options.text
+            |> viewMaybe
+                (\txt ->
+                    div
+                        [ class "underline pa1"
+                        , class <|
+                            case options.role of
+                                Primary ->
+                                    "blue"
 
-                    Secondary ->
-                        "gray"
-            ]
-            [ text options.text ]
+                                Secondary ->
+                                    "gray"
+                        ]
+                        [ text txt ]
+                )
         ]
 
 
@@ -78,9 +86,7 @@ btn action attrs =
 
 textBtn : msg -> List (Attribute msg) -> String -> Html msg
 textBtn action attrs txt =
-    btn action
-        (class "underline pa1" :: attrs)
-        [ text txt ]
+    button { defaults | text = Just txt } action attrs
 
 
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
