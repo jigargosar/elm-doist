@@ -1,4 +1,4 @@
-module Button exposing (btn, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn)
+module Button exposing (btn, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, withIcon, withRole, withText)
 
 import Accessibility.Styled.Key as Key
 import FontAwesome.Icon
@@ -26,13 +26,66 @@ type alias Config =
     }
 
 
+type Option
+    = Role Role
+    | Icon FontAwesome.Icon.Icon
+    | Text String
+
+
+type Button msg
+    = Button msg (List Option)
+
+
+addOption option (Button msg options) =
+    Button msg (option :: options)
+
+
+withRole : Role -> Button msg -> Button msg
+withRole role =
+    addOption (Role role)
+
+
+withIcon : FontAwesome.Icon.Icon -> Button msg -> Button msg
+withIcon icon =
+    addOption (Icon icon)
+
+
+withText : String -> Button msg -> Button msg
+withText txt =
+    addOption (Text txt)
+
+
+toHtml : Button msg -> Html msg
+toHtml (Button action options) =
+    options
+        |> List.foldr
+            (\opt acc ->
+                case opt of
+                    Role role ->
+                        { acc | role = role }
+
+                    Icon icon ->
+                        { acc | icon = Just icon }
+
+                    Text txt ->
+                        { acc | text = Just txt }
+            )
+            defaults
+        |> (\config -> buttonHelp config action [])
+
+
 defaults : Config
 defaults =
     { role = Primary, icon = Nothing, text = Nothing }
 
 
+button : msg -> Button msg
+button action =
+    Button action []
+
+
 buttonHelp : Config -> msg -> List (Attribute msg) -> Html msg
-buttonHelp options action attrs =
+buttonHelp conf action attrs =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -45,20 +98,20 @@ buttonHelp options action attrs =
          ]
             ++ attrs
         )
-        [ options.icon
+        [ conf.icon
             |> viewMaybe
                 (\icon ->
                     icon
                         |> FontAwesome.Icon.viewStyled [ Svg.Attributes.class "gray" ]
                         |> H.fromUnstyled
                 )
-        , options.text
+        , conf.text
             |> viewMaybe
                 (\txt ->
                     div
                         [ class "underline pa1"
                         , class <|
-                            case options.role of
+                            case conf.role of
                                 Primary ->
                                     "blue"
 
