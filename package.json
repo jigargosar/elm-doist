@@ -7,9 +7,9 @@
     "last 2 Chrome versions"
   ],
   "scripts": {
-    "start_": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
+    "_start_": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
+    "_build_": "env NODE_ENV=production webpack -p",
     "start": "npx parcel src/index.html --open",
-    "build_": "env NODE_ENV=production webpack -p",
     "build": "parcel build src/index.html",
     "deploy": "firebase deploy --only hosting:elmdoist",
     "stage": "npm run build && npm run deploy"
