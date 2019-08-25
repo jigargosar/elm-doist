@@ -1313,7 +1313,7 @@ viewTodoMenu todo =
                 |> List.indexedMap
                     (\idx ( msg, label ) ->
                         B.btn msg
-                            [ B.Text label
+                            [ B.Label label
                             , B.Attrs
                                 [ A.id <|
                                     ifElse (idx == 0)
@@ -1358,7 +1358,7 @@ viewDueAt here todo =
                 B.btn (OnEditDueStart todo.id)
                     [ B.Attrs
                         [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-                    , B.Text
+                    , B.Label
                         (Millis.formatDate "MMM dd" here dueMillis)
                     ]
             )

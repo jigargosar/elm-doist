@@ -45,7 +45,7 @@ type Option msg
     = Role Role
     | Icon FontAwesome.Icon.Icon
     | StyledIcon (List (Svg.Attribute msg)) FontAwesome.Icon.Icon
-    | Text String
+    | Label String
     | Attrs (List (Attribute msg))
 
 
@@ -79,7 +79,7 @@ withStyledIcon icon svgAttrs =
 
 withLabel : String -> Button msg -> Button msg
 withLabel txt =
-    addOption (Text txt)
+    addOption (Label txt)
 
 
 toHtml : Button msg -> Html msg
@@ -103,7 +103,7 @@ configFromOptions options =
                     StyledIcon svgAttrs icon ->
                         { acc | icon = Just ( icon, svgAttrs ) }
 
-                    Text txt ->
+                    Label txt ->
                         { acc | text = Just txt }
 
                     Attrs attrs ->
