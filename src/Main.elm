@@ -1277,11 +1277,11 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ IconButton.default (OnTodoMenuTriggered todo.id)
+            [ IconButton.view (OnTodoMenuTriggered todo.id)
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-                FAS.ellipsisH
+                (IconButton.fa FAS.ellipsisH)
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
