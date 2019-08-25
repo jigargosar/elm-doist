@@ -43,7 +43,8 @@ type alias Config msg =
 
 type Option msg
     = Role Role
-    | Icon FontAwesome.Icon.Icon (List (Svg.Attribute msg))
+    | Icon FontAwesome.Icon.Icon
+    | StyledIcon (List (Svg.Attribute msg)) FontAwesome.Icon.Icon
     | Text String
     | Attrs (List (Attribute msg))
 
@@ -68,12 +69,12 @@ withAttrs attrs =
 
 withIcon : FontAwesome.Icon.Icon -> Button msg -> Button msg
 withIcon icon =
-    addOption (Icon icon [])
+    addOption (Icon icon)
 
 
 withStyledIcon : FontAwesome.Icon.Icon -> List (Svg.Attribute msg) -> Button msg -> Button msg
 withStyledIcon icon svgAttrs =
-    addOption (Icon icon svgAttrs)
+    addOption (StyledIcon svgAttrs icon)
 
 
 withLabel : String -> Button msg -> Button msg
@@ -96,7 +97,10 @@ configFromOptions options =
                     Role role ->
                         { acc | role = role }
 
-                    Icon icon svgAttrs ->
+                    Icon icon ->
+                        { acc | icon = Just ( icon, [] ) }
+
+                    StyledIcon svgAttrs icon ->
                         { acc | icon = Just ( icon, svgAttrs ) }
 
                     Text txt ->
