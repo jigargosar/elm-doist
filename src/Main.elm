@@ -1300,29 +1300,24 @@ viewTodoItemBase model todo =
 viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
-        miModel =
+        menuItemModelList =
             [ ( OnStartInlineEditTodo, "Edit" )
             , ( OnMoveStart, "Move to Project" )
             , ( OnEditDueStart, "Schedule" )
             , ( OnDelete, "Delete" )
             ]
 
-        menuItemsViewList =
-            miModel
-                |> List.map (Tuple.mapFirst <| callWith todo.id)
-                |> List.indexedMap
-                    (\idx ( msg, label ) ->
-                        B.btn msg
-                            [ B.Label label
-                            , B.Attrs
-                                [ A.id <|
-                                    ifElse (idx == 0)
-                                        (todoMenuFirstFocusableDomId todo.id)
-                                        ""
-                                , class "pa2"
-                                ]
-                            ]
-                    )
+        viewMenuItem idx ( todoAction, label ) =
+            B.btn (todoAction todo.id)
+                [ B.Label label
+                , B.Attrs
+                    [ A.id <|
+                        ifElse (idx == 0)
+                            (todoMenuFirstFocusableDomId todo.id)
+                            ""
+                    , class "pa2"
+                    ]
+                ]
 
         menuDomId =
             todoMenuDomId todo.id
@@ -1340,7 +1335,7 @@ viewTodoMenu todo =
             (\{ hasRelatedTarget } -> closeMsg (not hasRelatedTarget))
         , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
         ]
-        menuItemsViewList
+        (menuItemModelList |> List.indexedMap viewMenuItem)
 
 
 viewDueAt : Zone -> Todo -> Html Msg
