@@ -278,15 +278,6 @@ decodeValueAndUnpack ( decoder, onOk, onErr ) enc =
         |> RX.unpack onErr onOk
 
 
-maybeUpdate :
-    (a -> model -> Return.Return msg model)
-    -> Maybe a
-    -> model
-    -> Return.Return msg model
-maybeUpdate fn model =
-    model |> MX.unwrap pure fn
-
-
 update : Msg -> Model -> Return
 update message model =
     case message of
