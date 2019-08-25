@@ -155,6 +155,5 @@ buttonHelp conf action =
 iconButton : msg -> FontAwesome.Icon.Icon -> Html msg
 iconButton action icon =
     button action
-        |> withRole Secondary
         |> withIcon icon
         |> toHtml
