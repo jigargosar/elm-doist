@@ -1292,15 +1292,17 @@ viewTodoMenu todo =
                 |> List.map (Tuple.mapFirst <| callWith todo.id)
                 |> List.indexedMap
                     (\idx ( msg, label ) ->
-                        Button.btn msg
-                            [ A.id <|
-                                ifElse (idx == 0)
-                                    (todoMenuFirstFocusableDomId todo.id)
-                                    ""
-                            , class "db pa2"
-                            , css [ display block ]
-                            ]
-                            [ text label ]
+                        Button.button msg
+                            |> Button.withLabel label
+                            |> Button.withAttrs
+                                [ A.id <|
+                                    ifElse (idx == 0)
+                                        (todoMenuFirstFocusableDomId todo.id)
+                                        ""
+                                , class "pa2"
+                                , css [ display block ]
+                                ]
+                            |> Button.toHtml
                     )
 
         menuDomId =

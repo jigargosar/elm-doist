@@ -1,4 +1,4 @@
-module Button exposing (btn, button, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, withIcon, withRole, withText)
+module Button exposing (btn, button, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, toHtml, withAttrs, withIcon, withLabel, withRole)
 
 import Accessibility.Styled.Key as Key
 import FontAwesome.Icon
@@ -57,8 +57,8 @@ withIcon icon =
     addOption (Icon icon)
 
 
-withText : String -> Button msg -> Button msg
-withText txt =
+withLabel : String -> Button msg -> Button msg
+withLabel txt =
     addOption (Text txt)
 
 
@@ -157,7 +157,7 @@ textBtn =
 primaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 primaryTxtBtn action attrs txt =
     button action
-        |> withText txt
+        |> withLabel txt
         |> withRole Primary
         |> withAttrs attrs
         |> toHtml
@@ -166,7 +166,7 @@ primaryTxtBtn action attrs txt =
 secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
 secondaryTxtBtn action attrs txt =
     button action
-        |> withText txt
+        |> withLabel txt
         |> withRole Secondary
         |> withAttrs attrs
         |> toHtml
