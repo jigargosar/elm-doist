@@ -38,7 +38,7 @@ import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
 import FontAwesome.Regular as FAR
-import FontAwesome.Solid
+import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, button, div, input, text)
@@ -971,7 +971,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IconButton.view OnAddProjectStart [] (IconButton.fa FontAwesome.Solid.plus)
+            , IconButton.view OnAddProjectStart [] (IconButton.fa FAS.plus)
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -990,7 +990,9 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IconButton.view (OnDeleteProject project.id) [] (IconButton.fa FontAwesome.Solid.trash)
+        , IconButton.view (OnDeleteProject project.id)
+            []
+            (IconButton.fa FAS.trash)
         ]
 
 
@@ -1279,7 +1281,7 @@ viewTodoItemBase model todo =
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-                FontAwesome.Solid.ellipsisH
+                FAS.ellipsisH
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
