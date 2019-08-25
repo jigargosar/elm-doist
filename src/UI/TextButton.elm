@@ -1,4 +1,4 @@
-module TextButton exposing (plain, primary, secondary)
+module UI.TextButton exposing (plain, primary, secondary)
 
 import Button
 import Html.Styled exposing (Attribute, Html)

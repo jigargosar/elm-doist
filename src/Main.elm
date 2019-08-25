@@ -71,11 +71,11 @@ import Return
 import Route exposing (Route)
 import String.Extra as SX
 import Task
-import TextButton
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
+import UI.TextButton as TB
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
@@ -1239,7 +1239,7 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            TextButton.secondary (OnEditDueStart <| todoId)
+            TB.secondary (OnEditDueStart <| todoId)
                 txt
                 [ class "pa3 ba b--moon-gray"
                 , class cls
@@ -1255,8 +1255,8 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary OnEditSave "Save" [ class "pa2" ]
-            , TextButton.secondary OnEditCancel "Cancel" [ class "pa2" ]
+            [ TB.primary OnEditSave "Save" [ class "pa2" ]
+            , TB.secondary OnEditCancel "Cancel" [ class "pa2" ]
             ]
         ]
 
@@ -1299,7 +1299,7 @@ viewTodoMenu todo =
 
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            TextButton.plain (todoAction todo.id)
+            TB.plain (todoAction todo.id)
                 label
                 [ A.id <|
                     ifElse (idx == 0)
@@ -1337,7 +1337,7 @@ viewDueAt here todo =
                     (IconButton.fa FAR.calendarPlus)
             )
             (\dueMillis ->
-                TextButton.plain (OnEditDueStart todo.id)
+                TB.plain (OnEditDueStart todo.id)
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )
