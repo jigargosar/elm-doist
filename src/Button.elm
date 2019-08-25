@@ -1,4 +1,4 @@
-module Button exposing (btn, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, withIcon, withRole, withText)
+module Button exposing (btn, button, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, withIcon, withRole, withText)
 
 import Accessibility.Styled.Key as Key
 import FontAwesome.Icon
@@ -81,7 +81,7 @@ toHtml (Button action options) =
                         { acc | attrs = attrs }
             )
             defaults
-        |> (\config -> buttonHelp config action [])
+        |> (\config -> buttonHelp config action)
 
 
 defaults : Config msg
@@ -94,8 +94,8 @@ button action =
     Button action []
 
 
-buttonHelp : Config msg -> msg -> List (Attribute msg) -> Html msg
-buttonHelp conf action attrs =
+buttonHelp : Config msg -> msg -> Html msg
+buttonHelp conf action =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -106,7 +106,7 @@ buttonHelp conf action attrs =
          , tabindex 0
          , class "pointer"
          ]
-            ++ attrs
+            ++ conf.attrs
         )
         [ conf.icon
             |> viewMaybe
