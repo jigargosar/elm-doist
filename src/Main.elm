@@ -1350,18 +1350,14 @@ viewCheck isChecked onCheckMsg =
         faCheckBtn action icon =
             Button.button action
                 |> Button.withAttrs
-                    [ class "dib pa2 gray"
+                    [ class "pa2 gray"
                     ]
                 |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
                 |> Button.toHtml
     in
-    div
-        [ class "pa2"
-        ]
-        [ ifElse isChecked
-            (faCheckBtn (onCheckMsg False) FontAwesome.Regular.checkCircle)
-            (faCheckBtn (onCheckMsg True) FontAwesome.Regular.circle)
-        ]
+    ifElse isChecked
+        (faCheckBtn (onCheckMsg False) FontAwesome.Regular.checkCircle)
+        (faCheckBtn (onCheckMsg True) FontAwesome.Regular.circle)
 
 
 viewTodoItemTitle : Todo -> Html Msg
