@@ -971,7 +971,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IconButton.default OnAddProjectStart [] FontAwesome.Solid.plus
+            , IconButton.view OnAddProjectStart [] (IconButton.fa FontAwesome.Solid.plus)
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -990,7 +990,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IconButton.default (OnDeleteProject project.id) [] FontAwesome.Solid.trash
+        , IconButton.view (OnDeleteProject project.id) [] (IconButton.fa FontAwesome.Solid.trash)
         ]
 
 
