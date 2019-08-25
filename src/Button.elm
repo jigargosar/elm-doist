@@ -163,10 +163,11 @@ buttonHelp action conf =
         ]
 
 
-iconButton : msg -> FontAwesome.Icon.Icon -> Html msg
-iconButton action icon =
+iconButton : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
+iconButton action icon attrs =
     button action
         |> withIcon icon
+        |> withAttrs attrs
         |> toHtml
 
 
