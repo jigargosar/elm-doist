@@ -2,6 +2,7 @@ module UI.FAIcon exposing (..)
 
 import FontAwesome.Icon as FAI
 import Html.Styled as H
+import Svg
 import Svg.Attributes as SA
 
 
@@ -12,6 +13,7 @@ view faIcon =
         |> H.fromUnstyled
 
 
+viewStyled : FAI.Icon -> List (Svg.Attribute msg) -> H.Html a
 viewStyled faIcon svgAttrs =
     faIcon
         |> FAI.viewStyled (SA.class "gray" :: svgAttrs)

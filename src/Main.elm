@@ -984,7 +984,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , Button.view OnAddProjectStart [] [ FAIcon.view FAS.plus ]
+            , IB.view OnAddProjectStart [] FAS.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -1279,11 +1279,11 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ IB.view (OnTodoMenuTriggered todo.id)
+            [ Button.view (OnTodoMenuTriggered todo.id)
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-                (IB.fa FAS.ellipsisH)
+                [ FAIcon.view FAS.ellipsisH ]
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1335,9 +1335,9 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                IB.view (OnEditDueStart todo.id)
+                Button.view (OnEditDueStart todo.id)
                     [ class "pa2 child" ]
-                    (IB.fa FAR.calendarPlus)
+                    [ FAIcon.view FAR.calendarPlus ]
             )
             (\dueMillis ->
                 TB.view (OnEditDueStart todo.id)
