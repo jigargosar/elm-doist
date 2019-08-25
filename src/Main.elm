@@ -9,7 +9,26 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Button
 import Calendar
-import Css exposing (block, bottom, display, fixed, height, marginLeft, maxWidth, minWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
+import Css
+    exposing
+        ( bottom
+        , fixed
+        , height
+        , marginLeft
+        , maxWidth
+        , minWidth
+        , none
+        , outline
+        , paddingTop
+        , position
+        , px
+        , rem
+        , top
+        , transforms
+        , translateX
+        , width
+        , zero
+        )
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dialog
@@ -18,7 +37,6 @@ import Dict.Extra
 import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
-import FontAwesome.Icon as FAIcon
 import FontAwesome.Regular
 import FontAwesome.Solid
 import FontAwesome.Styles
@@ -960,7 +978,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , Button.faBtn OnAddProjectStart FontAwesome.Solid.plus []
+            , Button.faBtn OnAddProjectStart FontAwesome.Solid.plus
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -979,7 +997,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , Button.faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash []
+        , Button.faBtn (OnDeleteProject project.id) FontAwesome.Solid.trash
         ]
 
 
@@ -1275,11 +1293,13 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ Button.faBtn (OnTodoMenuTriggered todo.id)
-                FontAwesome.Solid.ellipsisH
-                [ A.id <| todoMenuTriggerDomId todo.id
-                , class "pa2 tc child"
-                ]
+            [ Button.button (OnTodoMenuTriggered todo.id)
+                |> Button.withIcon FontAwesome.Solid.ellipsisH
+                |> Button.withAttrs
+                    [ A.id <| todoMenuTriggerDomId todo.id
+                    , class "pa2 tc child"
+                    ]
+                |> Button.toHtml
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1338,9 +1358,10 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                Button.faBtn (OnEditDueStart todo.id)
-                    FontAwesome.Regular.calendarPlus
-                    [ class "pa2 child" ]
+                Button.button (OnEditDueStart todo.id)
+                    |> Button.withIcon FontAwesome.Regular.calendarPlus
+                    |> Button.withAttrs [ class "pa2 child" ]
+                    |> Button.toHtml
             )
             (\dueMillis ->
                 Button.button (OnEditDueStart todo.id)

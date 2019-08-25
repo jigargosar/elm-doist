@@ -2,8 +2,6 @@ module Button exposing
     ( Role(..)
     , button
     , faBtn
-    , secondaryTxtBtn
-    , textBtn
     , toHtml
     , withAttrs
     , withIcon
@@ -154,24 +152,9 @@ buttonHelp conf action =
         ]
 
 
-textBtn : msg -> List (Attribute msg) -> String -> Html msg
-textBtn =
-    secondaryTxtBtn
-
-
-secondaryTxtBtn : msg -> List (Attribute msg) -> String -> Html msg
-secondaryTxtBtn action attrs txt =
-    button action
-        |> withLabel txt
-        |> withRole Secondary
-        |> withAttrs attrs
-        |> toHtml
-
-
-faBtn : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
-faBtn action icon attrs =
+faBtn : msg -> FontAwesome.Icon.Icon -> Html msg
+faBtn action icon =
     button action
         |> withRole Secondary
         |> withIcon icon
-        |> withAttrs attrs
         |> toHtml
