@@ -1,4 +1,4 @@
-module IconButton exposing (Icon, fa, faStyled, view)
+module UI.IconButton exposing (Icon, fa, faStyled, view)
 
 import Accessibility.Styled exposing (Attribute)
 import Accessibility.Styled.Key as Key

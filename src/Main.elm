@@ -55,7 +55,6 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
-import IconButton as IB
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -75,6 +74,7 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
+import UI.IconButton as IB
 import UI.TextButton as TB
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
