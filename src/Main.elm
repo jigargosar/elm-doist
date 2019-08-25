@@ -68,6 +68,7 @@ import ProjectId exposing (ProjectId)
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
+import Skeleton
 import String.Extra as SX
 import Task
 import Time exposing (Zone)
@@ -847,75 +848,6 @@ sortedInProject pid todoList =
 -- MASTER LAYOUT
 
 
-viewSkeleton :
-    { title : String
-    , header : Html msg
-    , sidebar : Html msg
-    , content : List (Html msg)
-    , footer : Html msg
-    }
-    -> StyledDocument msg
-viewSkeleton config =
-    let
-        sidebarWidthNum =
-            250
-
-        headerHeight =
-            rem 2
-
-        maxContentWidth =
-            px 900
-
-        bpSmall =
-            600
-
-        sm =
-            withMedia
-                [ Media.all [ Media.maxWidth <| px bpSmall ] ]
-
-        ns =
-            withMedia
-                [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
-    in
-    { title = config.title
-    , body =
-        [ div
-            [ class "bg-black white w-100"
-            , css [ position fixed, height headerHeight ]
-            ]
-            [ div
-                [ class "center", css [ maxWidth maxContentWidth ] ]
-                [ config.header ]
-            ]
-        , div [ class "center", css [ maxWidth maxContentWidth, paddingTop headerHeight ] ]
-            [ div
-                [ class "fixed overflow-auto ph3"
-                , css
-                    [ width (px sidebarWidthNum)
-                    , top headerHeight
-                    , bottom zero
-                    , sm
-                        [ transforms [ translateX <| px -sidebarWidthNum ] ]
-                    , transition [ Transition.transform 150 ]
-                    ]
-                ]
-                [ config.sidebar
-                ]
-            , div
-                [ class "ph3"
-                , css
-                    [ marginLeft zero
-                    , ns [ marginLeft <| px sidebarWidthNum ]
-                    , transition [ Transition.marginLeft 150 ]
-                    ]
-                ]
-                config.content
-            ]
-        , config.footer
-        ]
-    }
-
-
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     let
@@ -940,7 +872,7 @@ masterLayout title content model =
                 [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
 
         _ =
-            viewSkeleton
+            Skeleton.view
                 { title = title
                 , header = viewHeader model
                 , sidebar = viewSidebar model
