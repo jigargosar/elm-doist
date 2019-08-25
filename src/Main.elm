@@ -36,6 +36,7 @@ import Dict.Extra
 import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
+import FontAwesome.Icon as FAI
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
@@ -70,11 +71,13 @@ import Return
 import Route exposing (Route)
 import Skeleton
 import String.Extra as SX
+import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
+import UI.Button as Button
 import UI.IconButton as IB
 import UI.TextButton as TB
 import UpdateExtra exposing (andThen, command, effect, pure)
@@ -1342,13 +1345,19 @@ viewDueAt here todo =
             )
 
 
+faStyled faIcon svgAttrs =
+    faIcon
+        |> FAI.viewStyled (SA.class "gray" :: svgAttrs)
+        |> H.fromUnstyled
+
+
 viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            IB.view action
+            Button.view action
                 [ class "pa2 " ]
-                (IB.faStyled icon [ FontAwesome.Attributes.lg ])
+                [ faStyled icon [ FontAwesome.Attributes.lg ] ]
     in
     ifElse isChecked
         (faCheckBtn (onCheckMsg False) FAR.checkCircle)
