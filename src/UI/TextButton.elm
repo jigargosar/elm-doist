@@ -1,7 +1,8 @@
 module UI.TextButton exposing (plain, primary, secondary)
 
+import Css exposing (..)
 import Html.Styled exposing (Attribute, Html, text)
-import Html.Styled.Attributes exposing (class)
+import Html.Styled.Attributes exposing (class, css)
 import UI.Button as Button
 
 
@@ -9,6 +10,10 @@ type Variant
     = Primary
     | Secondary
     | Plain
+
+
+primaryStyle =
+    Css.batch [ textDecoration3 underline solid (hex "#357edd") ]
 
 
 view :
@@ -22,16 +27,16 @@ view action role label attrs =
         variantClasses =
             case role of
                 Plain ->
-                    ""
+                    []
 
                 Primary ->
-                    "underline blue"
+                    [ primaryStyle ]
 
                 Secondary ->
-                    "underline gray"
+                    [ primaryStyle ]
     in
     Button.view action
-        (class variantClasses :: attrs)
+        (css variantClasses :: attrs)
         [ text label ]
 
 

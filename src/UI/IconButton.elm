@@ -1,4 +1,4 @@
-module UI.IconButton exposing (Icon, fa, faStyled, view)
+module UI.IconButton exposing (Icon, fa, view)
 
 import Accessibility.Styled exposing (Attribute)
 import FontAwesome.Icon as FAI
@@ -10,15 +10,10 @@ import UI.Button as Button
 
 type Icon msg
     = FA FAI.Icon
-    | FAStyled FAI.Icon (List (Svg.Attribute msg))
 
 
 fa =
     FA
-
-
-faStyled =
-    FAStyled
 
 
 view : msg -> List (Attribute msg) -> Icon msg -> Html msg
@@ -29,10 +24,5 @@ view action attrs icon =
             FA faIcon ->
                 faIcon
                     |> FAI.viewStyled (SA.class "gray" :: [])
-                    |> H.fromUnstyled
-
-            FAStyled faIcon svgAttrs ->
-                faIcon
-                    |> FAI.viewStyled (SA.class "gray" :: svgAttrs)
                     |> H.fromUnstyled
         ]

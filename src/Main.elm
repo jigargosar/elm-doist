@@ -1003,9 +1003,9 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IB.view (OnDeleteProject project.id)
+        , Button.view (OnDeleteProject project.id)
             []
-            (IB.fa FAS.trash)
+            [ FAIcon.view FAS.trash ]
         ]
 
 

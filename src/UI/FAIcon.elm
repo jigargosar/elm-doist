@@ -5,6 +5,7 @@ import Html.Styled as H
 import Svg.Attributes as SA
 
 
+view : FAI.Icon -> H.Html msg
 view faIcon =
     faIcon
         |> FAI.viewStyled (SA.class "gray" :: [])
