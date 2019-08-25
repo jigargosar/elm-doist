@@ -1231,8 +1231,7 @@ viewEditTodoItem here edt =
                 |> Button.withLabel txt
                 |> Button.withRole Button.Secondary
                 |> Button.withAttrs
-                    [ class "flex"
-                    , class "pa3 ba b--moon-gray"
+                    [ class "pa3 ba b--moon-gray"
                     , class cls
                     , css [ minWidth <| px 100 ]
                     ]
