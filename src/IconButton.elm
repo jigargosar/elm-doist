@@ -38,7 +38,4 @@ buttonHelp action attrs icon iconSvgAttrs =
 
 default : msg -> FAI.Icon -> List (Attribute msg) -> Html msg
 default action icon attrs =
-    Button.button action
-        |> Button.withIcon icon
-        |> Button.withAttrs attrs
-        |> Button.toHtml
+    buttonHelp action attrs icon []
