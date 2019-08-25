@@ -3,14 +3,7 @@ module UI.TextButton exposing (plain, primary, secondary)
 import Css exposing (..)
 import FunctionalCss as FCss
 import Html.Styled exposing (Attribute, Html, text)
-import Html.Styled.Attributes exposing (class, css)
 import UI.Button as Button
-
-
-type Variant
-    = Primary
-    | Secondary
-    | Plain
 
 
 primaryStyle =
