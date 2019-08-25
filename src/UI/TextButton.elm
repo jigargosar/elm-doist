@@ -9,6 +9,7 @@ import Html.Styled.Attributes
         )
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
+import UI.Button as Button
 
 
 type Role
@@ -24,18 +25,8 @@ view :
     -> List (Attribute msg)
     -> Html msg
 view action role label attrs =
-    let
-        btnKDDecoder msg =
-            JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
-    in
-    div
-        ([ preventDefaultOn "click" <| JD.succeed ( action, True )
-         , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
-         , tabindex 0
-         , class "pointer"
-         ]
-            ++ attrs
-        )
+    Button.view action
+        attrs
         [ div
             [ class <|
                 case role of
