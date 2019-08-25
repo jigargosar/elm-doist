@@ -847,11 +847,72 @@ sortedInProject pid todoList =
 -- MASTER LAYOUT
 
 
-type alias Skeleton msg =
+viewSkeleton :
     { title : String
     , header : Html msg
-    , content : Html msg
+    , sidebar : Html msg
+    , content : List (Html msg)
     , footer : Html msg
+    }
+    -> StyledDocument msg
+viewSkeleton c =
+    let
+        sidebarWidthNum =
+            250
+
+        headerHeight =
+            rem 2
+
+        maxContentWidth =
+            px 900
+
+        bpSmall =
+            600
+
+        sm =
+            withMedia
+                [ Media.all [ Media.maxWidth <| px bpSmall ] ]
+
+        ns =
+            withMedia
+                [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
+    in
+    { title = c.title
+    , body =
+        [ div
+            [ class "bg-black white w-100"
+            , css [ position fixed, height headerHeight ]
+            ]
+            [ div
+                [ class "center", css [ maxWidth maxContentWidth ] ]
+                [ c.header ]
+            ]
+        , div [ class "center", css [ maxWidth maxContentWidth, paddingTop headerHeight ] ]
+            [ div
+                [ class "fixed overflow-auto ph3"
+                , css
+                    [ width (px sidebarWidthNum)
+                    , top headerHeight
+                    , bottom zero
+                    , sm
+                        [ transforms [ translateX <| px -sidebarWidthNum ] ]
+                    , transition [ Transition.transform 150 ]
+                    ]
+                ]
+                [ c.sidebar
+                ]
+            , div
+                [ class "ph3"
+                , css
+                    [ marginLeft zero
+                    , ns [ marginLeft <| px sidebarWidthNum ]
+                    , transition [ Transition.marginLeft 150 ]
+                    ]
+                ]
+                c.content
+            ]
+        , c.footer
+        ]
     }
 
 
@@ -877,6 +938,15 @@ masterLayout title content model =
         ns =
             withMedia
                 [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
+
+        _ =
+            viewSkeleton
+                { title = title
+                , header = viewHeader model
+                , sidebar = viewSidebar model
+                , content = [ content, viewDebugContent model ]
+                , footer = viewFooter model
+                }
     in
     { title = title
     , body =
