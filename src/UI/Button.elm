@@ -1,4 +1,4 @@
-module UI.Button exposing (..)
+module UI.Button exposing (view)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html, div)
@@ -9,10 +9,6 @@ import Html.Styled.Attributes
         )
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
-
-
-btnKDDecoder msg =
-    JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
 
 
 preventDefault : msg -> ( msg, Bool )
