@@ -1,6 +1,5 @@
 module UI.Button exposing
-    ( Config
-    , Role(..)
+    ( Role(..)
     , view
     )
 
@@ -21,15 +20,13 @@ type Role
     | Plain
 
 
-type alias Config msg =
-    { role : Role
-    , label : String
-    , attrs : List (Attribute msg)
-    }
-
-
-view : msg -> Config msg -> Html msg
-view action conf =
+view :
+    msg
+    -> Role
+    -> String
+    -> List (Attribute msg)
+    -> Html msg
+view action role label attrs =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -40,11 +37,11 @@ view action conf =
          , tabindex 0
          , class "pointer"
          ]
-            ++ conf.attrs
+            ++ attrs
         )
         [ div
             [ class <|
-                case conf.role of
+                case role of
                     Plain ->
                         ""
 
@@ -54,5 +51,5 @@ view action conf =
                     Secondary ->
                         "underline gray"
             ]
-            [ text conf.label ]
+            [ text label ]
         ]
