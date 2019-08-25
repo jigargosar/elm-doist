@@ -1245,8 +1245,16 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ Button.primaryTxtBtn OnEditSave [ class "" ] "Save"
-            , Button.secondaryTxtBtn OnEditCancel [ class "" ] "Cancel"
+            [ Button.button OnEditSave
+                |> Button.withLabel "Save"
+                |> Button.withRole Button.Primary
+                |> Button.withAttrs [ class "pa2" ]
+                |> Button.toHtml
+            , Button.button OnEditSave
+                |> Button.withLabel "Cancel"
+                |> Button.withRole Button.Secondary
+                |> Button.withAttrs [ class "pa2" ]
+                |> Button.toHtml
             ]
         ]
 
