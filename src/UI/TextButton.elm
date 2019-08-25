@@ -18,7 +18,7 @@ primaryStyle =
 
 
 secondaryStyle =
-    Css.batch [ textDecoration3 underline solid (hex "#777") ]
+    Css.batch [ FCss.underline, FCss.gray ]
 
 
 view :
