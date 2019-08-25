@@ -19,21 +19,23 @@ type Role
     | Secondary
 
 
-type alias Config =
+type alias Config msg =
     { role : Role
     , icon : Maybe FontAwesome.Icon.Icon
     , text : Maybe String
+    , attrs : List (Attribute msg)
     }
 
 
-type Option
+type Option msg
     = Role Role
     | Icon FontAwesome.Icon.Icon
     | Text String
+    | Attrs (List (Attribute msg))
 
 
 type Button msg
-    = Button msg (List Option)
+    = Button msg (List (Option msg))
 
 
 addOption option (Button msg options) =
@@ -43,6 +45,11 @@ addOption option (Button msg options) =
 withRole : Role -> Button msg -> Button msg
 withRole role =
     addOption (Role role)
+
+
+withAttrs : List (Attribute msg) -> Button msg -> Button msg
+withAttrs attrs =
+    addOption (Attrs attrs)
 
 
 withIcon : FontAwesome.Icon.Icon -> Button msg -> Button msg
@@ -69,14 +76,17 @@ toHtml (Button action options) =
 
                     Text txt ->
                         { acc | text = Just txt }
+
+                    Attrs attrs ->
+                        { acc | attrs = attrs }
             )
             defaults
         |> (\config -> buttonHelp config action [])
 
 
-defaults : Config
+defaults : Config msg
 defaults =
-    { role = Primary, icon = Nothing, text = Nothing }
+    { role = Primary, icon = Nothing, text = Nothing, attrs = [] }
 
 
 button : msg -> Button msg
@@ -84,7 +94,7 @@ button action =
     Button action []
 
 
-buttonHelp : Config -> msg -> List (Attribute msg) -> Html msg
+buttonHelp : Config msg -> msg -> List (Attribute msg) -> Html msg
 buttonHelp conf action attrs =
     let
         btnKDDecoder msg =
@@ -149,6 +159,7 @@ primaryTxtBtn action attrs txt =
     button action
         |> withText txt
         |> withRole Primary
+        |> withAttrs attrs
         |> toHtml
 
 
@@ -157,6 +168,7 @@ secondaryTxtBtn action attrs txt =
     button action
         |> withText txt
         |> withRole Secondary
+        |> withAttrs attrs
         |> toHtml
 
 
@@ -165,4 +177,5 @@ faBtn action icon attrs =
     button action
         |> withRole Secondary
         |> withIcon icon
+        |> withAttrs attrs
         |> toHtml
