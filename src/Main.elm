@@ -1236,7 +1236,7 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            B.configure (OnEditDueStart <| todoId)
+            B.button (OnEditDueStart <| todoId)
                 |> B.withLabel txt
                 |> B.withRole B.Secondary
                 |> B.withAttrs
@@ -1255,12 +1255,12 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ B.configure OnEditSave
+            [ B.button OnEditSave
                 |> B.withLabel "Save"
                 |> B.withRole B.Primary
                 |> B.withAttrs [ class "pa2" ]
                 |> B.toHtml
-            , B.configure OnEditCancel
+            , B.button OnEditCancel
                 |> B.withLabel "Cancel"
                 |> B.withRole B.Secondary
                 |> B.withAttrs [ class "pa2" ]
@@ -1284,7 +1284,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ B.configure (OnTodoMenuTriggered todo.id)
+            [ B.button (OnTodoMenuTriggered todo.id)
                 |> B.withIcon FontAwesome.Solid.ellipsisH
                 |> B.withAttrs
                     [ A.id <| todoMenuTriggerDomId todo.id
@@ -1363,7 +1363,7 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            B.configure action
+            B.button action
                 |> B.withAttrs [ class "pa2 " ]
                 |> B.withStyledIcon icon [ FontAwesome.Attributes.lg ]
                 |> B.toHtml
