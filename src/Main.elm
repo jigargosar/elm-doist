@@ -855,7 +855,7 @@ viewSkeleton :
     , footer : Html msg
     }
     -> StyledDocument msg
-viewSkeleton c =
+viewSkeleton config =
     let
         sidebarWidthNum =
             250
@@ -877,7 +877,7 @@ viewSkeleton c =
             withMedia
                 [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
     in
-    { title = c.title
+    { title = config.title
     , body =
         [ div
             [ class "bg-black white w-100"
@@ -885,7 +885,7 @@ viewSkeleton c =
             ]
             [ div
                 [ class "center", css [ maxWidth maxContentWidth ] ]
-                [ c.header ]
+                [ config.header ]
             ]
         , div [ class "center", css [ maxWidth maxContentWidth, paddingTop headerHeight ] ]
             [ div
@@ -899,7 +899,7 @@ viewSkeleton c =
                     , transition [ Transition.transform 150 ]
                     ]
                 ]
-                [ c.sidebar
+                [ config.sidebar
                 ]
             , div
                 [ class "ph3"
@@ -909,9 +909,9 @@ viewSkeleton c =
                     , transition [ Transition.marginLeft 150 ]
                     ]
                 ]
-                c.content
+                config.content
             ]
-        , c.footer
+        , config.footer
         ]
     }
 
