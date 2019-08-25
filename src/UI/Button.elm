@@ -1,7 +1,8 @@
-module UI.Button exposing (view)
+module UI.Button exposing (styled, view)
 
 import Accessibility.Styled.Key as Key
-import Html.Styled exposing (Attribute, Html, div)
+import Css exposing (Style)
+import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes
     exposing
         ( class
@@ -39,6 +40,19 @@ onClickPreventDefault msg =
 view : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 view msg attrs =
     div
+        ([ onClickPreventDefault msg
+         , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
+         , tabindex 0
+         , class "pointer"
+         ]
+            ++ attrs
+        )
+
+
+styled : List Style -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+styled styles msg attrs =
+    H.styled div
+        styles
         ([ onClickPreventDefault msg
          , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
          , tabindex 0

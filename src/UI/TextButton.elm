@@ -21,40 +21,29 @@ secondaryStyle =
     Css.batch [ FCss.underline, FCss.gray ]
 
 
-view :
-    msg
-    -> Variant
+styled :
+    List Style
+    -> msg
     -> String
     -> List (Attribute msg)
     -> Html msg
-view action role label attrs =
-    let
-        variantClasses =
-            case role of
-                Plain ->
-                    []
-
-                Primary ->
-                    [ primaryStyle ]
-
-                Secondary ->
-                    [ secondaryStyle ]
-    in
-    Button.view action
-        (css variantClasses :: attrs)
+styled styles action label attrs =
+    Button.styled styles
+        action
+        attrs
         [ text label ]
 
 
 primary : msg -> String -> List (Attribute msg) -> Html msg
-primary action =
-    view action Primary
+primary =
+    styled [ primaryStyle ]
 
 
 secondary : msg -> String -> List (Attribute msg) -> Html msg
-secondary action =
-    view action Secondary
+secondary =
+    styled [ secondaryStyle ]
 
 
 plain : msg -> String -> List (Attribute msg) -> Html msg
-plain action =
-    view action Plain
+plain =
+    styled []
