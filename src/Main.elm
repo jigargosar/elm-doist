@@ -77,8 +77,6 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
-import UI.Button as Button
-import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
