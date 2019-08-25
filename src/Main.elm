@@ -56,6 +56,7 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
+import IconButton
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -970,7 +971,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , Button.iconButton OnAddProjectStart FontAwesome.Solid.plus []
+            , IconButton.iconButton OnAddProjectStart FontAwesome.Solid.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -989,7 +990,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , Button.iconButton (OnDeleteProject project.id) FontAwesome.Solid.trash []
+        , IconButton.iconButton (OnDeleteProject project.id) FontAwesome.Solid.trash []
         ]
 
 
@@ -1332,7 +1333,7 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                Button.iconButton (OnEditDueStart todo.id)
+                IconButton.iconButton (OnEditDueStart todo.id)
                     FontAwesome.Regular.calendarPlus
                     [ class "pa2 child" ]
             )

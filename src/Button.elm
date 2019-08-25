@@ -3,7 +3,6 @@ module Button exposing
     , Role(..)
     , btn
     , button
-    , iconButton
     , toHtml
     , withAttrs
     , withIcon
@@ -161,14 +160,6 @@ buttonHelp action conf =
                         [ text txt ]
                 )
         ]
-
-
-iconButton : msg -> FontAwesome.Icon.Icon -> List (Attribute msg) -> Html msg
-iconButton action icon attrs =
-    button action
-        |> withIcon icon
-        |> withAttrs attrs
-        |> toHtml
 
 
 btn : msg -> List (Option msg) -> Html msg
