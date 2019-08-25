@@ -1302,7 +1302,7 @@ viewTodoMenu todo =
 
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            TB.plain (todoAction todo.id)
+            TB.view (todoAction todo.id)
                 label
                 [ A.id <|
                     ifElse (idx == 0)
@@ -1340,7 +1340,7 @@ viewDueAt here todo =
                     (IB.fa FAR.calendarPlus)
             )
             (\dueMillis ->
-                TB.plain (OnEditDueStart todo.id)
+                TB.view (OnEditDueStart todo.id)
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )
