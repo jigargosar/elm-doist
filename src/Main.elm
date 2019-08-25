@@ -9,7 +9,7 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Button
 import Calendar
-import Css exposing (bottom, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
+import Css exposing (block, bottom, display, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dialog
@@ -1297,7 +1297,8 @@ viewTodoMenu todo =
                                 ifElse (idx == 0)
                                     (todoMenuFirstFocusableDomId todo.id)
                                     ""
-                            , class "pa2"
+                            , class "db pa2"
+                            , css [ display block ]
                             ]
                             [ text label ]
                     )
