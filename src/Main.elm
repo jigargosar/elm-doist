@@ -71,6 +71,7 @@ import Return
 import Route exposing (Route)
 import String.Extra as SX
 import Task
+import TextButton
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -1236,15 +1237,12 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            Button.button (OnEditDueStart <| todoId)
-                |> Button.withLabel txt
-                |> Button.withRole Button.Secondary
-                |> Button.withAttrs
-                    [ class "pa3 ba b--moon-gray"
-                    , class cls
-                    , css [ minWidth <| px 100 ]
-                    ]
-                |> Button.toHtml
+            TextButton.secondary (OnEditDueStart <| todoId)
+                txt
+                [ class "pa3 ba b--moon-gray"
+                , class cls
+                , css [ minWidth <| px 100 ]
+                ]
     in
     div
         [ class "pv3 ph2"
@@ -1255,16 +1253,8 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ Button.button OnEditSave
-                |> Button.withLabel "Save"
-                |> Button.withRole Button.Primary
-                |> Button.withAttrs [ class "pa2" ]
-                |> Button.toHtml
-            , Button.button OnEditCancel
-                |> Button.withLabel "Cancel"
-                |> Button.withRole Button.Secondary
-                |> Button.withAttrs [ class "pa2" ]
-                |> Button.toHtml
+            [ TextButton.primary OnEditSave "Save" [ class "pa2" ]
+            , TextButton.secondary OnEditCancel "Cancel" [ class "pa2" ]
             ]
         ]
 
