@@ -1236,7 +1236,7 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            Button.button (OnEditDueStart <| todoId)
+            Button.configure (OnEditDueStart <| todoId)
                 |> Button.withLabel txt
                 |> Button.withRole Button.Secondary
                 |> Button.withAttrs
@@ -1255,12 +1255,12 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ Button.button OnEditSave
+            [ Button.configure OnEditSave
                 |> Button.withLabel "Save"
                 |> Button.withRole Button.Primary
                 |> Button.withAttrs [ class "pa2" ]
                 |> Button.toHtml
-            , Button.button OnEditSave
+            , Button.configure OnEditSave
                 |> Button.withLabel "Cancel"
                 |> Button.withRole Button.Secondary
                 |> Button.withAttrs [ class "pa2" ]
@@ -1284,7 +1284,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ Button.button (OnTodoMenuTriggered todo.id)
+            [ Button.configure (OnTodoMenuTriggered todo.id)
                 |> Button.withIcon FontAwesome.Solid.ellipsisH
                 |> Button.withAttrs
                     [ A.id <| todoMenuTriggerDomId todo.id
@@ -1312,7 +1312,7 @@ viewTodoMenu todo =
                 |> List.map (Tuple.mapFirst <| callWith todo.id)
                 |> List.indexedMap
                     (\idx ( msg, label ) ->
-                        Button.button msg
+                        Button.configure msg
                             |> Button.withLabel label
                             |> Button.withAttrs
                                 [ A.id <|
@@ -1349,13 +1349,13 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                Button.button (OnEditDueStart todo.id)
+                Button.configure (OnEditDueStart todo.id)
                     |> Button.withIcon FontAwesome.Regular.calendarPlus
                     |> Button.withAttrs [ class "pa2 child" ]
                     |> Button.toHtml
             )
             (\dueMillis ->
-                Button.button (OnEditDueStart todo.id)
+                Button.configure (OnEditDueStart todo.id)
                     |> Button.withAttrs
                         [ class "pa2 flex-shrink-0 f7 lh-copy"
                         ]
@@ -1369,7 +1369,7 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            Button.button action
+            Button.configure action
                 |> Button.withAttrs [ class "pa2 " ]
                 |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
                 |> Button.toHtml

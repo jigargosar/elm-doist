@@ -1,6 +1,6 @@
 module Button exposing
     ( Role(..)
-    , button
+    , configure
     , iconButton
     , toHtml
     , withAttrs
@@ -106,8 +106,8 @@ defaults =
     { role = Plain, icon = Nothing, text = Nothing, attrs = [] }
 
 
-button : msg -> Button msg
-button action =
+configure : msg -> Button msg
+configure action =
     Button action []
 
 
@@ -154,6 +154,6 @@ buttonHelp conf action =
 
 iconButton : msg -> FontAwesome.Icon.Icon -> Html msg
 iconButton action icon =
-    button action
+    configure action
         |> withIcon icon
         |> toHtml
