@@ -35,15 +35,8 @@ onClickPreventDefault msg =
 
 
 view : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-view msg attrs =
-    div
-        ([ onClickPreventDefault msg
-         , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
-         , tabindex 0
-         , class "pointer"
-         ]
-            ++ attrs
-        )
+view =
+    styled []
 
 
 styled : List Style -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
