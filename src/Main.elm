@@ -847,6 +847,14 @@ sortedInProject pid todoList =
 -- MASTER LAYOUT
 
 
+type alias Skeleton msg =
+    { title : String
+    , header : Html msg
+    , content : Html msg
+    , footer : Html msg
+    }
+
+
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
     let
