@@ -1353,7 +1353,7 @@ faStyled faIcon svgAttrs =
 
 
 viewCheck : Bool -> (Bool -> msg) -> Html msg
-viewCheck isChecked onCheckMsg =
+viewCheck isChecked setCheckedMsg =
     let
         faCheckBtn action icon =
             IconButton.view action
@@ -1362,8 +1362,8 @@ viewCheck isChecked onCheckMsg =
                 [ FontAwesome.Attributes.lg ]
     in
     ifElse isChecked
-        (faCheckBtn (onCheckMsg False) FAR.checkCircle)
-        (faCheckBtn (onCheckMsg True) FAR.circle)
+        (faCheckBtn (setCheckedMsg False) FAR.checkCircle)
+        (faCheckBtn (setCheckedMsg True) FAR.circle)
 
 
 viewTodoItemTitle : Todo -> Html Msg
