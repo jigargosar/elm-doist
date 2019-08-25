@@ -2,12 +2,12 @@ module Main exposing (main)
 
 import Accessibility.Styled.Key as Key
 import AuthState exposing (AuthState)
-import B
 import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
+import Button
 import Calendar
 import Css
     exposing
@@ -969,7 +969,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , B.iconButton OnAddProjectStart FontAwesome.Solid.plus
+            , Button.iconButton OnAddProjectStart FontAwesome.Solid.plus
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -988,7 +988,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , B.iconButton (OnDeleteProject project.id) FontAwesome.Solid.trash
+        , Button.iconButton (OnDeleteProject project.id) FontAwesome.Solid.trash
         ]
 
 
@@ -1236,15 +1236,15 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            B.button (OnEditDueStart <| todoId)
-                |> B.withLabel txt
-                |> B.withRole B.Secondary
-                |> B.withAttrs
+            Button.button (OnEditDueStart <| todoId)
+                |> Button.withLabel txt
+                |> Button.withRole Button.Secondary
+                |> Button.withAttrs
                     [ class "pa3 ba b--moon-gray"
                     , class cls
                     , css [ minWidth <| px 100 ]
                     ]
-                |> B.toHtml
+                |> Button.toHtml
     in
     div
         [ class "pv3 ph2"
@@ -1255,16 +1255,16 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ B.button OnEditSave
-                |> B.withLabel "Save"
-                |> B.withRole B.Primary
-                |> B.withAttrs [ class "pa2" ]
-                |> B.toHtml
-            , B.button OnEditCancel
-                |> B.withLabel "Cancel"
-                |> B.withRole B.Secondary
-                |> B.withAttrs [ class "pa2" ]
-                |> B.toHtml
+            [ Button.button OnEditSave
+                |> Button.withLabel "Save"
+                |> Button.withRole Button.Primary
+                |> Button.withAttrs [ class "pa2" ]
+                |> Button.toHtml
+            , Button.button OnEditCancel
+                |> Button.withLabel "Cancel"
+                |> Button.withRole Button.Secondary
+                |> Button.withAttrs [ class "pa2" ]
+                |> Button.toHtml
             ]
         ]
 
@@ -1284,13 +1284,13 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ B.button (OnTodoMenuTriggered todo.id)
-                |> B.withIcon FontAwesome.Solid.ellipsisH
-                |> B.withAttrs
+            [ Button.button (OnTodoMenuTriggered todo.id)
+                |> Button.withIcon FontAwesome.Solid.ellipsisH
+                |> Button.withAttrs
                     [ A.id <| todoMenuTriggerDomId todo.id
                     , class "pa2 tc child"
                     ]
-                |> B.toHtml
+                |> Button.toHtml
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1309,9 +1309,9 @@ viewTodoMenu todo =
 
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            B.btn (todoAction todo.id)
-                [ B.Label label
-                , B.Attrs
+            Button.btn (todoAction todo.id)
+                [ Button.Label label
+                , Button.Attrs
                     [ A.id <|
                         ifElse (idx == 0)
                             (todoMenuFirstFocusableDomId todo.id)
@@ -1344,16 +1344,16 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                B.btn (OnEditDueStart todo.id)
-                    [ B.Icon FontAwesome.Regular.calendarPlus
-                    , B.Attrs [ class "pa2 child" ]
+                Button.btn (OnEditDueStart todo.id)
+                    [ Button.Icon FontAwesome.Regular.calendarPlus
+                    , Button.Attrs [ class "pa2 child" ]
                     ]
             )
             (\dueMillis ->
-                B.btn (OnEditDueStart todo.id)
-                    [ B.Attrs
+                Button.btn (OnEditDueStart todo.id)
+                    [ Button.Attrs
                         [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-                    , B.Label
+                    , Button.Label
                         (Millis.formatDate "MMM dd" here dueMillis)
                     ]
             )
@@ -1363,10 +1363,10 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            B.button action
-                |> B.withAttrs [ class "pa2 " ]
-                |> B.withStyledIcon icon [ FontAwesome.Attributes.lg ]
-                |> B.toHtml
+            Button.button action
+                |> Button.withAttrs [ class "pa2 " ]
+                |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
+                |> Button.toHtml
     in
     ifElse isChecked
         (faCheckBtn (onCheckMsg False) FontAwesome.Regular.checkCircle)

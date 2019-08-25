@@ -1,4 +1,4 @@
-module B exposing
+module Button exposing
     ( Option(..)
     , Role(..)
     , btn
