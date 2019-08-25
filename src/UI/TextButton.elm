@@ -8,7 +8,7 @@ import Html.Styled.Attributes
 import UI.Button as Button
 
 
-type Role
+type Variant
     = Primary
     | Secondary
     | Plain
@@ -16,7 +16,7 @@ type Role
 
 view :
     msg
-    -> Role
+    -> Variant
     -> String
     -> List (Attribute msg)
     -> Html msg
