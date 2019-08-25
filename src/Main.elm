@@ -78,6 +78,7 @@ import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
 import UI.Button as Button
+import UI.FAIcon as FAIcon
 import UI.IconButton as IB
 import UI.TextButton as TB
 import UpdateExtra exposing (andThen, command, effect, pure)
@@ -983,7 +984,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IB.view OnAddProjectStart [] (IB.fa FAS.plus)
+            , Button.view OnAddProjectStart [] [ FAIcon.view FAS.plus ]
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
