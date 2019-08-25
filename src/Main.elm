@@ -1348,13 +1348,12 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            Button.btn action
-                [ class "dib pa2 gray"
-                ]
-                [ icon
-                    |> FAIcon.viewStyled [ FontAwesome.Attributes.lg ]
-                    |> H.fromUnstyled
-                ]
+            Button.button action
+                |> Button.withAttrs
+                    [ class "dib pa2 gray"
+                    ]
+                |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
+                |> Button.toHtml
     in
     div
         [ class "pa2"

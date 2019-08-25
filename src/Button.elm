@@ -1,4 +1,4 @@
-module Button exposing (btn, button, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, toHtml, withAttrs, withIcon, withLabel, withRole)
+module Button exposing (button, faBtn, primaryTxtBtn, secondaryTxtBtn, textBtn, toHtml, withAttrs, withIcon, withLabel, withRole, withStyledIcon)
 
 import Accessibility.Styled.Key as Key
 import FontAwesome.Icon
@@ -11,6 +11,7 @@ import Html.Styled.Attributes
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
+import Svg
 import Svg.Attributes
 
 
@@ -22,7 +23,7 @@ type Role
 
 type alias Config msg =
     { role : Role
-    , icon : Maybe FontAwesome.Icon.Icon
+    , icon : Maybe ( FontAwesome.Icon.Icon, List (Svg.Attribute msg) )
     , text : Maybe String
     , attrs : List (Attribute msg)
     }
@@ -30,7 +31,7 @@ type alias Config msg =
 
 type Option msg
     = Role Role
-    | Icon FontAwesome.Icon.Icon
+    | Icon FontAwesome.Icon.Icon (List (Svg.Attribute msg))
     | Text String
     | Attrs (List (Attribute msg))
 
@@ -55,7 +56,12 @@ withAttrs attrs =
 
 withIcon : FontAwesome.Icon.Icon -> Button msg -> Button msg
 withIcon icon =
-    addOption (Icon icon)
+    addOption (Icon icon [])
+
+
+withStyledIcon : FontAwesome.Icon.Icon -> List (Svg.Attribute msg) -> Button msg -> Button msg
+withStyledIcon icon svgAttrs =
+    addOption (Icon icon svgAttrs)
 
 
 withLabel : String -> Button msg -> Button msg
@@ -72,8 +78,8 @@ toHtml (Button action options) =
                     Role role ->
                         { acc | role = role }
 
-                    Icon icon ->
-                        { acc | icon = Just icon }
+                    Icon icon svgAttrs ->
+                        { acc | icon = Just ( icon, svgAttrs ) }
 
                     Text txt ->
                         { acc | text = Just txt }
@@ -111,9 +117,9 @@ buttonHelp conf action =
         )
         [ conf.icon
             |> viewMaybe
-                (\icon ->
+                (\( icon, svgAttrs ) ->
                     icon
-                        |> FontAwesome.Icon.viewStyled [ Svg.Attributes.class "gray" ]
+                        |> FontAwesome.Icon.viewStyled (Svg.Attributes.class "gray" :: svgAttrs)
                         |> H.fromUnstyled
                 )
         , conf.text
@@ -134,22 +140,6 @@ buttonHelp conf action =
                         [ text txt ]
                 )
         ]
-
-
-btn : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-btn action attrs =
-    let
-        btnKDDecoder msg =
-            JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
-    in
-    div
-        ([ preventDefaultOn "click" <| JD.succeed ( action, True )
-         , preventDefaultOn "keydown" <| btnKDDecoder ( action, True )
-         , tabindex 0
-         , class "dib pointer"
-         ]
-            ++ attrs
-        )
 
 
 textBtn : msg -> List (Attribute msg) -> String -> Html msg
