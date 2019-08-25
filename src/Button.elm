@@ -1,7 +1,7 @@
 module Button exposing
     ( Role(..)
+    , actionIcon
     , button
-    , faBtn
     , toHtml
     , withAttrs
     , withIcon
@@ -152,8 +152,8 @@ buttonHelp conf action =
         ]
 
 
-faBtn : msg -> FontAwesome.Icon.Icon -> Html msg
-faBtn action icon =
+actionIcon : msg -> FontAwesome.Icon.Icon -> Html msg
+actionIcon action icon =
     button action
         |> withRole Secondary
         |> withIcon icon
