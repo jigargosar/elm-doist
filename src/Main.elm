@@ -55,7 +55,7 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
-import IconButton
+import IconButton as IB
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -970,7 +970,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IconButton.view OnAddProjectStart [] (IconButton.fa FAS.plus)
+            , IB.view OnAddProjectStart [] (IB.fa FAS.plus)
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -989,9 +989,9 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IconButton.view (OnDeleteProject project.id)
+        , IB.view (OnDeleteProject project.id)
             []
-            (IconButton.fa FAS.trash)
+            (IB.fa FAS.trash)
         ]
 
 
@@ -1276,11 +1276,11 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ IconButton.view (OnTodoMenuTriggered todo.id)
+            [ IB.view (OnTodoMenuTriggered todo.id)
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-                (IconButton.fa FAS.ellipsisH)
+                (IB.fa FAS.ellipsisH)
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1332,9 +1332,9 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                IconButton.view (OnEditDueStart todo.id)
+                IB.view (OnEditDueStart todo.id)
                     [ class "pa2 child" ]
-                    (IconButton.fa FAR.calendarPlus)
+                    (IB.fa FAR.calendarPlus)
             )
             (\dueMillis ->
                 TB.plain (OnEditDueStart todo.id)
@@ -1347,9 +1347,9 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            IconButton.view action
+            IB.view action
                 [ class "pa2 " ]
-                (IconButton.faStyled icon [ FontAwesome.Attributes.lg ])
+                (IB.faStyled icon [ FontAwesome.Attributes.lg ])
     in
     ifElse isChecked
         (faCheckBtn (onCheckMsg False) FAR.checkCircle)
