@@ -6,13 +6,13 @@ import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
 
 
-onFocusOutsideDomId : String -> ({ hasRelatedTarget : Bool } -> msg) -> Attribute msg
+onFocusOutsideDomId : String -> msg -> Attribute msg
 onFocusOutsideDomId domId tagger =
     on "focusout"
         (JD.field "relatedTarget"
             (JD.oneOf
-                [ JD.null (tagger { hasRelatedTarget = False })
-                , outsideElIdDecoder domId (tagger { hasRelatedTarget = True })
+                [ JD.null tagger
+                , outsideElIdDecoder domId tagger
                 ]
             )
         )

@@ -1324,16 +1324,15 @@ viewTodoMenu todo =
             todoMenuDomId todo.id
 
         closeMsg : Bool -> Msg
-        closeMsg =
-            CloseTodoMenu todo.id
+        closeMsg restoreFocus =
+            CloseTodoMenu todo.id restoreFocus
     in
     div
         [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId menuDomId
-            (\{ hasRelatedTarget } -> closeMsg (not hasRelatedTarget))
+        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
         ]
         (menuItemModelList |> List.indexedMap viewMenuItem)
