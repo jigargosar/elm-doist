@@ -1,19 +1,15 @@
 module Button exposing
     ( Option(..)
     , Role(..)
-    , btn
     , button
     , toHtml
     , withAttrs
-    , withIcon
     , withLabel
     , withRole
-    , withStyledIcon
     )
 
 import Accessibility.Styled.Key as Key
-import FontAwesome.Icon
-import Html.Styled as H exposing (Attribute, Html, div, text)
+import Html.Styled exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes
     exposing
         ( class
@@ -22,8 +18,6 @@ import Html.Styled.Attributes
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
-import Svg
-import Svg.Attributes
 
 
 type Role
@@ -34,7 +28,6 @@ type Role
 
 type alias Config msg =
     { role : Role
-    , icon : Maybe ( FontAwesome.Icon.Icon, List (Svg.Attribute msg) )
     , text : Maybe String
     , attrs : List (Attribute msg)
     }
@@ -42,8 +35,6 @@ type alias Config msg =
 
 type Option msg
     = Role Role
-    | FAIcon FontAwesome.Icon.Icon
-    | FAStyledIcon (List (Svg.Attribute msg)) FontAwesome.Icon.Icon
     | Label String
     | Attrs (List (Attribute msg))
 
@@ -66,16 +57,6 @@ withAttrs attrs =
     addOption (Attrs attrs)
 
 
-withIcon : FontAwesome.Icon.Icon -> Button msg -> Button msg
-withIcon icon =
-    addOption (FAIcon icon)
-
-
-withStyledIcon : FontAwesome.Icon.Icon -> List (Svg.Attribute msg) -> Button msg -> Button msg
-withStyledIcon icon svgAttrs =
-    addOption (FAStyledIcon svgAttrs icon)
-
-
 withLabel : String -> Button msg -> Button msg
 withLabel txt =
     addOption (Label txt)
@@ -96,12 +77,6 @@ configFromOptions options =
                     Role role ->
                         { acc | role = role }
 
-                    FAIcon icon ->
-                        { acc | icon = Just ( icon, [] ) }
-
-                    FAStyledIcon svgAttrs icon ->
-                        { acc | icon = Just ( icon, svgAttrs ) }
-
                     Label txt ->
                         { acc | text = Just txt }
 
@@ -113,7 +88,7 @@ configFromOptions options =
 
 defaults : Config msg
 defaults =
-    { role = Plain, icon = Nothing, text = Nothing, attrs = [] }
+    { role = Plain, text = Nothing, attrs = [] }
 
 
 button : msg -> Button msg
@@ -135,14 +110,7 @@ buttonHelp action conf =
          ]
             ++ conf.attrs
         )
-        [ conf.icon
-            |> viewMaybe
-                (\( icon, svgAttrs ) ->
-                    icon
-                        |> FontAwesome.Icon.viewStyled (Svg.Attributes.class "gray" :: svgAttrs)
-                        |> H.fromUnstyled
-                )
-        , conf.text
+        [ conf.text
             |> viewMaybe
                 (\txt ->
                     div
@@ -160,8 +128,3 @@ buttonHelp action conf =
                         [ text txt ]
                 )
         ]
-
-
-btn : msg -> List (Option msg) -> Html msg
-btn action options =
-    buttonHelp action (configFromOptions options)

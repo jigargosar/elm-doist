@@ -7,7 +7,6 @@ import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
-import Button
 import Calendar
 import Css
     exposing
@@ -1348,10 +1347,9 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            Button.button action
-                |> Button.withAttrs [ class "pa2 " ]
-                |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
-                |> Button.toHtml
+            IconButton.view action
+                [ class "pa2 " ]
+                (IconButton.faStyled icon [ FontAwesome.Attributes.lg ])
     in
     ifElse isChecked
         (faCheckBtn (onCheckMsg False) FAR.checkCircle)
