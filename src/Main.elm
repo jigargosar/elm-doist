@@ -1349,10 +1349,10 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                Button.configure (OnEditDueStart todo.id)
-                    |> Button.withIcon FontAwesome.Regular.calendarPlus
-                    |> Button.withAttrs [ class "pa2 child" ]
-                    |> Button.toHtml
+                Button.btn (OnEditDueStart todo.id)
+                    [ Button.Icon FontAwesome.Regular.calendarPlus []
+                    , Button.Attrs [ class "pa2 child" ]
+                    ]
             )
             (\dueMillis ->
                 Button.configure (OnEditDueStart todo.id)

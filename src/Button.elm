@@ -1,5 +1,7 @@
 module Button exposing
-    ( Role(..)
+    ( Option(..)
+    , Role(..)
+    , btn
     , configure
     , iconButton
     , toHtml
@@ -82,7 +84,7 @@ withLabel txt =
 toHtml : Button msg -> Html msg
 toHtml (Button action options) =
     configFromOptions options
-        |> (\config -> buttonHelp config action)
+        |> (\config -> buttonHelp action config)
 
 
 configFromOptions : List (Option msg) -> Config msg
@@ -116,8 +118,8 @@ configure action =
     Button action []
 
 
-buttonHelp : Config msg -> msg -> Html msg
-buttonHelp conf action =
+buttonHelp : msg -> Config msg -> Html msg
+buttonHelp action conf =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -162,3 +164,8 @@ iconButton action icon =
     configure action
         |> withIcon icon
         |> toHtml
+
+
+btn : msg -> List (Option msg) -> Html msg
+btn action options =
+    buttonHelp action (configFromOptions options)
