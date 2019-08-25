@@ -4,14 +4,13 @@ import Accessibility.Styled exposing (Attribute)
 import Accessibility.Styled.Key as Key
 import Button
 import FontAwesome.Icon as FAI
-import Html.Styled as H exposing (Attribute, Html, div, text)
+import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes
     exposing
         ( class
         , tabindex
         )
 import Html.Styled.Events exposing (preventDefaultOn)
-import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
 import Svg
 import Svg.Attributes
