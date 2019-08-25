@@ -37,7 +37,7 @@ import Dict.Extra
 import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
-import FontAwesome.Regular
+import FontAwesome.Regular as FAR
 import FontAwesome.Solid
 import FontAwesome.Styles
 import HasErrors
@@ -1331,9 +1331,9 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                IconButton.default (OnEditDueStart todo.id)
+                IconButton.view (OnEditDueStart todo.id)
                     [ class "pa2 child" ]
-                    FontAwesome.Regular.calendarPlus
+                    (IconButton.fa FAR.calendarPlus)
             )
             (\dueMillis ->
                 TextButton.plain (OnEditDueStart todo.id)
@@ -1352,8 +1352,8 @@ viewCheck isChecked onCheckMsg =
                 |> Button.toHtml
     in
     ifElse isChecked
-        (faCheckBtn (onCheckMsg False) FontAwesome.Regular.checkCircle)
-        (faCheckBtn (onCheckMsg True) FontAwesome.Regular.circle)
+        (faCheckBtn (onCheckMsg False) FAR.checkCircle)
+        (faCheckBtn (onCheckMsg True) FAR.circle)
 
 
 viewTodoItemTitle : Todo -> Html Msg

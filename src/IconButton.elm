@@ -1,8 +1,7 @@
-module IconButton exposing (default)
+module IconButton exposing (Icon, default, fa, faStyled, view)
 
 import Accessibility.Styled exposing (Attribute)
 import Accessibility.Styled.Key as Key
-import Button
 import FontAwesome.Icon as FAI
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes
@@ -16,8 +15,21 @@ import Svg
 import Svg.Attributes
 
 
-buttonHelp : msg -> List (Attribute msg) -> FAI.Icon -> List (Svg.Attribute msg) -> Html msg
-buttonHelp action attrs icon iconSvgAttrs =
+type Icon msg
+    = FA FAI.Icon
+    | FAStyled FAI.Icon (List (Svg.Attribute msg))
+
+
+fa =
+    FA
+
+
+faStyled =
+    FAStyled
+
+
+view : msg -> List (Attribute msg) -> Icon msg -> Html msg
+view action attrs icon =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -30,17 +42,19 @@ buttonHelp action attrs icon iconSvgAttrs =
          ]
             ++ attrs
         )
-        [ icon
-            |> FAI.viewStyled (Svg.Attributes.class "gray" :: iconSvgAttrs)
-            |> H.fromUnstyled
+        [ case icon of
+            FA faIcon ->
+                faIcon
+                    |> FAI.viewStyled (Svg.Attributes.class "gray" :: [])
+                    |> H.fromUnstyled
+
+            FAStyled faIcon svgAttrs ->
+                faIcon
+                    |> FAI.viewStyled (Svg.Attributes.class "gray" :: svgAttrs)
+                    |> H.fromUnstyled
         ]
 
 
 default : msg -> List (Attribute msg) -> FAI.Icon -> Html msg
-default action attrs icon =
-    buttonHelp action attrs icon []
-
-
-type Icon msg
-    = FA FAI.Icon
-    | FAStyled FAI.Icon (List (Svg.Attribute msg))
+default action attrs faIcon =
+    view action attrs (FA faIcon)
