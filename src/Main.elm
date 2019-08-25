@@ -1227,14 +1227,16 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            Button.textBtn (OnEditDueStart <| todoId)
-                [ class "flex"
-                , class "pa3 ba b--moon-gray"
-                , class cls
-                , css [ minWidth <| px 100 ]
-                , onClick <| OnEditDueStart <| todoId
-                ]
-                txt
+            Button.button (OnEditDueStart <| todoId)
+                |> Button.withLabel txt
+                |> Button.withRole Button.Secondary
+                |> Button.withAttrs
+                    [ class "flex"
+                    , class "pa3 ba b--moon-gray"
+                    , class cls
+                    , css [ minWidth <| px 100 ]
+                    ]
+                |> Button.toHtml
     in
     div
         [ class "pv3 ph2"
