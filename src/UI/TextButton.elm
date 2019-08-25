@@ -1,10 +1,7 @@
 module UI.TextButton exposing (plain, primary, secondary)
 
-import Html.Styled exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes
-    exposing
-        ( class
-        )
+import Html.Styled exposing (Attribute, Html, text)
+import Html.Styled.Attributes exposing (class)
 import UI.Button as Button
 
 
