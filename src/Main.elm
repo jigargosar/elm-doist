@@ -1355,13 +1355,12 @@ viewDueAt here todo =
                     ]
             )
             (\dueMillis ->
-                Button.configure (OnEditDueStart todo.id)
-                    |> Button.withAttrs
-                        [ class "pa2 flex-shrink-0 f7 lh-copy"
-                        ]
-                    |> Button.withLabel
+                Button.btn (OnEditDueStart todo.id)
+                    [ Button.Attrs
+                        [ class "pa2 flex-shrink-0 f7 lh-copy" ]
+                    , Button.Text
                         (Millis.formatDate "MMM dd" here dueMillis)
-                    |> Button.toHtml
+                    ]
             )
 
 
