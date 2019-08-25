@@ -36,6 +36,11 @@ buttonHelp action attrs icon iconSvgAttrs =
         ]
 
 
-default : msg -> FAI.Icon -> List (Attribute msg) -> Html msg
-default action icon attrs =
+default : msg -> List (Attribute msg) -> FAI.Icon -> Html msg
+default action attrs icon =
     buttonHelp action attrs icon []
+
+
+type Icon msg
+    = FA FAI.Icon
+    | FAStyled FAI.Icon (List (Svg.Attribute msg))

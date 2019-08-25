@@ -971,7 +971,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IconButton.default OnAddProjectStart FontAwesome.Solid.plus []
+            , IconButton.default OnAddProjectStart [] FontAwesome.Solid.plus
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -990,7 +990,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IconButton.default (OnDeleteProject project.id) FontAwesome.Solid.trash []
+        , IconButton.default (OnDeleteProject project.id) [] FontAwesome.Solid.trash
         ]
 
 
@@ -1276,10 +1276,10 @@ viewTodoItemBase model todo =
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
             [ IconButton.default (OnTodoMenuTriggered todo.id)
-                FontAwesome.Solid.ellipsisH
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
+                FontAwesome.Solid.ellipsisH
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1332,8 +1332,8 @@ viewDueAt here todo =
         |> MX.unpack
             (\_ ->
                 IconButton.default (OnEditDueStart todo.id)
-                    FontAwesome.Regular.calendarPlus
                     [ class "pa2 child" ]
+                    FontAwesome.Regular.calendarPlus
             )
             (\dueMillis ->
                 TextButton.plain (OnEditDueStart todo.id)
