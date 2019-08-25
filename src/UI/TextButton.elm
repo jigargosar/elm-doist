@@ -1,27 +1,27 @@
 module UI.TextButton exposing (plain, primary, secondary)
 
-import Button
 import Html.Styled exposing (Attribute, Html)
+import UI.Button as B
 
 
 buttonHelp role action label attrs =
-    Button.button action
-        |> Button.withLabel label
-        |> Button.withRole role
-        |> Button.withAttrs attrs
-        |> Button.toHtml
+    B.button action
+        |> B.withLabel label
+        |> B.withRole role
+        |> B.withAttrs attrs
+        |> B.toHtml
 
 
 primary : msg -> String -> List (Attribute msg) -> Html msg
 primary =
-    buttonHelp Button.Primary
+    buttonHelp B.Primary
 
 
 secondary : msg -> String -> List (Attribute msg) -> Html msg
 secondary =
-    buttonHelp Button.Secondary
+    buttonHelp B.Secondary
 
 
 plain : msg -> String -> List (Attribute msg) -> Html msg
 plain =
-    buttonHelp Button.Plain
+    buttonHelp B.Plain

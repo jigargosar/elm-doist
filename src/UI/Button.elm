@@ -1,4 +1,4 @@
-module Button exposing
+module UI.Button exposing
     ( Option(..)
     , Role(..)
     , button
