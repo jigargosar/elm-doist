@@ -79,8 +79,8 @@ import TodoId exposing (TodoId)
 import TodoMenu
 import UI.Button as Button
 import UI.FAIcon as FAIcon
-import UI.IconButton as IB
-import UI.TextButton as TB
+import UI.IconButton as IconButton
+import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
@@ -984,7 +984,7 @@ viewSidebar model =
         , navItem Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IB.view OnAddProjectStart [] FAS.plus []
+            , IconButton.view OnAddProjectStart [] FAS.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
@@ -1003,9 +1003,7 @@ viewProjectNavItem project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , Button.view (OnDeleteProject project.id)
-            []
-            [ FAIcon.view FAS.trash ]
+        , IconButton.view (OnDeleteProject project.id) [] FAS.trash []
         ]
 
 
@@ -1242,7 +1240,7 @@ viewEditTodoItem here edt =
                     )
 
         viewDue =
-            TB.secondary (OnEditDueStart <| todoId)
+            TextButton.secondary (OnEditDueStart <| todoId)
                 txt
                 [ class "pa3 ba b--moon-gray"
                 , class cls
@@ -1258,8 +1256,8 @@ viewEditTodoItem here edt =
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ TB.primary OnEditSave "Save" [ class "pa2" ]
-            , TB.secondary OnEditCancel "Cancel" [ class "pa2" ]
+            [ TextButton.primary OnEditSave "Save" [ class "pa2" ]
+            , TextButton.secondary OnEditCancel "Cancel" [ class "pa2" ]
             ]
         ]
 
@@ -1279,11 +1277,12 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
-            [ Button.view (OnTodoMenuTriggered todo.id)
+            [ IconButton.view (OnTodoMenuTriggered todo.id)
                 [ A.id <| todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
-                [ FAIcon.view FAS.ellipsisH ]
+                FAS.ellipsisH
+                []
             , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
                 (viewTodoMenu todo)
             ]
@@ -1302,7 +1301,7 @@ viewTodoMenu todo =
 
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            TB.view (todoAction todo.id)
+            TextButton.view (todoAction todo.id)
                 label
                 [ A.id <|
                     ifElse (idx == 0)
@@ -1335,12 +1334,13 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                Button.view (OnEditDueStart todo.id)
+                IconButton.view (OnEditDueStart todo.id)
                     [ class "pa2 child" ]
-                    [ FAIcon.view FAR.calendarPlus ]
+                    FAR.calendarPlus
+                    []
             )
             (\dueMillis ->
-                TB.view (OnEditDueStart todo.id)
+                TextButton.view (OnEditDueStart todo.id)
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )
@@ -1356,9 +1356,10 @@ viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
-            Button.view action
+            IconButton.view action
                 [ class "pa2 " ]
-                [ faStyled icon [ FontAwesome.Attributes.lg ] ]
+                icon
+                [ FontAwesome.Attributes.lg ]
     in
     ifElse isChecked
         (faCheckBtn (onCheckMsg False) FAR.checkCircle)
