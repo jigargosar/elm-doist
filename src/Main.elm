@@ -1260,7 +1260,7 @@ viewEditTodoItem here edt =
                 |> B.withRole B.Primary
                 |> B.withAttrs [ class "pa2" ]
                 |> B.toHtml
-            , B.configure OnEditSave
+            , B.configure OnEditCancel
                 |> B.withLabel "Cancel"
                 |> B.withRole B.Secondary
                 |> B.withAttrs [ class "pa2" ]
