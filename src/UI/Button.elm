@@ -1,11 +1,7 @@
 module UI.Button exposing
-    ( Option(..)
+    ( Config
     , Role(..)
-    , button
-    , toHtml
-    , withAttrs
-    , withLabel
-    , withRole
+    , view
     )
 
 import Accessibility.Styled.Key as Key
@@ -16,7 +12,6 @@ import Html.Styled.Attributes
         , tabindex
         )
 import Html.Styled.Events exposing (preventDefaultOn)
-import HtmlStyledExtra exposing (viewMaybe)
 import Json.Decode as JD exposing (Decoder)
 
 
@@ -28,76 +23,13 @@ type Role
 
 type alias Config msg =
     { role : Role
-    , text : Maybe String
+    , label : String
     , attrs : List (Attribute msg)
     }
 
 
-type Option msg
-    = Role Role
-    | Label String
-    | Attrs (List (Attribute msg))
-
-
-type Button msg
-    = Button msg (List (Option msg))
-
-
-addOption option (Button msg options) =
-    Button msg (option :: options)
-
-
-withRole : Role -> Button msg -> Button msg
-withRole role =
-    addOption (Role role)
-
-
-withAttrs : List (Attribute msg) -> Button msg -> Button msg
-withAttrs attrs =
-    addOption (Attrs attrs)
-
-
-withLabel : String -> Button msg -> Button msg
-withLabel txt =
-    addOption (Label txt)
-
-
-toHtml : Button msg -> Html msg
-toHtml (Button action options) =
-    configFromOptions options
-        |> (\config -> buttonHelp action config)
-
-
-configFromOptions : List (Option msg) -> Config msg
-configFromOptions options =
-    options
-        |> List.foldr
-            (\opt acc ->
-                case opt of
-                    Role role ->
-                        { acc | role = role }
-
-                    Label txt ->
-                        { acc | text = Just txt }
-
-                    Attrs attrs ->
-                        { acc | attrs = attrs }
-            )
-            defaults
-
-
-defaults : Config msg
-defaults =
-    { role = Plain, text = Nothing, attrs = [] }
-
-
-button : msg -> Button msg
-button action =
-    Button action []
-
-
-buttonHelp : msg -> Config msg -> Html msg
-buttonHelp action conf =
+view : msg -> Config msg -> Html msg
+view action conf =
     let
         btnKDDecoder msg =
             JD.lazy (\_ -> JD.oneOf [ Key.enter msg, Key.space msg ])
@@ -110,21 +42,17 @@ buttonHelp action conf =
          ]
             ++ conf.attrs
         )
-        [ conf.text
-            |> viewMaybe
-                (\txt ->
-                    div
-                        [ class <|
-                            case conf.role of
-                                Plain ->
-                                    ""
+        [ div
+            [ class <|
+                case conf.role of
+                    Plain ->
+                        ""
 
-                                Primary ->
-                                    "underline blue"
+                    Primary ->
+                        "underline blue"
 
-                                Secondary ->
-                                    "underline gray"
-                        ]
-                        [ text txt ]
-                )
+                    Secondary ->
+                        "underline gray"
+            ]
+            [ text conf.label ]
         ]

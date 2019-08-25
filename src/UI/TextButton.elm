@@ -4,12 +4,14 @@ import Html.Styled exposing (Attribute, Html)
 import UI.Button as B
 
 
-buttonHelp role action label attrs =
-    B.button action
-        |> B.withLabel label
-        |> B.withRole role
-        |> B.withAttrs attrs
-        |> B.toHtml
+buttonHelp : B.Role -> msg -> String -> List (Attribute msg) -> Html (B.Config msg)
+buttonHelp role msg label attrs =
+    let
+        config : B.Config msg
+        config =
+            { role = role, label = label, attrs = attrs }
+    in
+    B.view config msg
 
 
 primary : msg -> String -> List (Attribute msg) -> Html msg
