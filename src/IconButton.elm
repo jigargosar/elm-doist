@@ -1,4 +1,4 @@
-module IconButton exposing (Icon, default, fa, faStyled, view)
+module IconButton exposing (Icon, fa, faStyled, view)
 
 import Accessibility.Styled exposing (Attribute)
 import Accessibility.Styled.Key as Key
@@ -53,8 +53,3 @@ view action attrs icon =
                     |> FAI.viewStyled (Svg.Attributes.class "gray" :: svgAttrs)
                     |> H.fromUnstyled
         ]
-
-
-default : msg -> List (Attribute msg) -> FAI.Icon -> Html msg
-default action attrs faIcon =
-    view action attrs (FA faIcon)
