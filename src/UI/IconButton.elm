@@ -1,18 +1,15 @@
 module UI.IconButton exposing (Icon, fa, faStyled, view)
 
 import Accessibility.Styled exposing (Attribute)
-import Accessibility.Styled.Key as Key
 import FontAwesome.Icon as FAI
-import Html.Styled as H exposing (Attribute, Html, div)
+import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes
     exposing
         ( class
         , tabindex
         )
-import Html.Styled.Events exposing (preventDefaultOn)
-import Json.Decode as JD exposing (Decoder)
 import Svg
-import Svg.Attributes as SA exposing ()
+import Svg.Attributes as SA
 import UI.Button as Button
 
 
