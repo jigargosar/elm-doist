@@ -21,8 +21,8 @@ view :
     -> List (Attribute msg)
     -> Html msg
 view action role label attrs =
-    Button.view action
-        ((class <|
+    let
+        variantClasses =
             case role of
                 Plain ->
                     ""
@@ -32,11 +32,10 @@ view action role label attrs =
 
                 Secondary ->
                     "underline gray"
-         )
-            :: attrs
-        )
-        [ text label
-        ]
+    in
+    Button.view action
+        (class variantClasses :: attrs)
+        [ text label ]
 
 
 primary : msg -> String -> List (Attribute msg) -> Html msg
