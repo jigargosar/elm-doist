@@ -12,7 +12,7 @@ import Html.Styled.Attributes
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
 import Svg
-import Svg.Attributes
+import Svg.Attributes as SA exposing ()
 import UI.Button as Button
 
 
@@ -36,11 +36,11 @@ view action attrs icon =
         [ case icon of
             FA faIcon ->
                 faIcon
-                    |> FAI.viewStyled (Svg.Attributes.class "gray" :: [])
+                    |> FAI.viewStyled (SA.class "gray" :: [])
                     |> H.fromUnstyled
 
             FAStyled faIcon svgAttrs ->
                 faIcon
-                    |> FAI.viewStyled (Svg.Attributes.class "gray" :: svgAttrs)
+                    |> FAI.viewStyled (SA.class "gray" :: svgAttrs)
                     |> H.fromUnstyled
         ]
