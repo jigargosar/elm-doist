@@ -2,12 +2,9 @@ module UI.Button exposing (styled, view)
 
 import Accessibility.Styled.Key as Key
 import Css exposing (Style)
+import FunctionalCss as FCss
 import Html.Styled as H exposing (Attribute, Html, div)
-import Html.Styled.Attributes
-    exposing
-        ( class
-        , tabindex
-        )
+import Html.Styled.Attributes exposing (class, css, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
 
@@ -52,11 +49,10 @@ view msg attrs =
 styled : List Style -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 styled styles msg attrs =
     H.styled div
-        styles
+        (FCss.pointer :: styles)
         ([ onClickPreventDefault msg
          , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
          , tabindex 0
-         , class "pointer"
          ]
             ++ attrs
         )
