@@ -1299,15 +1299,13 @@ viewTodoMenu todo =
 
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            Button.btn (todoAction todo.id)
-                [ Button.Label label
-                , Button.Attrs
-                    [ A.id <|
-                        ifElse (idx == 0)
-                            (todoMenuFirstFocusableDomId todo.id)
-                            ""
-                    , class "pa2"
-                    ]
+            TextButton.plain (todoAction todo.id)
+                label
+                [ A.id <|
+                    ifElse (idx == 0)
+                        (todoMenuFirstFocusableDomId todo.id)
+                        ""
+                , class "pa2"
                 ]
 
         menuDomId =
@@ -1340,12 +1338,9 @@ viewDueAt here todo =
                     ]
             )
             (\dueMillis ->
-                Button.btn (OnEditDueStart todo.id)
-                    [ Button.Attrs
-                        [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-                    , Button.Label
-                        (Millis.formatDate "MMM dd" here dueMillis)
-                    ]
+                TextButton.plain (OnEditDueStart todo.id)
+                    (Millis.formatDate "MMM dd" here dueMillis)
+                    [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )
 
 
