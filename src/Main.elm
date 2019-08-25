@@ -1333,7 +1333,7 @@ viewDueAt here todo =
         |> MX.unpack
             (\_ ->
                 Button.btn (OnEditDueStart todo.id)
-                    [ Button.Icon FontAwesome.Regular.calendarPlus
+                    [ Button.FAIcon FontAwesome.Regular.calendarPlus
                     , Button.Attrs [ class "pa2 child" ]
                     ]
             )
