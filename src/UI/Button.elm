@@ -9,6 +9,23 @@ import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
 
 
+view : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+view =
+    styled []
+
+
+styled : List Style -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+styled styles msg attrs =
+    H.styled div
+        (FCss.pointer :: styles)
+        ([ onClickPreventDefault msg
+         , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
+         , tabindex 0
+         ]
+            ++ attrs
+        )
+
+
 preventDefault : msg -> ( msg, Bool )
 preventDefault msg =
     Tuple.pair msg True
@@ -32,20 +49,3 @@ onKeyDownPreventDefault msg keys =
 onClickPreventDefault : msg -> Attribute msg
 onClickPreventDefault msg =
     preventDefaultOn "click" (JD.succeed ( msg, True ))
-
-
-view : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-view =
-    styled []
-
-
-styled : List Style -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-styled styles msg attrs =
-    H.styled div
-        (FCss.pointer :: styles)
-        ([ onClickPreventDefault msg
-         , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
-         , tabindex 0
-         ]
-            ++ attrs
-        )
