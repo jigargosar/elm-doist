@@ -9,7 +9,7 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Button
 import Calendar
-import Css exposing (block, bottom, display, fixed, height, marginLeft, maxWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
+import Css exposing (block, bottom, display, fixed, height, marginLeft, maxWidth, minWidth, none, outline, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Dialog
@@ -1230,8 +1230,8 @@ viewEditTodoItem here edt =
             Button.textBtn (OnEditDueStart <| todoId)
                 [ class "flex"
                 , class "pa3 ba b--moon-gray"
-                , class "w4"
                 , class cls
+                , css [ minWidth <| px 100 ]
                 , onClick <| OnEditDueStart <| todoId
                 ]
                 txt
