@@ -39,15 +39,15 @@ view action role label attrs =
 
 
 primary : msg -> String -> List (Attribute msg) -> Html msg
-primary action label attrs =
-    view action Primary label attrs
+primary action =
+    view action Primary
 
 
 secondary : msg -> String -> List (Attribute msg) -> Html msg
-secondary action label attrs =
-    view action Secondary label attrs
+secondary action =
+    view action Secondary
 
 
 plain : msg -> String -> List (Attribute msg) -> Html msg
-plain action label attrs =
-    view action Plain label attrs
+plain action =
+    view action Plain
