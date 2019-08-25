@@ -1307,6 +1307,7 @@ viewTodoMenu todo =
             , ( OnDelete, "Delete" )
             ]
 
+        viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
             B.btn (todoAction todo.id)
                 [ B.Label label
