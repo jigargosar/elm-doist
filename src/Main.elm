@@ -1349,7 +1349,7 @@ viewCheck isChecked onCheckMsg =
     let
         faCheckBtn action icon =
             Button.button action
-                |> Button.withAttrs [ class "pa2 gray" ]
+                |> Button.withAttrs [ class "pa2 " ]
                 |> Button.withStyledIcon icon [ FontAwesome.Attributes.lg ]
                 |> Button.toHtml
     in
