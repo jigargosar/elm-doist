@@ -17,6 +17,7 @@ import Svg.Attributes
 type Role
     = Primary
     | Secondary
+    | Plain
 
 
 type alias Config msg =
@@ -86,7 +87,7 @@ toHtml (Button action options) =
 
 defaults : Config msg
 defaults =
-    { role = Primary, icon = Nothing, text = Nothing, attrs = [] }
+    { role = Plain, icon = Nothing, text = Nothing, attrs = [] }
 
 
 button : msg -> Button msg
@@ -119,14 +120,16 @@ buttonHelp conf action =
             |> viewMaybe
                 (\txt ->
                     div
-                        [ class "underline pa1"
-                        , class <|
+                        [ class <|
                             case conf.role of
+                                Plain ->
+                                    ""
+
                                 Primary ->
-                                    "blue"
+                                    "underline blue"
 
                                 Secondary ->
-                                    "gray"
+                                    "underline gray"
                         ]
                         [ text txt ]
                 )

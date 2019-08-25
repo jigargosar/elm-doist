@@ -1335,11 +1335,13 @@ viewDueAt here todo =
                     [ class "pa2 child" ]
             )
             (\dueMillis ->
-                Button.btn (OnEditDueStart todo.id)
-                    [ class "pa2 flex-shrink-0 f7 lh-copy"
-                    ]
-                    [ text <| Millis.formatDate "MMM dd" here dueMillis
-                    ]
+                Button.button (OnEditDueStart todo.id)
+                    |> Button.withAttrs
+                        [ class "pa2 flex-shrink-0 f7 lh-copy"
+                        ]
+                    |> Button.withLabel
+                        (Millis.formatDate "MMM dd" here dueMillis)
+                    |> Button.toHtml
             )
 
 
