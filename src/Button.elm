@@ -81,6 +81,12 @@ withLabel txt =
 
 toHtml : Button msg -> Html msg
 toHtml (Button action options) =
+    configFromOptions options
+        |> (\config -> buttonHelp config action)
+
+
+configFromOptions : List (Option msg) -> Config msg
+configFromOptions options =
     options
         |> List.foldr
             (\opt acc ->
@@ -98,7 +104,6 @@ toHtml (Button action options) =
                         { acc | attrs = attrs }
             )
             defaults
-        |> (\config -> buttonHelp config action)
 
 
 defaults : Config msg
