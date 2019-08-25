@@ -22,20 +22,20 @@ view :
     -> Html msg
 view action role label attrs =
     Button.view action
-        attrs
-        [ div
-            [ class <|
-                case role of
-                    Plain ->
-                        ""
+        ((class <|
+            case role of
+                Plain ->
+                    ""
 
-                    Primary ->
-                        "underline blue"
+                Primary ->
+                    "underline blue"
 
-                    Secondary ->
-                        "underline gray"
-            ]
-            [ text label ]
+                Secondary ->
+                    "underline gray"
+         )
+            :: attrs
+        )
+        [ text label
         ]
 
 
