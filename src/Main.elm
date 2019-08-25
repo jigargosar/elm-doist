@@ -1094,17 +1094,6 @@ viewDueDialog zone today todoId =
         ]
 
 
-
---viewDialogOverlay : List (Html Msg) -> Html Msg
---viewDialogOverlay =
---    div
---        [ class "fixed absolute--fill bg-black-50"
---        , class "flex items-center justify-center "
---        , A.id "overlay"
---        , onDomIdClicked "overlay" OnDialogOverlayClicked
---        ]
-
-
 viewDialog : List (Html Msg) -> Html Msg
 viewDialog =
     Dialog.view OnDialogOverlayClicked
