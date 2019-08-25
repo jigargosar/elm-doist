@@ -1300,7 +1300,6 @@ viewTodoMenu todo =
                                         (todoMenuFirstFocusableDomId todo.id)
                                         ""
                                 , class "pa2"
-                                , css [ display block ]
                                 ]
                             |> Button.toHtml
                     )
