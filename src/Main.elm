@@ -40,7 +40,7 @@ import FontAwesome.Icon as FAI
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
-import FunctionalCss
+import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, button, div, input, text)
 import Html.Styled.Attributes as A
@@ -888,7 +888,7 @@ viewHeader model =
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
                         [ div [] [ text user.displayName ]
-                        , TextButton.styled [ TextButton.primaryStyle, FunctionalCss.white ]
+                        , TextButton.styled [ FCss.underline, FCss.white ]
                             OnSignOutClicked
                             "SignOut"
                             []
