@@ -529,10 +529,11 @@ startEditingTodoId todoId model =
 
 setInlineEditTodoAndCache : Todo -> Model -> Return
 setInlineEditTodoAndCache todo model =
-    setInlineEditTodo (InlineEditTodo.fromTodo todo) model
+    { model | taHeight = Nothing }
+        |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheEffect
-        |> command (focus todoTADomId |> Task.attempt Focused)
+        |> command (focusDomIdCmd todoTADomId)
         |> command (Dom.getViewportOf todoTADomId |> Task.attempt GotTAElement)
 
 
