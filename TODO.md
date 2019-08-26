@@ -35,18 +35,20 @@
 - [x] fixed top bar sticky position issue, now using fixed.
 - [x] add task, signInOut, ... buttons.
 - [x] fa checkbox btn
-- cleanup dialog ui.
-    - Due Dialog
-    - Move to Project Dialog.
+- [x] cleanup dialog ui.
+  - Due Dialog
+  - Move to Project Dialog.
+- [ ] Deploy to elmdoist.web.app
 
 ## Slice 6:
+
 - home page, describing the project.
 - non-empty first use experience.
 
 # Slice 5 : Incomplete Features
-* toggle sidebar when in small screen.
-* show todo item project in "group pending by due date list view".
- 
+
+- toggle sidebar when in small screen.
+- show todo item project in "group pending by due date list view".
 
 ## Known Issues:
 
