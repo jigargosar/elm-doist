@@ -30,9 +30,9 @@ init domId value =
     )
 
 
-update : (Msg -> msg) -> Msg -> model -> Return msg model
-update toMsg msg model =
-    case msg of
+update : (Msg -> msg) -> Msg -> Model -> Return msg Model
+update toMsg msg (Model model) =
+    (case msg of
         Focused _ ->
             pure model
 
@@ -43,6 +43,8 @@ update toMsg msg model =
 
         GotInput string ->
             pure model
+    )
+        |> Tuple.mapFirst Model
 
 
 view : (Msg -> msg) -> List (Attribute msg) -> Model -> Html msg
