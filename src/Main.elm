@@ -214,6 +214,7 @@ type Msg
     | OnBrowserResize BrowserSize
     | Focus String
     | Focused (Result Dom.Error ())
+    | GotTAElement (Result Dom.Error Dom.Element)
     | OnAuthStateChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
@@ -298,6 +299,9 @@ update message model =
             ( model, focus domId |> Task.attempt Focused )
 
         Focused _ ->
+            pure model
+
+        GotTAElement res ->
             pure model
 
         OnAuthStateChanged encodedValue ->
@@ -534,6 +538,8 @@ setInlineEditTodoAndCache todo model =
     setInlineEditTodo (InlineEditTodo.fromTodo todo) model
         |> pure
         |> effect cacheEffect
+        |> command (focus todoTADomId |> Task.attempt Focused)
+        |> command (Dom.getElement todoTADomId |> Task.attempt GotTAElement)
 
 
 resetInlineEditTodoAndCache : Model -> Return
