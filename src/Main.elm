@@ -852,75 +852,13 @@ sortedInProject pid todoList =
 
 masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
 masterLayout title content model =
-    let
-        sidebarWidthNum =
-            250
-
-        headerHeight =
-            rem 2
-
-        maxContentWidth =
-            px 900
-
-        bpSmall =
-            600
-
-        sm =
-            withMedia
-                [ Media.all [ Media.maxWidth <| px bpSmall ] ]
-
-        ns =
-            withMedia
-                [ Media.all [ Media.minWidth <| px (bpSmall + 1) ] ]
-
-        _ =
-            Skeleton.view
-                { title = title
-                , header = viewHeader model
-                , sidebar = viewSidebar model
-                , content = [ content, viewDebugContent model ]
-                , footer = viewFooter model
-                }
-    in
-    { title = title
-    , body =
-        [ div
-            [ class "bg-black white w-100"
-            , css [ position fixed, height headerHeight ]
-            ]
-            [ div
-                [ class "center", css [ maxWidth maxContentWidth ] ]
-                [ viewHeader model ]
-            ]
-        , div [ class "center", css [ maxWidth maxContentWidth, paddingTop headerHeight ] ]
-            [ div
-                [ class "fixed overflow-auto ph3"
-                , css
-                    [ width (px sidebarWidthNum)
-                    , top headerHeight
-                    , bottom zero
-                    , sm
-                        [ transforms [ translateX <| px -sidebarWidthNum ] ]
-                    , transition [ Transition.transform 150 ]
-                    ]
-                ]
-                [ viewSidebar model
-                ]
-            , div
-                [ class "ph3"
-                , css
-                    [ marginLeft zero
-                    , ns [ marginLeft <| px sidebarWidthNum ]
-                    , transition [ Transition.marginLeft 150 ]
-                    ]
-                ]
-                [ content
-                , viewDebugContent model
-                ]
-            ]
-        , viewFooter model
-        ]
-    }
+    Skeleton.view
+        { title = title
+        , header = viewHeader model
+        , sidebar = viewSidebar model
+        , content = [ content, viewDebugContent model ]
+        , footer = viewFooter model
+        }
 
 
 viewDebugContent model =
