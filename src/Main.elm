@@ -1075,7 +1075,7 @@ todayContent model =
                 model.todoList
                 |> List.filter (.isDone >> not)
     in
-    div [ class "vs3" ]
+    div [ class "pv2 vs3" ]
         [ overDueList
             |> HX.viewNotEmpty
                 (\_ ->
@@ -1115,7 +1115,7 @@ pendingForProjectContent :
     -> TodoList
     -> Html Msg
 pendingForProjectContent pid title model displayTodoList =
-    div [ class "vs3" ]
+    div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
             , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
