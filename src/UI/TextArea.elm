@@ -15,4 +15,9 @@ type Msg
 
 init : String -> String -> ( Model, Cmd Msg )
 init domId value =
-    ( Model { domId = domId, value = value, height = Nothing }, focus domId |> Task.attempt Focused )
+    ( Model { domId = domId, value = value, height = Nothing }
+    , Cmd.batch
+        [ focus domId |> Task.attempt Focused
+        , Dom.getViewportOf domId |> Task.attempt GotViewport
+        ]
+    )
