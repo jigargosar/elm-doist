@@ -928,11 +928,11 @@ viewSidebar model =
 
 viewNavProjects : ProjectList -> Html Msg
 viewNavProjects projectList =
-    div [ class "b " ] (List.map viewProjectNavItem projectList)
+    div [ class "b " ] (List.map viewNavProject projectList)
 
 
-viewProjectNavItem : Project -> Html Msg
-viewProjectNavItem project =
+viewNavProject : Project -> Html Msg
+viewNavProject project =
     div [ class "pv2 flex hs3" ]
         [ a
             [ class "no-underline truncate flex-grow-1"
