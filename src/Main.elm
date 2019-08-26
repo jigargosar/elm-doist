@@ -976,23 +976,20 @@ viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
 viewMoveDialog todoId projectId projectList =
     let
         viewPLI dp =
-            div
-                [ tabindex 0
-                , class "lh-copy pa2 pointer"
+            TextButton.view (OnMoveToProject todoId dp.id)
+                dp.title
+                [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]
-                , onClick (OnMoveToProject todoId dp.id)
                 ]
-                [ div [] [ text dp.title ] ]
     in
     viewDialog
-        [ div [ class "bg-white vs3 pa3 shadow-1" ]
-            [ div [ class "b" ] [ text "Move To Project ..." ]
-            , div [ class "vs1" ]
-                (projectList
-                    |> toDisplayProjectList
-                    |> List.map viewPLI
-                )
-            ]
+        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
+            (div [ class "b" ] [ text "Move To Project ..." ]
+                :: (projectList
+                        |> toDisplayProjectList
+                        |> List.map viewPLI
+                   )
+            )
         ]
 
 
