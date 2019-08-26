@@ -13,8 +13,8 @@ view faIcon =
         |> H.fromUnstyled
 
 
-viewStyled : List (Svg.Attribute msg) -> FAI.Icon -> H.Html msg
-viewStyled svgAttrs faIcon =
+styled : List (Svg.Attribute msg) -> FAI.Icon -> H.Html msg
+styled svgAttrs faIcon =
     faIcon
         |> FAI.viewStyled (SA.class "gray" :: svgAttrs)
         |> H.fromUnstyled

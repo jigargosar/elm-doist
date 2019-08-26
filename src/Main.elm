@@ -22,6 +22,7 @@ import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
+import FontAwesome.Icon
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
@@ -57,11 +58,13 @@ import Return
 import Route exposing (Route)
 import Skeleton
 import String.Extra as SX
+import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
+import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
@@ -980,10 +983,16 @@ toDisplayProjectList projectList =
 
 viewSignInDialog =
     viewDialog
-        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-            [ TextButton.primary OnSignInClicked "SignIn/SignUp" [ class "dib pa2" ]
-            , text "with"
-            , FAIcon.viewStyled [ FAA.lg ] FABrands.google
+        [ div [ class "vs3 bg-white pa4 lh-copy shadow-1 ba br1 b--transparent tc" ]
+            [ div [ class "b" ] [ text "SignIn/SignUp using" ]
+            , Button.styled []
+                OnSignInClicked
+                [ class "ph2 pv1 flex inline-flex items-center justify-center "
+                , class "ba br2 white bg-blue shadow-1"
+                ]
+                [ FAIcon.styled [ FAA.fa2x, SA.class "white ph2 pv1" ] FABrands.google
+                , div [ class "dib white f4" ] [ text "Google" ]
+                ]
             ]
         ]
 
