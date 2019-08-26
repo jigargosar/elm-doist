@@ -20,7 +20,8 @@ import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import Focus
-import FontAwesome.Attributes
+import FontAwesome.Attributes as FAA
+import FontAwesome.Brands as FABrands
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
@@ -61,6 +62,7 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoMenu
+import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
@@ -722,7 +724,7 @@ onAuthStateChanged authState model =
                     Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
 
                 AuthState.NotSignedIn ->
-                    Cmd.none
+                    Nav.replaceUrl model.key Route.topUrl
     in
     setAuthState authState model
         |> pure
@@ -979,7 +981,10 @@ toDisplayProjectList projectList =
 viewSignInDialog =
     viewDialog
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-            [ TextButton.primary OnSignInClicked "SignIn" [] ]
+            [ TextButton.primary OnSignInClicked "SignIn/SignUp" [ class "dib pa2" ]
+            , text "with"
+            , FAIcon.viewStyled [ FAA.lg ] FABrands.google
+            ]
         ]
 
 
@@ -1285,7 +1290,7 @@ viewCheck isChecked setCheckedMsg =
             IconButton.view action
                 [ class "pa2 " ]
                 icon
-                [ FontAwesome.Attributes.lg ]
+                [ FAA.lg ]
     in
     ifElse isChecked
         (faCheckBtn (setCheckedMsg False) FAR.checkCircle)

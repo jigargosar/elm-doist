@@ -4,7 +4,7 @@ import Accessibility.Styled.Key as Key
 import Css exposing (Style)
 import FunctionalCss as FCss
 import Html.Styled as H exposing (Attribute, Html, div)
-import Html.Styled.Attributes exposing (class, css, tabindex)
+import Html.Styled.Attributes exposing (tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
 

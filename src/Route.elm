@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, inboxUrl, projectUrl, todayUrl)
+module Route exposing (Route(..), fromUrl, inboxUrl, projectUrl, todayUrl, topUrl)
 
 import ProjectId exposing (ProjectId)
 import Url exposing (Url)
@@ -41,6 +41,11 @@ projectUrl pid =
 inboxUrl : String
 inboxUrl =
     B.absolute [ "inbox" ] []
+
+
+topUrl : String
+topUrl =
+    B.absolute [ "" ] []
 
 
 todayUrl : String
