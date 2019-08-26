@@ -982,7 +982,7 @@ toDisplayProjectList projectList =
 
 
 viewSignInDialog =
-    viewDialog
+    Dialog.view NoOp
         [ div [ class "vs3 bg-white pa4 lh-copy shadow-1 ba br1 b--transparent tc" ]
             [ div [ class "b" ] [ text "SignIn/SignUp using" ]
             , Button.styled []
