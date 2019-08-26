@@ -1,22 +1,6 @@
 module Skeleton exposing (view)
 
-import Css
-    exposing
-        ( bottom
-        , fixed
-        , height
-        , marginLeft
-        , maxWidth
-        , paddingTop
-        , position
-        , px
-        , rem
-        , top
-        , transforms
-        , translateX
-        , width
-        , zero
-        )
+import Css exposing (bottom, fixed, height, marginLeft, marginTop, maxWidth, paddingTop, position, px, rem, top, transforms, translateX, width, zero)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transition exposing (transition)
 import Html.Styled exposing (Attribute, Html, div)

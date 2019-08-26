@@ -769,7 +769,7 @@ view model =
                     , H.toUnstyled <|
                         div
                             [ A.id "root"
-                            , class "h-100"
+                            , class "h-100 overflow-y-scroll"
                             , css [ outline none ]
                             ]
                             body
@@ -1075,11 +1075,11 @@ todayContent model =
                 model.todoList
                 |> List.filter (.isDone >> not)
     in
-    div [ class "vs3" ]
+    div [ class "pv3 vs3" ]
         [ overDueList
             |> HX.viewNotEmpty
                 (\_ ->
-                    div [ class "ph3 vs3" ]
+                    div [ class " vs3" ]
                         [ div [ class "flex items-center hs3" ]
                             [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
                             ]
@@ -1090,7 +1090,7 @@ todayContent model =
                             )
                         ]
                 )
-        , div [ class "ph3 vs3" ]
+        , div [ class "vs3" ]
             [ div [ class "flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text "Today" ]
                 , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
