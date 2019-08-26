@@ -1017,8 +1017,10 @@ viewDueDialog zone today todoId =
     viewDialog
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
-            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today) ("Today: " ++ todayFmt)
-            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday) ("Yesterday: " ++ yesterdayFmt)
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
+                ("Today: " ++ todayFmt)
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
+                ("Yesterday: " ++ yesterdayFmt)
             , viewSetDueButton Todo.NoDue "No Due Date"
             ]
         ]
