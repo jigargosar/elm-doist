@@ -22,17 +22,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A
-    exposing
-        ( checked
-        , class
-        , classList
-        , css
-        , disabled
-        , href
-        , tabindex
-        , value
-        )
+import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, style, tabindex, value)
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
 import InlineEditTodo
@@ -1147,6 +1137,7 @@ viewTodoItem :
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
         , todoMenu : TodoMenu.Model
+        , taHeight : Maybe Float
     }
     -> Todo
     -> Html Msg
@@ -1158,11 +1149,11 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem here)
+            (viewEditTodoItem here model.taHeight)
 
 
-viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
-viewEditTodoItem here edt =
+viewEditTodoItem : Time.Zone -> Maybe Float -> InlineEditTodo.Model -> Html Msg
+viewEditTodoItem here taHeight edt =
     let
         titleValue =
             InlineEditTodo.titleOrDefault edt
@@ -1183,6 +1174,9 @@ viewEditTodoItem here edt =
                     , onInput (OnSetTitle todoId)
                     , css [ resize none ]
                     , class "overflow-hidden"
+                    , taHeight
+                        |> MX.unwrap (class "")
+                            (\ht -> style "height" (String.fromFloat ht ++ "px"))
                     ]
                     []
                 ]
