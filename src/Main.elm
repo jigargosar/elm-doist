@@ -902,27 +902,27 @@ viewHeader model =
 
 viewSidebar : Model -> Html Msg
 viewSidebar model =
-    let
-        navItem link title =
-            div [ class "pv2 " ]
-                [ div [ class "flex hs3" ]
-                    [ a
-                        [ class "no-underline"
-                        , href link
-                        , class "b"
-                        ]
-                        [ text title ]
-                    ]
-                ]
-    in
     div [ class "lh-title" ]
-        [ navItem Route.inboxUrl "Inbox"
-        , navItem Route.todayUrl "Today"
+        [ viewNavLink Route.inboxUrl "Inbox"
+        , viewNavLink Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , IconButton.view OnAddProjectStart [] FAS.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
+        ]
+
+
+viewNavLink link title =
+    div [ class "pv2 " ]
+        [ div [ class "flex hs3" ]
+            [ a
+                [ class "no-underline"
+                , href link
+                , class "b"
+                ]
+                [ text title ]
+            ]
         ]
 
 
