@@ -940,17 +940,21 @@ viewNavProject project =
 
 viewFooter : Model -> Html Msg
 viewFooter model =
-    div []
-        [ case model.dialog of
-            Dialog.Closed ->
-                HX.empty
+    if model.authState == AuthState.NotSignedIn then
+        viewSignInDialog
 
-            Dialog.MoveToProjectDialog todoId projectId ->
-                viewMoveDialog todoId projectId (Project.filterActive model.projectList)
+    else
+        div []
+            [ case model.dialog of
+                Dialog.Closed ->
+                    HX.empty
 
-            Dialog.DueDialog todoId ->
-                viewDueDialog model.here model.today todoId
-        ]
+                Dialog.MoveToProjectDialog todoId projectId ->
+                    viewMoveDialog todoId projectId (Project.filterActive model.projectList)
+
+                Dialog.DueDialog todoId ->
+                    viewDueDialog model.here model.today todoId
+            ]
 
 
 type alias DisplayProject =
@@ -970,6 +974,13 @@ inboxDisplayProject =
 
 toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
+
+
+viewSignInDialog =
+    viewDialog
+        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
+            [ TextButton.primary OnSignInClicked "SignIn" [] ]
+        ]
 
 
 viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
