@@ -8,13 +8,7 @@ import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
-import Css
-    exposing
-        ( minWidth
-        , none
-        , outline
-        , px
-        )
+import Css exposing (minWidth, none, outline, px, resize)
 import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
@@ -28,7 +22,7 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, input, text)
+import Html.Styled as H exposing (Attribute, Html, a, div, input, text, textarea)
 import Html.Styled.Attributes as A
     exposing
         ( checked
@@ -1134,6 +1128,10 @@ pendingForProjectContent pid title model displayTodoList =
 -- TodoItem
 
 
+todoTADomId =
+    "todo-inline-edit-dom-id"
+
+
 viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
@@ -1168,11 +1166,13 @@ viewEditTodoItem here edt =
 
         viewIP =
             div [ class "flex-grow-1 flex ba b--moon-gray" ]
-                [ input
-                    [ class "pa2 flex-grow-1 lh-copy bn"
-                    , type_ "text"
+                [ textarea
+                    [ A.id todoTADomId
+                    , class "pa2 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (OnSetTitle todoId)
+                    , css [ resize none ]
+                    , class "overflow-hidden"
                     ]
                     []
                 ]
