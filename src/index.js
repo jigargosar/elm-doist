@@ -3,14 +3,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-import {
-  mapObjIndexed,
-  identity,
-  propOr,
-  forEachObjIndexed,
-  path,
-  isNil,
-} from 'ramda'
+import { forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
 
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
@@ -58,13 +51,13 @@ initSubs({
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
-  changeTodoTitle: async todoId => {
-    const faker = await import('faker')
-    const todoCRef = fire.userCRef('todos')
-    await todoCRef
-      .doc(todoId)
-      .update({ title: faker.hacker.phrase(), modifiedAt: Date.now() })
-  },
+  // changeTodoTitle: async todoId => {
+  //   const faker = await import('faker')
+  //   const todoCRef = fire.userCRef('todos')
+  //   await todoCRef
+  //     .doc(todoId)
+  //     .update({ title: faker.hacker.phrase(), modifiedAt: Date.now() })
+  // },
   // persistTodoList: async todoList => {
   //   const todoCRef = fire.userCRef('todos')
   //   const ps = todoList.map(todo => {
