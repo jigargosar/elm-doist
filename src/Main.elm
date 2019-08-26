@@ -1075,13 +1075,13 @@ todayContent model =
                 model.todoList
                 |> List.filter (.isDone >> not)
     in
-    div [ class "pv3 vs3" ]
+    div [ class "vs3" ]
         [ overDueList
             |> HX.viewNotEmpty
                 (\_ ->
-                    div [ class " vs3" ]
-                        [ div [ class "flex items-center hs3" ]
-                            [ div [ class "b flex-grow-1" ] [ text "Overdue" ]
+                    div [ class "vs3" ]
+                        [ div [ class "pv2 flex items-center hs3" ]
+                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Overdue" ]
                             ]
                         , div [ class "" ]
                             (List.map
@@ -1091,8 +1091,8 @@ todayContent model =
                         ]
                 )
         , div [ class "vs3" ]
-            [ div [ class "flex items-center hs3" ]
-                [ div [ class "b flex-grow-1" ] [ text "Today" ]
+            [ div [ class "pv2 flex items-center hs3" ]
+                [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                 , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
                 ]
             , div [ class "" ]
