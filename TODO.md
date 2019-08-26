@@ -42,7 +42,8 @@
 - [x] Deploy to elmdoist.web.app
 
 # Slice 5 : Incomplete Features
-
+- focus input when start edit.
+- enter key submits edit form
 - toggle sidebar when in small screen.
 - show todo item project in "group pending by due date list view".
 - home page, describing the project.
