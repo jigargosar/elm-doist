@@ -16,13 +16,12 @@ import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
-import FontAwesome.Icon
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, input, text, textarea)
+import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
 import Html.Styled.Attributes as A
     exposing
         ( checked
@@ -32,7 +31,6 @@ import Html.Styled.Attributes as A
         , disabled
         , href
         , tabindex
-        , type_
         , value
         )
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
@@ -125,6 +123,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
+    , taHeight : Maybe Float
     , todoMenu : TodoMenu.Model
     , dialog : Dialog.Model
     , authState : AuthState
@@ -185,6 +184,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
+            , taHeight = Nothing
             , todoMenu = TodoMenu.init
             , dialog = Dialog.Closed
             , authState = AuthState.initial
@@ -214,7 +214,7 @@ type Msg
     | OnBrowserResize BrowserSize
     | Focus String
     | Focused (Result Dom.Error ())
-    | GotTAElement (Result Dom.Error Dom.Element)
+    | GotTAElement (Result Dom.Error Dom.Viewport)
     | OnAuthStateChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
@@ -302,7 +302,11 @@ update message model =
             pure model
 
         GotTAElement res ->
-            pure model
+            Debug.log "res" res
+                |> RX.unpack (\_ -> pure model)
+                    (\{ scene } ->
+                        pure { model | taHeight = Just scene.height }
+                    )
 
         OnAuthStateChanged encodedValue ->
             model
@@ -539,7 +543,7 @@ setInlineEditTodoAndCache todo model =
         |> pure
         |> effect cacheEffect
         |> command (focus todoTADomId |> Task.attempt Focused)
-        |> command (Dom.getElement todoTADomId |> Task.attempt GotTAElement)
+        |> command (Dom.getViewportOf todoTADomId |> Task.attempt GotTAElement)
 
 
 resetInlineEditTodoAndCache : Model -> Return
