@@ -38,8 +38,8 @@
 - [x] cleanup dialog ui.
   - Due Dialog
   - Move to Project Dialog.
-- Block app when not signed in.
-- [ ] Deploy to elmdoist.web.app
+- [x] Block app when not signed in.
+- [x] Deploy to elmdoist.web.app
 
 ## Slice 6:
 
