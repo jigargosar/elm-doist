@@ -41,15 +41,12 @@
 - [x] Block app when not signed in.
 - [x] Deploy to elmdoist.web.app
 
-## Slice 6:
-
-- home page, describing the project.
-- non-empty first use experience.
-
 # Slice 5 : Incomplete Features
 
 - toggle sidebar when in small screen.
 - show todo item project in "group pending by due date list view".
+- home page, describing the project.
+- non-empty first use experience.
 
 ## Known Issues:
 
