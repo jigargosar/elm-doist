@@ -1175,7 +1175,7 @@ viewEditTodoItem here taHeight edt =
                     , css [ resize none ]
                     , class "overflow-hidden"
                     , taHeight
-                        |> MX.unwrap (class "")
+                        |> MX.unwrap (style "height" "0")
                             (\ht -> style "height" (String.fromFloat ht ++ "px"))
                     ]
                     []
