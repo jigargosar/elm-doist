@@ -1,11 +1,12 @@
-module UI.TextArea exposing (Model, init)
+module UI.TextArea exposing (Model, init, update, view)
 
 import Browser.Dom as Dom exposing (focus)
 import Html.Styled exposing (Attribute, Html, textarea)
-import Html.Styled.Attributes as A exposing (value)
+import Html.Styled.Attributes as A exposing (style, value)
 import Html.Styled.Events exposing (onInput)
+import Maybe.Extra as MX
 import Result.Extra as RX
-import Return exposing (Return)
+import Return exposing (Return, command)
 import Task
 import UpdateExtra exposing (pure)
 
@@ -41,8 +42,9 @@ update toMsg msg (Model model) =
                 |> RX.unpack (\_ -> pure model)
                     (\{ scene } -> pure { model | height = Just scene.height })
 
-        GotInput string ->
-            pure model
+        GotInput value ->
+            pure { model | value = value }
+                |> command (Dom.getViewportOf model.domId |> Task.attempt (GotViewport >> toMsg))
     )
         |> Tuple.mapFirst Model
 
@@ -50,5 +52,13 @@ update toMsg msg (Model model) =
 view : (Msg -> msg) -> List (Attribute msg) -> Model -> Html msg
 view toMsg attrs (Model mr) =
     textarea
-        ([ A.id mr.domId, value mr.value, onInput (GotInput >> toMsg) ] ++ attrs)
+        ([ A.id mr.domId
+         , value mr.value
+         , onInput (GotInput >> toMsg)
+         , mr.height
+            |> MX.unwrap (style "height" "0")
+                (\ht -> style "height" (String.fromFloat ht ++ "px"))
+         ]
+            ++ attrs
+        )
         []
