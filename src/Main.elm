@@ -1286,12 +1286,6 @@ viewDueAt here todo =
             )
 
 
-faStyled faIcon svgAttrs =
-    faIcon
-        |> FAI.viewStyled (SA.class "gray" :: svgAttrs)
-        |> H.fromUnstyled
-
-
 viewCheck : Bool -> (Bool -> msg) -> Html msg
 viewCheck isChecked setCheckedMsg =
     let
