@@ -984,7 +984,7 @@ viewMoveDialog todoId projectId projectList =
                 ]
                 [ div [] [ text dp.title ] ]
     in
-    viewDialogOverlay
+    viewDialog
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
@@ -1011,7 +1011,7 @@ viewDueDialog zone today todoId =
         setDueMsg =
             OnSetDue todoId
     in
-    viewDialogOverlay
+    viewDialog
         [ div [ class "bg-white vs3 pa3" ]
             [ div [ class "b" ] [ text "Set Due Date.." ]
             , div
@@ -1033,8 +1033,8 @@ viewDueDialog zone today todoId =
         ]
 
 
-viewDialogOverlay : List (Html Msg) -> Html Msg
-viewDialogOverlay =
+viewDialog : List (Html Msg) -> Html Msg
+viewDialog =
     Dialog.view OnDialogOverlayClicked
 
 
