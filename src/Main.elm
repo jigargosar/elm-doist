@@ -883,22 +883,22 @@ viewHeader model =
             [ div [ class "f4 tracked flex-grow-1" ] [ text "ElmDOist" ]
             , case model.authState of
                 AuthState.Unknown ->
-                    authBtn NoOp "SignIn" [ disabled True ]
+                    viewHeaderBtn NoOp "SignIn" [ disabled True ]
 
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
                         [ div [] [ text user.displayName ]
-                        , authBtn OnSignOutClicked "SignOut" []
+                        , viewHeaderBtn OnSignOutClicked "SignOut" []
                         ]
 
                 AuthState.NotSignedIn ->
-                    authBtn OnSignInClicked "SignIn" []
+                    viewHeaderBtn OnSignInClicked "SignIn" []
             ]
         ]
 
 
-authBtn : msg -> String -> List (Attribute msg) -> Html msg
-authBtn action label =
+viewHeaderBtn : msg -> String -> List (Attribute msg) -> Html msg
+viewHeaderBtn action label =
     TextButton.styled [ FCss.underline, FCss.white ]
         action
         label
