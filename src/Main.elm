@@ -10,39 +10,23 @@ import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css
     exposing
-        ( bottom
-        , fixed
-        , height
-        , marginLeft
-        , maxWidth
-        , minWidth
+        ( minWidth
         , none
         , outline
-        , paddingTop
-        , position
         , px
-        , rem
-        , top
-        , transforms
-        , translateX
-        , width
-        , zero
         )
-import Css.Media as Media exposing (withMedia)
-import Css.Transitions as Transition exposing (transition)
 import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
 import Focus
 import FontAwesome.Attributes
-import FontAwesome.Icon as FAI
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, button, div, input, text)
+import Html.Styled as H exposing (Attribute, Html, a, div, input, text)
 import Html.Styled.Attributes as A
     exposing
         ( checked
@@ -72,7 +56,6 @@ import Return
 import Route exposing (Route)
 import Skeleton
 import String.Extra as SX
-import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
