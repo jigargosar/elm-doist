@@ -33,11 +33,11 @@
 
 - [x] fix horizontal scroll issue when there is vertical scrollbar
 - [x] fixed top bar sticky position issue, now using fixed.
+- [x] add task, signInOut, ... buttons.
+- [x] fa checkbox btn
 - cleanup dialog ui.
     - Due Dialog
     - Move to Project Dialog.
-- add task, signInOut, ... buttons.
-- fa checkbox btn
 
 ## Slice 6:
 - home page, describing the project.
