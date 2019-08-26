@@ -19,6 +19,11 @@ blue =
     Css.color CssColors.blue
 
 
+white : Style
+white =
+    Css.color CssColors.white
+
+
 gray : Style
 gray =
     Css.color CssColors.gray

@@ -1,4 +1,4 @@
-module UI.TextButton exposing (primary, secondary, view)
+module UI.TextButton exposing (primary, primaryStyle, secondary, secondaryStyle, styled, view)
 
 import Css exposing (..)
 import FunctionalCss as FCss

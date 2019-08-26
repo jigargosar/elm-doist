@@ -40,6 +40,7 @@ import FontAwesome.Icon as FAI
 import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
+import FunctionalCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, button, div, input, text)
 import Html.Styled.Attributes as A
@@ -882,12 +883,15 @@ viewHeader model =
             [ div [ class "f4 tracked flex-grow-1" ] [ text "ElmDOist" ]
             , case model.authState of
                 AuthState.Unknown ->
-                    button [ disabled True ] [ text "SignIn" ]
+                    TextButton.view NoOp "SignIn" [ disabled True ]
 
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
                         [ div [] [ text user.displayName ]
-                        , button [ onClick OnSignOutClicked ] [ text "SignOut" ]
+                        , TextButton.styled [ TextButton.primaryStyle, FunctionalCss.white ]
+                            OnSignOutClicked
+                            "SignOut"
+                            []
                         ]
 
                 AuthState.NotSignedIn ->

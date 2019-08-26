@@ -8,6 +8,11 @@ blue =
     hex "#357edd"
 
 
+white : Color
+white =
+    hex "#fff"
+
+
 gray : Color
 gray =
     hex "#777"
