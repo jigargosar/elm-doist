@@ -985,7 +985,7 @@ viewMoveDialog todoId projectId projectList =
                 [ div [] [ text dp.title ] ]
     in
     viewDialog
-        [ div [ class "bg-white vs3 pa3" ]
+        [ div [ class "bg-white vs3 pa3 shadow-1" ]
             [ div [ class "b" ] [ text "Move To Project ..." ]
             , div [ class "vs1" ]
                 (projectList
@@ -1010,25 +1010,16 @@ viewDueDialog zone today todoId =
 
         setDueMsg =
             OnSetDue todoId
+
+        viewSetDueButton action label =
+            TextButton.view (setDueMsg <| action) label [ class "ph3 pv2" ]
     in
     viewDialog
-        [ div [ class "bg-white vs3 pa3" ]
-            [ div [ class "b" ] [ text "Set Due Date.." ]
-            , div
-                [ class "pa3 b pointer"
-                , onClick (setDueMsg <| Todo.NoDue)
-                ]
-                [ text <| "No Due Date" ]
-            , div
-                [ class "pa3 b pointer"
-                , onClick (setDueMsg <| Todo.DueAt <| Calendar.toMillis today)
-                ]
-                [ text <| "Today: " ++ todayFmt ]
-            , div
-                [ class "pa3 b pointer"
-                , onClick (setDueMsg <| Todo.DueAt <| Calendar.toMillis yesterday)
-                ]
-                [ text <| "Yesterday: " ++ yesterdayFmt ]
+        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
+            [ div [ class " b  " ] [ text "Due Date" ]
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today) ("Today: " ++ todayFmt)
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday) ("Yesterday: " ++ yesterdayFmt)
+            , viewSetDueButton Todo.NoDue "No Due Date"
             ]
         ]
 
