@@ -1101,7 +1101,7 @@ todayContent model =
         , div [ class "vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                , button [ onClick OnAddTodoTodayStart ] [ text "add task" ]
+                , TextButton.primary OnAddTodoTodayStart "add task" []
                 ]
             , div [ class "" ]
                 (List.map
@@ -1126,7 +1126,7 @@ pendingForProjectContent pid title model displayTodoList =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , button [ onClick (OnAddTodoStart pid) ] [ text "add task" ]
+            , TextButton.primary (OnAddTodoStart pid) "add task" []
             ]
         , div [ class "" ] (List.map (viewTodoItem model) displayTodoList)
         ]
