@@ -1,7 +1,13 @@
 module UI.TextArea exposing (Model, init)
 
 import Browser.Dom as Dom exposing (focus)
+import Html.Styled exposing (Attribute, Html, textarea)
+import Html.Styled.Attributes as A exposing (value)
+import Html.Styled.Events exposing (onInput)
+import Result.Extra as RX
+import Return exposing (Return)
 import Task
+import UpdateExtra exposing (pure)
 
 
 type Model
@@ -11,6 +17,7 @@ type Model
 type Msg
     = Focused (Result Dom.Error ())
     | GotViewport (Result Dom.Error Dom.Viewport)
+    | GotInput String
 
 
 init : String -> String -> ( Model, Cmd Msg )
@@ -21,3 +28,25 @@ init domId value =
         , Dom.getViewportOf domId |> Task.attempt GotViewport
         ]
     )
+
+
+update : (Msg -> msg) -> Msg -> model -> Return msg model
+update toMsg msg model =
+    case msg of
+        Focused _ ->
+            pure model
+
+        GotViewport result ->
+            result
+                |> RX.unpack (\_ -> pure model)
+                    (\{ scene } -> pure { model | height = Just scene.height })
+
+        GotInput string ->
+            pure model
+
+
+view : (Msg -> msg) -> List (Attribute msg) -> Model -> Html msg
+view toMsg attrs (Model mr) =
+    textarea
+        ([ A.id mr.domId, value mr.value, onInput (GotInput >> toMsg) ] ++ attrs)
+        []
