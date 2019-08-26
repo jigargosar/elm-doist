@@ -1295,7 +1295,7 @@ viewCheck isChecked setCheckedMsg =
             IconButton.view action
                 [ class "pa2 " ]
                 icon
-                [ FontAwesome.Attributes.sm ]
+                [ FontAwesome.Attributes.lg ]
     in
     ifElse isChecked
         (faCheckBtn (setCheckedMsg False) FAR.checkCircle)
