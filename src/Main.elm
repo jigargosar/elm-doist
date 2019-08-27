@@ -1212,6 +1212,14 @@ viewEditTodoItem here edt =
                 , class cls
                 , css [ minWidth <| px 100 ]
                 ]
+
+        _ =
+            InlineEditTodo.view
+                { editDueMsg = OnEditDueStart
+                , titleChangedMsg = OnSetTitle
+                , cancelMsg = OnEditCancel
+                , saveMsg = OnEditSave
+                }
     in
     div
         [ class "pv3 ph2"

@@ -10,6 +10,7 @@ module InlineEditTodo exposing
     , setTitle
     , titleOrDefault
     , toUpdateMessages
+    , view
     )
 
 import Accessibility.Styled.Key as Key
