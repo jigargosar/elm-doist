@@ -42,16 +42,21 @@ function resizeHeight() {
   el.style.height = `${el.scrollHeight}px`
 }
 
+function resizeAllTextAreas() {
+  const tas = document.querySelectorAll('textarea')
+
+  forEach(el => {
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+    el.addEventListener('input', resizeHeight)
+  })(tas)
+}
+
 initSubs({
   resizeTextArea: () => {
     // const tas =  document.querySelectorAll("textarea[data-resize=true]")
-    const tas = document.querySelectorAll('textarea')
-
-    forEach(el => {
-      el.style.height = 'auto'
-      el.style.height = `${el.scrollHeight}px`
-      el.addEventListener('input', resizeHeight)
-    })(tas)
+    // resizeAllTextAreas()
+    requestAnimationFrame(resizeAllTextAreas)
   },
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
