@@ -1,4 +1,4 @@
-module Dialog exposing (Model(..), decoder, encoder, view)
+module Dialog exposing (Model(..), decoder, encoder, firstFocusable, view)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -60,6 +60,10 @@ dialogDecoderForTag tag =
 
         _ ->
             JD.fail ("Invalid Dialog Tag:" ++ tag)
+
+
+firstFocusable =
+    "dialog__first_focusable_domId"
 
 
 view : msg -> List (Html msg) -> Html msg

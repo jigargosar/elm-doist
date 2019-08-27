@@ -557,11 +557,13 @@ mapInlineEditTodo mfn model =
 startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache (Dialog.MoveToProjectDialog todo.id todo.projectId)
+        >> command (focusDomIdCmd Dialog.firstFocusable)
 
 
 startEditingDue : TodoId -> Model -> Return
 startEditingDue todoId =
     updateDialogAndCache (Dialog.DueDialog todoId)
+        >> command (focusDomIdCmd Dialog.firstFocusable)
 
 
 updateDialogAndCache : Dialog.Model -> Model -> Return
@@ -985,11 +987,12 @@ viewSignInDialog =
 viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
 viewMoveDialog todoId projectId projectList =
     let
-        viewPLI dp =
+        viewPLI idx dp =
             TextButton.view (OnMoveToProject todoId dp.id)
                 dp.title
                 [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]
+                , A.id <| ifElse (idx == 0) Dialog.firstFocusable ""
                 ]
     in
     viewDialog
@@ -997,7 +1000,7 @@ viewMoveDialog todoId projectId projectList =
             (div [ class "b" ] [ text "Move To Project ..." ]
                 :: (projectList
                         |> toDisplayProjectList
-                        |> List.map viewPLI
+                        |> List.indexedMap viewPLI
                    )
             )
         ]
@@ -1018,17 +1021,19 @@ viewDueDialog zone today todoId =
         setDueMsg =
             OnSetDue todoId
 
-        viewSetDueButton action label =
-            TextButton.view (setDueMsg <| action) label [ class "ph3 pv2" ]
+        viewSetDueButton action label attrs =
+            TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
     in
     viewDialog
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
             , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
                 ("Today: " ++ todayFmt)
+                [ A.id Dialog.firstFocusable ]
             , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
                 ("Yesterday: " ++ yesterdayFmt)
-            , viewSetDueButton Todo.NoDue "No Due Date"
+                []
+            , viewSetDueButton Todo.NoDue "No Due Date" []
             ]
         ]
 
