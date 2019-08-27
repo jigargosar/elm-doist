@@ -1,5 +1,6 @@
 module Dialog exposing (Model(..), decoder, encoder, view)
 
+import Accessibility.Styled.Key as Key
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class)
 import Html.Styled.Events exposing (onClick)
@@ -7,6 +8,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
+import UI.Key
 
 
 type Model
@@ -68,6 +70,7 @@ view onOverlayClick content =
         [ div
             [ class "absolute absolute--fill bg-black-50"
             , onClick onOverlayClick
+            , UI.Key.onKeyDownPreventDefault onOverlayClick [ Key.escape ]
             ]
             []
         , div [ class "absolute" ] content
