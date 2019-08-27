@@ -73,14 +73,17 @@ type alias Flags =
 
 flagsDecoder : Decoder Flags
 flagsDecoder =
+    let
+        cachedField name decoder valueIfNull =
+            JDP.required name (JD.oneOf [ decoder, JD.null valueIfNull ])
+    in
     JD.succeed Flags
-        |> JDP.required "cachedTodoList" (JD.oneOf [ Todo.listDecoder, JD.null [] ])
-        |> JDP.required "cachedProjectList" (JD.oneOf [ Project.listDecoder, JD.null [] ])
-        |> JDP.required "cachedAuthState"
-            (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
-        |> JDP.required "cachedDialog" (JD.oneOf [ Dialog.decoder, JD.null Dialog.init ])
-        |> JDP.required "cachedInlineEditTodo" (JD.maybe InlineEditTodo.decoder)
-        |> JDP.required "cachedTodoMenu" (JD.oneOf [ TodoMenu.decoder, JD.null TodoMenu.init ])
+        |> cachedField "cachedTodoList" Todo.listDecoder []
+        |> cachedField "cachedProjectList" Project.listDecoder []
+        |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
+        |> cachedField "cachedDialog" Dialog.decoder Dialog.init
+        |> cachedField "cachedInlineEditTodo" (JD.nullable InlineEditTodo.decoder) Nothing
+        |> cachedField "cachedTodoMenu" TodoMenu.decoder TodoMenu.init
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
