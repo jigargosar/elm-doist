@@ -49,6 +49,7 @@ import TodoMenu
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
+import UI.Key
 import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
@@ -1188,6 +1189,7 @@ viewEditTodoItem here edt =
     div
         [ class "pv3 ph2"
         , tabindex 0
+        , UI.Key.onKeyDownPreventDefault OnEditCancel [ Key.escape ]
         ]
         [ div [ class "flex" ]
             [ viewIP

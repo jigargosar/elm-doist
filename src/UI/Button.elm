@@ -7,6 +7,7 @@ import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes exposing (tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
+import UI.Key
 
 
 view : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
@@ -19,31 +20,11 @@ styled styles msg attrs =
     H.styled div
         (FCss.pointer :: styles)
         ([ onClickPreventDefault msg
-         , onKeyDownPreventDefault msg [ Key.enter, Key.space ]
+         , UI.Key.onKeyDownPreventDefault msg [ Key.enter, Key.space ]
          , tabindex 0
          ]
             ++ attrs
         )
-
-
-preventDefault : msg -> ( msg, Bool )
-preventDefault msg =
-    Tuple.pair msg True
-
-
-onKeyDownPreventDefault : msg -> List (msg -> Decoder msg) -> Attribute msg
-onKeyDownPreventDefault msg keys =
-    let
-        decoder =
-            JD.lazy
-                (\_ ->
-                    keys
-                        |> List.map ((|>) msg)
-                        |> JD.oneOf
-                        |> JD.map preventDefault
-                )
-    in
-    preventDefaultOn "keydown" decoder
 
 
 onClickPreventDefault : msg -> Attribute msg
