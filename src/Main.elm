@@ -264,8 +264,11 @@ update message model =
         Focus domId ->
             ( model, focus domId |> Task.attempt Focused )
 
-        Focused _ ->
-            pure model
+        Focused res ->
+            res
+                |> RX.unpack HasErrors.addDomFocusError (always identity)
+                |> callWith model
+                |> pure
 
         OnAuthStateChanged encodedValue ->
             model
