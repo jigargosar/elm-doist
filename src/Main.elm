@@ -854,7 +854,7 @@ masterLayout title content model =
         { title = title
         , header = viewHeader model
         , sidebar = viewSidebar model
-        , content = [ content, viewDebugContent model ]
+        , content = [ viewDebugContent model, content ]
         , footer = viewFooter model
         }
 
