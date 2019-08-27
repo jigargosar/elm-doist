@@ -35,7 +35,6 @@ const pubs = initPubs({
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
-
 function resizeTextArea(el) {
   el.style.height = 'auto'
   el.style.height = `${el.scrollHeight}px`
@@ -44,7 +43,6 @@ function resizeTextArea(el) {
 function resizeTextAreaOnInputListener(ev) {
   resizeTextArea(ev.target)
 }
-
 
 function autoResizeTextareaWithId(domId) {
   const el = document.getElementById(domId)
@@ -57,7 +55,7 @@ function autoResizeTextareaWithId(domId) {
 }
 
 initSubs({
-  resizeTextArea: (domId) => {
+  resizeTextArea: domId => {
     requestAnimationFrame(() => autoResizeTextareaWithId(domId))
   },
   localStorageSetJsonItem: ([k, v]) => {
