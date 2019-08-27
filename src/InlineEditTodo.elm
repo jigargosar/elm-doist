@@ -8,10 +8,15 @@ import Maybe as M exposing (Maybe)
 import Maybe.Extra as MX
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
+import UI.TextArea as TextArea
 
 
 type alias ModelRecord =
-    { todo : Todo, title : Maybe String, dueAt : Maybe DueAt }
+    { todo : Todo
+    , title : Maybe String
+    , dueAt : Maybe DueAt
+    , textArea : Maybe TextArea.Model
+    }
 
 
 type Model
@@ -42,6 +47,7 @@ decoder =
         |> JDP.required "todo" Todo.decoder
         |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
+        |> JDP.hardcoded Nothing
         |> JD.map Model
 
 
@@ -52,7 +58,7 @@ fromRecord =
 
 fromTodo : Todo -> Model
 fromTodo todo =
-    { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
+    { todo = todo, title = Nothing, dueAt = Nothing, textArea = Nothing } |> fromRecord
 
 
 setDueAt : DueAt -> Model -> Model
