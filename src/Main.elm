@@ -508,7 +508,7 @@ setInlineEditTodoAndCache todo model =
         |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheInlineEditTodoEffect
-        |> command (focusDomIdCmd todoTADomId)
+        |> command (focusDomIdCmd todoInlineEditTitleDomId)
 
 
 cacheInlineEditTodoEffect model =
@@ -1146,8 +1146,8 @@ pendingForProjectContent pid title model displayTodoList =
 -- TodoItem
 
 
-todoTADomId =
-    "todo-inline-edit-dom-id"
+todoInlineEditTitleDomId =
+    "todo-inline-edit-title-dom-id"
 
 
 viewTodoItem :
@@ -1186,7 +1186,7 @@ viewEditTodoItem here edt =
             H.node "auto-resize-textarea"
                 [ class "flex-grow-1 flex ba b--moon-gray" ]
                 [ textarea
-                    [ A.id todoTADomId
+                    [ A.id todoInlineEditTitleDomId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (OnSetTitle todoId)
