@@ -1,4 +1,4 @@
-module Dialog exposing (Model(..), decoder, encoder, firstFocusable, view)
+module Dialog exposing (Model(..), decoder, encoder, firstFocusable, init, view)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -15,6 +15,11 @@ type Model
     = Closed
     | MoveToProjectDialog TodoId ProjectId
     | DueDialog TodoId
+
+
+init : Model
+init =
+    Closed
 
 
 decoder : Decoder Model
