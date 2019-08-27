@@ -373,7 +373,9 @@ update message model =
             startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
-            pure { model | todoMenu = TodoMenu.openFor todoId }
+            model
+                |> setTodoMenu (TodoMenu.openFor todoId)
+                |> pure
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
@@ -521,16 +523,16 @@ resetInlineEditTodo model =
     { model | inlineEditTodo = Nothing }
 
 
-mapInlineEditTodo : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Model
-mapInlineEditTodo mfn model =
-    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
-
-
 updateInlineEditTodoAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
 updateInlineEditTodoAndCache mfn model =
     setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
         |> pure
         |> effect cacheInlineEditTodoEffect
+
+
+setTodoMenu : TodoMenu.Model -> Model -> Model
+setTodoMenu todoMenu model =
+    { model | todoMenu = todoMenu }
 
 
 startMoving : Todo -> Model -> Return
@@ -602,6 +604,7 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
         |> setInlineEditTodo_ flags.cachedInlineEditTodo
+        |> setTodoMenu flags.cachedTodoMenu
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
