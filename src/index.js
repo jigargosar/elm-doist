@@ -34,6 +34,7 @@ const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
 const cachedDialog = getCached('cachedDialog')
 const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
+const cachedTodoMenu = getCached('cachedTodoMenu')
 const storageKey = 'appCache'
 const cache = getCached(storageKey)
 
@@ -44,6 +45,7 @@ const app = Elm.Main.init({
     cachedAuthState,
     cachedDialog,
     cachedInlineEditTodo,
+    cachedTodoMenu,
     browserSize: { width: window.innerWidth, height: window.innerHeight },
     now: Date.now(),
     cache,
