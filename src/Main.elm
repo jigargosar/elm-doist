@@ -374,16 +374,17 @@ update message model =
 
         OnTodoMenuTriggered todoId ->
             model
-                |> setTodoMenu (TodoMenu.openFor todoId)
-                |> pure
+                |> setTodoMenuAndCache (TodoMenu.openFor todoId)
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
             ifElse (TodoMenu.isOpenFor todoId model.todoMenu)
-                ( setTodoMenu TodoMenu.init model
-                , ifElse restoreFocus
-                    (focusDomIdCmd <| todoMenuTriggerDomId todoId)
-                    Cmd.none
+                (setTodoMenuAndCache TodoMenu.init model
+                    |> command
+                        (ifElse restoreFocus
+                            (focusDomIdCmd <| todoMenuTriggerDomId todoId)
+                            Cmd.none
+                        )
                 )
                 (pure model)
 
@@ -533,6 +534,20 @@ updateInlineEditTodoAndCache mfn model =
 setTodoMenu : TodoMenu.Model -> Model -> Model
 setTodoMenu todoMenu model =
     { model | todoMenu = todoMenu }
+
+
+cacheTodoMenuEffect : { a | todoMenu : TodoMenu.Model } -> Cmd msg
+cacheTodoMenuEffect model =
+    Ports.localStorageSetJsonItem
+        ( "cachedTodoMenu", TodoMenu.encoder model.todoMenu )
+
+
+setTodoMenuAndCache : TodoMenu.Model -> Model -> Return
+setTodoMenuAndCache todoMenu model =
+    model
+        |> setTodoMenu todoMenu
+        |> pure
+        |> effect cacheTodoMenuEffect
 
 
 startMoving : Todo -> Model -> Return
