@@ -67,8 +67,6 @@ type alias Flags =
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
     , browserSize : BrowserSize
     , now : Millis
-
-    --    , cache : Cache
     }
 
 
@@ -86,30 +84,6 @@ flagsDecoder =
 
 
 
---        |> JDP.required "cache" cacheDecoder
----- Cache
---
---
---type alias Cache =
---    { dialog : Dialog.Model
---    , inlineEditTodo : Maybe InlineEditTodo.Model
---    }
---
---
---cacheDecoder : Decoder Cache
---cacheDecoder =
---    JD.succeed Cache
---        |> JDP.optional "dialog" Dialog.decoder Dialog.Closed
---        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
---
---
---cacheEncoder : Cache -> Value
---cacheEncoder { dialog, inlineEditTodo } =
---    JE.object
---        [ ( "dialog", Dialog.encoder dialog )
---        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
---        ]
---
 -- MODEL
 
 
@@ -127,22 +101,6 @@ type alias Model =
     , here : Time.Zone
     , browserSize : BrowserSize
     }
-
-
-
---setModelFromCache : Cache -> Model -> Model
---setModelFromCache { dialog, inlineEditTodo } model =
---    { model
---        | dialog = dialog
---        , inlineEditTodo = inlineEditTodo
---    }
---
---
---cacheFromModel : Model -> Cache
---cacheFromModel { dialog, inlineEditTodo } =
---    { dialog = dialog
---    , inlineEditTodo = inlineEditTodo
---    }
 
 
 findTodoById todoId model =
