@@ -128,15 +128,15 @@ inlineEditTodoTitleDomId todoId =
 
 
 view :
-    { onEditDueStart : TodoId -> msg
-    , onSetTitle : TodoId -> String -> msg
+    { editDueMsg : TodoId -> msg
+    , titleChangedMsg : TodoId -> String -> msg
     , cancelMsg : msg
     , saveMsg : msg
     }
     -> Time.Zone
     -> Model
     -> Html msg
-view { onEditDueStart, onSetTitle, cancelMsg, saveMsg } here model =
+view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here model =
     let
         titleValue =
             titleOrDefault model
@@ -155,7 +155,7 @@ view { onEditDueStart, onSetTitle, cancelMsg, saveMsg } here model =
                     [ A.id <| inlineEditTodoTitleDomId todoId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
-                    , onInput (onSetTitle todoId)
+                    , onInput (titleChangedMsg todoId)
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
@@ -172,7 +172,7 @@ view { onEditDueStart, onSetTitle, cancelMsg, saveMsg } here model =
                     )
 
         viewDue =
-            TextButton.secondary (onEditDueStart <| todoId)
+            TextButton.secondary (editDueMsg <| todoId)
                 txt
                 [ class "pa1 ba b--moon-gray"
                 , class cls
