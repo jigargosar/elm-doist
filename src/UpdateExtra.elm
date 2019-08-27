@@ -1,9 +1,10 @@
-module UpdateExtra exposing (andThen, command, effect, pure)
+module UpdateExtra exposing (andThen, command, effect, pure, toCmd)
 
 -- UPDATE HELPERS
 
 import Maybe.Extra as MX
 import Return exposing (Return)
+import Task
 
 
 pure =
@@ -20,3 +21,8 @@ andThen =
 
 command =
     Return.command
+
+
+toCmd : msg -> Cmd msg
+toCmd =
+    Task.succeed >> Task.perform identity

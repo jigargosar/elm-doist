@@ -35,8 +35,13 @@ init domId value =
     )
 
 
-update : (Msg -> msg) -> Msg -> Model -> Return msg Model
-update toMsg msg (Model model) =
+type alias Listeners msg =
+    { gotInput : String -> msg
+    }
+
+
+update : (Msg -> msg) -> Listeners msg -> Msg -> Model -> Return msg Model
+update toMsg listeners msg (Model model) =
     (case msg of
         Focused _ ->
             pure model
@@ -48,7 +53,11 @@ update toMsg msg (Model model) =
 
         GotInput value ->
             pure { model | value = value, height = Nothing }
-                |> command (Dom.getViewportOf model.domId |> Task.attempt (GotViewport >> toMsg))
+                |> command
+                    (Dom.getViewportOf model.domId
+                        |> Task.attempt (GotViewport >> toMsg)
+                    )
+                |> command (listeners.gotInput value |> Task.succeed |> Task.perform identity)
     )
         |> Tuple.mapFirst Model
 
@@ -60,7 +69,7 @@ view toMsg attrs (Model mr) =
          , value mr.value
          , onInput (GotInput >> toMsg)
          , mr.height
-            |> MX.unwrap (style "height" "0")
+            |> MX.unwrap (style "height" "auto")
                 (\ht -> style "height" (String.fromFloat ht ++ "px"))
          ]
             ++ attrs
