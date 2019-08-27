@@ -12,7 +12,11 @@ import UpdateExtra exposing (pure)
 
 
 type Model
-    = Model { domId : String, value : String, height : Maybe Float }
+    = Model
+        { domId : String
+        , value : String
+        , height : Maybe Float
+        }
 
 
 type Msg
@@ -43,7 +47,7 @@ update toMsg msg (Model model) =
                     (\{ scene } -> pure { model | height = Just scene.height })
 
         GotInput value ->
-            pure { model | value = value }
+            pure { model | value = value, height = Nothing }
                 |> command (Dom.getViewportOf model.domId |> Task.attempt (GotViewport >> toMsg))
     )
         |> Tuple.mapFirst Model
