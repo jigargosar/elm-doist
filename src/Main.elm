@@ -67,7 +67,8 @@ type alias Flags =
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
     , browserSize : BrowserSize
     , now : Millis
-    , cache : Cache
+
+    --    , cache : Cache
     }
 
 
@@ -82,35 +83,33 @@ flagsDecoder =
         |> JDP.required "cachedInlineEditTodo" (JD.maybe InlineEditTodo.decoder)
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
-        |> JDP.required "cache" cacheDecoder
 
 
 
--- Cache
-
-
-type alias Cache =
-    { dialog : Dialog.Model
-    , inlineEditTodo : Maybe InlineEditTodo.Model
-    }
-
-
-cacheDecoder : Decoder Cache
-cacheDecoder =
-    JD.succeed Cache
-        |> JDP.optional "dialog" Dialog.decoder Dialog.Closed
-        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
-
-
-cacheEncoder : Cache -> Value
-cacheEncoder { dialog, inlineEditTodo } =
-    JE.object
-        [ ( "dialog", Dialog.encoder dialog )
-        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
-        ]
-
-
-
+--        |> JDP.required "cache" cacheDecoder
+---- Cache
+--
+--
+--type alias Cache =
+--    { dialog : Dialog.Model
+--    , inlineEditTodo : Maybe InlineEditTodo.Model
+--    }
+--
+--
+--cacheDecoder : Decoder Cache
+--cacheDecoder =
+--    JD.succeed Cache
+--        |> JDP.optional "dialog" Dialog.decoder Dialog.Closed
+--        |> JDP.optional "inlineEditTodo" (JD.maybe InlineEditTodo.decoder) Nothing
+--
+--
+--cacheEncoder : Cache -> Value
+--cacheEncoder { dialog, inlineEditTodo } =
+--    JE.object
+--        [ ( "dialog", Dialog.encoder dialog )
+--        , ( "inlineEditTodo", InlineEditTodo.maybeEncoder inlineEditTodo )
+--        ]
+--
 -- MODEL
 
 
@@ -130,19 +129,20 @@ type alias Model =
     }
 
 
-setModelFromCache : Cache -> Model -> Model
-setModelFromCache { dialog, inlineEditTodo } model =
-    { model
-        | dialog = dialog
-        , inlineEditTodo = inlineEditTodo
-    }
 
-
-cacheFromModel : Model -> Cache
-cacheFromModel { dialog, inlineEditTodo } =
-    { dialog = dialog
-    , inlineEditTodo = inlineEditTodo
-    }
+--setModelFromCache : Cache -> Model -> Model
+--setModelFromCache { dialog, inlineEditTodo } model =
+--    { model
+--        | dialog = dialog
+--        , inlineEditTodo = inlineEditTodo
+--    }
+--
+--
+--cacheFromModel : Model -> Cache
+--cacheFromModel { dialog, inlineEditTodo } =
+--    { dialog = dialog
+--    , inlineEditTodo = inlineEditTodo
+--    }
 
 
 findTodoById todoId model =
@@ -527,15 +527,20 @@ setInlineEditTodoAndCache todo model =
     model
         |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
-        |> effect cacheEffect
+        |> effect cacheInlineEditTodoEffect
         |> command (focusDomIdCmd todoTADomId)
+
+
+cacheInlineEditTodoEffect model =
+    Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo", InlineEditTodo.maybeEncoder model.inlineEditTodo )
 
 
 resetInlineEditTodoAndCache : Model -> Return
 resetInlineEditTodoAndCache model =
     resetInlineEditTodo model
         |> pure
-        |> effect cacheEffect
+        |> effect cacheInlineEditTodoEffect
 
 
 setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
@@ -570,15 +575,25 @@ startEditingDue todoId =
         >> command (focusDomIdCmd Dialog.firstFocusable)
 
 
+setDialog : Dialog.Model -> Model -> Model
+setDialog dialog model =
+    { model | dialog = dialog }
+
+
 updateDialogAndCache : Dialog.Model -> Model -> Return
 updateDialogAndCache dialog model =
-    pure { model | dialog = dialog }
-        |> effect cacheEffect
+    setDialog dialog model
+        |> pure
+        |> command
+            (Ports.localStorageSetJsonItem
+                ( "cachedDialog", Dialog.encoder dialog )
+            )
 
 
-cacheEffect : Model -> Cmd msg
-cacheEffect model =
-    Ports.setCache (cacheEncoder (cacheFromModel model))
+
+--cacheEffect : Model -> Cmd msg
+--cacheEffect model =
+--    Ports.setCache (cacheEncoder (cacheFromModel model))
 
 
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
@@ -615,7 +630,8 @@ updateFromFlags flags model =
     setTodoList flags.cachedTodoList model
         |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
-        |> setModelFromCache flags.cache
+        |> setDialog flags.cachedDialog
+        |> setInlineEditTodo_ flags.cachedInlineEditTodo
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
