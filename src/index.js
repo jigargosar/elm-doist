@@ -36,20 +36,23 @@ const pubs = initPubs({
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
 
-function resizeHeight() {
-  const el = this
+function resizeTextArea(el) {
   el.style.height = 'auto'
   el.style.height = `${el.scrollHeight}px`
 }
 
+function resizeTextAreaOnInputListener(ev) {
+  resizeTextArea(ev.target)
+}
+
+function autoResizeTextArea(el) {
+  resizeTextArea(el)
+  el.addEventListener('input', resizeTextAreaOnInputListener)
+}
+
 function resizeAllTextAreas() {
   const tas = document.querySelectorAll('textarea')
-
-  forEach(el => {
-    el.style.height = 'auto'
-    el.style.height = `${el.scrollHeight}px`
-    el.addEventListener('input', resizeHeight)
-  })(tas)
+  forEach(autoResizeTextArea)(tas)
 }
 
 initSubs({
