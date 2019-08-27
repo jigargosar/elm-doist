@@ -2,7 +2,7 @@ module Dialog exposing (Model(..), decoder, encoder, view)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled as H exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes exposing (class)
+import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -66,11 +66,12 @@ view : msg -> List (Html msg) -> Html msg
 view onOverlayClickOrEscapePressed content =
     div
         [ class "z-1 fixed absolute--fill flex items-center justify-center"
+        , UI.Key.onKeyDownPreventDefault onOverlayClickOrEscapePressed [ Key.escape ]
+        , tabindex -1
         ]
         [ div
             [ class "absolute absolute--fill bg-black-50"
             , onClick onOverlayClickOrEscapePressed
-            , UI.Key.onKeyDownPreventDefault onOverlayClickOrEscapePressed [ Key.escape ]
             ]
             []
         , div [ class "absolute" ] content
