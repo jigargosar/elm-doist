@@ -113,7 +113,6 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , taHeight : Maybe Float
     , todoMenu : TodoMenu.Model
     , dialog : Dialog.Model
     , authState : AuthState
@@ -174,7 +173,6 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , taHeight = Nothing
             , todoMenu = TodoMenu.init
             , dialog = Dialog.Closed
             , authState = AuthState.initial
@@ -190,7 +188,7 @@ init encodedFlags url key =
         |> pure
         |> andThen (updateFromEncodedFlags encodedFlags)
         |> command (Millis.hereCmd OnHere)
-        |> command (Ports.resizeTextArea ())
+        |> command (Ports.resizeTextArea todoTADomId)
 
 
 
@@ -205,7 +203,6 @@ type Msg
     | OnBrowserResize BrowserSize
     | Focus String
     | Focused (Result Dom.Error ())
-    | GotTAElement (Result Dom.Error Dom.Viewport)
     | OnAuthStateChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
@@ -291,13 +288,6 @@ update message model =
 
         Focused _ ->
             pure model
-
-        GotTAElement res ->
-            Debug.log "res" res
-                |> RX.unpack (\_ -> pure model)
-                    (\{ scene } ->
-                        pure { model | taHeight = Just scene.height }
-                    )
 
         OnAuthStateChanged encodedValue ->
             model
@@ -463,9 +453,9 @@ update message model =
                 |> MX.unpack
                     (\_ -> pure model)
                     (\_ ->
-                        ( model, Ports.resizeTextArea () )
-                            |> Tuple.mapFirst (mapInlineEditTodo (InlineEditTodo.setTitle title))
-                            |> andThen (updateDialogAndCache Dialog.Closed)
+                        model
+                            |> mapInlineEditTodo (InlineEditTodo.setTitle title)
+                            |> updateDialogAndCache Dialog.Closed
                     )
 
         OnDialogOverlayClicked ->
@@ -530,13 +520,12 @@ startEditingTodoId todoId model =
 
 setInlineEditTodoAndCache : Todo -> Model -> Return
 setInlineEditTodoAndCache todo model =
-    { model | taHeight = Nothing }
+    model
         |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheEffect
         |> command (focusDomIdCmd todoTADomId)
-        |> command (Dom.getViewportOf todoTADomId |> Task.attempt GotTAElement)
-        |> command (Ports.resizeTextArea ())
+        |> command (Ports.resizeTextArea todoTADomId)
 
 
 resetInlineEditTodoAndCache : Model -> Return
@@ -1140,7 +1129,6 @@ viewTodoItem :
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
         , todoMenu : TodoMenu.Model
-        , taHeight : Maybe Float
     }
     -> Todo
     -> Html Msg
@@ -1152,11 +1140,11 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem here model.taHeight)
+            (viewEditTodoItem here)
 
 
-viewEditTodoItem : Time.Zone -> Maybe Float -> InlineEditTodo.Model -> Html Msg
-viewEditTodoItem here taHeight edt =
+viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
+viewEditTodoItem here edt =
     let
         titleValue =
             InlineEditTodo.titleOrDefault edt
