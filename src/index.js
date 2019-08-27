@@ -12,31 +12,27 @@ import {
   propOr,
 } from 'ramda'
 
-customElements.define("auto-resize-textarea", class extends HTMLElement{
-  connectedCallback(){
-    const ta = this.firstChild
-    resizeTextArea(ta)
-    ta.addEventListener('input', resizeTextAreaOnInputListener)
-  }
-})
+customElements.define(
+  'auto-resize-textarea',
+  class extends HTMLElement {
+    connectedCallback() {
+      const ta = this.firstChild
+      resizeTextArea(ta)
+      ta.addEventListener('input', resizeTextAreaOnInputListener)
+    }
+  },
+)
 
 function getCached(key) {
-  return JSON.parse(
-    localStorage.getItem(key) || 'null',
-  )
+  return JSON.parse(localStorage.getItem(key) || 'null')
 }
 
 const cachedProjectList = getCached('cachedProjectList')
-
-console.debug('cachedProjectList', cachedProjectList)
-
 const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
 const cachedDialog = getCached('cachedDialog')
 const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
 const cachedTodoMenu = getCached('cachedTodoMenu')
-
-
 
 const app = Elm.Main.init({
   flags: {
