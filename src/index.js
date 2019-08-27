@@ -3,7 +3,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-import { forEach, forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
+import { forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
 
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
@@ -45,21 +45,20 @@ function resizeTextAreaOnInputListener(ev) {
   resizeTextArea(ev.target)
 }
 
-function autoResizeTextArea(el) {
+
+function autoResizeTextareaWithId(domId) {
+  const el = document.getElementById(domId)
+  if (!el) {
+    console.warn('Unable to find textarea with id', domId)
+    return
+  }
   resizeTextArea(el)
   el.addEventListener('input', resizeTextAreaOnInputListener)
 }
 
-function resizeAllTextAreas() {
-  const tas = document.querySelectorAll('textarea')
-  forEach(autoResizeTextArea)(tas)
-}
-
 initSubs({
-  resizeTextArea: () => {
-    // const tas =  document.querySelectorAll("textarea[data-resize=true]")
-    // resizeAllTextAreas()
-    requestAnimationFrame(resizeAllTextAreas)
+  resizeTextArea: (domId) => {
+    requestAnimationFrame(() => autoResizeTextareaWithId(domId))
   },
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
