@@ -63,16 +63,6 @@ function resizeTextAreaOnInputListener(ev) {
   resizeTextArea(ev.target)
 }
 
-function autoResizeTextareaWithId(domId) {
-  const el = document.getElementById(domId)
-  if (!el) {
-    console.warn('Unable to find textarea with id', domId)
-    return
-  }
-  resizeTextArea(el)
-  el.addEventListener('input', resizeTextAreaOnInputListener)
-}
-
 initSubs({
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
