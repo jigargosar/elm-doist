@@ -22,7 +22,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, style, tabindex, value)
+import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, rows, style, tabindex, value)
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
 import InlineEditTodo
@@ -1172,15 +1172,12 @@ viewEditTodoItem here taHeight edt =
             div [ class "flex-grow-1 flex ba b--moon-gray" ]
                 [ textarea
                     [ A.id todoTADomId
-                    , class "pa2 flex-grow-1 lh-copy bn"
+                    , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (OnSetTitle todoId)
+                    , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
-
-                    --                    , taHeight
-                    --                        |> MX.unwrap (style "height" "auto")
-                    --                            (\ht -> style "height" (String.fromFloat ht ++ "px"))
                     ]
                     []
                 ]
@@ -1196,7 +1193,7 @@ viewEditTodoItem here taHeight edt =
         viewDue =
             TextButton.secondary (OnEditDueStart <| todoId)
                 txt
-                [ class "pa3 ba b--moon-gray"
+                [ class "pa1 ba b--moon-gray"
                 , class cls
                 , css [ minWidth <| px 100 ]
                 ]
