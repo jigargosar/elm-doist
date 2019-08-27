@@ -18,20 +18,15 @@ function getCached(key) {
   )
 }
 
-const cachedProjectList = JSON.parse(
-  localStorage.getItem('cachedProjectList') || 'null',
-)
+const cachedProjectList = getCached('cachedProjectList')
 
 console.debug('cachedProjectList', cachedProjectList)
 
-const cachedTodoList = JSON.parse(
-  localStorage.getItem('cachedTodoList') || 'null',
-)
-const cachedAuthState = JSON.parse(
-  localStorage.getItem('cachedAuthState') || 'null',
-)
+const cachedTodoList = getCached('cachedTodoList')
+const cachedAuthState = getCached('cachedAuthState')
 const storageKey = 'appCache'
-const cache = JSON.parse(localStorage.getItem(storageKey) || 'null')
+const cache = getCached(storageKey)
+
 const app = Elm.Main.init({
   flags: {
     cachedTodoList,
