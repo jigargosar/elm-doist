@@ -22,7 +22,18 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, rows, tabindex, value)
+import Html.Styled.Attributes as A
+    exposing
+        ( checked
+        , class
+        , classList
+        , css
+        , disabled
+        , href
+        , rows
+        , tabindex
+        , value
+        )
 import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
 import HtmlStyledExtra as HX
 import InlineEditTodo
