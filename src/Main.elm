@@ -1180,7 +1180,7 @@ viewEditTodoItem here edt =
                 |> Todo.dueAtToMillis
 
         todoId =
-            InlineEditTodo.todoId edt
+            InlineEditTodo.getTodoId edt
 
         viewIP =
             H.node "auto-resize-textarea"
