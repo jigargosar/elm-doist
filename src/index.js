@@ -35,8 +35,8 @@ const cachedAuthState = getCached('cachedAuthState')
 const cachedDialog = getCached('cachedDialog')
 const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
 const cachedTodoMenu = getCached('cachedTodoMenu')
-const storageKey = 'appCache'
-const cache = getCached(storageKey)
+
+
 
 const app = Elm.Main.init({
   flags: {
@@ -48,7 +48,6 @@ const app = Elm.Main.init({
     cachedTodoMenu,
     browserSize: { width: window.innerWidth, height: window.innerHeight },
     now: Date.now(),
-    cache,
   },
 })
 const fire = Fire()
@@ -75,13 +74,6 @@ initSubs({
     console.log(v)
     console.groupEnd()
     localStorage.setItem(k, JSON.stringify(v))
-  },
-  setCache: cache => {
-    if (isNil(cache)) {
-      localStorage.removeItem(storageKey)
-    } else {
-      localStorage.setItem(storageKey, JSON.stringify(cache))
-    }
   },
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
