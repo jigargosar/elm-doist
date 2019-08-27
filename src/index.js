@@ -3,7 +3,14 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-import { forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
+import {
+  forEachObjIndexed,
+  identity,
+  isNil,
+  mapObjIndexed,
+  path,
+  propOr,
+} from 'ramda'
 
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
