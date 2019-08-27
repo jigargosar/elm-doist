@@ -18,13 +18,13 @@ const cachedProjectList = JSON.parse(
 
 console.debug('cachedProjectList', cachedProjectList)
 
-const storageKey = 'appCache'
 const cachedTodoList = JSON.parse(
   localStorage.getItem('cachedTodoList') || 'null',
 )
 const cachedAuthState = JSON.parse(
   localStorage.getItem('cachedAuthState') || 'null',
 )
+const storageKey = 'appCache'
 const cache = JSON.parse(localStorage.getItem(storageKey) || 'null')
 const app = Elm.Main.init({
   flags: {
