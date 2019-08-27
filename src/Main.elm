@@ -224,7 +224,7 @@ type Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
-    | OnDialogOverlayClicked
+    | OnDialogOverlayClickedOrEscapePressed
     | OnStartInlineEditTodo TodoId
     | OnEditCancel
     | OnEditSave
@@ -458,7 +458,7 @@ update message model =
                             |> updateDialogAndCache Dialog.Closed
                     )
 
-        OnDialogOverlayClicked ->
+        OnDialogOverlayClickedOrEscapePressed ->
             case model.dialog of
                 Dialog.Closed ->
                     pure model
@@ -1035,7 +1035,7 @@ viewDueDialog zone today todoId =
 
 viewDialog : List (Html Msg) -> Html Msg
 viewDialog =
-    Dialog.view OnDialogOverlayClicked
+    Dialog.view OnDialogOverlayClickedOrEscapePressed
 
 
 

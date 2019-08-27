@@ -63,14 +63,14 @@ dialogDecoderForTag tag =
 
 
 view : msg -> List (Html msg) -> Html msg
-view onOverlayClick content =
+view onOverlayClickOrEscapePressed content =
     div
         [ class "z-1 fixed absolute--fill flex items-center justify-center"
         ]
         [ div
             [ class "absolute absolute--fill bg-black-50"
-            , onClick onOverlayClick
-            , UI.Key.onKeyDownPreventDefault onOverlayClick [ Key.escape ]
+            , onClick onOverlayClickOrEscapePressed
+            , UI.Key.onKeyDownPreventDefault onOverlayClickOrEscapePressed [ Key.escape ]
             ]
             []
         , div [ class "absolute" ] content
