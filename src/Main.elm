@@ -445,8 +445,8 @@ update message model =
                         )
                         (\_ ->
                             model
-                                |> mapInlineEditTodo (InlineEditTodo.setDueAt dueAt)
-                                |> updateDialogAndCache Dialog.Closed
+                                |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
+                                |> andThen (updateDialogAndCache Dialog.Closed)
                         )
                 )
                 (pure model)
@@ -458,8 +458,8 @@ update message model =
                     (\_ -> pure model)
                     (\_ ->
                         model
-                            |> mapInlineEditTodo (InlineEditTodo.setTitle title)
-                            |> updateDialogAndCache Dialog.Closed
+                            |> updateInlineEditTodoAndCache (InlineEditTodo.setTitle title)
+                            |> andThen (updateDialogAndCache Dialog.Closed)
                     )
 
         OnDialogOverlayClickedOrEscapePressed ->
@@ -561,6 +561,13 @@ resetInlineEditTodo model =
 mapInlineEditTodo : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Model
 mapInlineEditTodo mfn model =
     setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
+
+
+updateInlineEditTodoAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
+updateInlineEditTodoAndCache mfn model =
+    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
+        |> pure
+        |> effect cacheInlineEditTodoEffect
 
 
 startMoving : Todo -> Model -> Return
