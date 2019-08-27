@@ -1157,7 +1157,8 @@ viewEditTodoItem here edt =
             InlineEditTodo.todoId edt
 
         viewIP =
-            div [ class "flex-grow-1 flex ba b--moon-gray" ]
+            H.node "auto-resize-textarea"
+                [ class "flex-grow-1 flex ba b--moon-gray" ]
                 [ textarea
                     [ A.id todoTADomId
                     , class "pa1 flex-grow-1 lh-copy bn"

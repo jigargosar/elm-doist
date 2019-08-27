@@ -12,6 +12,14 @@ import {
   propOr,
 } from 'ramda'
 
+customElements.define("auto-resize-textarea", class extends HTMLElement{
+  connectedCallback(){
+    const ta = this.firstChild
+    resizeTextArea(ta)
+    ta.addEventListener('input', resizeTextAreaOnInputListener)
+  }
+})
+
 function getCached(key) {
   return JSON.parse(
     localStorage.getItem(key) || 'null',
