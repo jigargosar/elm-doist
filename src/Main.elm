@@ -462,9 +462,9 @@ update message model =
                 |> MX.unpack
                     (\_ -> pure model)
                     (\_ ->
-                        model
-                            |> mapInlineEditTodo (InlineEditTodo.setTitle title)
-                            |> updateDialogAndCache Dialog.Closed
+                        ( model, Ports.resizeTextArea () )
+                            |> Tuple.mapFirst (mapInlineEditTodo (InlineEditTodo.setTitle title))
+                            |> andThen (updateDialogAndCache Dialog.Closed)
                     )
 
         OnDialogOverlayClicked ->
@@ -1175,9 +1175,10 @@ viewEditTodoItem here taHeight edt =
                     , onInput (OnSetTitle todoId)
                     , css [ resize none ]
                     , class "overflow-hidden"
-                    , taHeight
-                        |> MX.unwrap (style "height" "0")
-                            (\ht -> style "height" (String.fromFloat ht ++ "px"))
+
+                    --                    , taHeight
+                    --                        |> MX.unwrap (style "height" "auto")
+                    --                            (\ht -> style "height" (String.fromFloat ht ++ "px"))
                     ]
                     []
                 ]

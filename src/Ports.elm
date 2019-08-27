@@ -9,6 +9,7 @@ port module Ports exposing
     , onFirestoreQueryResponse
     , onTodoListChanged
     , queryFirestore
+    , resizeTextArea
     , setCache
     , signIn
     , signOut
@@ -16,6 +17,9 @@ port module Ports exposing
     )
 
 import Json.Encode exposing (Value)
+
+
+port resizeTextArea : () -> Cmd msg
 
 
 port localStorageSetStringItem : ( String, String ) -> Cmd msg

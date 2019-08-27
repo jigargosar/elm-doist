@@ -3,7 +3,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-import { forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
+import { forEach, forEachObjIndexed, identity, isNil, mapObjIndexed, path, propOr } from 'ramda'
 
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
@@ -35,7 +35,24 @@ const pubs = initPubs({
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
+
+function resizeHeight() {
+  const el = this
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+}
+
 initSubs({
+  resizeTextArea: () => {
+    // const tas =  document.querySelectorAll("textarea[data-resize=true]")
+    const tas = document.querySelectorAll('textarea')
+
+    forEach(el => {
+      el.style.height = 'auto'
+      el.style.height = `${el.scrollHeight}px`
+      el.addEventListener('input', resizeHeight)
+    })(tas)
+  },
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
     console.log(v)
