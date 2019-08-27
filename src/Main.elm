@@ -1171,70 +1171,14 @@ viewTodoItem model todo =
 
 viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem here edt =
-    let
-        titleValue =
-            InlineEditTodo.titleOrDefault edt
-
-        dueAtValue =
-            InlineEditTodo.dueAtOrDefault edt
-                |> Todo.dueAtToMillis
-
-        todoId =
-            InlineEditTodo.getTodoId edt
-
-        viewIP =
-            H.node "auto-resize-textarea"
-                [ class "flex-grow-1 flex ba b--moon-gray" ]
-                [ textarea
-                    [ A.id <| inlineEditTodoTitleDomId todoId
-                    , class "pa1 flex-grow-1 lh-copy bn"
-                    , value titleValue
-                    , onInput (OnSetTitle todoId)
-                    , rows 1
-                    , css [ resize none ]
-                    , class "overflow-hidden"
-                    ]
-                    []
-                ]
-
-        ( txt, cls ) =
-            dueAtValue
-                |> MX.unpack
-                    (\_ -> ( "Schedule", "gray" ))
-                    (\mi ->
-                        ( Millis.formatDate "MMM dd" here <| mi, "near-black" )
-                    )
-
-        viewDue =
-            TextButton.secondary (OnEditDueStart <| todoId)
-                txt
-                [ class "pa1 ba b--moon-gray"
-                , class cls
-                , css [ minWidth <| px 100 ]
-                ]
-
-        _ =
-            InlineEditTodo.view
-                { editDueMsg = OnEditDueStart
-                , titleChangedMsg = OnSetTitle
-                , cancelMsg = OnEditCancel
-                , saveMsg = OnEditSave
-                }
-    in
-    div
-        [ class "pv3 ph2"
-        , tabindex 0
-        , UI.Key.onKeyDownPreventDefault OnEditCancel [ Key.escape ]
-        ]
-        [ div [ class "flex" ]
-            [ viewIP
-            , viewDue
-            ]
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary OnEditSave "Save" [ class "pa2" ]
-            , TextButton.secondary OnEditCancel "Cancel" [ class "pa2" ]
-            ]
-        ]
+    InlineEditTodo.view
+        { editDueMsg = OnEditDueStart
+        , titleChangedMsg = OnSetTitle
+        , cancelMsg = OnEditCancel
+        , saveMsg = OnEditSave
+        }
+        here
+        edt
 
 
 viewTodoItemBase :
