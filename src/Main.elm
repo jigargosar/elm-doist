@@ -380,7 +380,7 @@ update message model =
 
         CloseTodoMenu todoId restoreFocus ->
             ifElse (TodoMenu.isOpenFor todoId model.todoMenu)
-                ( { model | todoMenu = TodoMenu.init }
+                ( setTodoMenu TodoMenu.init model
                 , ifElse restoreFocus
                     (focusDomIdCmd <| todoMenuTriggerDomId todoId)
                     Cmd.none
