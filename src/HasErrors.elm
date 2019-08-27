@@ -1,4 +1,4 @@
-module HasErrors exposing (HasErrors, detailView, prependDecodeError, prependString)
+module HasErrors exposing (HasErrors, add, addDecodeError, detailView)
 
 import Errors exposing (Errors)
 import Html.Styled exposing (Html)
@@ -9,8 +9,8 @@ type alias HasErrors a =
     { a | errors : Errors }
 
 
-prependString : String -> HasErrors a -> HasErrors a
-prependString error =
+add : String -> HasErrors a -> HasErrors a
+add error =
     mapErrors (Errors.prependString error)
 
 
@@ -19,8 +19,8 @@ mapErrors fn model =
     { model | errors = fn model.errors }
 
 
-prependDecodeError : JD.Error -> HasErrors a -> HasErrors a
-prependDecodeError error =
+addDecodeError : JD.Error -> HasErrors a -> HasErrors a
+addDecodeError error =
     mapErrors (Errors.prependDecodeError error)
 
 

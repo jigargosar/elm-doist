@@ -303,7 +303,7 @@ update message model =
                             qs.docDataList
 
                 _ ->
-                    HasErrors.prependString ("Invalid QueryId" ++ qs.id) model
+                    HasErrors.add ("Invalid QueryId" ++ qs.id) model
                         |> pure
 
         OnChecked todoId checked ->
@@ -746,7 +746,7 @@ onAuthStateChanged authState model =
 
 onDecodeError : JD.Error -> Model -> Return
 onDecodeError error model =
-    HasErrors.prependDecodeError error model
+    HasErrors.addDecodeError error model
         |> pure
 
 
