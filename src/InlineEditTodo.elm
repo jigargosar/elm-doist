@@ -1,4 +1,16 @@
-module InlineEditTodo exposing (Model, decoder, dueAtOrDefault, fromTodo, idEq, maybeEncoder, setDueAt, setTitle, titleOrDefault, toUpdateMessages, todoId)
+module InlineEditTodo exposing
+    ( Model
+    , decoder
+    , dueAtOrDefault
+    , fromTodo
+    , idEq
+    , maybeEncoder
+    , setDueAt
+    , setTitle
+    , titleOrDefault
+    , toUpdateMessages
+    , todoId
+    )
 
 import BasicsExtra exposing (ifElse)
 import Json.Decode as JD exposing (Decoder)
