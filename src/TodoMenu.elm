@@ -1,4 +1,4 @@
-module TodoMenu exposing (Model, init, isOpenFor, openFor)
+module TodoMenu exposing (Model, decoder, encoder, init, isOpenFor, openFor)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)

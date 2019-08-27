@@ -65,6 +65,7 @@ type alias Flags =
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
+    , cachedTodoMenu : TodoMenu.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -79,6 +80,7 @@ flagsDecoder =
             (JD.oneOf [ AuthState.decoder, JD.null AuthState.initial ])
         |> JDP.required "cachedDialog" (JD.oneOf [ Dialog.decoder, JD.null Dialog.init ])
         |> JDP.required "cachedInlineEditTodo" (JD.maybe InlineEditTodo.decoder)
+        |> JDP.required "cachedTodoMenu" (JD.oneOf [ TodoMenu.decoder, JD.null TodoMenu.init ])
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
