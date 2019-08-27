@@ -11,7 +11,7 @@ type alias HasErrors a =
 
 add : String -> HasErrors a -> HasErrors a
 add error =
-    mapErrors (Errors.prependString error)
+    mapErrors (Errors.add error)
 
 
 mapErrors : (Errors -> Errors) -> HasErrors a -> HasErrors a
@@ -21,7 +21,7 @@ mapErrors fn model =
 
 addDecodeError : JD.Error -> HasErrors a -> HasErrors a
 addDecodeError error =
-    mapErrors (Errors.prependDecodeError error)
+    mapErrors (Errors.addDecodeError error)
 
 
 detailView : HasErrors a -> Html msg

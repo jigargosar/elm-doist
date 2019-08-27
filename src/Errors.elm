@@ -1,4 +1,4 @@
-module Errors exposing (Errors, detailView, empty, fromStrings, mapErrorList, prependDecodeError, prependString, viewError)
+module Errors exposing (Errors, add, addDecodeError, detailView, empty, fromStrings, mapErrorList, viewError)
 
 import Html.Styled exposing (Html, div, li, ol, text)
 import Html.Styled.Attributes exposing (class)
@@ -24,8 +24,8 @@ fromStrings errors =
     errors |> Errors
 
 
-prependString : String -> Errors -> Errors
-prependString error =
+add : String -> Errors -> Errors
+add error =
     mapErrorList (\errors -> error :: errors)
 
 
@@ -34,9 +34,9 @@ mapErrorList fn (Errors errors) =
     fn errors |> Errors
 
 
-prependDecodeError : JD.Error -> Errors -> Errors
-prependDecodeError error =
-    prependString (JD.errorToString error)
+addDecodeError : JD.Error -> Errors -> Errors
+addDecodeError error =
+    add (JD.errorToString error)
 
 
 detailView : Errors -> Html msg
