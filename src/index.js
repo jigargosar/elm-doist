@@ -12,6 +12,12 @@ import {
   propOr,
 } from 'ramda'
 
+function getCached(key) {
+  return JSON.parse(
+    localStorage.getItem(key) || 'null',
+  )
+}
+
 const cachedProjectList = JSON.parse(
   localStorage.getItem('cachedProjectList') || 'null',
 )
