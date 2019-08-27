@@ -188,7 +188,6 @@ init encodedFlags url key =
         |> pure
         |> andThen (updateFromEncodedFlags encodedFlags)
         |> command (Millis.hereCmd OnHere)
-        |> command (Ports.resizeTextArea todoTADomId)
 
 
 
@@ -525,7 +524,6 @@ setInlineEditTodoAndCache todo model =
         |> pure
         |> effect cacheEffect
         |> command (focusDomIdCmd todoTADomId)
-        |> command (Ports.resizeTextArea todoTADomId)
 
 
 resetInlineEditTodoAndCache : Model -> Return

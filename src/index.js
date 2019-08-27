@@ -74,9 +74,6 @@ function autoResizeTextareaWithId(domId) {
 }
 
 initSubs({
-  resizeTextArea: domId => {
-    requestAnimationFrame(() => autoResizeTextareaWithId(domId))
-  },
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
     console.log(v)
