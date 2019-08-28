@@ -40,7 +40,10 @@ import UI.TextButton as TextButton
 
 
 type alias ModelRecord =
-    { todo : Todo, title : Maybe String, dueAt : Maybe DueAt }
+    { todo : Todo
+    , title : Maybe String
+    , dueAt : Maybe DueAt
+    }
 
 
 type Model
