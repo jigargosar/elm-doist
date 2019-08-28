@@ -34,9 +34,8 @@ customElements.define(
 
 function focusOutListener() {
   setTimeout(()=>{
-    console.log(this)
     if(!this.contains(document.activeElement)){
-      console.log("focusOutside")
+      console.debug("focusOutside", this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
   },0)
