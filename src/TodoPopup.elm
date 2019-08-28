@@ -1,4 +1,4 @@
-module TodoMenu exposing
+module TodoPopup exposing
     ( MenuItems
     , Model
     , decoder
@@ -61,7 +61,7 @@ decoder =
                     JD.succeed Closed
 
                 _ ->
-                    JD.fail ("unknown tag for TodoMenu.Model: " ++ tag)
+                    JD.fail ("unknown tag for TodoPopup.Model: " ++ tag)
     in
     JD.field "tag" JD.string |> JD.andThen decoderForTag
 

@@ -51,7 +51,7 @@ import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import TodoMenu
+import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
@@ -70,7 +70,7 @@ type alias Flags =
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
-    , cachedTodoMenu : TodoMenu.Model
+    , cachedTodoMenu : TodoPopup.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -88,7 +88,7 @@ flagsDecoder =
         |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
         |> cachedField "cachedDialog" Dialog.decoder Dialog.init
         |> cachedField "cachedInlineEditTodo" (JD.nullable InlineEditTodo.decoder) Nothing
-        |> cachedField "cachedTodoMenu" TodoMenu.decoder TodoMenu.init
+        |> cachedField "cachedTodoMenu" TodoPopup.decoder TodoPopup.init
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -101,7 +101,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , todoMenu : TodoMenu.Model
+    , todoMenu : TodoPopup.Model
     , dialog : Dialog.Model
     , authState : AuthState
     , errors : Errors
@@ -146,7 +146,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , todoMenu = TodoMenu.init
+            , todoMenu = TodoPopup.init
             , dialog = Dialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -382,15 +382,15 @@ update message model =
 
         OnTodoMenuTriggered todoId ->
             model
-                |> setTodoMenuAndCache (TodoMenu.openFor todoId)
+                |> setTodoMenuAndCache (TodoPopup.openFor todoId)
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
-            ifElse (TodoMenu.isOpenFor todoId model.todoMenu)
-                (setTodoMenuAndCache TodoMenu.init model
+            ifElse (TodoPopup.isOpenFor todoId model.todoMenu)
+                (setTodoMenuAndCache TodoPopup.init model
                     |> command
                         (ifElse restoreFocus
-                            (focusDomIdCmd <| TodoMenu.todoMenuTriggerDomId todoId)
+                            (focusDomIdCmd <| TodoPopup.todoMenuTriggerDomId todoId)
                             Cmd.none
                         )
                 )
@@ -451,7 +451,7 @@ update message model =
 focusTodoMenuCmd todoId =
     let
         domId =
-            TodoMenu.todoMenuFirstFocusableDomId todoId
+            TodoPopup.todoMenuFirstFocusableDomId todoId
     in
     focus domId |> Task.attempt Focused
 
@@ -527,18 +527,18 @@ updateInlineEditTodoAndCache mfn model =
         |> effect cacheInlineEditTodoEffect
 
 
-setTodoMenu : TodoMenu.Model -> Model -> Model
+setTodoMenu : TodoPopup.Model -> Model -> Model
 setTodoMenu todoMenu model =
     { model | todoMenu = todoMenu }
 
 
-cacheTodoMenuEffect : { a | todoMenu : TodoMenu.Model } -> Cmd msg
+cacheTodoMenuEffect : { a | todoMenu : TodoPopup.Model } -> Cmd msg
 cacheTodoMenuEffect model =
     Ports.localStorageSetJsonItem
-        ( "cachedTodoMenu", TodoMenu.encoder model.todoMenu )
+        ( "cachedTodoMenu", TodoPopup.encoder model.todoMenu )
 
 
-setTodoMenuAndCache : TodoMenu.Model -> Model -> Return
+setTodoMenuAndCache : TodoPopup.Model -> Model -> Return
 setTodoMenuAndCache todoMenu model =
     model
         |> setTodoMenu todoMenu
@@ -1130,7 +1130,7 @@ viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
-        , todoMenu : TodoMenu.Model
+        , todoMenu : TodoPopup.Model
     }
     -> Todo
     -> Html Msg
@@ -1160,7 +1160,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase :
     { a
         | here : Zone
-        , todoMenu : TodoMenu.Model
+        , todoMenu : TodoPopup.Model
     }
     -> Todo
     -> Html Msg
@@ -1172,21 +1172,21 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , TodoMenu.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
-                [ A.id <| TodoMenu.todoMenuTriggerDomId todo.id
+                [ A.id <| TodoPopup.todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
                 FAS.ellipsisH
                 []
-            , TodoMenu.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
             ]
         ]
 
 
-todoMenuItems : TodoMenu.MenuItems Msg
+todoMenuItems : TodoPopup.MenuItems Msg
 todoMenuItems =
     [ ( OnStartInlineEditTodo, "Edit" )
     , ( OnMoveStart, "Move to Project" )
