@@ -199,7 +199,7 @@ type Msg
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSetDue TodoId DueAt
-    | OnSetSchedule TodoId DueAt
+    | OnSchedulePopupClosedWithSetSchedule TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -408,7 +408,7 @@ update message model =
                         [ Todo.SetProjectId pid ]
                     )
 
-        OnSetSchedule todoId dueAt ->
+        OnSchedulePopupClosedWithSetSchedule todoId dueAt ->
             model.inlineEditTodo
                 |> MX.filter (InlineEditTodo.idEq todoId)
                 |> MX.unpack
@@ -541,7 +541,7 @@ updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
     SchedulePopup.update
         { focus = focusDomIdCmd
-        , onSetSchedule = OnSetSchedule
+        , onSetSchedule = OnSchedulePopupClosedWithSetSchedule
         }
         message
         model.schedulePopup
