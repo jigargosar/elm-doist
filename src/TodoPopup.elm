@@ -103,11 +103,20 @@ update toMsg msg model =
                 |> command (focus (firstFocusableDomId todoId))
 
         CloseFor todoId restoreFocus ->
-            ifElse (isOpenFor todoId model)
+            let
+                shouldClose =
+                    case model of
+                        Open todoId_ ->
+                            todoId == todoId_
+
+                        Closed ->
+                            False
+            in
+            ifElse shouldClose
                 (Closed
                     |> pure
-                    >> effect cacheEffect
-                    >> commandIf restoreFocus
+                    |> effect cacheEffect
+                    |> commandIf restoreFocus
                         (focus (triggerDomId todoId))
                 )
                 (pure model)
