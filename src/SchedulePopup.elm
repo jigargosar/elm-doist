@@ -6,7 +6,6 @@ import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
-import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (command, pure)
 
