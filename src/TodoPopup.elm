@@ -2,7 +2,6 @@ module TodoPopup exposing
     ( MenuItems
     , Model
     , Msg
-    , close
     , decoder
     , encoder
     , initialValue
@@ -82,10 +81,6 @@ type Msg
 
 open =
     OpenFor
-
-
-close =
-    CloseFor
 
 
 update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
