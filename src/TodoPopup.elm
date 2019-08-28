@@ -1,14 +1,14 @@
 module TodoPopup exposing
     ( MenuItems
     , Model
+    , closeFor
     , decoder
     , encoder
+    , firstFocusableDomId
     , init
     , isOpenFor
     , openFor
-    , todoMenuDomId
-    , todoMenuFirstFocusableDomId
-    , todoMenuTriggerDomId
+    , triggerDomId
     , view
     )
 
@@ -76,6 +76,13 @@ openFor todoId_ =
     Open todoId_
 
 
+closeFor : TodoId -> Model -> Maybe Model
+closeFor todoId_ model =
+    ifElse (isOpenFor todoId_ model)
+        (Just Closed)
+        Nothing
+
+
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
@@ -91,13 +98,13 @@ todoMenuDomId todoId =
     "todo-menu-dom-id--" ++ TodoId.toString todoId
 
 
-todoMenuTriggerDomId : TodoId -> String
-todoMenuTriggerDomId todoId =
+triggerDomId : TodoId -> String
+triggerDomId todoId =
     "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
 
 
-todoMenuFirstFocusableDomId : TodoId -> String
-todoMenuFirstFocusableDomId todoId =
+firstFocusableDomId : TodoId -> String
+firstFocusableDomId todoId =
     "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId
 
 
@@ -120,7 +127,7 @@ viewHelp onClose menuItemModelList todoId =
                 label
                 [ A.id <|
                     ifElse (idx == 0)
-                        (todoMenuFirstFocusableDomId todoId)
+                        (firstFocusableDomId todoId)
                         ""
                 , class "pa2"
                 ]

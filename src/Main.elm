@@ -390,7 +390,7 @@ update message model =
                 (setTodoMenuAndCache TodoPopup.init model
                     |> command
                         (ifElse restoreFocus
-                            (focusDomIdCmd <| TodoPopup.todoMenuTriggerDomId todoId)
+                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
                             Cmd.none
                         )
                 )
@@ -451,7 +451,7 @@ update message model =
 focusTodoMenuCmd todoId =
     let
         domId =
-            TodoPopup.todoMenuFirstFocusableDomId todoId
+            TodoPopup.firstFocusableDomId todoId
     in
     focus domId |> Task.attempt Focused
 
@@ -1176,7 +1176,7 @@ viewTodoItemBase model todo =
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
-                [ A.id <| TodoPopup.todoMenuTriggerDomId todo.id
+                [ A.id <| TodoPopup.triggerDomId todo.id
                 , class "pa2 tc child"
                 ]
                 FAS.ellipsisH
