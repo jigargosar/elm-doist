@@ -195,7 +195,7 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuTriggered TodoId
-    | CloseTodoMenu TodoId Bool
+    | CloseTodoPopup TodoId Bool
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
@@ -388,7 +388,7 @@ update message model =
                 |> setTodoPopupAndCache (TodoPopup.openFor todoId)
                 |> command (focusTodoMenuCmd todoId)
 
-        CloseTodoMenu todoId restoreFocus ->
+        CloseTodoPopup todoId restoreFocus ->
             TodoPopup.closeFor todoId model.todoMenu
                 |> MX.unwrap (pure model)
                     (flip setTodoPopupAndCache model
@@ -1172,7 +1172,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , TodoPopup.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
@@ -1181,7 +1181,7 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
             ]
         ]
 
