@@ -6,7 +6,6 @@ module TodoPopup exposing
     , closeFor
     , decoder
     , encoder
-    , firstFocusableDomId
     , initialValue
     , open
     , openFor

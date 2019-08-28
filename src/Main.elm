@@ -1179,7 +1179,8 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
+
+            --            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
