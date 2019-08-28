@@ -91,7 +91,7 @@ flagsDecoder =
         |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
         |> cachedField "cachedDialog" Dialog.decoder Dialog.init
         |> cachedField "cachedInlineEditTodo" (JD.nullable InlineEditTodo.decoder) Nothing
-        |> cachedField "cachedTodoMenu" TodoPopup.decoder TodoPopup.init
+        |> cachedField "cachedTodoMenu" TodoPopup.decoder TodoPopup.initialValue
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -149,7 +149,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , todoMenu = TodoPopup.init
+            , todoMenu = TodoPopup.initialValue
             , dialog = Dialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []

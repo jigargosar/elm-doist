@@ -1,14 +1,17 @@
 module TodoPopup exposing
     ( MenuItems
     , Model
+    , Msg
+    , close
     , closeFor
     , decoder
     , encoder
     , firstFocusableDomId
-    , init
-    , isOpenFor
+    , initialValue
+    , open
     , openFor
     , triggerDomId
+    , update
     , view
     )
 
@@ -24,8 +27,10 @@ import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Ports
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
+import UpdateExtra exposing (effect, pure)
 
 
 type Model
@@ -66,9 +71,41 @@ decoder =
     JD.field "tag" JD.string |> JD.andThen decoderForTag
 
 
-init : Model
-init =
+initialValue : Model
+initialValue =
     Closed
+
+
+type Msg
+    = OpenFor TodoId
+    | CloseFor TodoId
+
+
+open =
+    OpenFor
+
+
+close =
+    CloseFor
+
+
+update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
+update toMsg msg model =
+    case msg of
+        OpenFor todoId ->
+            pure (openFor todoId)
+                |> effect cacheTodoMenuEffect
+
+        CloseFor todoId ->
+            closeFor todoId model
+                |> Maybe.map (pure >> effect cacheTodoMenuEffect)
+                |> Maybe.withDefault (pure model)
+
+
+cacheTodoMenuEffect : Model -> Cmd msg
+cacheTodoMenuEffect model =
+    Ports.localStorageSetJsonItem
+        ( "cachedTodoMenu", encoder model )
 
 
 openFor : TodoId -> Model
