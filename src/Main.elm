@@ -1132,7 +1132,7 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view OnTodoPopupMsg todoPopupItems todo.id model.todoPopup
+            , TodoPopup.view OnTodoPopupMsg (viewTodoPopupItems todo.id) todo.id model.todoPopup
             ]
         ]
 
@@ -1144,6 +1144,22 @@ todoPopupItems =
     , ( OnSchedulePopupTriggered SchedulePopup.TodoPopup, "Schedule" )
     , ( OnDelete, "Delete" )
     ]
+
+
+viewTodoPopupItems todoId =
+    let
+        viewMenuItem : number -> TodoPopup.MenuItem msg -> Html msg
+        viewMenuItem idx ( todoAction, label ) =
+            TextButton.view (todoAction todoId)
+                label
+                [ A.id <|
+                    ifElse (idx == 0)
+                        (TodoPopup.firstFocusableDomId todoId)
+                        ""
+                , class "pa2"
+                ]
+    in
+    todoPopupItems |> List.indexedMap viewMenuItem
 
 
 viewDueAt : Zone -> Todo -> Html Msg

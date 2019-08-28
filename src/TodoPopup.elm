@@ -1,9 +1,11 @@
 module TodoPopup exposing
-    ( MenuItems
+    ( MenuItem
+    , MenuItems
     , Model
     , Msg
     , decoder
     , encoder
+    , firstFocusableDomId
     , initialValue
     , loadFromCache
     , open
@@ -185,7 +187,7 @@ type alias MenuItems msg =
 
 view :
     (Msg -> msg)
-    -> MenuItems msg
+    -> List (Html msg)
     -> TodoId
     -> Model
     -> Html msg
@@ -194,20 +196,19 @@ view toMsg menuItems todoId model =
         (viewHelp toMsg menuItems todoId)
 
 
-viewHelp : (Msg -> msg) -> MenuItems msg -> TodoId -> Html msg
-viewHelp toMsg menuItemModelList todoId =
+viewHelp : (Msg -> msg) -> List (Html msg) -> TodoId -> Html msg
+viewHelp toMsg menuItems todoId =
     let
-        viewMenuItem : number -> MenuItem msg -> Html msg
-        viewMenuItem idx ( todoAction, label ) =
-            TextButton.view (todoAction todoId)
-                label
-                [ A.id <|
-                    ifElse (idx == 0)
-                        (firstFocusableDomId todoId)
-                        ""
-                , class "pa2"
-                ]
-
+        --        viewMenuItem : number -> MenuItem msg -> Html msg
+        --        viewMenuItem idx ( todoAction, label ) =
+        --            TextButton.view (todoAction todoId)
+        --                label
+        --                [ A.id <|
+        --                    ifElse (idx == 0)
+        --                        (firstFocusableDomId todoId)
+        --                        ""
+        --                , class "pa2"
+        --                ]
         menuDomId =
             todoMenuDomId todoId
 
@@ -224,4 +225,5 @@ viewHelp toMsg menuItemModelList todoId =
         , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
         ]
-        (menuItemModelList |> List.indexedMap viewMenuItem)
+        --        (menuItems |> List.indexedMap viewMenuItem)
+        menuItems
