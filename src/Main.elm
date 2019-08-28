@@ -42,7 +42,6 @@ import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
-import Respond
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
@@ -54,12 +53,11 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoPopup
-import Tuple2 exposing (Tuple2)
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
-import UpdateExtra exposing (andThen, andThenMaybe, command, commandIf, effect, pure)
+import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -385,18 +383,20 @@ update message model =
             startEditingDue todoId model
 
         OnTodoMenuTriggered todoId ->
-            model
-                |> setTodoPopupAndCache (TodoPopup.openFor todoId)
-                |> command (focusTodoMenuCmd todoId)
+            updateTodoPopup (TodoPopup.open todoId) model
 
+        --            model
+        --                |> setTodoPopupAndCache (TodoPopup.openFor todoId)
+        --                |> command (focusTodoMenuCmd todoId)
         CloseTodoPopup todoId restoreFocus ->
-            TodoPopup.closeFor todoId model.todoMenu
-                |> MX.unwrap (pure model)
-                    (flip setTodoPopupAndCache model
-                        >> commandIf restoreFocus
-                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
-                    )
+            updateTodoPopup (TodoPopup.close todoId restoreFocus) model
 
+        --            TodoPopup.closeFor todoId model.todoMenu
+        --                |> MX.unwrap (pure model)
+        --                    (flip setTodoPopupAndCache model
+        --                        >> commandIf restoreFocus
+        --                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
+        --                    )
         OnTodoPopupMsg msg ->
             updateTodoPopup msg model
 
@@ -450,14 +450,6 @@ update message model =
 
                 Dialog.DueDialog _ ->
                     updateDialogAndCache Dialog.Closed model
-
-
-focusTodoMenuCmd todoId =
-    let
-        domId =
-            TodoPopup.firstFocusableDomId todoId
-    in
-    focus domId |> Task.attempt Focused
 
 
 focusDomIdCmd : String -> Cmd Msg
@@ -531,29 +523,34 @@ updateInlineEditTodoAndCache mfn model =
         |> effect cacheInlineEditTodoEffect
 
 
-setTodoPopup : TodoPopup.Model -> Model -> Model
-setTodoPopup todoMenu model =
-    { model | todoMenu = todoMenu }
-
-
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
     TodoPopup.update OnTodoPopupMsg msg model.todoMenu
         |> Tuple.mapFirst (flip setTodoPopup model)
 
 
-cacheTodoMenuEffect : { a | todoMenu : TodoPopup.Model } -> Cmd msg
-cacheTodoMenuEffect model =
-    Ports.localStorageSetJsonItem
-        ( "cachedTodoMenu", TodoPopup.encoder model.todoMenu )
+setTodoPopup : TodoPopup.Model -> Model -> Model
+setTodoPopup todoMenu model =
+    { model | todoMenu = todoMenu }
 
 
-setTodoPopupAndCache : TodoPopup.Model -> Model -> Return
-setTodoPopupAndCache todoMenu model =
-    model
-        |> setTodoPopup todoMenu
-        |> pure
-        |> effect cacheTodoMenuEffect
+
+--setTodoPopupAndCache : TodoPopup.Model -> Model -> Return
+--setTodoPopupAndCache todoMenu model =
+--    model
+--        |> setTodoPopup todoMenu
+--        |> pure
+--        |> effect cacheTodoMenuEffect
+--cacheTodoMenuEffect : { a | todoMenu : TodoPopup.Model } -> Cmd msg
+--cacheTodoMenuEffect model =
+--    Ports.localStorageSetJsonItem
+--        ( "cachedTodoMenu", TodoPopup.encoder model.todoMenu )
+--focusTodoMenuCmd todoId =
+--    let
+--        domId =
+--            TodoPopup.firstFocusableDomId todoId
+--    in
+--    focus domId |> Task.attempt Focused
 
 
 startMoving : Todo -> Model -> Return
