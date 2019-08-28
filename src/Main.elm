@@ -405,10 +405,10 @@ update message model =
 
                 f : Model -> ( TodoPopup.Model, Model )
                 f =
-                    extractAndApply2 .todoMenu Tuple.pair
+                    extractAndApply .todoMenu Tuple.pair
 
-                extractAndApply2 : (arg2 -> arg1) -> (arg1 -> arg2 -> result) -> arg2 -> result
-                extractAndApply2 extract apply val =
+                extractAndApply : (arg2 -> arg1) -> (arg1 -> arg2 -> result) -> arg2 -> result
+                extractAndApply extract apply val =
                     apply (extract val) val
             in
             Return.singleton model
