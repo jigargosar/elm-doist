@@ -242,7 +242,6 @@ viewHelp toMsg menuItems todoId =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , on "focusout" (JD.succeed <| toMsg OnFocusOut)
         , on "focusin" (JD.succeed <| toMsg OnFocusIn)
         , preventDefaultOn "keydown"
