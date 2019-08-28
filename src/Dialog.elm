@@ -14,7 +14,6 @@ import UI.Key
 type Model
     = Closed
     | MoveToProjectDialog TodoId ProjectId
-    | DueDialog TodoId
 
 
 init : Model
@@ -41,12 +40,6 @@ encoder dialog =
                 , ( "projectId", ProjectId.encoder projectId )
                 ]
 
-        DueDialog todoId ->
-            JE.object
-                [ ( "tag", JE.string "DueDialog" )
-                , ( "todoId", TodoId.encoder todoId )
-                ]
-
 
 dialogDecoderForTag : String -> Decoder Model
 dialogDecoderForTag tag =
@@ -58,10 +51,6 @@ dialogDecoderForTag tag =
             JD.map2 MoveToProjectDialog
                 (JD.field "todoId" TodoId.decoder)
                 (JD.field "projectId" ProjectId.decoder)
-
-        "DueDialog" ->
-            JD.field "todoId" TodoId.decoder
-                |> JD.map DueDialog
 
         _ ->
             JD.fail ("Invalid Dialog Tag:" ++ tag)

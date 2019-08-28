@@ -198,7 +198,6 @@ type Msg
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupMsg SchedulePopup.Msg
-    | OnSetDue TodoId DueAt
     | OnSchedulePopupClosedWithSetSchedule TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
@@ -422,27 +421,6 @@ update message model =
                             |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
                     )
 
-        OnSetDue todoId dueAt ->
-            ifElse (model.dialog == Dialog.DueDialog todoId)
-                (model.inlineEditTodo
-                    |> MX.filter (InlineEditTodo.idEq todoId)
-                    |> MX.unpack
-                        (\_ ->
-                            updateDialogAndCache Dialog.Closed model
-                                |> command
-                                    (patchTodoCmd
-                                        todoId
-                                        [ Todo.SetDueAt dueAt ]
-                                    )
-                        )
-                        (\_ ->
-                            model
-                                |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
-                                |> andThen (updateDialogAndCache Dialog.Closed)
-                        )
-                )
-                (pure model)
-
         OnSetTitle todoId title ->
             model.inlineEditTodo
                 |> MX.filter (InlineEditTodo.idEq todoId)
@@ -460,9 +438,6 @@ update message model =
                     pure model
 
                 Dialog.MoveToProjectDialog _ _ ->
-                    updateDialogAndCache Dialog.Closed model
-
-                Dialog.DueDialog _ ->
                     updateDialogAndCache Dialog.Closed model
 
 
@@ -567,12 +542,6 @@ setTodoPopup todoPopup model =
 startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache (Dialog.MoveToProjectDialog todo.id todo.projectId)
-        >> command (focusDomIdCmd Dialog.firstFocusable)
-
-
-startEditingDue : TodoId -> Model -> Return
-startEditingDue todoId =
-    updateDialogAndCache (Dialog.DueDialog todoId)
         >> command (focusDomIdCmd Dialog.firstFocusable)
 
 
@@ -961,9 +930,6 @@ viewFooter model =
             Dialog.MoveToProjectDialog todoId projectId ->
                 viewMoveDialog todoId projectId (Project.filterActive model.projectList)
 
-            Dialog.DueDialog todoId ->
-                viewDueDialog model.here model.today todoId
-
 
 type alias DisplayProject =
     { id : ProjectId
@@ -1020,38 +986,6 @@ viewMoveDialog todoId projectId projectList =
                         |> List.indexedMap viewProjectItem
                    )
             )
-        ]
-
-
-viewDueDialog : Time.Zone -> Calendar.Date -> TodoId -> Html Msg
-viewDueDialog zone today todoId =
-    let
-        todayFmt =
-            Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
-
-        yesterday =
-            Calendar.decrementDay today
-
-        yesterdayFmt =
-            Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
-
-        setDueMsg =
-            OnSetDue todoId
-
-        viewSetDueButton action label attrs =
-            TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
-    in
-    viewDialog
-        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-            [ div [ class " b  " ] [ text "Due Date" ]
-            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
-                ("Today: " ++ todayFmt)
-                [ A.id Dialog.firstFocusable ]
-            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
-                ("Yesterday: " ++ yesterdayFmt)
-                []
-            , viewSetDueButton Todo.NoDue "No Due Date" []
-            ]
         ]
 
 
