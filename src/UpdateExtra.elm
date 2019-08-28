@@ -1,7 +1,8 @@
-module UpdateExtra exposing (andThen, command, effect, pure, toCmd)
+module UpdateExtra exposing (addCmdIf, andThen, andThenMaybe, command, effect, pure, toCmd)
 
 -- UPDATE HELPERS
 
+import BasicsExtra exposing (ifElse)
 import Maybe.Extra as MX
 import Return exposing (Return)
 import Task
@@ -21,6 +22,11 @@ andThen =
 
 command =
     Return.command
+
+
+addCmdIf : Bool -> Cmd msg -> Return msg model -> Return msg model
+addCmdIf bool cmd_ =
+    command (ifElse bool cmd_ Cmd.none)
 
 
 toCmd : msg -> Cmd msg

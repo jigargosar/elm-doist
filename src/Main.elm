@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
+import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom exposing (focus)
@@ -58,7 +59,7 @@ import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
-import UpdateExtra exposing (andThen, command, effect, pure)
+import UpdateExtra exposing (addCmdIf, andThen, andThenMaybe, command, effect, pure)
 import Url exposing (Url)
 
 
@@ -388,26 +389,12 @@ update message model =
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
-            let
-                setTodoMenuAndCacheAndRestoreFocus : TodoPopup.Model -> Model -> Return
-                setTodoMenuAndCacheAndRestoreFocus tm =
-                    setTodoMenuAndCache tm
-                        >> command
-                            (ifElse restoreFocus
-                                (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
-                                Cmd.none
-                            )
-
-                updateTodoMenu : TodoPopup.Model -> Return -> Return
-                updateTodoMenu todoMenu =
-                    TodoPopup.closeFor todoId todoMenu
-                        |> MX.unwrap identity
-                            (setTodoMenuAndCacheAndRestoreFocus
-                                >> andThen
-                            )
-            in
-            pure model
-                |> extractAndApply (Tuple.first >> .todoMenu) updateTodoMenu
+            TodoPopup.closeFor todoId model.todoMenu
+                |> MX.unwrap (pure model)
+                    (flip setTodoMenuAndCache model
+                        >> addCmdIf restoreFocus
+                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
+                    )
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
