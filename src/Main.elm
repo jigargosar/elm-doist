@@ -1098,13 +1098,13 @@ viewEditTodoItem model edt =
         , saveMsg = OnEditSave
         }
         model.here
-        (viewSchedulePopup (InlineEditTodo.getTodoId edt) model)
+        (viewSchedulePopup SchedulePopup.InlineEditTodo (InlineEditTodo.getTodoId edt) model)
         edt
 
 
-viewSchedulePopup : TodoId -> Model -> Html Msg
-viewSchedulePopup todoId model =
-    SchedulePopup.view { toMsg = OnSchedulePopupMsg }
+viewSchedulePopup : SchedulePopup.Location -> TodoId -> Model -> Html Msg
+viewSchedulePopup loc todoId model =
+    SchedulePopup.view { toMsg = OnSchedulePopupMsg, location = loc }
         model.here
         model.today
         todoId
@@ -1123,7 +1123,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , viewSchedulePopup todo.id model
+            , viewSchedulePopup SchedulePopup.TodoItem todo.id model
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)

@@ -38,14 +38,9 @@ initialValue =
     Closed
 
 
-isOpenFor : TodoId -> Model -> Bool
-isOpenFor todoId_ model =
-    case model of
-        Opened _ tid ->
-            todoId_ == tid
-
-        Closed ->
-            False
+isOpenFor : Location -> TodoId -> Model -> Bool
+isOpenFor loc todoId model =
+    model == Opened loc todoId
 
 
 type Msg
@@ -83,6 +78,7 @@ update conf message _ =
 
 view :
     { toMsg : Msg -> msg
+    , location : Location
     }
     -> Time.Zone
     -> Calendar.Date
@@ -90,7 +86,7 @@ view :
     -> Model
     -> Html msg
 view conf here today todoId model =
-    HX.viewIf (isOpenFor todoId model) (viewHelp conf here today todoId)
+    HX.viewIf (isOpenFor conf.location todoId model) (viewHelp conf here today todoId)
 
 
 firstFocusable =
