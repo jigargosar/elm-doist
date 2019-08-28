@@ -49,13 +49,13 @@ isOpenFor todoId_ model =
 
 
 type Msg
-    = OpenFor TodoId
+    = OpenFor Location TodoId
     | Close
     | OnSetSchedule TodoId Todo.DueAt
 
 
 openFor : Location -> TodoId -> Msg
-openFor _ =
+openFor =
     OpenFor
 
 
@@ -68,7 +68,7 @@ update :
     -> ( Model, Cmd msg )
 update conf message _ =
     case message of
-        OpenFor todoId ->
+        OpenFor _ todoId ->
             Opened todoId
                 |> pure
                 |> command (conf.focus firstFocusable)
