@@ -10,7 +10,6 @@ module SchedulePopup exposing
 
 import Accessibility.Styled.Key as Key
 import Calendar
-import Focus
 import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on, preventDefaultOn)
