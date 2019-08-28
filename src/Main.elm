@@ -386,15 +386,16 @@ update message model =
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
-            ifElse (TodoPopup.isOpenFor todoId model.todoMenu)
-                (setTodoMenuAndCache TodoPopup.init model
-                    |> command
-                        (ifElse restoreFocus
-                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
-                            Cmd.none
-                        )
-                )
-                (pure model)
+            TodoPopup.closeFor todoId model.todoMenu
+                |> MX.unpack (\_ -> pure model)
+                    (\todoMenu ->
+                        setTodoMenuAndCache todoMenu model
+                            |> command
+                                (ifElse restoreFocus
+                                    (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
+                                    Cmd.none
+                                )
+                    )
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
