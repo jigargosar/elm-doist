@@ -79,6 +79,7 @@ type Msg
     | Focused (Result Dom.Error ())
 
 
+open : TodoId -> Msg
 open =
     OpenFor
 
