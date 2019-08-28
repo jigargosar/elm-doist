@@ -11,8 +11,8 @@ module SchedulePopup exposing
 import Accessibility.Styled.Key as Key
 import Calendar
 import Focus
-import Html.Styled as H exposing (Html, div, text)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled exposing (Html, div, text)
+import Html.Styled.Attributes as A exposing (class)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Millis
@@ -30,7 +30,7 @@ type Location
 
 
 type Model
-    = Opened TodoId
+    = Opened Location TodoId
     | Closed
 
 
@@ -41,7 +41,7 @@ initialValue =
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
-        Opened tid ->
+        Opened _ tid ->
             todoId_ == tid
 
         Closed ->
@@ -68,8 +68,8 @@ update :
     -> ( Model, Cmd msg )
 update conf message _ =
     case message of
-        OpenFor _ todoId ->
-            Opened todoId
+        OpenFor loc todoId ->
+            Opened loc todoId
                 |> pure
                 |> command (conf.focus firstFocusable)
 
