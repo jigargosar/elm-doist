@@ -199,6 +199,7 @@ type Msg
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSetDue TodoId DueAt
+    | OnSetSchedule TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -383,8 +384,12 @@ update message model =
                 |> callWith model
 
         OnEditDueStart todoId ->
-            startEditingDue todoId model
-                |> andThen (updateSchedulePopup (SchedulePopup.openFor todoId))
+            {- startEditingDue todoId model
+               |> andThen (
+               updateSchedulePopup (SchedulePopup.openFor todoId)
+               )
+            -}
+            updateSchedulePopup (SchedulePopup.openFor todoId) model
 
         OnTodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
@@ -402,6 +407,9 @@ update message model =
                         todoId
                         [ Todo.SetProjectId pid ]
                     )
+
+        OnSetSchedule todoId dueAt ->
+            pure model
 
         OnSetDue todoId dueAt ->
             ifElse (model.dialog == Dialog.DueDialog todoId)
@@ -1160,7 +1168,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , SchedulePopup.view { toMsg = OnSchedulePopupMsg, onSetDue = OnSetDue }
+            , SchedulePopup.view { toMsg = OnSchedulePopupMsg, onSetDue = OnSetSchedule }
                 model.here
                 model.today
                 todo.id
