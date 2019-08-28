@@ -516,7 +516,7 @@ updateInlineEditTodoAndCache mfn model =
 
 updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
-    SchedulePopup.update message model.schedulePopup
+    SchedulePopup.update { focus = focusDomIdCmd } message model.schedulePopup
         |> Tuple.mapFirst (flip setSchedulePopup model)
 
 

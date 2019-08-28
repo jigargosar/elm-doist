@@ -1,11 +1,11 @@
 module SchedulePopup exposing (Model, Msg, initialValue, openFor, update, view)
 
 import Html.Styled exposing (Html, div, text)
-import Html.Styled.Attributes exposing (class)
+import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlStyledExtra as HX
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (pure)
+import UpdateExtra exposing (command, pure)
 
 
 type Model
@@ -35,17 +35,23 @@ openFor =
     OpenFor
 
 
-update : Msg -> Model -> ( Model, Cmd msg )
-update message model =
+update : { focus : String -> Cmd msg } -> Msg -> Model -> ( Model, Cmd msg )
+update config message model =
     case message of
         OpenFor todoId ->
-            Open todoId |> pure
+            Open todoId
+                |> pure
+                |> command (config.focus firstFocusable)
 
 
 view : TodoId -> Model -> Html msg
 view todoId model =
     HX.viewIf (isOpenFor todoId model)
         viewHelp
+
+
+firstFocusable =
+    "schedule-popup__first-focusable"
 
 
 viewHelp =
@@ -61,4 +67,4 @@ viewHelp =
         --               , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
         ]
         --               (menuItemModelList |> List.indexedMap viewMenuItem)
-        [ div [] [ text "schedule popup" ] ]
+        [ div [ A.id firstFocusable, tabindex 0 ] [ text "schedule popup" ] ]
