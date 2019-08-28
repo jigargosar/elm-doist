@@ -16,7 +16,7 @@ import UpdateExtra exposing (command, pure, toCmd)
 
 
 type Model
-    = Open TodoId
+    = Opened TodoId
     | Closed
 
 
@@ -27,7 +27,7 @@ initialValue =
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
-        Open tid ->
+        Opened tid ->
             todoId_ == tid
 
         Closed ->
@@ -54,7 +54,7 @@ update :
 update conf message _ =
     case message of
         OpenFor todoId ->
-            Open todoId
+            Opened todoId
                 |> pure
                 |> command (conf.focus firstFocusable)
 
