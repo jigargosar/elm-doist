@@ -430,7 +430,7 @@ update message model =
                             )
                         |> command
                             (ifElse restoreFocus
-                                (focusImmediate "Schedule")
+                                (focusDomIdCmd "Schedule")
                                 Cmd.none
                             )
 
@@ -466,11 +466,6 @@ update message model =
 focusDomIdCmd : String -> Cmd Msg
 focusDomIdCmd domId =
     focus domId |> Task.attempt Focused
-
-
-focusImmediate : String -> Cmd msg
-focusImmediate domId =
-    Ports.focusImmediate domId
 
 
 persistInlineEditTodo : Model -> Return
@@ -542,7 +537,7 @@ updateInlineEditTodoAndCache mfn model =
 updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
     SchedulePopup.update
-        { focus = focusImmediate
+        { focus = focusDomIdCmd
         , onClose = OnSchedulePopupClosed
         }
         message
