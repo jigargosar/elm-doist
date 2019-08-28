@@ -26,9 +26,11 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra as MX
 import Ports
+import Process
 import Result.Extra as RX
+import Task
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (commandIf, effect, pure)
+import UpdateExtra exposing (andThen, commandIf, effect, pure)
 
 
 type Model
@@ -80,6 +82,7 @@ type Msg
     | Focused (Result Dom.Error ())
     | LoadFromCache Value
     | OnFocusOut
+    | CloseOnFocusLost
     | OnFocusIn
 
 
@@ -134,14 +137,15 @@ update toMsg msg model =
             pure model
 
         OnFocusOut ->
-            (case model of
+            case model of
                 Open _ todoId ->
-                    Open False todoId
+                    ( Open False todoId
+                    , Process.sleep 0
+                        |> Task.perform (\_ -> toMsg CloseOnFocusLost)
+                    )
 
                 Closed ->
-                    model
-            )
-                |> pure
+                    pure model
 
         OnFocusIn ->
             (case model of
@@ -152,6 +156,14 @@ update toMsg msg model =
                     model
             )
                 |> pure
+
+        CloseOnFocusLost ->
+            case model of
+                Open False todoId ->
+                    update toMsg (CloseFor todoId False) model
+
+                _ ->
+                    pure model
 
 
 getTodoId : Model -> Maybe TodoId
