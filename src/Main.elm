@@ -1160,7 +1160,11 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , SchedulePopup.view OnSchedulePopupMsg todo.id model.schedulePopup
+            , SchedulePopup.view { toMsg = OnSchedulePopupMsg, onSetDue = OnSetDue }
+                model.here
+                model.today
+                todo.id
+                model.schedulePopup
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)

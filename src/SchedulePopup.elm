@@ -1,12 +1,17 @@
 module SchedulePopup exposing (Model, Msg, initialValue, openFor, update, view)
 
 import Accessibility.Styled.Key as Key
+import Calendar
 import Focus
 import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
+import Millis
+import Time
+import Todo
 import TodoId exposing (TodoId)
+import UI.TextButton as TextButton
 import UpdateExtra exposing (command, pure)
 
 
@@ -50,10 +55,17 @@ update config message model =
             pure Closed
 
 
-view : (Msg -> msg) -> TodoId -> Model -> Html msg
-view toMsg todoId model =
-    HX.viewIf (isOpenFor todoId model) viewHelp
-        |> H.map toMsg
+view :
+    { toMsg : Msg -> msg
+    , onSetDue : TodoId -> Todo.DueAt -> msg
+    }
+    -> Time.Zone
+    -> Calendar.Date
+    -> TodoId
+    -> Model
+    -> Html msg
+view conf here today todoId model =
+    HX.viewIf (isOpenFor todoId model) (viewHelp conf here today todoId)
 
 
 firstFocusable =
@@ -64,15 +76,42 @@ popupContainer =
     "schedule-popup__container"
 
 
-viewHelp : Html Msg
-viewHelp =
+viewHelp conf zone today todoId =
+    let
+        todayFmt =
+            Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
+
+        yesterday =
+            Calendar.decrementDay today
+
+        yesterdayFmt =
+            Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
+
+        setDueMsg =
+            conf.onSetDue todoId
+
+        viewSetDueButton action label attrs =
+            TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
+
+        closeMsg =
+            conf.toMsg Close
+    in
     div
         [ A.id popupContainer
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId popupContainer Close
-        , preventDefaultOn "keydown" (Key.escape ( Close, True ))
+        , Focus.onFocusOutsideDomId popupContainer closeMsg
+        , preventDefaultOn "keydown" (Key.escape ( closeMsg, True ))
         ]
-        --               (menuItemModelList |> List.indexedMap viewMenuItem)
-        [ div [ A.id firstFocusable, tabindex 0, class "pointer pa3" ] [ text "schedule popup" ] ]
+        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
+            [ div [ class " b  " ] [ text "Due Date" ]
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
+                ("Today: " ++ todayFmt)
+                [ A.id firstFocusable ]
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
+                ("Yesterday: " ++ yesterdayFmt)
+                []
+            , viewSetDueButton Todo.NoDue "No Due Date" []
+            ]
+        ]
