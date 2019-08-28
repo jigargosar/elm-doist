@@ -46,7 +46,7 @@ isOpenFor loc todoId model =
 
 type Msg
     = OpenFor Location TodoId
-    | Close
+    | Close Bool
     | OnSetScheduleAndClose Todo.DueAt
 
 
@@ -57,7 +57,7 @@ openFor =
 
 update :
     { focus : String -> Cmd msg
-    , onClose : Location -> TodoId -> Maybe Todo.DueAt -> msg
+    , onClose : Location -> TodoId -> Bool -> Maybe Todo.DueAt -> msg
     }
     -> Msg
     -> Model
@@ -69,11 +69,11 @@ update conf message model =
                 |> pure
                 |> command (conf.focus firstFocusable)
 
-        Close ->
+        Close restoreFocus ->
             case model of
                 Opened loc todoId ->
                     pure Closed
-                        |> command (toCmd (conf.onClose loc todoId Nothing))
+                        |> command (toCmd (conf.onClose loc todoId restoreFocus Nothing))
 
                 Closed ->
                     pure model
@@ -82,7 +82,7 @@ update conf message model =
             case model of
                 Opened loc todoId ->
                     pure Closed
-                        |> command (toCmd (conf.onClose loc todoId (Just dueAt)))
+                        |> command (toCmd (conf.onClose loc todoId False (Just dueAt)))
 
                 Closed ->
                     pure model
@@ -128,15 +128,15 @@ viewHelp conf zone today todoId =
         viewSetDueButton action label attrs =
             TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
 
-        closeMsg =
-            conf.toMsg Close
+        closeMsg restoreFocus =
+            conf.toMsg <| Close restoreFocus
     in
     div
         [ A.id popupContainer
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId popupContainer closeMsg
+        , Focus.onFocusOutsideDomId popupContainer (closeMsg False)
         , preventDefaultOn "keydown"
             (JD.field "defaultPrevented" JD.bool
                 |> JD.andThen
@@ -145,7 +145,7 @@ viewHelp conf zone today todoId =
                             JD.fail "defaultPrevented"
 
                         else
-                            Key.escape ( closeMsg, True )
+                            Key.escape ( closeMsg True, True )
                     )
             )
         , tabindex -1

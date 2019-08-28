@@ -198,7 +198,7 @@ type Msg
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
-    | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
+    | OnSchedulePopupClosed SchedulePopup.Location TodoId Bool (Maybe DueAt)
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -402,7 +402,7 @@ update message model =
                         [ Todo.SetProjectId pid ]
                     )
 
-        OnSchedulePopupClosed loc todoId maybeDueAt ->
+        OnSchedulePopupClosed loc todoId restoreFocus maybeDueAt ->
             case loc of
                 SchedulePopup.InlineEditTodo ->
                     model.inlineEditTodo
@@ -422,6 +422,11 @@ update message model =
                                 ( model
                                 , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
                                 )
+                            )
+                        |> command
+                            (ifElse restoreFocus
+                                (focusDomIdCmd "Schedule" |> Debug.log "focusing schedule")
+                                Cmd.none
                             )
 
                 SchedulePopup.TodoItem ->
@@ -1149,7 +1154,10 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view OnTodoPopupMsg (viewTodoPopupItems todo.id model) todo.id model.todoPopup
+            , TodoPopup.view OnTodoPopupMsg
+                (viewTodoPopupItems todo.id model)
+                todo.id
+                model.todoPopup
             ]
         ]
 
@@ -1174,7 +1182,7 @@ viewTodoPopupItems todoId model =
                     [ A.id <|
                         ifElse (idx == 0)
                             (TodoPopup.firstFocusableDomId todoId)
-                            ""
+                            label
                     , class "pa2"
                     ]
                 , HX.viewIf
