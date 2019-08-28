@@ -59,7 +59,7 @@ import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
-import UpdateExtra exposing (addCmdIf, andThen, andThenMaybe, command, effect, pure)
+import UpdateExtra exposing (andThen, andThenMaybe, command, commandIf, effect, pure)
 import Url exposing (Url)
 
 
@@ -392,7 +392,7 @@ update message model =
             TodoPopup.closeFor todoId model.todoMenu
                 |> MX.unwrap (pure model)
                     (flip setTodoPopupAndCache model
-                        >> addCmdIf restoreFocus
+                        >> commandIf restoreFocus
                             (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
                     )
 

@@ -1,4 +1,4 @@
-module UpdateExtra exposing (addCmdIf, andThen, andThenMaybe, command, effect, pure, toCmd)
+module UpdateExtra exposing (andThen, andThenMaybe, command, commandIf, effect, pure, toCmd)
 
 -- UPDATE HELPERS
 
@@ -24,8 +24,8 @@ command =
     Return.command
 
 
-addCmdIf : Bool -> Cmd msg -> Return msg model -> Return msg model
-addCmdIf bool cmd_ =
+commandIf : Bool -> Cmd msg -> Return msg model -> Return msg model
+commandIf bool cmd_ =
     command (ifElse bool cmd_ Cmd.none)
 
 
