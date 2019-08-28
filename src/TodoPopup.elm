@@ -3,12 +3,10 @@ module TodoPopup exposing
     , Model
     , Msg
     , close
-    , closeFor
     , decoder
     , encoder
     , initialValue
     , open
-    , openFor
     , triggerDomId
     , update
     , view
@@ -100,7 +98,7 @@ update toMsg msg model =
     in
     case msg of
         OpenFor todoId ->
-            pure (openFor todoId)
+            pure (Open todoId)
                 |> effect cacheTodoMenuEffect
                 |> command (focus_ (firstFocusableDomId todoId))
 
@@ -126,11 +124,6 @@ cacheTodoMenuEffect : Model -> Cmd msg
 cacheTodoMenuEffect model =
     Ports.localStorageSetJsonItem
         ( "cachedTodoMenu", encoder model )
-
-
-openFor : TodoId -> Model
-openFor todoId_ =
-    Open todoId_
 
 
 closeFor : TodoId -> Model -> Maybe Model
