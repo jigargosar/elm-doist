@@ -25,7 +25,6 @@ import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra as MX
 import Ports
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
@@ -160,14 +159,19 @@ type alias MenuItems msg =
     List ( TodoId -> msg, String )
 
 
-view : (TodoId -> Bool -> msg) -> MenuItems msg -> TodoId -> Model -> Html msg
-view onClose menuItemModelList todoId model =
+view :
+    (Msg -> msg)
+    -> MenuItems msg
+    -> TodoId
+    -> Model
+    -> Html msg
+view toMsg menuItemModelList todoId model =
     HX.viewIf (isOpenFor todoId model)
-        (viewHelp onClose menuItemModelList todoId)
+        (viewHelp toMsg menuItemModelList todoId)
 
 
-viewHelp : (TodoId -> Bool -> msg) -> MenuItems msg -> TodoId -> Html msg
-viewHelp onClose menuItemModelList todoId =
+viewHelp : (Msg -> msg) -> MenuItems msg -> TodoId -> Html msg
+viewHelp toMsg menuItemModelList todoId =
     let
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
@@ -185,7 +189,8 @@ viewHelp onClose menuItemModelList todoId =
 
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
-            onClose todoId restoreFocus
+            CloseFor todoId restoreFocus
+                |> toMsg
     in
     div
         [ A.id menuDomId

@@ -193,7 +193,6 @@ type Msg
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
     | OnTodoMenuTriggered TodoId
-    | CloseTodoPopup TodoId Bool
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
@@ -384,9 +383,6 @@ update message model =
 
         OnTodoMenuTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
-
-        CloseTodoPopup todoId restoreFocus ->
-            updateTodoPopup (TodoPopup.close todoId restoreFocus) model
 
         OnTodoPopupMsg msg ->
             updateTodoPopup msg model
@@ -1161,7 +1157,7 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view OnTodoPopupMsg todoMenuItems todo.id model.todoMenu
             ]
         ]
 
