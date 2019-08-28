@@ -194,7 +194,7 @@ type Msg
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
-    | OnEditDueStart TodoId
+    | OnSchedulePopupTriggered TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupMsg SchedulePopup.Msg
@@ -382,7 +382,7 @@ update message model =
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
-        OnEditDueStart todoId ->
+        OnSchedulePopupTriggered todoId ->
             updateSchedulePopup (SchedulePopup.openFor todoId) model
 
         OnTodoPopupTriggered todoId ->
@@ -1092,7 +1092,7 @@ viewTodoItem model todo =
 viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
-        { editDueMsg = OnEditDueStart
+        { editDueMsg = OnSchedulePopupTriggered
         , titleChangedMsg = OnSetTitle
         , cancelMsg = OnEditCancel
         , saveMsg = OnEditSave
@@ -1141,7 +1141,7 @@ todoPopupItems : TodoPopup.MenuItems Msg
 todoPopupItems =
     [ ( OnStartInlineEditTodo, "Edit" )
     , ( OnMoveStart, "Move to Project" )
-    , ( OnEditDueStart, "Schedule" )
+    , ( OnSchedulePopupTriggered, "Schedule" )
     , ( OnDelete, "Delete" )
     ]
 
@@ -1152,13 +1152,13 @@ viewDueAt here todo =
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                IconButton.view (OnEditDueStart todo.id)
+                IconButton.view (OnSchedulePopupTriggered todo.id)
                     [ class "pa2 child" ]
                     FAR.calendarPlus
                     []
             )
             (\dueMillis ->
-                TextButton.view (OnEditDueStart todo.id)
+                TextButton.view (OnSchedulePopupTriggered todo.id)
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )
