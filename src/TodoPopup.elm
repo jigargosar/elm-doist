@@ -203,7 +203,7 @@ viewHelp toMsg menuItems todoId =
             CloseFor todoId restoreFocus
                 |> toMsg
     in
-    H.node "track-focus-out"
+    H.node "track-focus-outside"
         [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"

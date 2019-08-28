@@ -24,7 +24,7 @@ customElements.define(
 )
 
 customElements.define(
-  'track-focus-out',
+  'track-focus-outside',
   class extends HTMLElement {
     connectedCallback() {
       this.addEventListener('focusout', focusOutListener)
