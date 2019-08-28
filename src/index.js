@@ -56,17 +56,9 @@ const pubs = initPubs({
 
 pubs.onBrowserFocusChanged(document.hasFocus())
 
-window.addEventListener('focus', () =>
-  pubs.onBrowserFocusChanged(true),
-)
-window.addEventListener('blur', () =>
-  pubs.onBrowserFocusChanged(false),
-)
-window.addEventListener('focusout', () =>
-  requestAnimationFrame(()=>{
-    console.log("focusout ae", document.activeElement)
-  })
-)
+window.addEventListener('focus', () => pubs.onBrowserFocusChanged(true))
+window.addEventListener('blur', () => pubs.onBrowserFocusChanged(false))
+
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
