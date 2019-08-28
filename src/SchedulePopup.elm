@@ -12,7 +12,7 @@ import Time
 import Todo
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
-import UpdateExtra exposing (command, pure)
+import UpdateExtra exposing (command, pure, toCmd)
 
 
 type Model
@@ -51,18 +51,19 @@ update :
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update config message model =
+update conf message _ =
     case message of
         OpenFor todoId ->
             Open todoId
                 |> pure
-                |> command (config.focus firstFocusable)
+                |> command (conf.focus firstFocusable)
 
         Close ->
             pure Closed
 
         OnSetSchedule todoId dueAt ->
             pure Closed
+                |> command (toCmd (conf.onSetSchedule todoId dueAt))
 
 
 view :
