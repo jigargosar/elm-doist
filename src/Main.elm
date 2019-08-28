@@ -1189,40 +1189,15 @@ viewTodoItemBase model todo =
 viewTodoMenu : { a | id : TodoId } -> Html Msg
 viewTodoMenu todo =
     let
+        menuItemModelList : TodoMenu.MenuItems Msg
         menuItemModelList =
             [ ( OnStartInlineEditTodo, "Edit" )
             , ( OnMoveStart, "Move to Project" )
             , ( OnEditDueStart, "Schedule" )
             , ( OnDelete, "Delete" )
             ]
-
-        viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
-        viewMenuItem idx ( todoAction, label ) =
-            TextButton.view (todoAction todo.id)
-                label
-                [ A.id <|
-                    ifElse (idx == 0)
-                        (TodoMenu.todoMenuFirstFocusableDomId todo.id)
-                        ""
-                , class "pa2"
-                ]
-
-        menuDomId =
-            TodoMenu.todoMenuDomId todo.id
-
-        closeMsg : Bool -> Msg
-        closeMsg restoreFocus =
-            CloseTodoMenu todo.id restoreFocus
     in
-    div
-        [ A.id menuDomId
-        , class "absolute right-0 top-1"
-        , class "bg-white shadow-1 w5"
-        , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
-        , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
-        ]
-        (menuItemModelList |> List.indexedMap viewMenuItem)
+    TodoMenu.view CloseTodoMenu menuItemModelList todo
 
 
 viewDueAt : Zone -> Todo -> Html Msg
