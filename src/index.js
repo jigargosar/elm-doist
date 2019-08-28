@@ -62,6 +62,11 @@ window.addEventListener('focus', () =>
 window.addEventListener('blur', () =>
   pubs.onBrowserFocusChanged(false),
 )
+window.addEventListener('focusout', () =>
+  requestAnimationFrame(()=>{
+    console.log("focusout ae", document.activeElement)
+  })
+)
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 

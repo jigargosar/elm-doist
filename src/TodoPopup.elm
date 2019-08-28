@@ -20,28 +20,26 @@ import Browser.Dom as Dom
 import Focus
 import Html.Styled exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events exposing (on, preventDefaultOn)
+import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra as MX
 import Ports
-import Process
 import Result.Extra as RX
-import Task
 import TodoId exposing (TodoId)
-import UpdateExtra exposing (andThen, commandIf, effect, pure)
+import UpdateExtra exposing (commandIf, effect, pure)
 
 
 type Model
-    = Open Bool TodoId
+    = Open TodoId
     | Closed
 
 
 encoder : Model -> Value
 encoder model =
     case model of
-        Open _ todoId ->
+        Open todoId ->
             JE.object
                 [ ( "tag", JE.string "Open" )
                 , ( "todoId", TodoId.encoder todoId )
@@ -60,7 +58,7 @@ decoder =
             case tag of
                 "Open" ->
                     JD.field "todoId" TodoId.decoder
-                        |> JD.map (Open False)
+                        |> JD.map Open
 
                 "Closed" ->
                     JD.succeed Closed
@@ -81,9 +79,6 @@ type Msg
     | CloseFor TodoId Bool
     | Focused (Result Dom.Error ())
     | LoadFromCache Value
-    | OnFocusOut
-    | CloseOnFocusLost
-    | OnFocusIn
 
 
 open : TodoId -> Msg
@@ -119,7 +114,7 @@ update toMsg msg model =
                     (pure >> effect focusFirstEffect)
 
         OpenFor todoId ->
-            pure (Open False todoId)
+            pure (Open todoId)
                 |> effect cacheEffect
                 |> effect focusFirstEffect
 
@@ -136,40 +131,11 @@ update toMsg msg model =
         Focused _ ->
             pure model
 
-        OnFocusOut ->
-            case model of
-                Open _ todoId ->
-                    ( Open False todoId
-                    , Process.sleep 0
-                        |> Task.perform (\_ -> toMsg CloseOnFocusLost)
-                    )
-
-                Closed ->
-                    pure model
-
-        OnFocusIn ->
-            (case model of
-                Open _ todoId ->
-                    Open True todoId
-
-                Closed ->
-                    model
-            )
-                |> pure
-
-        CloseOnFocusLost ->
-            case model of
-                Open False todoId ->
-                    update toMsg (CloseFor todoId False) model
-
-                _ ->
-                    pure model
-
 
 getTodoId : Model -> Maybe TodoId
 getTodoId model =
     case model of
-        Open _ todoId_ ->
+        Open todoId_ ->
             Just todoId_
 
         Closed ->
@@ -185,7 +151,7 @@ cacheEffect model =
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
-        Open _ tid ->
+        Open tid ->
             todoId_ == tid
 
         Closed ->
@@ -242,8 +208,6 @@ viewHelp toMsg menuItems todoId =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , on "focusout" (JD.succeed <| toMsg OnFocusOut)
-        , on "focusin" (JD.succeed <| toMsg OnFocusIn)
         , preventDefaultOn "keydown"
             (JD.field "defaultPrevented" JD.bool
                 |> JD.andThen
