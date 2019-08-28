@@ -937,17 +937,15 @@ viewFooter model =
         viewSignInDialog
 
     else
-        div []
-            [ case model.dialog of
-                Dialog.Closed ->
-                    HX.empty
+        case model.dialog of
+            Dialog.Closed ->
+                HX.empty
 
-                Dialog.MoveToProjectDialog todoId projectId ->
-                    viewMoveDialog todoId projectId (Project.filterActive model.projectList)
+            Dialog.MoveToProjectDialog todoId projectId ->
+                viewMoveDialog todoId projectId (Project.filterActive model.projectList)
 
-                Dialog.DueDialog todoId ->
-                    viewDueDialog model.here model.today todoId
-            ]
+            Dialog.DueDialog todoId ->
+                viewDueDialog model.here model.today todoId
 
 
 type alias DisplayProject =
