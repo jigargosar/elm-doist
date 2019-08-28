@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import Accessibility.Styled.Key as Key
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (callWith, eq_, ifElse)
 import Browser
@@ -13,7 +12,6 @@ import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
-import Focus
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
 import FontAwesome.Regular as FAR
@@ -31,7 +29,7 @@ import Html.Styled.Attributes as A
         , disabled
         , href
         )
-import Html.Styled.Events exposing (onClick, preventDefaultOn)
+import Html.Styled.Events exposing (onClick)
 import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
