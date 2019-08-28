@@ -1,4 +1,4 @@
-module SchedulePopup exposing (Model, initialValue, view)
+module SchedulePopup exposing (Model, Msg, initialValue, openFor, update, view)
 
 import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (class)
@@ -8,7 +8,7 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Open TodoId ProjectId
+    = Open TodoId
     | Closed
 
 
@@ -19,11 +19,26 @@ initialValue =
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
-        Open tid _ ->
+        Open tid ->
             todoId_ == tid
 
         Closed ->
             False
+
+
+type Msg
+    = OpenFor TodoId
+
+
+openFor =
+    OpenFor
+
+
+update : Msg -> Model -> Model
+update message model =
+    case message of
+        OpenFor todoId ->
+            Open todoId
 
 
 view : TodoId -> Model -> Html msg
