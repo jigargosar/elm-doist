@@ -399,7 +399,7 @@ update message model =
 
         OnTodoPopupMsg msg ->
             TodoPopup.update OnTodoPopupMsg msg model.todoMenu
-                |> Tuple.mapFirst (\tp -> setTodoMenu tp model)
+                |> Tuple.mapFirst (flip setTodoMenu model)
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
