@@ -99,33 +99,27 @@ update toMsg msg model =
     case msg of
         OpenFor todoId ->
             pure (Open todoId)
-                |> effect cacheTodoMenuEffect
+                |> effect cacheEffect
                 |> command (focus (firstFocusableDomId todoId))
 
         CloseFor todoId restoreFocus ->
-            closeFor todoId model
-                |> MX.unwrap (pure model)
-                    (pure
-                        >> effect cacheTodoMenuEffect
-                        >> commandIf restoreFocus
-                            (focus (triggerDomId todoId))
-                    )
+            ifElse (isOpenFor todoId model)
+                (Closed
+                    |> pure
+                    >> effect cacheEffect
+                    >> commandIf restoreFocus
+                        (focus (triggerDomId todoId))
+                )
+                (pure model)
 
         Focused _ ->
             pure model
 
 
-cacheTodoMenuEffect : Model -> Cmd msg
-cacheTodoMenuEffect model =
+cacheEffect : Model -> Cmd msg
+cacheEffect model =
     Ports.localStorageSetJsonItem
         ( "cachedTodoMenu", encoder model )
-
-
-closeFor : TodoId -> Model -> Maybe Model
-closeFor todoId_ model =
-    ifElse (isOpenFor todoId_ model)
-        (Just Closed)
-        Nothing
 
 
 isOpenFor : TodoId -> Model -> Bool

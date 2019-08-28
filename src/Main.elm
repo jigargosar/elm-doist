@@ -385,18 +385,9 @@ update message model =
         OnTodoMenuTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
 
-        --            model
-        --                |> setTodoPopupAndCache (TodoPopup.openFor todoId)
-        --                |> command (focusTodoMenuCmd todoId)
         CloseTodoPopup todoId restoreFocus ->
             updateTodoPopup (TodoPopup.close todoId restoreFocus) model
 
-        --            TodoPopup.closeFor todoId model.todoMenu
-        --                |> MX.unwrap (pure model)
-        --                    (flip setTodoPopupAndCache model
-        --                        >> commandIf restoreFocus
-        --                            (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
-        --                    )
         OnTodoPopupMsg msg ->
             updateTodoPopup msg model
 
@@ -532,25 +523,6 @@ updateTodoPopup msg model =
 setTodoPopup : TodoPopup.Model -> Model -> Model
 setTodoPopup todoMenu model =
     { model | todoMenu = todoMenu }
-
-
-
---setTodoPopupAndCache : TodoPopup.Model -> Model -> Return
---setTodoPopupAndCache todoMenu model =
---    model
---        |> setTodoPopup todoMenu
---        |> pure
---        |> effect cacheTodoMenuEffect
---cacheTodoMenuEffect : { a | todoMenu : TodoPopup.Model } -> Cmd msg
---cacheTodoMenuEffect model =
---    Ports.localStorageSetJsonItem
---        ( "cachedTodoMenu", TodoPopup.encoder model.todoMenu )
---focusTodoMenuCmd todoId =
---    let
---        domId =
---            TodoPopup.firstFocusableDomId todoId
---    in
---    focus domId |> Task.attempt Focused
 
 
 startMoving : Todo -> Model -> Return
