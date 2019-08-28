@@ -1170,7 +1170,10 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewDueAt model.here todo
+        , div [ class "flex-shrink-0 relative flex" ]
+            [ viewDueAt model.here todo
+            , TodoMenu.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
+            ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
                 [ A.id <| TodoMenu.todoMenuTriggerDomId todo.id
