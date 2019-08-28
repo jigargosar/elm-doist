@@ -196,6 +196,7 @@ type Msg
     | OnEditDueStart TodoId
     | OnTodoMenuTriggered TodoId
     | CloseTodoPopup TodoId Bool
+    | OnTodoPopupMsg TodoPopup.Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
@@ -395,6 +396,10 @@ update message model =
                         >> commandIf restoreFocus
                             (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
                     )
+
+        OnTodoPopupMsg msg ->
+            TodoPopup.update OnTodoPopupMsg msg model.todoMenu
+                |> Tuple.mapFirst (\tp -> setTodoMenu tp model)
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
