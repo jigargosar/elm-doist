@@ -71,7 +71,7 @@ type alias Flags =
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
-    , cachedTodoMenu : TodoPopup.Model
+    , cachedtodoPopup : TodoPopup.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -102,7 +102,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
-    , todoMenu : TodoPopup.Model
+    , todoPopup : TodoPopup.Model
     , dialog : Dialog.Model
     , authState : AuthState
     , errors : Errors
@@ -147,7 +147,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , todoMenu = TodoPopup.initialValue
+            , todoPopup = TodoPopup.initialValue
             , dialog = Dialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -192,7 +192,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
-    | OnTodoMenuTriggered TodoId
+    | OntodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
@@ -381,7 +381,7 @@ update message model =
         OnEditDueStart todoId ->
             startEditingDue todoId model
 
-        OnTodoMenuTriggered todoId ->
+        OntodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
 
         OnTodoPopupMsg msg ->
@@ -512,13 +512,13 @@ updateInlineEditTodoAndCache mfn model =
 
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
-    TodoPopup.update OnTodoPopupMsg msg model.todoMenu
+    TodoPopup.update OnTodoPopupMsg msg model.todoPopup
         |> Tuple.mapFirst (flip setTodoPopup model)
 
 
 setTodoPopup : TodoPopup.Model -> Model -> Model
-setTodoPopup todoMenu model =
-    { model | todoMenu = todoMenu }
+setTodoPopup todoPopup model =
+    { model | todoPopup = todoPopup }
 
 
 startMoving : Todo -> Model -> Return
@@ -584,7 +584,7 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
         |> setInlineEditTodo_ flags.cachedInlineEditTodo
-        |> setTodoPopup flags.cachedTodoMenu
+        |> setTodoPopup flags.cachedtodoPopup
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
@@ -1105,7 +1105,7 @@ viewTodoItem :
     { a
         | inlineEditTodo : Maybe InlineEditTodo.Model
         , here : Zone
-        , todoMenu : TodoPopup.Model
+        , todoPopup : TodoPopup.Model
     }
     -> Todo
     -> Html Msg
@@ -1135,7 +1135,7 @@ viewEditTodoItem here edt =
 viewTodoItemBase :
     { a
         | here : Zone
-        , todoMenu : TodoPopup.Model
+        , todoPopup : TodoPopup.Model
     }
     -> Todo
     -> Html Msg
@@ -1148,22 +1148,22 @@ viewTodoItemBase model todo =
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
 
-            --            , TodoPopup.view CloseTodoPopup todoMenuItems todo.id model.todoMenu
+            --            , TodoPopup.view CloseTodoPopup todoPopupItems todo.id model.todoPopup
             ]
         , div [ class "relative flex" ]
-            [ IconButton.view (OnTodoMenuTriggered todo.id)
+            [ IconButton.view (OntodoPopupTriggered todo.id)
                 [ A.id <| TodoPopup.triggerDomId todo.id
                 , class "pa2 tc child"
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view OnTodoPopupMsg todoMenuItems todo.id model.todoMenu
+            , TodoPopup.view OnTodoPopupMsg todoPopupItems todo.id model.todoPopup
             ]
         ]
 
 
-todoMenuItems : TodoPopup.MenuItems Msg
-todoMenuItems =
+todoPopupItems : TodoPopup.MenuItems Msg
+todoPopupItems =
     [ ( OnStartInlineEditTodo, "Edit" )
     , ( OnMoveStart, "Move to Project" )
     , ( OnEditDueStart, "Schedule" )
