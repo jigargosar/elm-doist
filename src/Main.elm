@@ -859,7 +859,7 @@ viewHeader model =
             [ div [ class "f4 tracked flex-grow-1" ] [ text "ElmDOist" ]
             , case model.authState of
                 AuthState.Unknown ->
-                    viewHeaderBtn NoOp "SignIn" [ disabled True ]
+                    viewHeaderBtn OnSignInClicked "SignIn" [ disabled True ]
 
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
