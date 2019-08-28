@@ -12,7 +12,7 @@ import Accessibility.Styled.Key as Key
 import Calendar
 import Focus
 import Html.Styled exposing (Html, div, text)
-import Html.Styled.Attributes as A exposing (class)
+import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Millis
@@ -126,6 +126,7 @@ viewHelp conf zone today todoId =
         , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId popupContainer closeMsg
         , preventDefaultOn "keydown" (Key.escape ( closeMsg, True ))
+        , tabindex -1
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
