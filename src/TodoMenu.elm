@@ -138,26 +138,32 @@ type alias MenuItems msg =
     List ( TodoId -> msg, String )
 
 
-view : (TodoId -> Bool -> msg) -> MenuItems msg -> { a | id : TodoId } -> Html msg
-view onClose menuItemModelList todo =
+view : (TodoId -> Bool -> msg) -> MenuItems msg -> TodoId -> Model -> Html msg
+view onClose menuItemModelList todoId model =
+    HX.viewIf (isOpenFor todoId model)
+        (viewHelp onClose menuItemModelList todoId)
+
+
+viewHelp : (TodoId -> Bool -> msg) -> MenuItems msg -> TodoId -> Html msg
+viewHelp onClose menuItemModelList todoId =
     let
         viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
         viewMenuItem idx ( todoAction, label ) =
-            TextButton.view (todoAction todo.id)
+            TextButton.view (todoAction todoId)
                 label
                 [ A.id <|
                     ifElse (idx == 0)
-                        (todoMenuFirstFocusableDomId todo.id)
+                        (todoMenuFirstFocusableDomId todoId)
                         ""
                 , class "pa2"
                 ]
 
         menuDomId =
-            todoMenuDomId todo.id
+            todoMenuDomId todoId
 
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
-            onClose todo.id restoreFocus
+            onClose todoId restoreFocus
     in
     div
         [ A.id menuDomId

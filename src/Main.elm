@@ -1180,24 +1180,23 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , HX.viewIf (TodoMenu.isOpenFor todo.id model.todoMenu)
-                (viewTodoMenu todo)
+            , viewTodoMenu todo.id model.todoMenu
             ]
         ]
 
 
-viewTodoMenu : { a | id : TodoId } -> Html Msg
-viewTodoMenu todo =
-    let
-        menuItemModelList : TodoMenu.MenuItems Msg
-        menuItemModelList =
-            [ ( OnStartInlineEditTodo, "Edit" )
-            , ( OnMoveStart, "Move to Project" )
-            , ( OnEditDueStart, "Schedule" )
-            , ( OnDelete, "Delete" )
-            ]
-    in
-    TodoMenu.view CloseTodoMenu menuItemModelList todo
+viewTodoMenu : TodoId -> TodoMenu.Model -> Html Msg
+viewTodoMenu todoId =
+    TodoMenu.view CloseTodoMenu todoMenuItems todoId
+
+
+todoMenuItems : TodoMenu.MenuItems Msg
+todoMenuItems =
+    [ ( OnStartInlineEditTodo, "Edit" )
+    , ( OnMoveStart, "Move to Project" )
+    , ( OnEditDueStart, "Schedule" )
+    , ( OnDelete, "Delete" )
+    ]
 
 
 viewDueAt : Zone -> Todo -> Html Msg
