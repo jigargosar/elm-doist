@@ -986,8 +986,8 @@ viewSignInDialog =
 viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
 viewMoveDialog todoId projectId projectList =
     let
-        viewPLI : Int -> DisplayProject -> Html Msg
-        viewPLI idx dp =
+        viewProjectItem : Int -> DisplayProject -> Html Msg
+        viewProjectItem idx dp =
             TextButton.view (OnMoveToProject todoId dp.id)
                 dp.title
                 [ class "ph3 pv2"
@@ -1000,7 +1000,7 @@ viewMoveDialog todoId projectId projectList =
             (div [ class "b" ] [ text "Move To Project ..." ]
                 :: (projectList
                         |> toDisplayProjectList
-                        |> List.indexedMap viewPLI
+                        |> List.indexedMap viewProjectItem
                    )
             )
         ]
