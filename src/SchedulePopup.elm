@@ -11,9 +11,9 @@ module SchedulePopup exposing
 import Accessibility.Styled.Key as Key
 import Calendar
 import Focus
-import Html.Styled exposing (Html, div, text)
+import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events exposing (preventDefaultOn)
+import Html.Styled.Events exposing (on, preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD
 import Millis
@@ -47,7 +47,6 @@ isOpenFor loc todoId model =
 type Msg
     = OpenFor Location TodoId
     | Close Bool
-    | FocusOutside
     | OnSetScheduleAndClose Todo.DueAt
 
 
@@ -69,9 +68,6 @@ update conf message model =
             Opened loc todoId
                 |> pure
                 |> command (conf.focus firstFocusable)
-
-        FocusOutside ->
-            pure Closed
 
         Close restoreFocus ->
             case model of
@@ -135,12 +131,14 @@ viewHelp conf zone today todoId =
         closeMsg restoreFocus =
             conf.toMsg <| Close restoreFocus
     in
-    div
+    H.node "track-focus-outside"
         [ A.id popupContainer
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId popupContainer (conf.toMsg FocusOutside)
+
+        --        , Focus.onFocusOutsideDomId popupContainer (conf.toMsg FocusOutside)
+        , on "focusOutside" (JD.succeed <| closeMsg False)
         , preventDefaultOn "keydown"
             (JD.lazy
                 (\_ ->
