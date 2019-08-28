@@ -838,13 +838,14 @@ masterLayout title content model =
 
 
 viewDebugContent model =
-    div [ class "pa3 vs3" ]
-        [ HasErrors.detailView model
-        , div [ class " flex hs3" ]
-            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-            , AuthState.view model.authState
-            ]
-        ]
+    --    div [ class "pa3 vs3" ]
+    --        [ HasErrors.detailView model
+    --        , div [ class " flex hs3" ]
+    --            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
+    --            , AuthState.view model.authState
+    --            ]
+    --        ]
+    HasErrors.detailView model
 
 
 
