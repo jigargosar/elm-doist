@@ -76,7 +76,7 @@ initialValue =
 
 type Msg
     = OpenFor TodoId
-    | CloseFor TodoId Bool
+    | Close TodoId Bool
     | Focused (Result Dom.Error ())
     | LoadFromCache Value
 
@@ -118,7 +118,7 @@ update toMsg msg model =
                 |> effect cacheEffect
                 |> effect focusFirstEffect
 
-        CloseFor todoId restoreFocus ->
+        Close todoId restoreFocus ->
             ifElse (isOpenFor todoId model)
                 (Closed
                     |> pure
@@ -200,7 +200,7 @@ viewHelp toMsg menuItems todoId =
 
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
-            CloseFor todoId restoreFocus
+            Close todoId restoreFocus
                 |> toMsg
     in
     H.node "track-focus-outside"
