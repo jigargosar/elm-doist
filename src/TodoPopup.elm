@@ -18,9 +18,9 @@ import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
 import Focus
-import Html.Styled exposing (Attribute, Html, div)
+import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events exposing (preventDefaultOn)
+import Html.Styled.Events exposing (on, preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -203,13 +203,14 @@ viewHelp toMsg menuItems todoId =
             CloseFor todoId restoreFocus
                 |> toMsg
     in
-    div
+    H.node "track-focus-out"
         [ A.id menuDomId
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
 
         --        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
+        , on "focusOutside" (JD.succeed <| closeMsg False)
         , preventDefaultOn "keydown"
             (JD.lazy
                 (\_ ->

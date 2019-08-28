@@ -23,6 +23,25 @@ customElements.define(
   },
 )
 
+customElements.define(
+  'track-focus-out',
+  class extends HTMLElement {
+    connectedCallback() {
+      this.addEventListener('focusout', focusOutListener)
+    }
+  },
+)
+
+function focusOutListener() {
+  setTimeout(()=>{
+    console.log(this)
+    if(!this.contains(document.activeElement)){
+      console.log("focusOutside")
+      this.dispatchEvent(new CustomEvent('focusOutside'))
+    }
+  },0)
+}
+
 function getCached(key) {
   return JSON.parse(localStorage.getItem(key) || 'null')
 }
