@@ -13,8 +13,10 @@ onFocusOutsideDomId domId tagger =
     on "focusout"
         (JD.field "relatedTarget"
             (JD.oneOf
-                [ JD.null tagger
-                , outsideElIdDecoder domId tagger
+                [ {- JD.null tagger
+                     ,
+                  -}
+                  outsideElIdDecoder domId tagger
                 ]
             )
         )
