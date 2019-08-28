@@ -197,6 +197,7 @@ type Msg
     | OnEditDueStart TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
+    | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
@@ -390,6 +391,9 @@ update message model =
 
         OnTodoPopupMsg msg ->
             updateTodoPopup msg model
+
+        OnSchedulePopupMsg msg ->
+            updateSchedulePopup msg model
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
@@ -1156,7 +1160,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , SchedulePopup.view todo.id model.schedulePopup
+            , SchedulePopup.view OnSchedulePopupMsg todo.id model.schedulePopup
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)

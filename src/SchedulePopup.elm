@@ -1,7 +1,10 @@
 module SchedulePopup exposing (Model, Msg, initialValue, openFor, update, view)
 
-import Html.Styled exposing (Html, div, text)
+import Accessibility.Styled.Key as Key
+import Focus
+import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
@@ -29,6 +32,7 @@ isOpenFor todoId_ model =
 
 type Msg
     = OpenFor TodoId
+    | Close
 
 
 openFor =
@@ -43,28 +47,33 @@ update config message model =
                 |> pure
                 |> command (config.focus firstFocusable)
 
+        Close ->
+            pure Closed
 
-view : TodoId -> Model -> Html msg
-view todoId model =
-    HX.viewIf (isOpenFor todoId model)
-        viewHelp
+
+view : (Msg -> msg) -> TodoId -> Model -> Html msg
+view toMsg todoId model =
+    HX.viewIf (isOpenFor todoId model) viewHelp
+        |> H.map toMsg
 
 
 firstFocusable =
     "schedule-popup__first-focusable"
 
 
+popupContainer =
+    "schedule-popup__container"
+
+
+viewHelp : Html Msg
 viewHelp =
     div
-        [ {- A.id menuDomId
-             ,
-          -}
-          class "absolute right-0 top-1"
+        [ A.id popupContainer
+        , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-
-        --               , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
-        --               , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
+        , Focus.onFocusOutsideDomId popupContainer Close
+        , preventDefaultOn "keydown" (Key.escape ( Close, True ))
         ]
         --               (menuItemModelList |> List.indexedMap viewMenuItem)
-        [ div [ A.id firstFocusable, tabindex 0 ] [ text "schedule popup" ] ]
+        [ div [ A.id firstFocusable, tabindex 0, class "pointer pa3" ] [ text "schedule popup" ] ]
