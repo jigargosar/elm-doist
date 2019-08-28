@@ -189,9 +189,9 @@ view :
     -> TodoId
     -> Model
     -> Html msg
-view toMsg menuItemModelList todoId model =
+view toMsg menuItems todoId model =
     HX.viewIf (isOpenFor todoId model)
-        (viewHelp toMsg menuItemModelList todoId)
+        (viewHelp toMsg menuItems todoId)
 
 
 viewHelp : (Msg -> msg) -> MenuItems msg -> TodoId -> Html msg
