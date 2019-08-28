@@ -7,6 +7,7 @@ port module Ports exposing
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
+    , onBrowserFocusChanged
     , onFirestoreQueryResponse
     , onTodoListChanged
     , queryFirestore
@@ -16,6 +17,9 @@ port module Ports exposing
     )
 
 import Json.Encode exposing (Value)
+
+
+port onBrowserFocusChanged : (Bool -> msg) -> Sub msg
 
 
 port focusImmediate : String -> Cmd msg

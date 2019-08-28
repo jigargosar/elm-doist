@@ -5,6 +5,7 @@ import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom exposing (focus)
+import Browser.Events
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
@@ -113,6 +114,7 @@ type alias Model =
     , today : Calendar.Date
     , here : Time.Zone
     , browserSize : BrowserSize
+    , browserFocused : Bool
     }
 
 
@@ -159,6 +161,7 @@ init encodedFlags url key =
             , today = dateFromMillis now
             , here = Time.utc
             , browserSize = BrowserSize.initial
+            , browserFocused = True
             }
     in
     model
@@ -177,6 +180,7 @@ type Msg
     | UrlChanged Url
     | OnHere Time.Zone
     | OnBrowserResize BrowserSize
+    | OnBrowserFocusChanged Bool
     | Focus String
     | Focused (Result Dom.Error ())
     | OnAuthStateChanged Value
@@ -217,6 +221,7 @@ subscriptions _ =
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , BrowserSize.onBrowserResize OnBrowserResize
+        , Ports.onBrowserFocusChanged OnBrowserFocusChanged
         ]
 
 
@@ -259,6 +264,9 @@ update message model =
 
         OnBrowserResize size ->
             setBrowserSize size model |> pure
+
+        OnBrowserFocusChanged browserFocused ->
+            pure { model | browserFocused = browserFocused }
 
         Focus domId ->
             ( model, focus domId |> Task.attempt Focused )

@@ -162,6 +162,12 @@ function initSubs(subs) {
 }
 
 function initPubs(pubs) {
+  const ports = propOr({}, 'ports')(app)
+  forEachObjIndexed((port, portName) => {
+    if (port.send && !pubs[portName]) {
+      console.warn('Send: Port publisher Missing', portName)
+    }
+  })(ports)
   return mapObjIndexed((fn, portName) => {
     return arg => {
       const send = path(['ports', portName, 'send'])(app)
