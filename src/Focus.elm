@@ -1,4 +1,4 @@
-module Focus exposing (attempt, onFocusOutsideDomId)
+module Focus exposing (attempt, onFocusOutsideDomId, outsideElIdDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)

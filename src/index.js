@@ -65,6 +65,22 @@ function resizeTextAreaOnInputListener(ev) {
 }
 
 initSubs({
+  focusImmediate: domId => {
+    console.log('focusImmediate', domId)
+    const el = document.getElementById(domId)
+    if (el) {
+      el.focus()
+    } else {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(domId)
+        if (el) {
+          el.focus()
+        } else {
+          console.warn('DomFocus: id not found', domId)
+        }
+      })
+    }
+  },
   localStorageSetJsonItem: ([k, v]) => {
     console.groupCollapsed('localStorageSetJsonItem', k)
     console.log(v)
@@ -119,7 +135,7 @@ initSubs({
         : {},
 
       options.data.title === '' &&
-        options.userCollectionName === 'projects'
+      options.userCollectionName === 'projects'
         ? { title: `${faker.hacker.ingverb()} ${faker.hacker.noun()}` }
         : {},
     )

@@ -20,7 +20,7 @@ import Browser.Dom as Dom
 import Focus
 import Html.Styled exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events exposing (preventDefaultOn)
+import Html.Styled.Events exposing (on, preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -80,6 +80,8 @@ type Msg
     | CloseFor TodoId Bool
     | Focused (Result Dom.Error ())
     | LoadFromCache Value
+    | OnFocusOut
+    | OnFocusIn
 
 
 open : TodoId -> Msg
@@ -130,6 +132,12 @@ update toMsg msg model =
                 (pure model)
 
         Focused _ ->
+            pure model
+
+        OnFocusOut ->
+            pure model
+
+        OnFocusIn ->
             pure model
 
 
@@ -220,6 +228,8 @@ viewHelp toMsg menuItems todoId =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
+        , on "focusout" (JD.succeed <| toMsg OnFocusOut)
+        , on "focusin" (JD.succeed <| toMsg OnFocusIn)
         , preventDefaultOn "keydown"
             (JD.field "defaultPrevented" JD.bool
                 |> JD.andThen

@@ -3,6 +3,7 @@ port module Ports exposing
     , addFirestoreDoc
     , deleteFirestoreDoc
     , disposeFirestoreQuery
+    , focusImmediate
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
@@ -15,6 +16,9 @@ port module Ports exposing
     )
 
 import Json.Encode exposing (Value)
+
+
+port focusImmediate : String -> Cmd msg
 
 
 port localStorageSetStringItem : ( String, String ) -> Cmd msg
