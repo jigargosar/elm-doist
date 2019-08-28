@@ -1148,19 +1148,29 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem here)
+            (viewEditTodoItem model)
 
 
-viewEditTodoItem : Time.Zone -> InlineEditTodo.Model -> Html Msg
-viewEditTodoItem here edt =
+viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
+viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg = OnEditDueStart
         , titleChangedMsg = OnSetTitle
         , cancelMsg = OnEditCancel
         , saveMsg = OnEditSave
         }
-        here
+        model.here
+        (viewSchedulePopup (InlineEditTodo.getTodoId edt) model)
         edt
+
+
+viewSchedulePopup : TodoId -> Model -> Html Msg
+viewSchedulePopup todoId model =
+    SchedulePopup.view { toMsg = OnSchedulePopupMsg }
+        model.here
+        model.today
+        todoId
+        model.schedulePopup
 
 
 viewTodoItemBase :
@@ -1175,11 +1185,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , SchedulePopup.view { toMsg = OnSchedulePopupMsg }
-                model.here
-                model.today
-                todo.id
-                model.schedulePopup
+            , viewSchedulePopup todo.id model
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)

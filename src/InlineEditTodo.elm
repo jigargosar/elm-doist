@@ -138,9 +138,10 @@ view :
     , saveMsg : msg
     }
     -> Time.Zone
+    -> Html msg
     -> Model
     -> Html msg
-view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here model =
+view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView model =
     let
         titleValue =
             titleOrDefault model
@@ -184,7 +185,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here model =
                 ]
     in
     div
-        [ class "pv3 ph2"
+        [ class "pv3 ph2 relative"
         , tabindex 0
         , UI.Key.onKeyDownPreventDefault cancelMsg [ Key.escape ]
         ]
@@ -196,4 +197,5 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here model =
             [ TextButton.primary saveMsg "Save" [ class "pa2" ]
             , TextButton.secondary cancelMsg "Cancel" [ class "pa2" ]
             ]
+        , schedulePopupView
         ]
