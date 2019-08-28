@@ -1180,14 +1180,9 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , viewTodoMenu todo.id model.todoMenu
+            , TodoMenu.view CloseTodoMenu todoMenuItems todo.id model.todoMenu
             ]
         ]
-
-
-viewTodoMenu : TodoId -> TodoMenu.Model -> Html Msg
-viewTodoMenu todoId =
-    TodoMenu.view CloseTodoMenu todoMenuItems todoId
 
 
 todoMenuItems : TodoMenu.MenuItems Msg
