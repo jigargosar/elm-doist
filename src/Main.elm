@@ -986,6 +986,7 @@ viewSignInDialog =
 viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
 viewMoveDialog todoId projectId projectList =
     let
+        viewPLI : Int -> DisplayProject -> Html Msg
         viewPLI idx dp =
             TextButton.view (OnMoveToProject todoId dp.id)
                 dp.title
