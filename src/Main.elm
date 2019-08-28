@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
-import BasicsExtra exposing (callWith, eq_, ifElse)
+import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
@@ -389,30 +389,25 @@ update message model =
 
         CloseTodoMenu todoId restoreFocus ->
             let
-                updateTodoMenu : TodoPopup.Model -> Model -> Return
-                updateTodoMenu todoMenu =
-                    setTodoMenuAndCache todoMenu
+                setTodoMenuAndCacheAndRestoreFocus : TodoPopup.Model -> Model -> Return
+                setTodoMenuAndCacheAndRestoreFocus tm =
+                    setTodoMenuAndCache tm
                         >> command
                             (ifElse restoreFocus
                                 (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
                                 Cmd.none
                             )
 
-                updateTodoMenuFromModel : Model -> Return
-                updateTodoMenuFromModel =
-                    TodoPopup.closeFor todoId model.todoMenu
-                        |> MX.unwrap pure updateTodoMenu
-
-                f : Model -> ( TodoPopup.Model, Model )
-                f =
-                    extractAndApply .todoMenu Tuple.pair
-
-                extractAndApply : (arg2 -> arg1) -> (arg1 -> arg2 -> result) -> arg2 -> result
-                extractAndApply extract apply val =
-                    apply (extract val) val
+                updateTodoMenu : TodoPopup.Model -> Return -> Return
+                updateTodoMenu todoMenu =
+                    TodoPopup.closeFor todoId todoMenu
+                        |> MX.unwrap identity
+                            (setTodoMenuAndCacheAndRestoreFocus
+                                >> andThen
+                            )
             in
-            Return.singleton model
-                |> Return.andThen updateTodoMenuFromModel
+            pure model
+                |> extractAndApply (Tuple.first >> .todoMenu) updateTodoMenu
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model

@@ -1,4 +1,4 @@
-module BasicsExtra exposing (callWith, eq_, ifElse, uncurry, unpackErr)
+module BasicsExtra exposing (callWith, eq_, extractAndApply, ifElse, uncurry, unpackErr)
 
 -- CORE HELPERS
 
@@ -35,3 +35,8 @@ ifElse bool a b =
 uncurry : (a -> b -> c) -> ( a, b ) -> c
 uncurry fn ( a1, a2 ) =
     fn a1 a2
+
+
+extractAndApply : (arg2 -> arg1) -> (arg1 -> arg2 -> result) -> arg2 -> result
+extractAndApply extractFn applyFn val =
+    applyFn (extractFn val) val
