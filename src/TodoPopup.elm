@@ -28,19 +28,18 @@ import Maybe.Extra as MX
 import Ports
 import Result.Extra as RX
 import TodoId exposing (TodoId)
-import UI.TextButton as TextButton
 import UpdateExtra exposing (commandIf, effect, pure)
 
 
 type Model
-    = Open TodoId
+    = Open Bool TodoId
     | Closed
 
 
 encoder : Model -> Value
 encoder model =
     case model of
-        Open todoId ->
+        Open _ todoId ->
             JE.object
                 [ ( "tag", JE.string "Open" )
                 , ( "todoId", TodoId.encoder todoId )
@@ -59,7 +58,7 @@ decoder =
             case tag of
                 "Open" ->
                     JD.field "todoId" TodoId.decoder
-                        |> JD.map Open
+                        |> JD.map (Open False)
 
                 "Closed" ->
                     JD.succeed Closed
@@ -117,7 +116,7 @@ update toMsg msg model =
                     (pure >> effect focusFirstEffect)
 
         OpenFor todoId ->
-            pure (Open todoId)
+            pure (Open False todoId)
                 |> effect cacheEffect
                 |> effect focusFirstEffect
 
@@ -135,16 +134,30 @@ update toMsg msg model =
             pure model
 
         OnFocusOut ->
-            pure model
+            (case model of
+                Open _ todoId ->
+                    Open False todoId
+
+                Closed ->
+                    model
+            )
+                |> pure
 
         OnFocusIn ->
-            pure model
+            (case model of
+                Open _ todoId ->
+                    Open True todoId
+
+                Closed ->
+                    model
+            )
+                |> pure
 
 
 getTodoId : Model -> Maybe TodoId
 getTodoId model =
     case model of
-        Open todoId_ ->
+        Open _ todoId_ ->
             Just todoId_
 
         Closed ->
@@ -160,7 +173,7 @@ cacheEffect model =
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
-        Open tid ->
+        Open _ tid ->
             todoId_ == tid
 
         Closed ->
@@ -204,16 +217,6 @@ view toMsg menuItems todoId model =
 viewHelp : (Msg -> msg) -> List (Html msg) -> TodoId -> Html msg
 viewHelp toMsg menuItems todoId =
     let
-        --        viewMenuItem : number -> MenuItem msg -> Html msg
-        --        viewMenuItem idx ( todoAction, label ) =
-        --            TextButton.view (todoAction todoId)
-        --                label
-        --                [ A.id <|
-        --                    ifElse (idx == 0)
-        --                        (firstFocusableDomId todoId)
-        --                        ""
-        --                , class "pa2"
-        --                ]
         menuDomId =
             todoMenuDomId todoId
 
