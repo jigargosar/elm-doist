@@ -194,7 +194,7 @@ type Msg
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
-    | OnSchedulePopupTriggered TodoId
+    | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupMsg SchedulePopup.Msg
@@ -382,8 +382,8 @@ update message model =
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
-        OnSchedulePopupTriggered todoId ->
-            updateSchedulePopup (SchedulePopup.openFor todoId) model
+        OnSchedulePopupTriggered loc todoId ->
+            updateSchedulePopup (SchedulePopup.openFor loc todoId) model
 
         OnTodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
@@ -1092,7 +1092,7 @@ viewTodoItem model todo =
 viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
-        { editDueMsg = OnSchedulePopupTriggered
+        { editDueMsg = OnSchedulePopupTriggered SchedulePopup.InlineEditTodo
         , titleChangedMsg = OnSetTitle
         , cancelMsg = OnEditCancel
         , saveMsg = OnEditSave
@@ -1141,24 +1141,28 @@ todoPopupItems : TodoPopup.MenuItems Msg
 todoPopupItems =
     [ ( OnStartInlineEditTodo, "Edit" )
     , ( OnMoveStart, "Move to Project" )
-    , ( OnSchedulePopupTriggered, "Schedule" )
+    , ( OnSchedulePopupTriggered SchedulePopup.TodoPopup, "Schedule" )
     , ( OnDelete, "Delete" )
     ]
 
 
 viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
+    let
+        action =
+            OnSchedulePopupTriggered SchedulePopup.TodoItem todo.id
+    in
     todo
         |> Todo.dueMilli
         |> MX.unpack
             (\_ ->
-                IconButton.view (OnSchedulePopupTriggered todo.id)
+                IconButton.view action
                     [ class "pa2 child" ]
                     FAR.calendarPlus
                     []
             )
             (\dueMillis ->
-                TextButton.view (OnSchedulePopupTriggered todo.id)
+                TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
             )

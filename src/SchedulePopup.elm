@@ -1,4 +1,12 @@
-module SchedulePopup exposing (Model, Msg, initialValue, openFor, update, view)
+module SchedulePopup exposing
+    ( Location(..)
+    , Model
+    , Msg
+    , initialValue
+    , openFor
+    , update
+    , view
+    )
 
 import Accessibility.Styled.Key as Key
 import Calendar
@@ -13,6 +21,12 @@ import Todo
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
 import UpdateExtra exposing (command, pure, toCmd)
+
+
+type Location
+    = TodoPopup
+    | InlineEditTodo
+    | TodoItem
 
 
 type Model
@@ -40,7 +54,8 @@ type Msg
     | OnSetSchedule TodoId Todo.DueAt
 
 
-openFor =
+openFor : Location -> TodoId -> Msg
+openFor _ =
     OpenFor
 
 
