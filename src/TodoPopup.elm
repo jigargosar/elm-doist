@@ -16,7 +16,7 @@ module TodoPopup exposing
 
 import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
-import Browser.Dom as Dom exposing (focus)
+import Browser.Dom as Dom
 import Focus
 import Html.Styled exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A
@@ -28,7 +28,6 @@ import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Ports
-import Task
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
 import UpdateExtra exposing (command, commandIf, effect, pure)
@@ -93,11 +92,16 @@ close =
 
 update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
 update toMsg msg model =
+    let
+        focus_ : String -> Cmd msg
+        focus_ =
+            focusDomId toMsg
+    in
     case msg of
         OpenFor todoId ->
             pure (openFor todoId)
                 |> effect cacheTodoMenuEffect
-                |> command (focusTodoPopupCmd todoId |> Cmd.map toMsg)
+                |> command (focus_ (firstFocusableDomId todoId))
 
         CloseFor todoId restoreFocus ->
             closeFor todoId model
@@ -105,9 +109,7 @@ update toMsg msg model =
                     (pure
                         >> effect cacheTodoMenuEffect
                         >> commandIf restoreFocus
-                            (focusDomIdCmd (triggerDomId todoId)
-                                |> Cmd.map toMsg
-                            )
+                            (focus_ (triggerDomId todoId))
                     )
                 |> Maybe.withDefault (pure model)
 
@@ -115,18 +117,9 @@ update toMsg msg model =
             pure model
 
 
-focusDomIdCmd : String -> Cmd Msg
-focusDomIdCmd domId =
-    focus domId |> Task.attempt Focused
-
-
-focusTodoPopupCmd : TodoId -> Cmd Msg
-focusTodoPopupCmd todoId =
-    let
-        domId =
-            firstFocusableDomId todoId
-    in
-    focus domId |> Task.attempt Focused
+focusDomId : (Msg -> msg) -> String -> Cmd msg
+focusDomId toMsg domId =
+    Focus.attempt Focused domId |> Cmd.map toMsg
 
 
 cacheTodoMenuEffect : Model -> Cmd msg

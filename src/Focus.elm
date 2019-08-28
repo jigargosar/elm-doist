@@ -1,9 +1,11 @@
-module Focus exposing (onFocusOutsideDomId)
+module Focus exposing (attempt, onFocusOutsideDomId)
 
 import BasicsExtra exposing (ifElse)
+import Browser.Dom as Dom exposing (focus)
 import Html.Styled exposing (Attribute)
 import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
+import Task
 
 
 onFocusOutsideDomId : String -> msg -> Attribute msg
@@ -46,3 +48,8 @@ isOutsideElIdDecoder containerDomId =
         -- fallback when all previous decoders failed
         , JD.succeed True
         ]
+
+
+attempt : (Result Dom.Error () -> msg) -> String -> Cmd msg
+attempt focusedMsg domId =
+    focus domId |> Task.attempt focusedMsg
