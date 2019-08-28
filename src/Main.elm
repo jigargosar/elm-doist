@@ -385,13 +385,13 @@ update message model =
 
         OnTodoMenuTriggered todoId ->
             model
-                |> setTodoMenuAndCache (TodoPopup.openFor todoId)
+                |> setTodoPopupAndCache (TodoPopup.openFor todoId)
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
             TodoPopup.closeFor todoId model.todoMenu
                 |> MX.unwrap (pure model)
-                    (flip setTodoMenuAndCache model
+                    (flip setTodoPopupAndCache model
                         >> addCmdIf restoreFocus
                             (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
                     )
@@ -538,8 +538,8 @@ cacheTodoMenuEffect model =
         ( "cachedTodoMenu", TodoPopup.encoder model.todoMenu )
 
 
-setTodoMenuAndCache : TodoPopup.Model -> Model -> Return
-setTodoMenuAndCache todoMenu model =
+setTodoPopupAndCache : TodoPopup.Model -> Model -> Return
+setTodoPopupAndCache todoMenu model =
     model
         |> setTodoMenu todoMenu
         |> pure
