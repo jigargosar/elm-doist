@@ -383,11 +383,6 @@ update message model =
                 |> callWith model
 
         OnEditDueStart todoId ->
-            {- startEditingDue todoId model
-               |> andThen (
-               updateSchedulePopup (SchedulePopup.openFor todoId)
-               )
-            -}
             updateSchedulePopup (SchedulePopup.openFor todoId) model
 
         OnTodoPopupTriggered todoId ->
