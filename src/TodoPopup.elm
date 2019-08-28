@@ -3,11 +3,8 @@ module TodoPopup exposing
     , MenuItems
     , Model
     , Msg
-    , decoder
-    , encoder
     , firstFocusableDomId
     , initialValue
-    , loadFromCache
     , open
     , triggerDomId
     , update
@@ -18,15 +15,12 @@ import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
 import Focus
-import Html.Styled as H exposing (Attribute, Html, div)
+import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on, preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE exposing (Value)
 import Maybe.Extra as MX
-import Ports
-import Result.Extra as RX
 import TodoId exposing (TodoId)
 import UpdateExtra exposing (commandIf, effect, pure)
 
@@ -34,39 +28,6 @@ import UpdateExtra exposing (commandIf, effect, pure)
 type Model
     = Open TodoId
     | Closed
-
-
-encoder : Model -> Value
-encoder model =
-    case model of
-        Open todoId ->
-            JE.object
-                [ ( "tag", JE.string "Open" )
-                , ( "todoId", TodoId.encoder todoId )
-                ]
-
-        Closed ->
-            JE.object
-                [ ( "tag", JE.string "Closed" )
-                ]
-
-
-decoder : Decoder Model
-decoder =
-    let
-        decoderForTag tag =
-            case tag of
-                "Open" ->
-                    JD.field "todoId" TodoId.decoder
-                        |> JD.map Open
-
-                "Closed" ->
-                    JD.succeed Closed
-
-                _ ->
-                    JD.fail ("unknown tag for TodoPopup.Model: " ++ tag)
-    in
-    JD.field "tag" JD.string |> JD.andThen decoderForTag
 
 
 initialValue : Model
@@ -78,17 +39,11 @@ type Msg
     = OpenFor TodoId
     | Close TodoId Bool
     | Focused (Result Dom.Error ())
-    | LoadFromCache Value
 
 
 open : TodoId -> Msg
 open =
     OpenFor
-
-
-loadFromCache : Value -> Msg
-loadFromCache =
-    LoadFromCache
 
 
 update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
@@ -107,22 +62,14 @@ update toMsg msg model =
             getTodoId >> MX.unwrap Cmd.none focusFirst
     in
     case msg of
-        LoadFromCache value ->
-            value
-                |> JD.decodeValue (JD.field "cachedTodoMenu" decoder)
-                |> RX.unwrap (pure model)
-                    (pure >> effect focusFirstEffect)
-
         OpenFor todoId ->
             pure (Open todoId)
-                |> effect cacheEffect
                 |> effect focusFirstEffect
 
         Close todoId restoreFocus ->
             ifElse (isOpenFor todoId model)
                 (Closed
                     |> pure
-                    |> effect cacheEffect
                     |> commandIf restoreFocus
                         (focus (triggerDomId todoId))
                 )
@@ -140,12 +87,6 @@ getTodoId model =
 
         Closed ->
             Nothing
-
-
-cacheEffect : Model -> Cmd msg
-cacheEffect model =
-    Ports.localStorageSetJsonItem
-        ( "cachedTodoMenu", encoder model )
 
 
 isOpenFor : TodoId -> Model -> Bool

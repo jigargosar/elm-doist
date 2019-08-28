@@ -5,7 +5,6 @@ import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom exposing (focus)
-import Browser.Events
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
@@ -73,7 +72,6 @@ type alias Flags =
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
-    , cachedTodoPopup : TodoPopup.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -91,7 +89,6 @@ flagsDecoder =
         |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
         |> cachedField "cachedDialog" Dialog.decoder Dialog.init
         |> cachedField "cachedInlineEditTodo" (JD.nullable InlineEditTodo.decoder) Nothing
-        |> cachedField "cachedTodoMenu" TodoPopup.decoder TodoPopup.initialValue
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -617,7 +614,6 @@ updateFromEncodedFlags encodedFlags model =
         |> decodeValueAndUnpack
             ( flagsDecoder, updateFromFlags, onDecodeError )
             encodedFlags
-        |> andThen (updateTodoPopup (TodoPopup.loadFromCache encodedFlags))
 
 
 updateFromFlags : Flags -> Model -> Return
@@ -627,7 +623,6 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
         |> setInlineEditTodo_ flags.cachedInlineEditTodo
-        |> setTodoPopup flags.cachedTodoPopup
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
