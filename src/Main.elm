@@ -409,9 +409,18 @@ update message model =
                     )
 
         OnSetSchedule todoId dueAt ->
-            ( model
-            , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
-            )
+            model.inlineEditTodo
+                |> MX.filter (InlineEditTodo.idEq todoId)
+                |> MX.unpack
+                    (\_ ->
+                        ( model
+                        , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+                        )
+                    )
+                    (\_ ->
+                        model
+                            |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
+                    )
 
         OnSetDue todoId dueAt ->
             ifElse (model.dialog == Dialog.DueDialog todoId)
