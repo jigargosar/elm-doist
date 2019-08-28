@@ -1,4 +1,4 @@
-module TodoMenu exposing (Model, decoder, encoder, init, isOpenFor, openFor)
+module TodoMenu exposing (Model, decoder, encoder, init, isOpenFor, openFor, todoMenuDomId, todoMenuFirstFocusableDomId, todoMenuTriggerDomId)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -61,3 +61,18 @@ isOpenFor todoId_ model =
 
         Closed ->
             False
+
+
+todoMenuDomId : TodoId -> String
+todoMenuDomId todoId =
+    "todo-menu-dom-id--" ++ TodoId.toString todoId
+
+
+todoMenuTriggerDomId : TodoId -> String
+todoMenuTriggerDomId todoId =
+    "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
+
+
+todoMenuFirstFocusableDomId : TodoId -> String
+todoMenuFirstFocusableDomId todoId =
+    "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId

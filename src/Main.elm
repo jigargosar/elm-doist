@@ -396,7 +396,7 @@ update message model =
                 (setTodoMenuAndCache TodoMenu.init model
                     |> command
                         (ifElse restoreFocus
-                            (focusDomIdCmd <| todoMenuTriggerDomId todoId)
+                            (focusDomIdCmd <| TodoMenu.todoMenuTriggerDomId todoId)
                             Cmd.none
                         )
                 )
@@ -454,22 +454,10 @@ update message model =
                     updateDialogAndCache Dialog.Closed model
 
 
-todoMenuDomId todoId =
-    "todo-menu-dom-id--" ++ TodoId.toString todoId
-
-
-todoMenuTriggerDomId todoId =
-    "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
-
-
-todoMenuFirstFocusableDomId todoId =
-    "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId
-
-
 focusTodoMenuCmd todoId =
     let
         domId =
-            todoMenuFirstFocusableDomId todoId
+            TodoMenu.todoMenuFirstFocusableDomId todoId
     in
     focus domId |> Task.attempt Focused
 
@@ -589,12 +577,6 @@ updateDialogAndCache dialog model =
             (Ports.localStorageSetJsonItem
                 ( "cachedDialog", Dialog.encoder dialog )
             )
-
-
-
---cacheEffect : Model -> Cmd msg
---cacheEffect model =
---    Ports.setCache (cacheEncoder (cacheFromModel model))
 
 
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
@@ -1197,7 +1179,7 @@ viewTodoItemBase model todo =
         , viewDueAt model.here todo
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoMenuTriggered todo.id)
-                [ A.id <| todoMenuTriggerDomId todo.id
+                [ A.id <| TodoMenu.todoMenuTriggerDomId todo.id
                 , class "pa2 tc child"
                 ]
                 FAS.ellipsisH
@@ -1224,13 +1206,13 @@ viewTodoMenu todo =
                 label
                 [ A.id <|
                     ifElse (idx == 0)
-                        (todoMenuFirstFocusableDomId todo.id)
+                        (TodoMenu.todoMenuFirstFocusableDomId todo.id)
                         ""
                 , class "pa2"
                 ]
 
         menuDomId =
-            todoMenuDomId todo.id
+            TodoMenu.todoMenuDomId todo.id
 
         closeMsg : Bool -> Msg
         closeMsg restoreFocus =
