@@ -134,17 +134,17 @@ isOpenFor todoId_ model =
 
 todoMenuDomId : TodoId -> String
 todoMenuDomId todoId =
-    "todo-menu-dom-id--" ++ TodoId.toString todoId
+    "todo-popup-dom-id--" ++ TodoId.toString todoId
 
 
 triggerDomId : TodoId -> String
 triggerDomId todoId =
-    "todo-menu-trigger-dom-id--" ++ TodoId.toString todoId
+    "todo-popup-trigger-dom-id--" ++ TodoId.toString todoId
 
 
 firstFocusableDomId : TodoId -> String
 firstFocusableDomId todoId =
-    "todo-menu--first-focusable--dom-id--" ++ TodoId.toString todoId
+    "todo-popup--first-focusable--dom-id--" ++ TodoId.toString todoId
 
 
 type alias MenuItems msg =
