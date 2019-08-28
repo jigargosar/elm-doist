@@ -30,7 +30,7 @@ import Ports
 import Result.Extra as RX
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
-import UpdateExtra exposing (command, commandIf, effect, pure)
+import UpdateExtra exposing (commandIf, effect, pure)
 
 
 type Model
@@ -175,8 +175,12 @@ firstFocusableDomId todoId =
     "todo-popup--first-focusable--dom-id--" ++ TodoId.toString todoId
 
 
+type alias MenuItem msg =
+    ( TodoId -> msg, String )
+
+
 type alias MenuItems msg =
-    List ( TodoId -> msg, String )
+    List (MenuItem msg)
 
 
 view :
@@ -193,7 +197,7 @@ view toMsg menuItemModelList todoId model =
 viewHelp : (Msg -> msg) -> MenuItems msg -> TodoId -> Html msg
 viewHelp toMsg menuItemModelList todoId =
     let
-        viewMenuItem : number -> ( TodoId -> msg, String ) -> Html msg
+        viewMenuItem : number -> MenuItem msg -> Html msg
         viewMenuItem idx ( todoAction, label ) =
             TextButton.view (todoAction todoId)
                 label
