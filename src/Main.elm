@@ -398,8 +398,7 @@ update message model =
                     )
 
         OnTodoPopupMsg msg ->
-            TodoPopup.update OnTodoPopupMsg msg model.todoMenu
-                |> Tuple.mapFirst (flip setTodoMenu model)
+            updateTodoPopup msg model
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
@@ -532,9 +531,15 @@ updateInlineEditTodoAndCache mfn model =
         |> effect cacheInlineEditTodoEffect
 
 
-setTodoMenu : TodoPopup.Model -> Model -> Model
-setTodoMenu todoMenu model =
+setTodoPopup : TodoPopup.Model -> Model -> Model
+setTodoPopup todoMenu model =
     { model | todoMenu = todoMenu }
+
+
+updateTodoPopup : TodoPopup.Msg -> Model -> Return
+updateTodoPopup msg model =
+    TodoPopup.update OnTodoPopupMsg msg model.todoMenu
+        |> Tuple.mapFirst (flip setTodoPopup model)
 
 
 cacheTodoMenuEffect : { a | todoMenu : TodoPopup.Model } -> Cmd msg
@@ -546,7 +551,7 @@ cacheTodoMenuEffect model =
 setTodoPopupAndCache : TodoPopup.Model -> Model -> Return
 setTodoPopupAndCache todoMenu model =
     model
-        |> setTodoMenu todoMenu
+        |> setTodoPopup todoMenu
         |> pure
         |> effect cacheTodoMenuEffect
 
@@ -614,7 +619,7 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
         |> setInlineEditTodo_ flags.cachedInlineEditTodo
-        |> setTodoMenu flags.cachedTodoMenu
+        |> setTodoPopup flags.cachedTodoMenu
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
