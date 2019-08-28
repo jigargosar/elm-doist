@@ -17,6 +17,7 @@ module TodoPopup exposing
 
 import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
+import Browser.Dom as Dom exposing (focus)
 import Focus
 import Html.Styled exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A
@@ -28,9 +29,10 @@ import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Ports
+import Task
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
-import UpdateExtra exposing (effect, pure)
+import UpdateExtra exposing (command, commandIf, effect, pure)
 
 
 type Model
@@ -78,7 +80,8 @@ initialValue =
 
 type Msg
     = OpenFor TodoId
-    | CloseFor TodoId
+    | CloseFor TodoId Bool
+    | Focused (Result Dom.Error ())
 
 
 open =
@@ -95,11 +98,36 @@ update toMsg msg model =
         OpenFor todoId ->
             pure (openFor todoId)
                 |> effect cacheTodoMenuEffect
+                |> command (focusTodoPopupCmd todoId |> Cmd.map toMsg)
 
-        CloseFor todoId ->
+        CloseFor todoId restoreFocus ->
             closeFor todoId model
-                |> Maybe.map (pure >> effect cacheTodoMenuEffect)
+                |> Maybe.map
+                    (pure
+                        >> effect cacheTodoMenuEffect
+                        >> commandIf restoreFocus
+                            (focusDomIdCmd (triggerDomId todoId)
+                                |> Cmd.map toMsg
+                            )
+                    )
                 |> Maybe.withDefault (pure model)
+
+        Focused _ ->
+            pure model
+
+
+focusDomIdCmd : String -> Cmd Msg
+focusDomIdCmd domId =
+    focus domId |> Task.attempt Focused
+
+
+focusTodoPopupCmd : TodoId -> Cmd Msg
+focusTodoPopupCmd todoId =
+    let
+        domId =
+            firstFocusableDomId todoId
+    in
+    focus domId |> Task.attempt Focused
 
 
 cacheTodoMenuEffect : Model -> Cmd msg
