@@ -121,16 +121,7 @@ update toMsg msg model =
                 |> effect focusFirstEffect
 
         CloseFor todoId restoreFocus ->
-            let
-                shouldClose =
-                    case model of
-                        Open todoId_ ->
-                            todoId == todoId_
-
-                        Closed ->
-                            False
-            in
-            ifElse shouldClose
+            ifElse (isOpenFor todoId model)
                 (Closed
                     |> pure
                     |> effect cacheEffect

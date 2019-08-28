@@ -45,6 +45,7 @@ import ProjectId exposing (ProjectId)
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
+import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
@@ -103,6 +104,7 @@ type alias Model =
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
     , todoPopup : TodoPopup.Model
+    , schedulePopup : SchedulePopup.Model
     , dialog : Dialog.Model
     , authState : AuthState
     , errors : Errors
@@ -148,6 +150,7 @@ init encodedFlags url key =
             , projectList = []
             , inlineEditTodo = Nothing
             , todoPopup = TodoPopup.initialValue
+            , schedulePopup = SchedulePopup.initialValue
             , dialog = Dialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -1103,11 +1106,7 @@ inlineEditTodoTitleDomId todoId =
 
 
 viewTodoItem :
-    { a
-        | inlineEditTodo : Maybe InlineEditTodo.Model
-        , here : Zone
-        , todoPopup : TodoPopup.Model
-    }
+    Model
     -> Todo
     -> Html Msg
 viewTodoItem model todo =
@@ -1134,10 +1133,7 @@ viewEditTodoItem here edt =
 
 
 viewTodoItemBase :
-    { a
-        | here : Zone
-        , todoPopup : TodoPopup.Model
-    }
+    Model
     -> Todo
     -> Html Msg
 viewTodoItemBase model todo =
@@ -1148,6 +1144,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
+            , SchedulePopup.view todo.id model.schedulePopup
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)
