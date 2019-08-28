@@ -575,6 +575,7 @@ updateFromEncodedFlags encodedFlags model =
         |> decodeValueAndUnpack
             ( flagsDecoder, updateFromFlags, onDecodeError )
             encodedFlags
+        |> andThen (updateTodoPopup (TodoPopup.loadFromCache encodedFlags))
 
 
 updateFromFlags : Flags -> Model -> Return

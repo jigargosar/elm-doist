@@ -5,6 +5,7 @@ module TodoPopup exposing
     , decoder
     , encoder
     , initialValue
+    , loadFromCache
     , open
     , triggerDomId
     , update
@@ -24,7 +25,9 @@ import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra as MX
 import Ports
+import Result.Extra as RX
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
 import UpdateExtra exposing (command, commandIf, effect, pure)
@@ -77,11 +80,17 @@ type Msg
     = OpenFor TodoId
     | CloseFor TodoId Bool
     | Focused (Result Dom.Error ())
+    | LoadFromCache Value
 
 
 open : TodoId -> Msg
 open =
     OpenFor
+
+
+loadFromCache : Value -> Msg
+loadFromCache =
+    LoadFromCache
 
 
 update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
@@ -90,12 +99,26 @@ update toMsg msg model =
         focus : String -> Cmd msg
         focus =
             Focus.attempt (Focused >> toMsg)
+
+        focusFirst : TodoId -> Cmd msg
+        focusFirst =
+            firstFocusableDomId >> focus
+
+        focusFirstEffect : Model -> Cmd msg
+        focusFirstEffect =
+            getTodoId >> MX.unwrap Cmd.none focusFirst
     in
     case msg of
+        LoadFromCache value ->
+            value
+                |> JD.decodeValue (JD.field "cachedTodoMenu" decoder)
+                |> RX.unwrap (pure model)
+                    (pure >> effect focusFirstEffect)
+
         OpenFor todoId ->
             pure (Open todoId)
                 |> effect cacheEffect
-                |> command (focus (firstFocusableDomId todoId))
+                |> effect focusFirstEffect
 
         CloseFor todoId restoreFocus ->
             let
@@ -118,6 +141,16 @@ update toMsg msg model =
 
         Focused _ ->
             pure model
+
+
+getTodoId : Model -> Maybe TodoId
+getTodoId model =
+    case model of
+        Open todoId_ ->
+            Just todoId_
+
+        Closed ->
+            Nothing
 
 
 cacheEffect : Model -> Cmd msg
