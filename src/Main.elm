@@ -8,7 +8,7 @@ import Browser.Dom as Dom exposing (focus)
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
-import Css exposing (minWidth, none, outline, px, resize)
+import Css exposing (none, outline)
 import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
@@ -21,7 +21,7 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
+import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A
     exposing
         ( checked
@@ -30,11 +30,8 @@ import Html.Styled.Attributes as A
         , css
         , disabled
         , href
-        , rows
-        , tabindex
-        , value
         )
-import Html.Styled.Events exposing (onClick, onInput, preventDefaultOn)
+import Html.Styled.Events exposing (onClick, preventDefaultOn)
 import HtmlStyledExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
@@ -60,7 +57,6 @@ import TodoMenu
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
-import UI.Key
 import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
