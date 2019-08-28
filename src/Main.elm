@@ -41,6 +41,7 @@ import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
+import Respond
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
@@ -52,6 +53,7 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import TodoPopup
+import Tuple2 exposing (Tuple2)
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
@@ -386,16 +388,31 @@ update message model =
                 |> command (focusTodoMenuCmd todoId)
 
         CloseTodoMenu todoId restoreFocus ->
-            TodoPopup.closeFor todoId model.todoMenu
-                |> MX.unpack (\_ -> pure model)
-                    (\todoMenu ->
-                        setTodoMenuAndCache todoMenu model
-                            |> command
-                                (ifElse restoreFocus
-                                    (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
-                                    Cmd.none
-                                )
-                    )
+            let
+                updateTodoMenu : TodoPopup.Model -> Model -> Return
+                updateTodoMenu todoMenu =
+                    setTodoMenuAndCache todoMenu
+                        >> command
+                            (ifElse restoreFocus
+                                (focusDomIdCmd <| TodoPopup.triggerDomId todoId)
+                                Cmd.none
+                            )
+
+                updateTodoMenuFromModel : Model -> Return
+                updateTodoMenuFromModel =
+                    TodoPopup.closeFor todoId model.todoMenu
+                        |> MX.unwrap pure updateTodoMenu
+
+                f : Model -> ( TodoPopup.Model, Model )
+                f =
+                    extractAndApply2 .todoMenu Tuple.pair
+
+                extractAndApply2 : (arg2 -> arg1) -> (arg1 -> arg2 -> result) -> arg2 -> result
+                extractAndApply2 extract apply val =
+                    apply (extract val) val
+            in
+            Return.singleton model
+                |> Return.andThen updateTodoMenuFromModel
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
