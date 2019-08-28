@@ -1132,7 +1132,7 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view OnTodoPopupMsg (viewTodoPopupItems todo.id) todo.id model.todoPopup
+            , TodoPopup.view OnTodoPopupMsg (viewTodoPopupItems todo.id model) todo.id model.todoPopup
             ]
         ]
 
@@ -1146,17 +1146,25 @@ todoPopupItems =
     ]
 
 
-viewTodoPopupItems todoId =
+viewTodoPopupItems : TodoId -> Model -> List (Html Msg)
+viewTodoPopupItems todoId model =
     let
-        viewMenuItem : number -> TodoPopup.MenuItem msg -> Html msg
+        viewMenuItem : number -> TodoPopup.MenuItem Msg -> Html Msg
         viewMenuItem idx ( todoAction, label ) =
-            TextButton.view (todoAction todoId)
-                label
-                [ A.id <|
-                    ifElse (idx == 0)
-                        (TodoPopup.firstFocusableDomId todoId)
-                        ""
-                , class "pa2"
+            div [ class "relative" ]
+                [ TextButton.view (todoAction todoId)
+                    label
+                    [ A.id <|
+                        ifElse (idx == 0)
+                            (TodoPopup.firstFocusableDomId todoId)
+                            ""
+                    , class "pa2"
+                    ]
+                , HX.viewIf
+                    (todoAction todoId
+                        == OnSchedulePopupTriggered SchedulePopup.TodoPopup todoId
+                    )
+                    (viewSchedulePopup SchedulePopup.TodoPopup todoId model)
                 ]
     in
     todoPopupItems |> List.indexedMap viewMenuItem
