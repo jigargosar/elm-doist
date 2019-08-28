@@ -409,7 +409,9 @@ update message model =
                     )
 
         OnSetSchedule todoId dueAt ->
-            pure model
+            ( model
+            , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+            )
 
         OnSetDue todoId dueAt ->
             ifElse (model.dialog == Dialog.DueDialog todoId)
