@@ -194,11 +194,11 @@ type Msg
     | OnAddProjectStart
     | AddProject Millis
     | OnMoveStart TodoId
-    | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
+    | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
-    | OnSchedulePopupClosedWithSetSchedule TodoId DueAt
+    | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -402,19 +402,36 @@ update message model =
                         [ Todo.SetProjectId pid ]
                     )
 
-        OnSchedulePopupClosedWithSetSchedule todoId dueAt ->
-            model.inlineEditTodo
-                |> MX.filter (InlineEditTodo.idEq todoId)
-                |> MX.unpack
-                    (\_ ->
-                        ( model
-                        , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
-                        )
-                    )
-                    (\_ ->
-                        model
-                            |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
-                    )
+        OnSchedulePopupClosed loc todoId maybeDueAt ->
+            case loc of
+                SchedulePopup.InlineEditTodo ->
+                    model.inlineEditTodo
+                        |> MX.filter (InlineEditTodo.idEq todoId)
+                        |> Maybe.map2
+                            (\dueAt _ ->
+                                model
+                                    |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
+                            )
+                            maybeDueAt
+                        |> Maybe.withDefault (pure model)
+
+                SchedulePopup.TodoPopup ->
+                    maybeDueAt
+                        |> MX.unwrap (pure model)
+                            (\dueAt ->
+                                ( model
+                                , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+                                )
+                            )
+
+                SchedulePopup.TodoItem ->
+                    maybeDueAt
+                        |> MX.unwrap (pure model)
+                            (\dueAt ->
+                                ( model
+                                , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+                                )
+                            )
 
         OnSetTitle todoId title ->
             model.inlineEditTodo
@@ -511,7 +528,7 @@ updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
     SchedulePopup.update
         { focus = focusDomIdCmd
-        , onSetSchedule = OnSchedulePopupClosedWithSetSchedule
+        , onClose = OnSchedulePopupClosed
         }
         message
         model.schedulePopup

@@ -47,7 +47,7 @@ isOpenFor loc todoId model =
 type Msg
     = OpenFor Location TodoId
     | Close
-    | OnSetSchedule TodoId Todo.DueAt
+    | OnSetScheduleAndClose Todo.DueAt
 
 
 openFor : Location -> TodoId -> Msg
@@ -57,12 +57,12 @@ openFor =
 
 update :
     { focus : String -> Cmd msg
-    , onSetSchedule : TodoId -> Todo.DueAt -> msg
+    , onClose : Location -> TodoId -> Maybe Todo.DueAt -> msg
     }
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update conf message _ =
+update conf message model =
     case message of
         OpenFor loc todoId ->
             Opened loc todoId
@@ -70,11 +70,22 @@ update conf message _ =
                 |> command (conf.focus firstFocusable)
 
         Close ->
-            pure Closed
+            case model of
+                Opened loc todoId ->
+                    pure Closed
+                        |> command (toCmd (conf.onClose loc todoId Nothing))
 
-        OnSetSchedule todoId dueAt ->
-            pure Closed
-                |> command (toCmd (conf.onSetSchedule todoId dueAt))
+                Closed ->
+                    pure model
+
+        OnSetScheduleAndClose dueAt ->
+            case model of
+                Opened loc todoId ->
+                    pure Closed
+                        |> command (toCmd (conf.onClose loc todoId (Just dueAt)))
+
+                Closed ->
+                    pure model
 
 
 view :
@@ -112,7 +123,7 @@ viewHelp conf zone today todoId =
 
         setDueMsg : Todo.DueAt -> msg
         setDueMsg =
-            conf.toMsg << OnSetSchedule todoId
+            conf.toMsg << OnSetScheduleAndClose
 
         viewSetDueButton action label attrs =
             TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
