@@ -92,15 +92,15 @@ close =
 update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
 update toMsg msg model =
     let
-        focus_ : String -> Cmd msg
-        focus_ =
-            focus toMsg
+        focus : String -> Cmd msg
+        focus =
+            Focus.attempt (Focused >> toMsg)
     in
     case msg of
         OpenFor todoId ->
             pure (Open todoId)
                 |> effect cacheTodoMenuEffect
-                |> command (focus_ (firstFocusableDomId todoId))
+                |> command (focus (firstFocusableDomId todoId))
 
         CloseFor todoId restoreFocus ->
             closeFor todoId model
@@ -108,16 +108,11 @@ update toMsg msg model =
                     (pure
                         >> effect cacheTodoMenuEffect
                         >> commandIf restoreFocus
-                            (focus_ (triggerDomId todoId))
+                            (focus (triggerDomId todoId))
                     )
 
         Focused _ ->
             pure model
-
-
-focus : (Msg -> msg) -> String -> Cmd msg
-focus toMsg domId =
-    Focus.attempt Focused domId |> Cmd.map toMsg
 
 
 cacheTodoMenuEffect : Model -> Cmd msg
