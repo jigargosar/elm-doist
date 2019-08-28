@@ -27,6 +27,7 @@ import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra as MX
 import Ports
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
@@ -95,7 +96,7 @@ update toMsg msg model =
     let
         focus_ : String -> Cmd msg
         focus_ =
-            focusDomId toMsg
+            focus toMsg
     in
     case msg of
         OpenFor todoId ->
@@ -105,20 +106,19 @@ update toMsg msg model =
 
         CloseFor todoId restoreFocus ->
             closeFor todoId model
-                |> Maybe.map
+                |> MX.unwrap (pure model)
                     (pure
                         >> effect cacheTodoMenuEffect
                         >> commandIf restoreFocus
                             (focus_ (triggerDomId todoId))
                     )
-                |> Maybe.withDefault (pure model)
 
         Focused _ ->
             pure model
 
 
-focusDomId : (Msg -> msg) -> String -> Cmd msg
-focusDomId toMsg domId =
+focus : (Msg -> msg) -> String -> Cmd msg
+focus toMsg domId =
     Focus.attempt Focused domId |> Cmd.map toMsg
 
 
