@@ -210,15 +210,18 @@ viewHelp toMsg menuItems todoId =
         , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , preventDefaultOn "keydown"
-            (JD.field "defaultPrevented" JD.bool
-                |> JD.andThen
-                    (\defaultPrevented ->
-                        if defaultPrevented then
-                            JD.fail "defaultPrevented"
+            (JD.lazy
+                (\_ ->
+                    JD.field "defaultPrevented" JD.bool
+                        |> JD.andThen
+                            (\defaultPrevented ->
+                                if defaultPrevented then
+                                    JD.fail "defaultPrevented"
 
-                        else
-                            Key.escape ( closeMsg True, True )
-                    )
+                                else
+                                    Key.escape ( closeMsg True, True )
+                            )
+                )
             )
         , tabindex -1
         ]

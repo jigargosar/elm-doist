@@ -47,6 +47,7 @@ isOpenFor loc todoId model =
 type Msg
     = OpenFor Location TodoId
     | Close Bool
+    | FocusOutside
     | OnSetScheduleAndClose Todo.DueAt
 
 
@@ -68,6 +69,9 @@ update conf message model =
             Opened loc todoId
                 |> pure
                 |> command (conf.focus firstFocusable)
+
+        FocusOutside ->
+            pure Closed
 
         Close restoreFocus ->
             case model of
@@ -136,17 +140,20 @@ viewHelp conf zone today todoId =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , Focus.onFocusOutsideDomId popupContainer (closeMsg False)
+        , Focus.onFocusOutsideDomId popupContainer (conf.toMsg FocusOutside)
         , preventDefaultOn "keydown"
-            (JD.field "defaultPrevented" JD.bool
-                |> JD.andThen
-                    (\defaultPrevented ->
-                        if defaultPrevented then
-                            JD.fail "defaultPrevented"
+            (JD.lazy
+                (\_ ->
+                    JD.field "defaultPrevented" JD.bool
+                        |> JD.andThen
+                            (\defaultPrevented ->
+                                if defaultPrevented then
+                                    JD.fail "defaultPrevented"
 
-                        else
-                            Key.escape ( closeMsg True, True )
-                    )
+                                else
+                                    Key.escape ( closeMsg True, True )
+                            )
+                )
             )
         , tabindex -1
         ]

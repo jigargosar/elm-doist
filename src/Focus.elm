@@ -11,15 +11,7 @@ import Task
 onFocusOutsideDomId : String -> msg -> Attribute msg
 onFocusOutsideDomId domId tagger =
     on "focusout"
-        (JD.field "relatedTarget"
-            (JD.oneOf
-                [ {- JD.null tagger
-                     ,
-                  -}
-                  outsideElIdDecoder domId tagger
-                ]
-            )
-        )
+        (JD.field "relatedTarget" <| outsideElIdDecoder domId tagger)
 
 
 outsideElIdDecoder : String -> msg -> Decoder msg
