@@ -71,7 +71,7 @@ type alias Flags =
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
     , cachedInlineEditTodo : Maybe InlineEditTodo.Model
-    , cachedtodoPopup : TodoPopup.Model
+    , cachedTodoPopup : TodoPopup.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -192,7 +192,7 @@ type Msg
     | AddProject Millis
     | OnMoveStart TodoId
     | OnEditDueStart TodoId
-    | OntodoPopupTriggered TodoId
+    | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSetDue TodoId DueAt
     | OnSetTitle TodoId String
@@ -381,7 +381,7 @@ update message model =
         OnEditDueStart todoId ->
             startEditingDue todoId model
 
-        OntodoPopupTriggered todoId ->
+        OnTodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
 
         OnTodoPopupMsg msg ->
@@ -584,7 +584,7 @@ updateFromFlags flags model =
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
         |> setInlineEditTodo_ flags.cachedInlineEditTodo
-        |> setTodoPopup flags.cachedtodoPopup
+        |> setTodoPopup flags.cachedTodoPopup
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
@@ -1151,7 +1151,7 @@ viewTodoItemBase model todo =
             --            , TodoPopup.view CloseTodoPopup todoPopupItems todo.id model.todoPopup
             ]
         , div [ class "relative flex" ]
-            [ IconButton.view (OntodoPopupTriggered todo.id)
+            [ IconButton.view (OnTodoPopupTriggered todo.id)
                 [ A.id <| TodoPopup.triggerDomId todo.id
                 , class "pa2 tc child"
                 ]
