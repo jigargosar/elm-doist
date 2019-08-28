@@ -5,6 +5,7 @@ import Html.Styled.Attributes exposing (class)
 import HtmlStyledExtra as HX
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
+import UpdateExtra exposing (pure)
 
 
 type Model
@@ -34,11 +35,11 @@ openFor =
     OpenFor
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd msg )
 update message model =
     case message of
         OpenFor todoId ->
-            Open todoId
+            Open todoId |> pure
 
 
 view : TodoId -> Model -> Html msg

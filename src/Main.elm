@@ -383,6 +383,7 @@ update message model =
 
         OnEditDueStart todoId ->
             startEditingDue todoId model
+                |> andThen (updateSchedulePopup (SchedulePopup.openFor todoId))
 
         OnTodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
@@ -511,6 +512,17 @@ updateInlineEditTodoAndCache mfn model =
     setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
         |> pure
         |> effect cacheInlineEditTodoEffect
+
+
+updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
+updateSchedulePopup message model =
+    SchedulePopup.update message model.schedulePopup
+        |> Tuple.mapFirst (flip setSchedulePopup model)
+
+
+setSchedulePopup : SchedulePopup.Model -> Model -> Model
+setSchedulePopup schedulePopup model =
+    { model | schedulePopup = schedulePopup }
 
 
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
