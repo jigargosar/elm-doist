@@ -15,6 +15,7 @@ import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
+import Json.Decode as JD
 import Millis
 import Time
 import Todo
@@ -125,7 +126,17 @@ viewHelp conf zone today todoId =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId popupContainer closeMsg
-        , preventDefaultOn "keydown" (Key.escape ( closeMsg, True ))
+        , preventDefaultOn "keydown"
+            (JD.field "defaultPrevented" JD.bool
+                |> JD.andThen
+                    (\defaultPrevented ->
+                        if defaultPrevented then
+                            JD.fail "defaultPrevented"
+
+                        else
+                            Key.escape ( closeMsg, True )
+                    )
+            )
         , tabindex -1
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]

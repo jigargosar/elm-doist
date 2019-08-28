@@ -19,10 +19,7 @@ import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
 import Focus
 import Html.Styled exposing (Attribute, Html, div)
-import Html.Styled.Attributes as A
-    exposing
-        ( class
-        )
+import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD exposing (Decoder)
@@ -223,7 +220,18 @@ viewHelp toMsg menuItems todoId =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
-        , preventDefaultOn "keydown" (Key.escape ( closeMsg True, True ))
+        , preventDefaultOn "keydown"
+            (JD.field "defaultPrevented" JD.bool
+                |> JD.andThen
+                    (\defaultPrevented ->
+                        if defaultPrevented then
+                            JD.fail "defaultPrevented"
+
+                        else
+                            Key.escape ( closeMsg True, True )
+                    )
+            )
+        , tabindex -1
         ]
         --        (menuItems |> List.indexedMap viewMenuItem)
         menuItems
