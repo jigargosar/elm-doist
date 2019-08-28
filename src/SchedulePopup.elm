@@ -70,22 +70,22 @@ update conf message model =
                 |> command (conf.focus firstFocusable)
 
         Close restoreFocus ->
-            case model of
-                Opened loc todoId ->
-                    pure Closed
-                        |> command (toCmd (conf.onClose loc todoId restoreFocus Nothing))
-
-                Closed ->
-                    pure model
+            onClose conf restoreFocus Nothing model
 
         OnSetScheduleAndClose dueAt ->
-            case model of
-                Opened loc todoId ->
-                    pure Closed
-                        |> command (toCmd (conf.onClose loc todoId False (Just dueAt)))
+            onClose conf False (Just dueAt) model
 
-                Closed ->
-                    pure model
+
+onClose conf restoreFocus maybeDueAt model =
+    case model of
+        Opened loc todoId ->
+            ( Closed
+            , conf.onClose loc todoId restoreFocus maybeDueAt
+                |> toCmd
+            )
+
+        Closed ->
+            pure model
 
 
 view :
