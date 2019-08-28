@@ -528,7 +528,12 @@ updateInlineEditTodoAndCache mfn model =
 
 updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
-    SchedulePopup.update { focus = focusDomIdCmd } message model.schedulePopup
+    SchedulePopup.update
+        { focus = focusDomIdCmd
+        , onSetSchedule = OnSetSchedule
+        }
+        message
+        model.schedulePopup
         |> Tuple.mapFirst (flip setSchedulePopup model)
 
 
@@ -1168,7 +1173,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , SchedulePopup.view { toMsg = OnSchedulePopupMsg, onSetDue = OnSetSchedule }
+            , SchedulePopup.view { toMsg = OnSchedulePopupMsg }
                 model.here
                 model.today
                 todo.id

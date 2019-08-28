@@ -37,13 +37,20 @@ isOpenFor todoId_ model =
 type Msg
     = OpenFor TodoId
     | Close
+    | OnSetSchedule TodoId Todo.DueAt
 
 
 openFor =
     OpenFor
 
 
-update : { focus : String -> Cmd msg } -> Msg -> Model -> ( Model, Cmd msg )
+update :
+    { focus : String -> Cmd msg
+    , onSetSchedule : TodoId -> Todo.DueAt -> msg
+    }
+    -> Msg
+    -> Model
+    -> ( Model, Cmd msg )
 update config message model =
     case message of
         OpenFor todoId ->
@@ -54,10 +61,12 @@ update config message model =
         Close ->
             pure Closed
 
+        OnSetSchedule todoId dueAt ->
+            pure Closed
+
 
 view :
     { toMsg : Msg -> msg
-    , onSetDue : TodoId -> Todo.DueAt -> msg
     }
     -> Time.Zone
     -> Calendar.Date
@@ -76,6 +85,7 @@ popupContainer =
     "schedule-popup__container"
 
 
+viewHelp : { a | toMsg : Msg -> msg } -> Time.Zone -> Calendar.Date -> TodoId -> Html msg
 viewHelp conf zone today todoId =
     let
         todayFmt =
@@ -87,8 +97,9 @@ viewHelp conf zone today todoId =
         yesterdayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
 
+        setDueMsg : Todo.DueAt -> msg
         setDueMsg =
-            conf.onSetDue todoId
+            conf.toMsg << OnSetSchedule todoId
 
         viewSetDueButton action label attrs =
             TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
