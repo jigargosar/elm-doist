@@ -1,4 +1,4 @@
-module UI.Key exposing (enter, escape, onKeyDownPreventDefault, pdOnKeydown, space)
+module UI.Key exposing (enter, escape, onDown, onKeyDownPreventDefault, pdOnKeydown, space)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html)
@@ -29,6 +29,11 @@ onKeyDownPreventDefault msg keys =
 pdOnKeydown : Decoder ( msg, Bool ) -> Attribute msg
 pdOnKeydown =
     preventDefaultOn "keydown"
+
+
+onDown : List (Decoder msg) -> Attribute msg
+onDown list =
+    preventDefaultOn "keydown" (JD.lazy (\_ -> JD.oneOf list |> JD.map preventDefault))
 
 
 escape : msg -> Decoder msg
