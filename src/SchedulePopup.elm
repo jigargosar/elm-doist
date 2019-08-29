@@ -38,11 +38,6 @@ initialValue =
     Closed
 
 
-isOpenFor : Location -> TodoId -> Model -> Bool
-isOpenFor loc todoId model =
-    model == Opened loc todoId
-
-
 type Msg
     = OpenFor Location TodoId
     | Close Bool
@@ -85,6 +80,11 @@ onClose conf restoreFocus maybeDueAt model =
 
         Closed ->
             pure model
+
+
+isOpenFor : Location -> TodoId -> Model -> Bool
+isOpenFor loc todoId model =
+    model == Opened loc todoId
 
 
 view :
