@@ -663,64 +663,6 @@ updateTodoListFromFirestore todoList model =
             )
 
 
-cleanupTodoList : Model -> Return
-cleanupTodoList model =
-    let
-        todoByPid : Dict String (List Todo)
-        todoByPid =
-            Dict.Extra.groupBy
-                (.projectId >> ProjectId.toString)
-                model.todoList
-
-        deleteProjectsCmd =
-            model.projectList
-                |> List.filter .deleted
-                |> List.filter
-                    (\p ->
-                        Dict.get
-                            (ProjectId.toString p.id)
-                            todoByPid
-                            |> MX.unwrap True List.isEmpty
-                    )
-                |> List.map
-                    (.id
-                        >> (\projectId ->
-                                Ports.deleteFirestoreDoc
-                                    { userDocPath =
-                                        "projects/"
-                                            ++ ProjectId.toString
-                                                projectId
-                                    }
-                           )
-                    )
-                |> Cmd.batch
-
-        deleteTodosCmd : Cmd msg
-        deleteTodosCmd =
-            model.projectList
-                |> List.filter .deleted
-                |> List.filterMap
-                    (\p ->
-                        Dict.get
-                            (ProjectId.toString p.id)
-                            todoByPid
-                    )
-                |> List.concat
-                |> List.map
-                    (.id
-                        >> (\todoId ->
-                                Ports.deleteFirestoreDoc
-                                    { userDocPath =
-                                        "todos/"
-                                            ++ TodoId.toString todoId
-                                    }
-                           )
-                    )
-                |> Cmd.batch
-    in
-    ( model, Cmd.batch [ deleteTodosCmd, deleteProjectsCmd ] )
-
-
 setProjectList : ProjectList -> Model -> Model
 setProjectList projectList model =
     { model | projectList = projectList }
@@ -737,7 +679,7 @@ updateProjectListFromFirestoreAndThenCleanup projectList model =
             (Ports.localStorageSetJsonItem
                 ( "cachedProjectList", Project.listEncoder projectList )
             )
-        |> andThen cleanupTodoList
+        |> effect Fire.cleanupTodoList
 
 
 setAuthState : AuthState -> Model -> Model
