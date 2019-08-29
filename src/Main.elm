@@ -4,14 +4,12 @@ import AuthState exposing (AuthState)
 import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
-import Browser.Dom as Dom exposing (focus)
+import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
 import Dialog
-import Dict exposing (Dict)
-import Dict.Extra
 import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
@@ -36,7 +34,7 @@ import HtmlExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -181,7 +179,6 @@ type Msg
     | UrlChanged Url
     | OnHere Time.Zone
     | OnBrowserResize BrowserSize
-    | Focus String
     | Focused (Result Dom.Error ())
     | OnAuthStateChanged Value
     | OnFirestoreQueryResponse FirestoreQueryResponse
@@ -270,9 +267,6 @@ update message model =
 
         OnBrowserResize size ->
             setBrowserSize size model |> pure
-
-        Focus domId ->
-            ( model, focus domId |> Task.attempt Focused )
 
         Focused res ->
             res
@@ -480,9 +474,9 @@ handleFirestoreQueryResponse qs model =
                 |> pure
 
 
-focusDomIdCmd : String -> Cmd Msg
-focusDomIdCmd domId =
-    focus domId |> Task.attempt Focused
+focus : String -> Cmd Msg
+focus domId =
+    Dom.focus domId |> Task.attempt Focused
 
 
 persistInlineEditTodo : Model -> Return
@@ -514,7 +508,7 @@ setInlineEditTodoAndCache todo model =
         |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheInlineEditTodoEffect
-        |> command (focusDomIdCmd <| inlineEditTodoTitleDomId todo.id)
+        |> command (focus <| inlineEditTodoTitleDomId todo.id)
 
 
 cacheInlineEditTodoEffect model =
@@ -559,7 +553,7 @@ updateInlineEditTodoAndCache mfn model =
 updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
 updateSchedulePopup message model =
     SchedulePopup.update
-        { focus = focusDomIdCmd
+        { focus = focus
         , onClose = OnSchedulePopupClosed
         }
         message
@@ -575,7 +569,7 @@ setSchedulePopup schedulePopup model =
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
     TodoPopup.update
-        { focus = focusDomIdCmd
+        { focus = focus
         , firstFocusable = TodoPopup.firstFocusableDomId
         }
         msg
@@ -592,7 +586,7 @@ startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache
         (Dialog.MoveToProjectDialog todo.id todo.projectId)
-        >> command (focusDomIdCmd Dialog.firstFocusable)
+        >> command (focus Dialog.firstFocusable)
 
 
 setDialog : Dialog.Model -> Model -> Model
