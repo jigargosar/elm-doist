@@ -82,7 +82,7 @@ view toMsg menuItems todoId model =
 
 
 viewHelp : (Msg -> msg) -> List (Html msg) -> Html msg
-viewHelp toMsg menuItems =
+viewHelp toMsg =
     let
         closeMsg : msg
         closeMsg =
@@ -96,4 +96,3 @@ viewHelp toMsg menuItems =
         , Key.onEscape closeMsg
         , tabindex -1
         ]
-        menuItems
