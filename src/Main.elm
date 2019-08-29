@@ -470,7 +470,10 @@ handleFirestoreQueryResponse qs model =
         "projectList" ->
             decodeAndUpdate
                 Project.listDecoder
-                updateProjectListFromFirestoreAndThenCleanup
+                (\projectList ->
+                    updateProjectListFromFirestore projectList
+                        >> effect Fire.cleanupTodoList
+                )
 
         _ ->
             HasErrors.add ("Invalid QueryId" ++ qs.id) model
@@ -668,18 +671,14 @@ setProjectList projectList model =
     { model | projectList = projectList }
 
 
-updateProjectListFromFirestoreAndThenCleanup :
-    ProjectList
-    -> Model
-    -> Return
-updateProjectListFromFirestoreAndThenCleanup projectList model =
+updateProjectListFromFirestore : ProjectList -> Model -> Return
+updateProjectListFromFirestore projectList model =
     ( setProjectList projectList model
     , Ports.localStorageSetJsonItem
         ( "cachedProjectList"
         , Project.listEncoder projectList
         )
     )
-        |> effect Fire.cleanupTodoList
 
 
 setAuthState : AuthState -> Model -> Model
