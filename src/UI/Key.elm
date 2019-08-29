@@ -1,5 +1,6 @@
-module UI.Key exposing (onKeyDownPreventDefault, pdOnKeydown)
+module UI.Key exposing (enter, escape, onKeyDownPreventDefault, pdOnKeydown, space)
 
+import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html)
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
@@ -28,3 +29,18 @@ onKeyDownPreventDefault msg keys =
 pdOnKeydown : Decoder ( msg, Bool ) -> Attribute msg
 pdOnKeydown =
     preventDefaultOn "keydown"
+
+
+escape : msg -> Decoder msg
+escape =
+    Key.escape
+
+
+enter : msg -> Decoder msg
+enter =
+    Key.enter
+
+
+space : msg -> Decoder msg
+space =
+    Key.space

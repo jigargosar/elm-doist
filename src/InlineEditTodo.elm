@@ -13,7 +13,6 @@ module InlineEditTodo exposing
     , view
     )
 
-import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
 import Css exposing (minWidth, none, px, resize)
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
@@ -35,7 +34,7 @@ import Millis exposing (Millis)
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import UI.Key
+import UI.Key as Key
 import UI.TextButton as TextButton
 
 
@@ -161,7 +160,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (titleChangedMsg todoId)
-                    , UI.Key.pdOnKeydown (Key.escape ( saveMsg, True ))
+                    , Key.pdOnKeydown (Key.escape ( saveMsg, True ))
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
@@ -188,7 +187,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
     div
         [ class "pv3 ph2 relative"
         , tabindex 0
-        , UI.Key.onKeyDownPreventDefault cancelMsg [ Key.escape ]
+        , Key.onKeyDownPreventDefault cancelMsg [ Key.escape ]
         ]
         [ div [ class "flex" ]
             [ viewIP
