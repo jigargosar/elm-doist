@@ -47,16 +47,13 @@ open =
 
 
 update :
-    { toMsg : Msg -> msg, firstFocusable : String }
+    { firstFocusable : String
+    , focus : String -> Cmd msg
+    }
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update { toMsg, firstFocusable } msg model =
-    let
-        focus : String -> Cmd msg
-        focus =
-            Focus.attempt (Focused >> toMsg)
-    in
+update { firstFocusable, focus } msg model =
     case msg of
         OpenFor todoId ->
             pure (Open todoId)

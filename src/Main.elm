@@ -546,7 +546,7 @@ setSchedulePopup schedulePopup model =
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
     TodoPopup.update
-        { toMsg = OnTodoPopupMsg
+        { focus = focusDomIdCmd
         , firstFocusable = TodoPopup.firstFocusableDomId
         }
         msg
