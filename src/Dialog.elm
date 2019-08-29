@@ -1,6 +1,5 @@
 module Dialog exposing (Model(..), decoder, encoder, firstFocusable, init, view)
 
-import Accessibility.Styled.Key as Key
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events exposing (onClick)
@@ -8,7 +7,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
 import TodoId exposing (TodoId)
-import UI.Key
+import UI.Key as Key
 
 
 type Model
@@ -64,7 +63,7 @@ view : msg -> List (Html msg) -> Html msg
 view onOverlayClickOrEscapePressed content =
     div
         [ class "z-1 fixed absolute--fill flex items-center justify-center"
-        , UI.Key.pdOnKeydown (Key.escape ( onOverlayClickOrEscapePressed, True ))
+        , Key.onDown [ Key.escape onOverlayClickOrEscapePressed ]
         , tabindex -1
         ]
         [ div
