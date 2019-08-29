@@ -184,28 +184,31 @@ type Msg
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
     | OnSignOutClicked
+      -- ExistingTodoOperations
     | OnChecked TodoId Bool
     | OnDelete TodoId
-    | OnDeleteProject ProjectId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | OnAddTodoStart ProjectId
-    | AddTodo ProjectId Millis
-    | OnAddTodoTodayStart
-    | AddTodoToday Millis
-    | OnAddProjectStart
-    | AddProject Millis
     | OnMoveStart TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
-    | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
-    | OnStartInlineEditTodo TodoId
-    | OnEditCancel
-    | OnEditSave
+    | EditTodoRequested TodoId
+    | TodoEditorTitleChanged TodoId String
+    | TodoEditorCanceled
+    | TodoEditorSaved
+      -- NewTodoOperations
+    | OnAddTodoStart ProjectId
+    | AddTodo ProjectId Millis
+    | OnAddTodoTodayStart
+    | AddTodoToday Millis
+      -- Project
+    | OnDeleteProject ProjectId
+    | OnAddProjectStart
+    | AddProject Millis
 
 
 
@@ -342,14 +345,14 @@ update message model =
             , Fire.addProject (Project.new now)
             )
 
-        OnStartInlineEditTodo todoId ->
+        EditTodoRequested todoId ->
             startEditingTodoId todoId model
                 |> Maybe.withDefault (pure model)
 
-        OnEditCancel ->
+        TodoEditorCanceled ->
             resetInlineEditTodoAndCache model
 
-        OnEditSave ->
+        TodoEditorSaved ->
             persistInlineEditTodo model
                 |> andThen resetInlineEditTodoAndCache
 
@@ -418,7 +421,7 @@ update message model =
                                 )
                             )
 
-        OnSetTitle todoId title ->
+        TodoEditorTitleChanged todoId title ->
             model.inlineEditTodo
                 |> MX.filter (InlineEditTodo.idEq todoId)
                 |> MX.unpack
@@ -1117,9 +1120,9 @@ viewEditTodoItem model edt =
         { editDueMsg =
             OnSchedulePopupTriggered
                 SchedulePopup.InlineEditTodo
-        , titleChangedMsg = OnSetTitle
-        , cancelMsg = OnEditCancel
-        , saveMsg = OnEditSave
+        , titleChangedMsg = TodoEditorTitleChanged
+        , cancelMsg = TodoEditorCanceled
+        , saveMsg = TodoEditorSaved
         }
         model.here
         (viewSchedulePopup
@@ -1174,7 +1177,7 @@ type TodoMenuItem
 
 todoPopupItems : List TodoMenuItem
 todoPopupItems =
-    [ FirstTodoMenuItem OnStartInlineEditTodo "Edit"
+    [ FirstTodoMenuItem EditTodoRequested "Edit"
     , TodoMenuItem OnMoveStart "Move to Project"
     , SchedulePopupTriggerTodoMenuItem
         (OnSchedulePopupTriggered SchedulePopup.TodoPopup)
@@ -1261,7 +1264,7 @@ viewTodoItemTitle todo =
                 ( todo.title, "" )
 
         viewTitle =
-            div [ class "", onClick (OnStartInlineEditTodo todo.id) ]
+            div [ class "", onClick (EditTodoRequested todo.id) ]
                 [ text title ]
     in
     div
