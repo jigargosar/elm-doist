@@ -19,7 +19,7 @@ styled styles msg attrs =
     H.styled div
         (FCss.pointer :: styles)
         ([ preventDefaultOnClick msg
-         , Key.onDown [ Key.enter msg, Key.space msg ]
+         , Key.onEnterOrSpace msg
          , tabindex 0
          ]
             ++ attrs

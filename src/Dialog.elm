@@ -63,7 +63,7 @@ view : msg -> List (Html msg) -> Html msg
 view onOverlayClickOrEscapePressed content =
     div
         [ class "z-1 fixed absolute--fill flex items-center justify-center"
-        , Key.onDown [ Key.escape onOverlayClickOrEscapePressed ]
+        , Key.onEscape onOverlayClickOrEscapePressed
         , tabindex -1
         ]
         [ div
