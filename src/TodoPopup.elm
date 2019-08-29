@@ -72,16 +72,6 @@ update { firstFocusable, focus } msg model =
             pure model
 
 
-getTodoId : Model -> Maybe TodoId
-getTodoId model =
-    case model of
-        Open todoId_ ->
-            Just todoId_
-
-        Closed ->
-            Nothing
-
-
 isOpenFor : TodoId -> Model -> Bool
 isOpenFor todoId_ model =
     case model of
