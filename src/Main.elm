@@ -1150,9 +1150,7 @@ viewTodoItemBase model todo =
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OnTodoPopupTriggered todo.id)
-                [ A.id <| TodoPopup.triggerDomId todo.id
-                , class "pa2 tc child"
-                ]
+                [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
             , TodoPopup.view OnTodoPopupMsg

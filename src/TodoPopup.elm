@@ -6,7 +6,6 @@ module TodoPopup exposing
     , firstFocusableDomId
     , initialValue
     , open
-    , triggerDomId
     , update
     , view
     )
@@ -57,15 +56,7 @@ update { firstFocusable, focus } msg model =
                 |> command (focus firstFocusable)
 
         Close restoreFocus ->
-            case model of
-                Open todoId ->
-                    Closed
-                        |> pure
-                        |> commandIf restoreFocus
-                            (focus (triggerDomId todoId))
-
-                Closed ->
-                    pure model
+            Closed |> pure
 
 
 isOpenFor : TodoId -> Model -> Bool
@@ -76,11 +67,6 @@ isOpenFor todoId_ model =
 
         Closed ->
             False
-
-
-triggerDomId : TodoId -> String
-triggerDomId todoId =
-    "todo-popup-trigger-dom-id--" ++ TodoId.toString todoId
 
 
 firstFocusableDomId : String
