@@ -42,21 +42,6 @@ function focusOutListener() {
   }, 0)
 }
 
-// RestoreFocus
-
-window.addEventListener('focus', e => {
-  console.log('window-focus', document.activeElement)
-})
-window.addEventListener('blur', e => {
-  console.log('window-blur', document.activeElement)
-})
-window.addEventListener('focusin', e => {
-  console.log('focusin', e.target, document.activeElement)
-})
-window.addEventListener('focusout', e => {
-  console.log('focusout', e.target, document.activeElement)
-})
-
 // Cache
 function getCached(key) {
   return JSON.parse(localStorage.getItem(key) || 'null')
