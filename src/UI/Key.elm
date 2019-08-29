@@ -1,14 +1,9 @@
 module UI.Key exposing (onEnter, onEnterOrSpace, onEscape)
 
-import Accessibility.Styled.Key as Key
+import Accessibility.Styled.Key exposing (enter, escape, space)
 import Html.Styled exposing (Attribute, Html)
 import Html.Styled.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
-
-
-preventDefault : msg -> ( msg, Bool )
-preventDefault msg =
-    Tuple.pair msg True
 
 
 unlessDefaultPrevented : msg -> Decoder msg
@@ -32,19 +27,9 @@ onDown list =
         )
 
 
-escape : msg -> Decoder msg
-escape =
-    Key.escape
-
-
-enter : msg -> Decoder msg
-enter =
-    Key.enter
-
-
-space : msg -> Decoder msg
-space =
-    Key.space
+preventDefault : msg -> ( msg, Bool )
+preventDefault msg =
+    Tuple.pair msg True
 
 
 onEnter : msg -> Attribute msg
