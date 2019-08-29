@@ -12,6 +12,7 @@ import {
   propOr,
 } from 'ramda'
 
+// Custom Elements
 customElements.define(
   'auto-resize-textarea',
   class extends HTMLElement {
@@ -33,14 +34,30 @@ customElements.define(
 )
 
 function focusOutListener() {
-  setTimeout(()=>{
-    if(!this.contains(document.activeElement)){
-      console.debug("focusOutside", this)
+  setTimeout(() => {
+    if (!this.contains(document.activeElement)) {
+      console.debug('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
-  },0)
+  }, 0)
 }
 
+// RestoreFocus
+
+window.addEventListener('focus', e => {
+  console.log('window-focus', document.activeElement)
+})
+window.addEventListener('blur', e => {
+  console.log('window-blur', document.activeElement)
+})
+window.addEventListener('focusin', e => {
+  console.log('focusin', e.target, document.activeElement)
+})
+window.addEventListener('focusout', e => {
+  console.log('focusout', e.target, document.activeElement)
+})
+
+// Cache
 function getCached(key) {
   return JSON.parse(localStorage.getItem(key) || 'null')
 }
@@ -143,7 +160,7 @@ initSubs({
         : {},
 
       options.data.title === '' &&
-        options.userCollectionName === 'projects'
+      options.userCollectionName === 'projects'
         ? { title: `${faker.hacker.ingverb()} ${faker.hacker.noun()}` }
         : {},
     )
