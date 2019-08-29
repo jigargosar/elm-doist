@@ -136,7 +136,6 @@ viewHelp conf zone today todoId =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , css [ outline none ]
         , tabindex -1
         , on "focusOutside" (JD.succeed <| closeMsg False)
         , preventDefaultOn "keydown"

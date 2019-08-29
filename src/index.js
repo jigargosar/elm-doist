@@ -35,7 +35,12 @@ customElements.define(
 
 function focusOutListener() {
   setTimeout(() => {
-    if (!this.contains(document.activeElement)) {
+    const focusWithinSelf =
+      document.querySelector(`#${this.id}:focus-within`) === this
+    if (
+      !this.contains(document.activeElement) &&
+      !focusWithinSelf
+    ) {
       console.debug('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
@@ -56,7 +61,6 @@ const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
 const cachedDialog = getCached('cachedDialog')
 const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
-
 
 const app = Elm.Main.init({
   flags: {
@@ -81,7 +85,6 @@ pubs.onBrowserFocusChanged(document.hasFocus())
 
 window.addEventListener('focus', () => pubs.onBrowserFocusChanged(true))
 window.addEventListener('blur', () => pubs.onBrowserFocusChanged(false))
-
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
@@ -141,14 +144,13 @@ initSubs({
         : {},
 
       options.data.title === '' &&
-      options.userCollectionName === 'projects'
+        options.userCollectionName === 'projects'
         ? { title: `${faker.hacker.ingverb()} ${faker.hacker.noun()}` }
         : {},
     )
     return docRef.set(data)
   },
 })
-
 
 function initSubs(subs) {
   forEachObjIndexed((listener, portName) => {
