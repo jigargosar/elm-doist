@@ -11,6 +11,19 @@ preventDefault msg =
     Tuple.pair msg True
 
 
+unlessDefaultPrevented : msg -> Decoder msg
+unlessDefaultPrevented msg =
+    JD.field "defaultPrevented" JD.bool
+        |> JD.andThen
+            (\defaultPrevented ->
+                if defaultPrevented then
+                    JD.fail "defaultPrevented"
+
+                else
+                    JD.succeed msg
+            )
+
+
 onDown : List (Decoder msg) -> Attribute msg
 onDown list =
     preventDefaultOn "keydown"
