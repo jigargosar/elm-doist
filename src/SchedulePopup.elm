@@ -10,8 +10,9 @@ module SchedulePopup exposing
 
 import Accessibility.Styled.Key as Key
 import Calendar
+import Css exposing (none, outline)
 import Html.Styled as H exposing (Html, div, text)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events exposing (on, preventDefaultOn)
 import HtmlStyledExtra as HX
 import Json.Decode as JD
@@ -135,8 +136,8 @@ viewHelp conf zone today todoId =
         , class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-
-        --        , Focus.onFocusOutsideDomId popupContainer (conf.toMsg FocusOutside)
+        , css [ outline none ]
+        , tabindex -1
         , on "focusOutside" (JD.succeed <| closeMsg False)
         , preventDefaultOn "keydown"
             (JD.lazy
@@ -152,7 +153,6 @@ viewHelp conf zone today todoId =
                             )
                 )
             )
-        , tabindex -1
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
