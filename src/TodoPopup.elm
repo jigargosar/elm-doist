@@ -35,7 +35,7 @@ initialValue =
 
 type Msg
     = OpenFor TodoId
-    | Close TodoId Bool
+    | Close Bool
 
 
 open : TodoId -> Msg
@@ -56,14 +56,16 @@ update { firstFocusable, focus } msg model =
             pure (Open todoId)
                 |> command (focus firstFocusable)
 
-        Close todoId restoreFocus ->
-            ifElse (isOpenFor todoId model)
-                (Closed
-                    |> pure
-                    |> commandIf restoreFocus
-                        (focus (triggerDomId todoId))
-                )
-                (pure model)
+        Close restoreFocus ->
+            case model of
+                Open todoId ->
+                    Closed
+                        |> pure
+                        |> commandIf restoreFocus
+                            (focus (triggerDomId todoId))
+
+                Closed ->
+                    pure model
 
 
 isOpenFor : TodoId -> Model -> Bool
@@ -110,7 +112,7 @@ viewHelp toMsg menuItems todoId =
     let
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
-            Close todoId restoreFocus
+            Close restoreFocus
                 |> toMsg
     in
     H.node "track-focus-outside"
