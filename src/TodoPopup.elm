@@ -15,7 +15,7 @@ import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
 import Focus
 import Html.Styled as H exposing (Attribute, Html)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
@@ -99,11 +99,6 @@ isOpenFor todoId_ model =
             False
 
 
-todoMenuDomId : TodoId -> String
-todoMenuDomId todoId =
-    "todo-popup-dom-id--" ++ TodoId.toString todoId
-
-
 triggerDomId : TodoId -> String
 triggerDomId todoId =
     "todo-popup-trigger-dom-id--" ++ TodoId.toString todoId
@@ -136,24 +131,17 @@ view toMsg menuItems todoId model =
 viewHelp : (Msg -> msg) -> List (Html msg) -> TodoId -> Html msg
 viewHelp toMsg menuItems todoId =
     let
-        menuDomId =
-            todoMenuDomId todoId
-
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
             Close todoId restoreFocus
                 |> toMsg
     in
     H.node "track-focus-outside"
-        [ A.id menuDomId
-        , class "absolute right-0 top-1"
+        [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-
-        --        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , on "focusOutside" (JD.succeed <| closeMsg False)
         , Key.onEscape (closeMsg True)
         , tabindex -1
         ]
-        --        (menuItems |> List.indexedMap viewMenuItem)
         menuItems
