@@ -86,9 +86,13 @@ flagsDecoder =
     JD.succeed Flags
         |> cachedField "cachedTodoList" Todo.listDecoder []
         |> cachedField "cachedProjectList" Project.listDecoder []
-        |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
+        |> cachedField "cachedAuthState"
+            AuthState.decoder
+            AuthState.initial
         |> cachedField "cachedDialog" Dialog.decoder Dialog.init
-        |> cachedField "cachedInlineEditTodo" (JD.nullable InlineEditTodo.decoder) Nothing
+        |> cachedField "cachedInlineEditTodo"
+            (JD.nullable InlineEditTodo.decoder)
+            Nothing
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -222,7 +226,10 @@ subscriptions _ =
 -- UPDATE
 
 
-decodeValueAndUnpack : ( Decoder a, a -> b, JD.Error -> b ) -> JD.Value -> b
+decodeValueAndUnpack :
+    ( Decoder a, a -> b, JD.Error -> b )
+    -> JD.Value
+    -> b
 decodeValueAndUnpack ( decoder, onOk, onErr ) enc =
     enc
         |> JD.decodeValue decoder
@@ -239,8 +246,12 @@ update message model =
             case urlRequest of
                 Browser.Internal url ->
                     ifElse (Route.fromUrl url == model.route)
-                        ( model, Nav.replaceUrl model.key (Url.toString url) )
-                        ( model, Nav.pushUrl model.key (Url.toString url) )
+                        ( model
+                        , Nav.replaceUrl model.key (Url.toString url)
+                        )
+                        ( model
+                        , Nav.pushUrl model.key (Url.toString url)
+                        )
 
                 Browser.External href ->
                     ( model, Nav.load href )
@@ -270,7 +281,10 @@ update message model =
         OnAuthStateChanged encodedValue ->
             model
                 |> decodeValueAndUnpack
-                    ( AuthState.decoder, onAuthStateChanged, onDecodeError )
+                    ( AuthState.decoder
+                    , onAuthStateChanged
+                    , onDecodeError
+                    )
                     encodedValue
 
         OnSignInClicked ->
@@ -290,7 +304,10 @@ update message model =
                 "todoList" ->
                     model
                         |> decodeValueAndUnpack
-                            ( Todo.listDecoder, updateTodoListFromFirestore, onDecodeError )
+                            ( Todo.listDecoder
+                            , updateTodoListFromFirestore
+                            , onDecodeError
+                            )
                             qs.docDataList
 
                 "projectList" ->
@@ -310,12 +327,16 @@ update message model =
             ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
 
         OnDelete todoId ->
-            ( model, Ports.deleteFirestoreDoc { userDocPath = "todos/" ++ TodoId.toString todoId } )
+            ( model
+            , Ports.deleteFirestoreDoc
+                { userDocPath = "todos/" ++ TodoId.toString todoId }
+            )
 
         OnDeleteProject projectId ->
             ( model
             , Ports.updateFirestoreDoc
-                { userDocPath = "projects/" ++ ProjectId.toString projectId
+                { userDocPath =
+                    "projects/" ++ ProjectId.toString projectId
                 , data =
                     JE.object
                         [ ( "deleted", JE.bool True )
@@ -408,7 +429,8 @@ update message model =
                         |> Maybe.map2
                             (\dueAt _ ->
                                 model
-                                    |> updateInlineEditTodoAndCache (InlineEditTodo.setDueAt dueAt)
+                                    |> updateInlineEditTodoAndCache
+                                        (InlineEditTodo.setDueAt dueAt)
                             )
                             maybeDueAt
                         |> Maybe.withDefault (pure model)
@@ -432,7 +454,9 @@ update message model =
                         |> MX.unwrap (pure model)
                             (\dueAt ->
                                 ( model
-                                , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+                                , patchTodoCmd
+                                    todoId
+                                    [ Todo.SetDueAt dueAt ]
                                 )
                             )
 
@@ -443,8 +467,10 @@ update message model =
                     (\_ -> pure model)
                     (\_ ->
                         model
-                            |> updateInlineEditTodoAndCache (InlineEditTodo.setTitle title)
-                            |> andThen (updateDialogAndCache Dialog.Closed)
+                            |> updateInlineEditTodoAndCache
+                                (InlineEditTodo.setTitle title)
+                            |> andThen
+                                (updateDialogAndCache Dialog.Closed)
                     )
 
         OnDialogOverlayClickedOrEscapePressed ->
@@ -495,7 +521,9 @@ setInlineEditTodoAndCache todo model =
 
 cacheInlineEditTodoEffect model =
     Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo", InlineEditTodo.maybeEncoder model.inlineEditTodo )
+        ( "cachedInlineEditTodo"
+        , InlineEditTodo.maybeEncoder model.inlineEditTodo
+        )
 
 
 resetInlineEditTodoAndCache : Model -> Return
@@ -520,7 +548,10 @@ resetInlineEditTodo model =
     { model | inlineEditTodo = Nothing }
 
 
-updateInlineEditTodoAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
+updateInlineEditTodoAndCache :
+    (InlineEditTodo.Model -> InlineEditTodo.Model)
+    -> Model
+    -> Return
 updateInlineEditTodoAndCache mfn model =
     setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
         |> pure
@@ -561,7 +592,8 @@ setTodoPopup todoPopup model =
 
 startMoving : Todo -> Model -> Return
 startMoving todo =
-    updateDialogAndCache (Dialog.MoveToProjectDialog todo.id todo.projectId)
+    updateDialogAndCache
+        (Dialog.MoveToProjectDialog todo.id todo.projectId)
         >> command (focusDomIdCmd Dialog.firstFocusable)
 
 
@@ -641,19 +673,29 @@ cleanupTodoList model =
     let
         todoByPid : Dict String (List Todo)
         todoByPid =
-            Dict.Extra.groupBy (.projectId >> ProjectId.toString) model.todoList
+            Dict.Extra.groupBy
+                (.projectId >> ProjectId.toString)
+                model.todoList
 
         deleteProjectsCmd =
             model.projectList
                 |> List.filter .deleted
                 |> List.filter
                     (\p ->
-                        Dict.get (ProjectId.toString p.id) todoByPid |> MX.unwrap True List.isEmpty
+                        Dict.get
+                            (ProjectId.toString p.id)
+                            todoByPid
+                            |> MX.unwrap True List.isEmpty
                     )
                 |> List.map
                     (.id
                         >> (\projectId ->
-                                Ports.deleteFirestoreDoc { userDocPath = "projects/" ++ ProjectId.toString projectId }
+                                Ports.deleteFirestoreDoc
+                                    { userDocPath =
+                                        "projects/"
+                                            ++ ProjectId.toString
+                                                projectId
+                                    }
                            )
                     )
                 |> Cmd.batch
@@ -662,13 +704,21 @@ cleanupTodoList model =
         deleteTodosCmd =
             model.projectList
                 |> List.filter .deleted
-                |> List.filterMap (\p -> Dict.get (ProjectId.toString p.id) todoByPid)
+                |> List.filterMap
+                    (\p ->
+                        Dict.get
+                            (ProjectId.toString p.id)
+                            todoByPid
+                    )
                 |> List.concat
                 |> List.map
                     (.id
                         >> (\todoId ->
                                 Ports.deleteFirestoreDoc
-                                    { userDocPath = "todos/" ++ TodoId.toString todoId }
+                                    { userDocPath =
+                                        "todos/"
+                                            ++ TodoId.toString todoId
+                                    }
                            )
                     )
                 |> Cmd.batch
@@ -701,7 +751,10 @@ setBrowserSize browserSize model =
     { model | browserSize = browserSize }
 
 
-setTodayFromNow : Int -> { b | today : Calendar.Date } -> { b | today : Calendar.Date }
+setTodayFromNow :
+    Int
+    -> { b | today : Calendar.Date }
+    -> { b | today : Calendar.Date }
 setTodayFromNow millis model =
     { model | today = dateFromMillis millis }
 
@@ -863,7 +916,10 @@ viewHeader model =
             [ div [ class "f4 tracked flex-grow-1" ] [ text "ElmDOist" ]
             , case model.authState of
                 AuthState.Unknown ->
-                    viewHeaderBtn OnSignInClicked "SignIn" [ disabled True ]
+                    viewHeaderBtn
+                        OnSignInClicked
+                        "SignIn"
+                        [ disabled True ]
 
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
@@ -946,7 +1002,10 @@ viewFooter model =
                 HX.empty
 
             Dialog.MoveToProjectDialog todoId projectId ->
-                viewMoveDialog todoId projectId (Project.filterActive model.projectList)
+                viewMoveDialog
+                    todoId
+                    projectId
+                    (Project.filterActive model.projectList)
 
 
 type alias DisplayProject =
@@ -970,14 +1029,20 @@ toDisplayProjectList projectList =
 
 viewSignInDialog =
     Dialog.view NoOp
-        [ div [ class "vs3 bg-white pa4 lh-copy shadow-1 ba br1 b--transparent tc" ]
+        [ div
+            [ class "vs3 pa4 lh-copy tc bg-white shadow-1"
+            , class " ba br1 b--transparent "
+            ]
             [ div [ class "b" ] [ text "SignIn/SignUp using" ]
             , Button.styled []
                 OnSignInClicked
-                [ class "ph2 pv1 flex inline-flex items-center justify-center "
+                [ class "ph2 pv1"
+                , class "flex inline-flex items-center justify-center"
                 , class "ba br2 white bg-blue shadow-1"
                 ]
-                [ FAIcon.styled [ FAA.fa2x, SA.class "white ph2 pv1" ] FABrands.google
+                [ FAIcon.styled
+                    [ FAA.fa2x, SA.class "white ph2 pv1" ]
+                    FABrands.google
                 , div [ class "dib white f4" ] [ text "Google" ]
                 ]
             ]
@@ -1046,7 +1111,8 @@ todayContent model =
                 (\_ ->
                     div [ class "vs3" ]
                         [ div [ class "pv2 flex items-center hs3" ]
-                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Overdue" ]
+                            [ div [ class "lh-copy b flex-grow-1" ]
+                                [ text "Overdue" ]
                             ]
                         , div [ class "" ]
                             (List.map
@@ -1121,7 +1187,11 @@ viewEditTodoItem model edt =
         , saveMsg = OnEditSave
         }
         model.here
-        (viewSchedulePopup SchedulePopup.InlineEditTodo (InlineEditTodo.getTodoId edt) model)
+        (viewSchedulePopup
+            SchedulePopup.InlineEditTodo
+            (InlineEditTodo.getTodoId edt)
+            model
+        )
         edt
 
 
@@ -1161,37 +1231,54 @@ viewTodoItemBase model todo =
         ]
 
 
-todoPopupItems : TodoPopup.MenuItems Msg
+type TodoMenuItem
+    = TodoMenuItem (TodoId -> Msg) String
+    | FirstTodoMenuItem (TodoId -> Msg) String
+    | SchedulePopupTriggerTodoMenuItem (TodoId -> Msg) String
+
+
+todoPopupItems : List TodoMenuItem
 todoPopupItems =
-    [ ( OnStartInlineEditTodo, "Edit" )
-    , ( OnMoveStart, "Move to Project" )
-    , ( OnSchedulePopupTriggered SchedulePopup.TodoPopup, "Schedule" )
-    , ( OnDelete, "Delete" )
+    [ FirstTodoMenuItem OnStartInlineEditTodo "Edit"
+    , TodoMenuItem OnMoveStart "Move to Project"
+    , SchedulePopupTriggerTodoMenuItem
+        (OnSchedulePopupTriggered SchedulePopup.TodoPopup)
+        "Schedule"
+    , TodoMenuItem OnDelete "Delete"
     ]
 
 
 viewTodoPopupItems : TodoId -> Model -> List (Html Msg)
 viewTodoPopupItems todoId model =
-    let
-        viewMenuItem : number -> TodoPopup.MenuItem Msg -> Html Msg
-        viewMenuItem idx ( todoAction, label ) =
+    todoPopupItems |> List.map (viewMenuItem todoId model)
+
+
+viewMenuItem : TodoId -> Model -> TodoMenuItem -> Html Msg
+viewMenuItem todoId model todoMenuItem =
+    case todoMenuItem of
+        TodoMenuItem todoAction label ->
             div [ class "relative" ]
                 [ TextButton.view (todoAction todoId)
                     label
-                    [ A.id <|
-                        ifElse (idx == 0)
-                            TodoPopup.firstFocusableDomId
-                            label
+                    [ class "pa2" ]
+                ]
+
+        FirstTodoMenuItem todoAction label ->
+            div [ class "relative" ]
+                [ TextButton.view (todoAction todoId)
+                    label
+                    [ A.id TodoPopup.firstFocusableDomId
                     , class "pa2"
                     ]
-                , HX.viewIf
-                    (todoAction todoId
-                        == OnSchedulePopupTriggered SchedulePopup.TodoPopup todoId
-                    )
-                    (viewSchedulePopup SchedulePopup.TodoPopup todoId model)
                 ]
-    in
-    todoPopupItems |> List.indexedMap viewMenuItem
+
+        SchedulePopupTriggerTodoMenuItem todoAction label ->
+            div [ class "relative" ]
+                [ TextButton.view (todoAction todoId)
+                    label
+                    [ class "pa2" ]
+                , viewSchedulePopup SchedulePopup.TodoPopup todoId model
+                ]
 
 
 viewDueAt : Zone -> Todo -> Html Msg
@@ -1239,7 +1326,8 @@ viewTodoItemTitle todo =
                 ( todo.title, "" )
 
         viewTitle =
-            div [ class "", onClick (OnStartInlineEditTodo todo.id) ] [ text title ]
+            div [ class "", onClick (OnStartInlineEditTodo todo.id) ]
+                [ text title ]
     in
     div
         [ class titleClass
