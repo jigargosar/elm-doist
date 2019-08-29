@@ -17,7 +17,7 @@ unlessDefaultPrevented msg =
         |> JD.andThen
             (\defaultPrevented ->
                 if defaultPrevented then
-                    JD.fail "defaultPrevented"
+                    JD.fail "Failing because defaultPrevented"
 
                 else
                     JD.succeed msg
