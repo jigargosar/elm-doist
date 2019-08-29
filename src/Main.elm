@@ -545,7 +545,7 @@ setSchedulePopup schedulePopup model =
 
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
-    TodoPopup.update OnTodoPopupMsg msg model.todoPopup
+    TodoPopup.update { toMsg = OnTodoPopupMsg } msg model.todoPopup
         |> Tuple.mapFirst (flip setTodoPopup model)
 
 

@@ -46,8 +46,8 @@ open =
     OpenFor
 
 
-update : (Msg -> msg) -> Msg -> Model -> ( Model, Cmd msg )
-update toMsg msg model =
+update : { toMsg : Msg -> msg } -> Msg -> Model -> ( Model, Cmd msg )
+update { toMsg } msg model =
     let
         focus : String -> Cmd msg
         focus =
