@@ -24,7 +24,7 @@ import Html.Styled.Attributes as A
         , tabindex
         , value
         )
-import Html.Styled.Events exposing (onInput, preventDefaultOn)
+import Html.Styled.Events exposing (onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
