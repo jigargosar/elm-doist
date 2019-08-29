@@ -11,17 +11,17 @@ module TodoPopup exposing
     , view
     )
 
-import Accessibility.Styled.Key as Key
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
 import Focus
 import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events exposing (on, preventDefaultOn)
+import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Maybe.Extra as MX
 import TodoId exposing (TodoId)
+import UI.Key as Key
 import UpdateExtra exposing (commandIf, effect, pure)
 
 
@@ -152,20 +152,7 @@ viewHelp toMsg menuItems todoId =
 
         --        , Focus.onFocusOutsideDomId menuDomId (closeMsg False)
         , on "focusOutside" (JD.succeed <| closeMsg False)
-        , preventDefaultOn "keydown"
-            (JD.lazy
-                (\_ ->
-                    JD.field "defaultPrevented" JD.bool
-                        |> JD.andThen
-                            (\defaultPrevented ->
-                                if defaultPrevented then
-                                    JD.fail "defaultPrevented"
-
-                                else
-                                    Key.escape ( closeMsg True, True )
-                            )
-                )
-            )
+        , Key.onEscape (closeMsg True)
         , tabindex -1
         ]
         --        (menuItems |> List.indexedMap viewMenuItem)

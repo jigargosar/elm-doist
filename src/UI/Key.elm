@@ -27,7 +27,9 @@ unlessDefaultPrevented msg =
 onDown : List (Decoder msg) -> Attribute msg
 onDown list =
     preventDefaultOn "keydown"
-        (JD.lazy (\_ -> JD.oneOf list |> JD.map preventDefault))
+        (unlessDefaultPrevented list
+            |> JD.andThen (JD.oneOf >> JD.map preventDefault)
+        )
 
 
 escape : msg -> Decoder msg

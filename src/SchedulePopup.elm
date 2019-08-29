@@ -8,18 +8,17 @@ module SchedulePopup exposing
     , view
     )
 
-import Accessibility.Styled.Key as Key
 import Calendar
-import Css exposing (none, outline)
 import Html.Styled as H exposing (Html, div, text)
-import Html.Styled.Attributes as A exposing (class, css, tabindex)
-import Html.Styled.Events exposing (on, preventDefaultOn)
+import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD
 import Millis
 import Time
 import Todo
 import TodoId exposing (TodoId)
+import UI.Key as Key
 import UI.TextButton as TextButton
 import UpdateExtra exposing (command, pure, toCmd)
 
@@ -138,20 +137,7 @@ viewHelp conf zone today todoId =
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
         , on "focusOutside" (JD.succeed <| closeMsg False)
-        , preventDefaultOn "keydown"
-            (JD.lazy
-                (\_ ->
-                    JD.field "defaultPrevented" JD.bool
-                        |> JD.andThen
-                            (\defaultPrevented ->
-                                if defaultPrevented then
-                                    JD.fail "defaultPrevented"
-
-                                else
-                                    Key.escape ( closeMsg True, True )
-                            )
-                )
-            )
+        , Key.onEscape (closeMsg True)
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
