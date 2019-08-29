@@ -18,7 +18,7 @@ import Focus
 import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on, preventDefaultOn)
-import HtmlStyledExtra as HX
+import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Maybe.Extra as MX
 import TodoId exposing (TodoId)

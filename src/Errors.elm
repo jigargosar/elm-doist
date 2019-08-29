@@ -2,7 +2,7 @@ module Errors exposing (Errors, add, addDecodeError, detailView, empty, fromStri
 
 import Html.Styled exposing (Html, div, li, ol, text)
 import Html.Styled.Attributes exposing (class)
-import HtmlStyledExtra
+import HtmlExtra
 import Json.Decode as JD
 
 
@@ -41,7 +41,7 @@ addDecodeError error =
 
 detailView : Errors -> Html msg
 detailView (Errors errors) =
-    HtmlStyledExtra.viewUnless (errors |> List.isEmpty) <|
+    HtmlExtra.viewUnless (errors |> List.isEmpty) <|
         div [ class "vs3" ]
             [ div [ class "ttu tracked" ] [ text "Errors:" ]
             , ol [ class "vs3" ] (List.map viewError errors)

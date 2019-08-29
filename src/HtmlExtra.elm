@@ -1,4 +1,4 @@
-module HtmlStyledExtra exposing (empty, viewIf, viewMaybe, viewNotEmpty, viewUnless)
+module HtmlExtra exposing (empty, viewIf, viewMaybe, viewNotEmpty, viewUnless)
 
 -- VIEW HELPERS
 

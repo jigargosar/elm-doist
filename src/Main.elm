@@ -31,7 +31,7 @@ import Html.Styled.Attributes as A
         , href
         )
 import Html.Styled.Events exposing (onClick)
-import HtmlStyledExtra as HX
+import HtmlExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP

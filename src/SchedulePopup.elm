@@ -14,7 +14,7 @@ import Css exposing (none, outline)
 import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events exposing (on, preventDefaultOn)
-import HtmlStyledExtra as HX
+import HtmlExtra as HX
 import Json.Decode as JD
 import Millis
 import Time
