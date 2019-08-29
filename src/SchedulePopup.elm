@@ -104,10 +104,6 @@ firstFocusable =
     "schedule-popup__first-focusable"
 
 
-popupContainer =
-    "schedule-popup__container"
-
-
 viewHelp : { a | toMsg : Msg -> msg } -> Time.Zone -> Calendar.Date -> TodoId -> Html msg
 viewHelp conf zone today todoId =
     let
@@ -131,8 +127,7 @@ viewHelp conf zone today todoId =
             conf.toMsg <| Close restoreFocus
     in
     H.node "track-focus-outside"
-        [ A.id popupContainer
-        , class "absolute right-0 top-1"
+        [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
