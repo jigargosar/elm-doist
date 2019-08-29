@@ -1,4 +1,4 @@
-module UI.Key exposing (enter, escape, onDown, onEnter, onEscape, space)
+module UI.Key exposing (enter, escape, onDown, onEnter, onEnterOrSpace, onEscape, onSpace, space)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html)
@@ -34,6 +34,16 @@ space =
 onEnter : msg -> Attribute msg
 onEnter msg =
     onDown [ enter msg ]
+
+
+onEnterOrSpace : msg -> Attribute msg
+onEnterOrSpace msg =
+    onDown [ space msg, enter msg ]
+
+
+onSpace : msg -> Attribute msg
+onSpace msg =
+    onDown [ space msg ]
 
 
 onEscape : msg -> Attribute msg
