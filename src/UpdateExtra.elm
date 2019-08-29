@@ -12,8 +12,9 @@ pure =
     Return.singleton
 
 
-effect =
-    Return.effect_
+effect : (a -> Cmd msg) -> ( a, Cmd msg ) -> ( a, Cmd msg )
+effect f ( model, cmd ) =
+    ( model, Cmd.batch [ cmd, f model ] )
 
 
 andThen =
