@@ -303,28 +303,7 @@ update message model =
             )
 
         OnFirestoreQueryResponse qs ->
-            case qs.id of
-                "todoList" ->
-                    model
-                        |> decodeValueAndUnpack
-                            ( Todo.listDecoder
-                            , updateTodoListFromFirestore
-                            , onDecodeError
-                            )
-                            qs.docDataList
-
-                "projectList" ->
-                    model
-                        |> decodeValueAndUnpack
-                            ( Project.listDecoder
-                            , updateProjectListAndCleanupFromFirestore
-                            , onDecodeError
-                            )
-                            qs.docDataList
-
-                _ ->
-                    HasErrors.add ("Invalid QueryId" ++ qs.id) model
-                        |> pure
+            handleFirestoreQueryResponse qs model
 
         OnChecked todoId checked ->
             ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
@@ -484,6 +463,35 @@ update message model =
 
                 Dialog.MoveToProjectDialog _ _ ->
                     updateDialogAndCache Dialog.Closed model
+
+
+handleFirestoreQueryResponse :
+    FirestoreQueryResponse
+    -> Model
+    -> Return
+handleFirestoreQueryResponse qs model =
+    case qs.id of
+        "todoList" ->
+            model
+                |> decodeValueAndUnpack
+                    ( Todo.listDecoder
+                    , updateTodoListFromFirestore
+                    , onDecodeError
+                    )
+                    qs.docDataList
+
+        "projectList" ->
+            model
+                |> decodeValueAndUnpack
+                    ( Project.listDecoder
+                    , updateProjectListAndCleanupFromFirestore
+                    , onDecodeError
+                    )
+                    qs.docDataList
+
+        _ ->
+            HasErrors.add ("Invalid QueryId" ++ qs.id) model
+                |> pure
 
 
 focusDomIdCmd : String -> Cmd Msg
