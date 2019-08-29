@@ -43,6 +43,10 @@ function focusOutListener() {
 }
 
 // Cache
+function localStorageSetJsonItem([k, v]) {
+  localStorage.setItem(k, JSON.stringify(v))
+}
+
 function getCached(key) {
   return JSON.parse(localStorage.getItem(key) || 'null')
 }
@@ -91,12 +95,7 @@ function resizeTextAreaOnInputListener(ev) {
 }
 
 initSubs({
-  localStorageSetJsonItem: ([k, v]) => {
-    console.groupCollapsed('localStorageSetJsonItem', k)
-    console.log(v)
-    console.groupEnd()
-    localStorage.setItem(k, JSON.stringify(v))
-  },
+  localStorageSetJsonItem,
   signIn: () => fire.signIn(),
   signOut: () => fire.signOut(),
   queryFirestore: async options => {
@@ -152,6 +151,7 @@ initSubs({
     return docRef.set(data)
   },
 })
+
 
 function initSubs(subs) {
   forEachObjIndexed((listener, portName) => {
