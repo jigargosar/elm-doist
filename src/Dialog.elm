@@ -64,7 +64,7 @@ view : msg -> List (Html msg) -> Html msg
 view onOverlayClickOrEscapePressed content =
     div
         [ class "z-1 fixed absolute--fill flex items-center justify-center"
-        , UI.Key.onKeyDownPreventDefault onOverlayClickOrEscapePressed [ Key.escape ]
+        , UI.Key.pdOnKeydown (Key.escape ( onOverlayClickOrEscapePressed, True ))
         , tabindex -1
         ]
         [ div
