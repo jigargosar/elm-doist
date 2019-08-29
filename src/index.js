@@ -35,12 +35,7 @@ customElements.define(
 
 function focusOutListener() {
   setTimeout(() => {
-    const focusWithinSelf =
-      document.querySelector(`#${this.id}:focus-within`) === this
-    if (
-      !this.contains(document.activeElement) &&
-      !focusWithinSelf
-    ) {
+    if (!this.contains(document.activeElement)) {
       console.debug('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
@@ -79,7 +74,6 @@ const pubs = initPubs({
   onAuthStateChanged: identity,
   onFirestoreQueryResponse: identity,
 })
-
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
