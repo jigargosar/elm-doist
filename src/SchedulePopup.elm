@@ -97,15 +97,20 @@ view :
     -> Model
     -> Html msg
 view conf here today todoId model =
-    HX.viewIf (isOpenFor conf.location todoId model) (viewHelp conf here today todoId)
+    HX.viewIf (isOpenFor conf.location todoId model)
+        (viewHelp conf here today)
 
 
 firstFocusable =
     "schedule-popup__first-focusable"
 
 
-viewHelp : { a | toMsg : Msg -> msg } -> Time.Zone -> Calendar.Date -> TodoId -> Html msg
-viewHelp conf zone today todoId =
+viewHelp :
+    { a | toMsg : Msg -> msg }
+    -> Time.Zone
+    -> Calendar.Date
+    -> Html msg
+viewHelp conf zone today =
     let
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
