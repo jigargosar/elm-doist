@@ -316,22 +316,12 @@ update message model =
 
         OnDeleteProject projectId ->
             ( model
-            , Ports.updateFirestoreDoc
-                { userDocPath =
-                    "projects/" ++ ProjectId.toString projectId
-                , data =
-                    JE.object
-                        [ ( "deleted", JE.bool True )
-                        ]
-                }
+            , Fire.deleteProject projectId
             )
 
         PatchTodo todoId todoMsgList now ->
             ( model
-            , Ports.updateFirestoreDoc
-                { userDocPath = "todos/" ++ TodoId.toString todoId
-                , data = JE.object (Todo.patch todoMsgList now)
-                }
+            , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
 
         OnAddTodoStart pid ->
@@ -339,10 +329,7 @@ update message model =
 
         AddTodo pid now ->
             ( model
-            , Ports.addFirestoreDoc
-                { userCollectionName = "todos"
-                , data = Todo.newForProject now pid
-                }
+            , Fire.addTodo (Todo.newForProject now pid)
             )
 
         OnAddTodoTodayStart ->
