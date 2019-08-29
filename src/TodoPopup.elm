@@ -34,7 +34,7 @@ initialValue =
 
 type Msg
     = OpenFor TodoId
-    | Close Bool
+    | Close
 
 
 open : TodoId -> Msg
@@ -55,7 +55,7 @@ update { firstFocusable, focus } msg model =
             pure (Open todoId)
                 |> command (focus firstFocusable)
 
-        Close restoreFocus ->
+        Close ->
             Closed |> pure
 
 
@@ -96,17 +96,16 @@ view toMsg menuItems todoId model =
 viewHelp : (Msg -> msg) -> List (Html msg) -> Html msg
 viewHelp toMsg menuItems =
     let
-        closeMsg : Bool -> msg
-        closeMsg restoreFocus =
-            Close restoreFocus
-                |> toMsg
+        closeMsg : msg
+        closeMsg =
+            toMsg Close
     in
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , on "focusOutside" (JD.succeed <| closeMsg False)
-        , Key.onEscape (closeMsg True)
+        , on "focusOutside" (JD.succeed <| closeMsg)
+        , Key.onEscape closeMsg
         , tabindex -1
         ]
         menuItems
