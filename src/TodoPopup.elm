@@ -104,11 +104,11 @@ view :
     -> Html msg
 view toMsg menuItems todoId model =
     HX.viewIf (isOpenFor todoId model)
-        (viewHelp toMsg menuItems todoId)
+        (viewHelp toMsg menuItems)
 
 
-viewHelp : (Msg -> msg) -> List (Html msg) -> TodoId -> Html msg
-viewHelp toMsg menuItems todoId =
+viewHelp : (Msg -> msg) -> List (Html msg) -> Html msg
+viewHelp toMsg menuItems =
     let
         closeMsg : Bool -> msg
         closeMsg restoreFocus =
