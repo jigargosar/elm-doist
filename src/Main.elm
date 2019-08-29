@@ -13,6 +13,7 @@ import Dialog
 import Dict exposing (Dict)
 import Dict.Extra
 import Errors exposing (Errors)
+import Fire
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
 import FontAwesome.Regular as FAR
@@ -310,8 +311,7 @@ update message model =
 
         OnDelete todoId ->
             ( model
-            , Ports.deleteFirestoreDoc
-                { userDocPath = "todos/" ++ TodoId.toString todoId }
+            , Fire.deleteTodo todoId
             )
 
         OnDeleteProject projectId ->
