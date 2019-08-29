@@ -275,7 +275,9 @@ update message model =
 
         Focused res ->
             res
-                |> RX.unpack HasErrors.addDomFocusError (always identity)
+                |> RX.unpack
+                    HasErrors.addDomFocusError
+                    (always identity)
                 |> callWith model
                 |> pure
 
