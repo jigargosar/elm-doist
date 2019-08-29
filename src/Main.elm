@@ -337,10 +337,7 @@ update message model =
 
         AddTodoToday now ->
             ( model
-            , Ports.addFirestoreDoc
-                { userCollectionName = "todos"
-                , data = Todo.newToday now now
-                }
+            , Fire.addTodo (Todo.newToday now now)
             )
 
         OnAddProjectStart ->
@@ -348,10 +345,7 @@ update message model =
 
         AddProject now ->
             ( model
-            , Ports.addFirestoreDoc
-                { userCollectionName = "projects"
-                , data = Project.new now
-                }
+            , Fire.addProject (Project.new now)
             )
 
         OnStartInlineEditTodo todoId ->

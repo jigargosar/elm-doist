@@ -1,4 +1,4 @@
-module Fire exposing (addTodo, deleteProject, deleteTodo, updateTodo)
+module Fire exposing (addProject, addTodo, deleteProject, deleteTodo, updateTodo)
 
 import Json.Encode as JE
 import Ports
@@ -36,5 +36,13 @@ addTodo : JE.Value -> Cmd msg
 addTodo encoded =
     Ports.addFirestoreDoc
         { userCollectionName = "todos"
+        , data = encoded
+        }
+
+
+addProject : JE.Value -> Cmd msg
+addProject encoded =
+    Ports.addFirestoreDoc
+        { userCollectionName = "projects"
         , data = encoded
         }
