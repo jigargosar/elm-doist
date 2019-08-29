@@ -78,13 +78,8 @@ const fire = Fire()
 const pubs = initPubs({
   onAuthStateChanged: identity,
   onFirestoreQueryResponse: identity,
-  onBrowserFocusChanged: identity,
 })
 
-pubs.onBrowserFocusChanged(document.hasFocus())
-
-window.addEventListener('focus', () => pubs.onBrowserFocusChanged(true))
-window.addEventListener('blur', () => pubs.onBrowserFocusChanged(false))
 
 fire.onAuthStateChanged(pubs.onAuthStateChanged)
 
