@@ -673,12 +673,12 @@ updateProjectListFromFirestoreAndThenCleanup :
     -> Model
     -> Return
 updateProjectListFromFirestoreAndThenCleanup projectList model =
-    setProjectList projectList model
-        |> pure
-        |> command
-            (Ports.localStorageSetJsonItem
-                ( "cachedProjectList", Project.listEncoder projectList )
-            )
+    ( setProjectList projectList model
+    , Ports.localStorageSetJsonItem
+        ( "cachedProjectList"
+        , Project.listEncoder projectList
+        )
+    )
         |> effect Fire.cleanupTodoList
 
 
