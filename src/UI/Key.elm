@@ -1,4 +1,4 @@
-module UI.Key exposing (enter, escape, onDown, pdOnKeydown, space)
+module UI.Key exposing (enter, escape, onDown, space)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html)
@@ -9,11 +9,6 @@ import Json.Decode as JD exposing (Decoder)
 preventDefault : msg -> ( msg, Bool )
 preventDefault msg =
     Tuple.pair msg True
-
-
-pdOnKeydown : Decoder ( msg, Bool ) -> Attribute msg
-pdOnKeydown =
-    preventDefaultOn "keydown"
 
 
 onDown : List (Decoder msg) -> Attribute msg

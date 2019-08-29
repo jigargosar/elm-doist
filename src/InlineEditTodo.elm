@@ -160,7 +160,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (titleChangedMsg todoId)
-                    , Key.pdOnKeydown (Key.enter ( saveMsg, True ))
+                    , Key.onDown [ Key.enter saveMsg ]
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
@@ -187,7 +187,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
     div
         [ class "pv3 ph2 relative"
         , tabindex 0
-        , Key.pdOnKeydown (Key.escape ( cancelMsg, True ))
+        , Key.onDown [ Key.escape cancelMsg ]
         ]
         [ div [ class "flex" ]
             [ viewIP
