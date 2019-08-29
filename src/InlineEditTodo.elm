@@ -161,7 +161,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (titleChangedMsg todoId)
-                    , UI.Key.onKeydownPD (Key.escape ( saveMsg, True ))
+                    , UI.Key.pdOnKeydown (Key.escape ( saveMsg, True ))
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
