@@ -47,7 +47,7 @@ update :
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update { firstFocusable, focus } msg model =
+update { firstFocusable, focus } msg _ =
     case msg of
         OpenFor todoId ->
             pure (Open todoId)
@@ -55,11 +55,6 @@ update { firstFocusable, focus } msg model =
 
         Close ->
             Closed |> pure
-
-
-isOpenFor : TodoId -> Model -> Bool
-isOpenFor todoId model =
-    model == Open todoId
 
 
 firstFocusableDomId : String
@@ -82,7 +77,7 @@ view :
     -> Model
     -> Html msg
 view toMsg menuItems todoId model =
-    HX.viewIf (isOpenFor todoId model)
+    HX.viewIf (model == Open todoId)
         (viewHelp toMsg menuItems)
 
 
