@@ -545,7 +545,12 @@ setSchedulePopup schedulePopup model =
 
 updateTodoPopup : TodoPopup.Msg -> Model -> Return
 updateTodoPopup msg model =
-    TodoPopup.update { toMsg = OnTodoPopupMsg } msg model.todoPopup
+    TodoPopup.update
+        { toMsg = OnTodoPopupMsg
+        , firstFocusable = TodoPopup.firstFocusableDomId
+        }
+        msg
+        model.todoPopup
         |> Tuple.mapFirst (flip setTodoPopup model)
 
 
@@ -1177,7 +1182,7 @@ viewTodoPopupItems todoId model =
                     label
                     [ A.id <|
                         ifElse (idx == 0)
-                            (TodoPopup.firstFocusableDomId todoId)
+                            TodoPopup.firstFocusableDomId
                             label
                     , class "pa2"
                     ]

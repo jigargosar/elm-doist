@@ -22,7 +22,7 @@ import Json.Decode as JD exposing (Decoder)
 import Maybe.Extra as MX
 import TodoId exposing (TodoId)
 import UI.Key as Key
-import UpdateExtra exposing (commandIf, effect, pure)
+import UpdateExtra exposing (command, commandIf, effect, pure)
 
 
 type Model
@@ -46,25 +46,21 @@ open =
     OpenFor
 
 
-update : { toMsg : Msg -> msg } -> Msg -> Model -> ( Model, Cmd msg )
-update { toMsg } msg model =
+update :
+    { toMsg : Msg -> msg, firstFocusable : String }
+    -> Msg
+    -> Model
+    -> ( Model, Cmd msg )
+update { toMsg, firstFocusable } msg model =
     let
         focus : String -> Cmd msg
         focus =
             Focus.attempt (Focused >> toMsg)
-
-        focusFirst : TodoId -> Cmd msg
-        focusFirst =
-            firstFocusableDomId >> focus
-
-        focusFirstEffect : Model -> Cmd msg
-        focusFirstEffect =
-            getTodoId >> MX.unwrap Cmd.none focusFirst
     in
     case msg of
         OpenFor todoId ->
             pure (Open todoId)
-                |> effect focusFirstEffect
+                |> command (focus firstFocusable)
 
         Close todoId restoreFocus ->
             ifElse (isOpenFor todoId model)
@@ -104,9 +100,9 @@ triggerDomId todoId =
     "todo-popup-trigger-dom-id--" ++ TodoId.toString todoId
 
 
-firstFocusableDomId : TodoId -> String
-firstFocusableDomId todoId =
-    "todo-popup--first-focusable--dom-id--" ++ TodoId.toString todoId
+firstFocusableDomId : String
+firstFocusableDomId =
+    "todo-popup--first-focusable--dom-id"
 
 
 type alias MenuItem msg =
