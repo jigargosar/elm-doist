@@ -36,7 +36,6 @@ initialValue =
 type Msg
     = OpenFor TodoId
     | Close TodoId Bool
-    | Focused (Result Dom.Error ())
 
 
 open : TodoId -> Msg
@@ -65,9 +64,6 @@ update { firstFocusable, focus } msg model =
                         (focus (triggerDomId todoId))
                 )
                 (pure model)
-
-        Focused _ ->
-            pure model
 
 
 isOpenFor : TodoId -> Model -> Bool
