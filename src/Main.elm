@@ -724,7 +724,10 @@ setProjectList projectList model =
     { model | projectList = projectList }
 
 
-updateProjectListAndCleanupFromFirestore : ProjectList -> Model -> Return
+updateProjectListAndCleanupFromFirestore :
+    ProjectList
+    -> Model
+    -> Return
 updateProjectListAndCleanupFromFirestore projectList model =
     setProjectList projectList model
         |> pure
