@@ -10,8 +10,6 @@ module TodoPopup exposing
     , view
     )
 
-import BasicsExtra exposing (ifElse)
-import Browser.Dom as Dom
 import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
@@ -19,7 +17,7 @@ import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import TodoId exposing (TodoId)
 import UI.Key as Key
-import UpdateExtra exposing (command, commandIf, pure)
+import UpdateExtra exposing (command, pure)
 
 
 type Model
@@ -60,13 +58,8 @@ update { firstFocusable, focus } msg model =
 
 
 isOpenFor : TodoId -> Model -> Bool
-isOpenFor todoId_ model =
-    case model of
-        Open tid ->
-            todoId_ == tid
-
-        Closed ->
-            False
+isOpenFor todoId model =
+    model == Open todoId
 
 
 firstFocusableDomId : String
