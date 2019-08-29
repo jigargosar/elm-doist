@@ -13,16 +13,14 @@ module TodoPopup exposing
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom
-import Focus
 import Html.Styled as H exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
-import Maybe.Extra as MX
 import TodoId exposing (TodoId)
 import UI.Key as Key
-import UpdateExtra exposing (command, commandIf, effect, pure)
+import UpdateExtra exposing (command, commandIf, pure)
 
 
 type Model
