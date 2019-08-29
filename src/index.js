@@ -111,9 +111,6 @@ initSubs({
       query.onSnapshot(qs => {
         const docDataList = qs.docs.map(ds => ds.data())
         const response = { id: options.id, docDataList }
-        console.groupCollapsed('onFirestoreQueryResponse', options)
-        console.log(docDataList)
-        console.groupEnd()
         pubs.onFirestoreQueryResponse(response)
       }),
     )
