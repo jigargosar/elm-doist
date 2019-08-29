@@ -1,4 +1,4 @@
-module UI.Key exposing (enter, escape, onEnter, onEnterOrSpace, onEscape, space)
+module UI.Key exposing (onEnter, onEnterOrSpace, onEscape)
 
 import Accessibility.Styled.Key as Key
 import Html.Styled exposing (Attribute, Html)
