@@ -472,7 +472,7 @@ handleFirestoreQueryResponse qs model =
                 Project.listDecoder
                 (\projectList ->
                     updateProjectListFromFirestore projectList
-                        >> effect Fire.cleanupTodoList
+                 -- >> effect Fire.cleanupTodoList
                 )
 
         _ ->
