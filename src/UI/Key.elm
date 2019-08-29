@@ -1,4 +1,4 @@
-module UI.Key exposing (onKeyDownPreventDefault)
+module UI.Key exposing (onKeyDownPreventDefault, onKeydownPD)
 
 import Html.Styled exposing (Attribute, Html)
 import Html.Styled.Events exposing (preventDefaultOn)
@@ -23,3 +23,8 @@ onKeyDownPreventDefault msg keys =
                 )
     in
     preventDefaultOn "keydown" decoder
+
+
+onKeydownPD : Decoder ( msg, Bool ) -> Attribute msg
+onKeydownPD =
+    preventDefaultOn "keydown"

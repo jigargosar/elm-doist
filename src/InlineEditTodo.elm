@@ -25,7 +25,7 @@ import Html.Styled.Attributes as A
         , tabindex
         , value
         )
-import Html.Styled.Events exposing (onInput)
+import Html.Styled.Events exposing (onInput, preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -161,6 +161,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput (titleChangedMsg todoId)
+                    , UI.Key.onKeydownPD (Key.escape ( saveMsg, True ))
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
