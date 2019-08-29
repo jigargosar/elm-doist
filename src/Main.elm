@@ -81,7 +81,8 @@ flagsDecoder : Decoder Flags
 flagsDecoder =
     let
         cachedField name decoder valueIfNull =
-            JDP.required name (JD.oneOf [ decoder, JD.null valueIfNull ])
+            JDP.required name
+                (JD.oneOf [ decoder, JD.null valueIfNull ])
     in
     JD.succeed Flags
         |> cachedField "cachedTodoList" Todo.listDecoder []
@@ -200,7 +201,7 @@ type Msg
     | OnTodoPopupMsg TodoPopup.Msg
     | OnSchedulePopupTriggered SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
-    | OnSchedulePopupClosed SchedulePopup.Location TodoId Bool (Maybe DueAt)
+    | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
     | OnSetTitle TodoId String
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -402,7 +403,9 @@ update message model =
                 |> callWith model
 
         OnSchedulePopupTriggered loc todoId ->
-            updateSchedulePopup (SchedulePopup.openFor loc todoId) model
+            updateSchedulePopup
+                (SchedulePopup.openFor loc todoId)
+                model
 
         OnTodoPopupTriggered todoId ->
             updateTodoPopup (TodoPopup.open todoId) model
@@ -421,7 +424,7 @@ update message model =
                         [ Todo.SetProjectId pid ]
                     )
 
-        OnSchedulePopupClosed loc todoId restoreFocus maybeDueAt ->
+        OnSchedulePopupClosed loc todoId maybeDueAt ->
             case loc of
                 SchedulePopup.InlineEditTodo ->
                     model.inlineEditTodo
@@ -430,7 +433,9 @@ update message model =
                             (\dueAt _ ->
                                 model
                                     |> updateInlineEditTodoAndCache
-                                        (InlineEditTodo.setDueAt dueAt)
+                                        (InlineEditTodo.setDueAt
+                                            dueAt
+                                        )
                             )
                             maybeDueAt
                         |> Maybe.withDefault (pure model)
@@ -440,13 +445,10 @@ update message model =
                         |> MX.unwrap (pure model)
                             (\dueAt ->
                                 ( model
-                                , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
+                                , patchTodoCmd
+                                    todoId
+                                    [ Todo.SetDueAt dueAt ]
                                 )
-                            )
-                        |> command
-                            (ifElse restoreFocus
-                                (focusDomIdCmd "Schedule")
-                                Cmd.none
                             )
 
                 SchedulePopup.TodoItem ->
@@ -1181,7 +1183,9 @@ viewTodoItem model todo =
 viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
-        { editDueMsg = OnSchedulePopupTriggered SchedulePopup.InlineEditTodo
+        { editDueMsg =
+            OnSchedulePopupTriggered
+                SchedulePopup.InlineEditTodo
         , titleChangedMsg = OnSetTitle
         , cancelMsg = OnEditCancel
         , saveMsg = OnEditSave

@@ -40,7 +40,7 @@ initialValue =
 
 type Msg
     = OpenFor Location TodoId
-    | Close Bool
+    | Close
     | OnSetScheduleAndClose Todo.DueAt
 
 
@@ -51,7 +51,7 @@ openFor =
 
 update :
     { focus : String -> Cmd msg
-    , onClose : Location -> TodoId -> Bool -> Maybe Todo.DueAt -> msg
+    , onClose : Location -> TodoId -> Maybe Todo.DueAt -> msg
     }
     -> Msg
     -> Model
@@ -63,18 +63,18 @@ update conf message model =
                 |> pure
                 |> command (conf.focus firstFocusable)
 
-        Close restoreFocus ->
-            onClose conf restoreFocus Nothing model
+        Close ->
+            onClose conf Nothing model
 
         OnSetScheduleAndClose dueAt ->
-            onClose conf False (Just dueAt) model
+            onClose conf (Just dueAt) model
 
 
-onClose conf restoreFocus maybeDueAt model =
+onClose conf maybeDueAt model =
     case model of
         Opened loc todoId ->
             ( Closed
-            , conf.onClose loc todoId restoreFocus maybeDueAt
+            , conf.onClose loc todoId maybeDueAt
                 |> toCmd
             )
 
@@ -128,16 +128,16 @@ viewHelp conf zone today =
         viewSetDueButton action label attrs =
             TextButton.view (setDueMsg <| action) label (class "ph3 pv2" :: attrs)
 
-        closeMsg restoreFocus =
-            conf.toMsg <| Close restoreFocus
+        closeMsg =
+            conf.toMsg Close
     in
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
-        , on "focusOutside" (JD.succeed <| closeMsg False)
-        , Key.onEscape (closeMsg True)
+        , on "focusOutside" (JD.succeed closeMsg)
+        , Key.onEscape closeMsg
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
