@@ -451,24 +451,26 @@ handleFirestoreQueryResponse :
     -> Model
     -> Return
 handleFirestoreQueryResponse qs model =
+    let
+        decodeAndUpdate decoder successFn =
+            model
+                |> decodeValueAndUnpack
+                    ( decoder
+                    , successFn
+                    , onDecodeError
+                    )
+                    qs.docDataList
+    in
     case qs.id of
         "todoList" ->
-            model
-                |> decodeValueAndUnpack
-                    ( Todo.listDecoder
-                    , updateTodoListFromFirestore
-                    , onDecodeError
-                    )
-                    qs.docDataList
+            decodeAndUpdate
+                Todo.listDecoder
+                updateTodoListFromFirestore
 
         "projectList" ->
-            model
-                |> decodeValueAndUnpack
-                    ( Project.listDecoder
-                    , updateProjectListAndCleanupFromFirestore
-                    , onDecodeError
-                    )
-                    qs.docDataList
+            decodeAndUpdate
+                Project.listDecoder
+                updateProjectListFromFirestoreAndThenCleanup
 
         _ ->
             HasErrors.add ("Invalid QueryId" ++ qs.id) model
@@ -724,11 +726,11 @@ setProjectList projectList model =
     { model | projectList = projectList }
 
 
-updateProjectListAndCleanupFromFirestore :
+updateProjectListFromFirestoreAndThenCleanup :
     ProjectList
     -> Model
     -> Return
-updateProjectListAndCleanupFromFirestore projectList model =
+updateProjectListFromFirestoreAndThenCleanup projectList model =
     setProjectList projectList model
         |> pure
         |> command
