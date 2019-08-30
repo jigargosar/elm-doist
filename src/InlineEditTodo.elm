@@ -26,6 +26,7 @@ import Html.Styled.Attributes as A
         , value
         )
 import Html.Styled.Events exposing (onInput)
+import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
@@ -141,6 +142,11 @@ inlineEditTodoTitleDomId todoId =
     TodoId.toString todoId ++ "inline-edit-todo-title-dom-id"
 
 
+isSchedulePopupVisible : Model -> Bool
+isSchedulePopupVisible (Model { isScheduling }) =
+    isScheduling
+
+
 view :
     { editDueMsg : msg
     , titleChangedMsg : String -> msg
@@ -211,5 +217,5 @@ view conf here schedulePopupView model =
             [ TextButton.primary saveMsg "Save" [ class "pa2" ]
             , TextButton.secondary cancelMsg "Cancel" [ class "pa2" ]
             ]
-        , schedulePopupView
+        , HX.viewIf (isSchedulePopupVisible model) schedulePopupView
         ]
