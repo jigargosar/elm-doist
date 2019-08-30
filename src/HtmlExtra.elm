@@ -1,20 +1,12 @@
-module HtmlExtra exposing (empty, viewIfLazy, viewMaybe, viewNotEmpty, viewUnless)
+module HtmlExtra exposing (empty, viewIf, viewIfNotEmpty)
 
 -- VIEW HELPERS
 
 import Html.Styled exposing (Html, text)
-import Maybe.Extra
 
 
-viewIf bool v =
-    if bool then
-        v
-
-    else
-        text ""
-
-
-viewIfLazy bool vfn =
+viewIf : Bool -> (() -> Html msg) -> Html msg
+viewIf bool vfn =
     if bool then
         vfn ()
 
@@ -22,20 +14,15 @@ viewIfLazy bool vfn =
         text ""
 
 
-viewUnless bool v =
-    viewIf (not bool) v
-
-
 empty : Html msg
 empty =
     text ""
 
 
-viewMaybe : (a -> Html msg) -> Maybe a -> Html msg
-viewMaybe fn =
-    Maybe.Extra.unwrap empty fn
+viewIfNotEmpty : (List a -> Html msg) -> List a -> Html msg
+viewIfNotEmpty vfn list =
+    if List.isEmpty list then
+        empty
 
-
-viewNotEmpty : (List a -> Html msg) -> List a -> Html msg
-viewNotEmpty vfn list =
-    viewUnless (List.isEmpty list) (vfn list)
+    else
+        vfn list

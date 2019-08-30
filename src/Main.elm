@@ -1074,7 +1074,7 @@ todayContent model =
     in
     div [ class "pv2 vs3" ]
         [ overDueList
-            |> HX.viewNotEmpty
+            |> HX.viewIfNotEmpty
                 (\_ ->
                     div [ class "vs3" ]
                         [ div [ class "pv2 flex items-center hs3" ]
@@ -1168,7 +1168,7 @@ viewInlineEditTodo here today =
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopup loc todoId model =
-    HX.viewIfLazy (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
+    HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
         (\_ ->
             SchedulePopup.view
                 { close = CloseSchedulePopup
@@ -1206,7 +1206,7 @@ viewTodoItemBase model todo =
 
 viewTodoPopup : TodoId -> Model -> Html Msg
 viewTodoPopup todoId model =
-    HX.viewIfLazy (isPopupOpenFor todoId model.todoPopup)
+    HX.viewIf (isPopupOpenFor todoId model.todoPopup)
         (\_ ->
             viewTodoPopupContainer
                 (viewTodoPopupItems todoPopupFirstFocusableDomId

@@ -41,11 +41,14 @@ addDecodeError error =
 
 detailView : Errors -> Html msg
 detailView (Errors errors) =
-    HtmlExtra.viewUnless (errors |> List.isEmpty) <|
-        div [ class "vs3" ]
-            [ div [ class "ttu tracked" ] [ text "Errors:" ]
-            , ol [ class "vs3" ] (List.map viewError errors)
-            ]
+    errors
+        |> HtmlExtra.viewIfNotEmpty
+            (\_ ->
+                div [ class "vs3" ]
+                    [ div [ class "ttu tracked" ] [ text "Errors:" ]
+                    , ol [ class "vs3" ] (List.map viewError errors)
+                    ]
+            )
 
 
 viewError : Error -> Html msg
