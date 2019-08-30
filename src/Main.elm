@@ -434,15 +434,21 @@ update message model =
                                     (InlineEditTodo.setTitle title)
 
                         IETOpenSchedulePopup ->
-                            openPopup schedulePopupFirstFocusableDomId
-                                ( InlineEditTodo, InlineEditTodo.getTodoId edt )
-                                |> Tuple.mapFirst (flip setSchedulePopup model)
+                            model
+                                |> updateInlineEditTodoAndCache
+                                    (InlineEditTodo.setIsScheduling True)
 
-                        IETCloseSchedulePopup closeReason ->
-                            pure model
+                        IETCloseSchedulePopup _ ->
+                            model
+                                |> updateInlineEditTodoAndCache
+                                    (InlineEditTodo.setIsScheduling False)
 
                         IETDueAtSelected dueAt ->
-                            pure model
+                            model
+                                |> updateInlineEditTodoAndCache
+                                    (InlineEditTodo.setDueAt dueAt
+                                        >> InlineEditTodo.setIsScheduling False
+                                    )
 
         OnMoveClicked todoId ->
             findTodoById todoId model

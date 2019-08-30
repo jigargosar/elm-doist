@@ -7,6 +7,7 @@ module InlineEditTodo exposing
     , idEq
     , maybeEncoder
     , setDueAt
+    , setIsScheduling
     , setTitle
     , titleOrDefault
     , toUpdateMessages
@@ -42,7 +43,7 @@ type alias ModelRecord =
     { todo : Todo
     , title : Maybe String
     , dueAt : Maybe DueAt
-    , showSchedulePopup : Bool
+    , isScheduling : Bool
     }
 
 
@@ -56,7 +57,7 @@ maybeEncoder =
 
 
 encoder : Model -> Value
-encoder (Model { todo, title, dueAt, showSchedulePopup }) =
+encoder (Model { todo, title, dueAt, isScheduling }) =
     let
         maybeNull : (a -> Value) -> Maybe a -> Value
         maybeNull enc =
@@ -66,7 +67,7 @@ encoder (Model { todo, title, dueAt, showSchedulePopup }) =
         [ ( "todo", Todo.encoder todo )
         , ( "title", maybeNull JE.string title )
         , ( "dueAt", maybeNull Todo.dueAtEncoder dueAt )
-        , ( "showSchedulePopup", JE.bool showSchedulePopup )
+        , ( "isScheduling", JE.bool isScheduling )
         ]
 
 
@@ -76,7 +77,7 @@ decoder =
         |> JDP.required "todo" Todo.decoder
         |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
-        |> JDP.optional "showSchedulePopup" JD.bool False
+        |> JDP.optional "isScheduling" JD.bool False
         |> JD.map Model
 
 
@@ -87,7 +88,7 @@ fromRecord =
 
 fromTodo : Todo -> Model
 fromTodo todo =
-    { todo = todo, title = Nothing, dueAt = Nothing, showSchedulePopup = False } |> fromRecord
+    { todo = todo, title = Nothing, dueAt = Nothing, isScheduling = False } |> fromRecord
 
 
 setDueAt : DueAt -> Model -> Model
@@ -99,6 +100,12 @@ setDueAt dueAt (Model modelRecord) =
 setTitle : String -> Model -> Model
 setTitle title (Model modelRecord) =
     { modelRecord | title = Just title }
+        |> Model
+
+
+setIsScheduling : Bool -> Model -> Model
+setIsScheduling bool (Model modelRecord) =
+    { modelRecord | isScheduling = bool }
         |> Model
 
 
