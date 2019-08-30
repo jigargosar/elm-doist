@@ -1171,23 +1171,27 @@ viewTodoItemBase model todo =
 
 viewTodoPopupItems : String -> TodoId -> Model -> List (Html Msg)
 viewTodoPopupItems firstFocusable todoId model =
-    [ div [ class "relative" ]
+    let
+        containerDiv =
+            div [ class "relative" ]
+    in
+    [ containerDiv
         [ TextButton.view (OnEditClicked todoId)
             "Edit"
             [ class "pa2", A.id firstFocusable ]
         ]
-    , div [ class "relative" ]
+    , containerDiv
         [ TextButton.view (OnMoveClcked todoId)
             "Move to Project"
             [ class "pa2" ]
         ]
-    , div [ class "relative" ]
+    , containerDiv
         [ TextButton.view (OnScheduleClicked SchedulePopup.TodoPopup todoId)
             "Schedule"
             [ class "pa2" ]
         , viewSchedulePopup SchedulePopup.TodoPopup todoId model
         ]
-    , div [ class "relative" ]
+    , containerDiv
         [ TextButton.view (OnDelete todoId)
             "Delete"
             [ class "pa2" ]
