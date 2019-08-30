@@ -232,6 +232,7 @@ type InlineEditTodoMsg
     | IETDueAtSelected DueAt
     | IETCancel
     | IETSave
+    | IETSetState InlineEditTodo.Model
 
 
 type Msg
@@ -416,6 +417,9 @@ update message model =
 
                 Just edt ->
                     case msg of
+                        IETSetState state ->
+                            updateInlineEditTodoAndCache (always state) model
+
                         IETCancel ->
                             resetInlineEditTodoAndCache model
 
@@ -1156,6 +1160,7 @@ viewInlineEditTodo here today =
         , titleChangedMsg = IETTitleChanged
         , cancelMsg = IETCancel
         , saveMsg = IETSave
+        , toMsg = IETSetState
         }
         here
         (SchedulePopup.view
