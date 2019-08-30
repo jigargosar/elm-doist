@@ -264,7 +264,7 @@ type Msg
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
       -- TodoEditorMsg
-    | OnIETMsg InlineEditTodoMsg
+    | OnInlineEditTodoMsg InlineEditTodoMsg
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
     | AddTodo ProjectId Millis
@@ -414,7 +414,7 @@ update message model =
             startEditingTodoId todoId model
                 |> Maybe.withDefault (pure model)
 
-        OnIETMsg msg ->
+        OnInlineEditTodoMsg msg ->
             case model.inlineEditTodo of
                 Nothing ->
                     pure model
@@ -1161,7 +1161,7 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem model >> H.map OnIETMsg)
+            (viewEditTodoItem model >> H.map OnInlineEditTodoMsg)
 
 
 viewEditTodoItem : Model -> InlineEditTodo.Model -> Html InlineEditTodoMsg
