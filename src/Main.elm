@@ -416,11 +416,11 @@ update message model =
                 Just edt ->
                     case msg of
                         IETCancel ->
-                            resetInlineEditTodoAndCache model
+                            setInlineEditTodoAndCache Nothing model
 
                         IETSave ->
-                            persistInlineEditTodo model
-                                |> andThen resetInlineEditTodoAndCache
+                            persistMaybeInlineEditTodo model
+                                |> andThen (setInlineEditTodoAndCache Nothing)
 
                         IETTitleChanged title ->
                             model
@@ -555,8 +555,8 @@ updateInlineEditTodoAndCache mfn model =
         |> effect cacheInlineEditTodoEffect
 
 
-persistInlineEditTodo : Model -> Return
-persistInlineEditTodo model =
+persistMaybeInlineEditTodo : Model -> Return
+persistMaybeInlineEditTodo model =
     model.inlineEditTodo
         |> Maybe.andThen InlineEditTodo.toUpdateMessages
         |> MX.unpack (\_ -> pure model)
@@ -580,14 +580,9 @@ startEditingTodoId todoId model =
 startEditingTodo : Todo -> Model -> Return
 startEditingTodo todo model =
     model
-        |> persistInlineEditTodo
+        |> persistMaybeInlineEditTodo
         |> andThen (setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo))
         |> command (focus InlineEditTodo.firstFocusableDomId)
-
-
-resetInlineEditTodoAndCache : Model -> Return
-resetInlineEditTodoAndCache =
-    setInlineEditTodoAndCache Nothing
 
 
 setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
@@ -1130,10 +1125,6 @@ pendingForProjectContent pid title model displayTodoList =
 
 
 -- TodoItem
-
-
-inlineEditTodoTitleDomId todoId =
-    TodoId.toString todoId ++ "inline-edit-todo-title-dom-id"
 
 
 viewTodoItem :
