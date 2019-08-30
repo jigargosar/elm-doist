@@ -1169,23 +1169,6 @@ viewTodoItemBase model todo =
         ]
 
 
-type TodoMenuItem
-    = TodoMenuItem (TodoId -> Msg) String
-    | FirstTodoMenuItem (TodoId -> Msg) String
-    | SchedulePopupTriggerTodoMenuItem (TodoId -> Msg) String
-
-
-todoPopupItems : List TodoMenuItem
-todoPopupItems =
-    [ FirstTodoMenuItem OnEditClicked "Edit"
-    , TodoMenuItem OnMoveClcked "Move to Project"
-    , SchedulePopupTriggerTodoMenuItem
-        (OnScheduleClicked SchedulePopup.TodoPopup)
-        "Schedule"
-    , TodoMenuItem OnDelete "Delete"
-    ]
-
-
 viewTodoPopupItems : String -> TodoId -> Model -> List (Html Msg)
 viewTodoPopupItems firstFocusable todoId model =
     [ div [ class "relative" ]
@@ -1210,32 +1193,6 @@ viewTodoPopupItems firstFocusable todoId model =
             [ class "pa2" ]
         ]
     ]
-
-
-viewTodoPopupMenuItem : TodoId -> Model -> TodoMenuItem -> Html Msg
-viewTodoPopupMenuItem todoId model todoMenuItem =
-    case todoMenuItem of
-        TodoMenuItem todoAction label ->
-            div [ class "relative" ]
-                [ TextButton.view (todoAction todoId)
-                    label
-                    [ class "pa2" ]
-                ]
-
-        FirstTodoMenuItem todoAction label ->
-            div [ class "relative" ]
-                [ TextButton.view (todoAction todoId)
-                    label
-                    [ A.id TodoPopup.firstFocusableDomId
-                    , class "pa2"
-                    ]
-                ]
-
-        SchedulePopupTriggerTodoMenuItem todoAction label ->
-            div [ class "relative" ]
-                [ TextButton.view (todoAction todoId) label [ class "pa2" ]
-                , viewSchedulePopup SchedulePopup.TodoPopup todoId model
-                ]
 
 
 viewDueAt : Zone -> Todo -> Html Msg
