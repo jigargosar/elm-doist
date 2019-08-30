@@ -230,6 +230,13 @@ init encodedFlags url key =
 -- MSG
 
 
+type TodoEditorMsg
+    = TodoEditorTitleChanged String
+    | TodoEditorCanceled
+    | TodoEditorSaved
+    | TodoEditorOpenSchedulePopup
+
+
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -254,9 +261,8 @@ type Msg
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
-    | TodoEditorTitleChanged TodoId String
-    | TodoEditorCanceled
-    | TodoEditorSaved
+      -- TodoEditorMsg
+    | OnTodoEditorMsg TodoEditorMsg
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
     | AddTodo ProjectId Millis
@@ -406,12 +412,29 @@ update message model =
             startEditingTodoId todoId model
                 |> Maybe.withDefault (pure model)
 
-        TodoEditorCanceled ->
-            resetInlineEditTodoAndCache model
+        OnTodoEditorMsg msg ->
+            case model.inlineEditTodo of
+                Nothing ->
+                    pure model
 
-        TodoEditorSaved ->
-            persistInlineEditTodo model
-                |> andThen resetInlineEditTodoAndCache
+                Just edt ->
+                    case msg of
+                        TodoEditorCanceled ->
+                            resetInlineEditTodoAndCache model
+
+                        TodoEditorSaved ->
+                            persistInlineEditTodo model
+                                |> andThen resetInlineEditTodoAndCache
+
+                        TodoEditorTitleChanged title ->
+                            model
+                                |> updateInlineEditTodoAndCache
+                                    (InlineEditTodo.setTitle title)
+
+                        TodoEditorOpenSchedulePopup ->
+                            openPopup schedulePopupFirstFocusableDomId
+                                ( InlineEditTodo, InlineEditTodo.getTodoId edt )
+                                |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -469,19 +492,6 @@ update message model =
                     (patchTodoCmd
                         todoId
                         [ Todo.SetProjectId pid ]
-                    )
-
-        TodoEditorTitleChanged todoId title ->
-            model.inlineEditTodo
-                |> MX.filter (InlineEditTodo.idEq todoId)
-                |> MX.unpack
-                    (\_ -> pure model)
-                    (\_ ->
-                        model
-                            |> updateInlineEditTodoAndCache
-                                (InlineEditTodo.setTitle title)
-                            |> andThen
-                                (updateDialogAndCache Dialog.Closed)
                     )
 
         OnDialogOverlayClickedOrEscapePressed ->
@@ -1144,10 +1154,11 @@ viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg =
-            OpenSchedulePopupClicked InlineEditTodo
-        , titleChangedMsg = TodoEditorTitleChanged
-        , cancelMsg = TodoEditorCanceled
-        , saveMsg = TodoEditorSaved
+            \todoId -> TodoEditorOpenSchedulePopup |> OnTodoEditorMsg
+        , titleChangedMsg =
+            \todoId title -> TodoEditorTitleChanged title |> OnTodoEditorMsg
+        , cancelMsg = OnTodoEditorMsg TodoEditorCanceled
+        , saveMsg = OnTodoEditorMsg TodoEditorSaved
         }
         model.here
         (viewSchedulePopup
