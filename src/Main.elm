@@ -563,7 +563,7 @@ startEditingTodoId todoId model =
 setInlineEditTodoAndCache : Todo -> Model -> Return
 setInlineEditTodoAndCache todo model =
     model
-        |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
+        |> setInlineEditTodo_ (Just <| InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheInlineEditTodoEffect
         |> command (focus InlineEditTodo.firstFocusableDomId)
@@ -578,7 +578,7 @@ cacheInlineEditTodoEffect model =
 
 resetInlineEditTodoAndCache : Model -> Return
 resetInlineEditTodoAndCache model =
-    resetInlineEditTodo model
+    setInlineEditTodo_ Nothing model
         |> pure
         |> effect cacheInlineEditTodoEffect
 
@@ -586,16 +586,6 @@ resetInlineEditTodoAndCache model =
 setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
 setInlineEditTodo_ inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
-
-
-setInlineEditTodo : InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo inlineEditTodo model =
-    { model | inlineEditTodo = Just inlineEditTodo }
-
-
-resetInlineEditTodo : Model -> Model
-resetInlineEditTodo model =
-    { model | inlineEditTodo = Nothing }
 
 
 updateInlineEditTodoAndCache :
