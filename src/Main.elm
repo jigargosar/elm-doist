@@ -231,10 +231,10 @@ init encodedFlags url key =
 
 
 type TodoEditorMsg
-    = TodoEditorTitleChanged String
-    | TodoEditorCanceled
-    | TodoEditorSaved
-    | TodoEditorOpenSchedulePopup
+    = IETTitleChanged String
+    | IETCanceled
+    | IETSaved
+    | IETOpenSchedulePopup
 
 
 type Msg
@@ -419,19 +419,19 @@ update message model =
 
                 Just edt ->
                     case msg of
-                        TodoEditorCanceled ->
+                        IETCanceled ->
                             resetInlineEditTodoAndCache model
 
-                        TodoEditorSaved ->
+                        IETSaved ->
                             persistInlineEditTodo model
                                 |> andThen resetInlineEditTodoAndCache
 
-                        TodoEditorTitleChanged title ->
+                        IETTitleChanged title ->
                             model
                                 |> updateInlineEditTodoAndCache
                                     (InlineEditTodo.setTitle title)
 
-                        TodoEditorOpenSchedulePopup ->
+                        IETOpenSchedulePopup ->
                             openPopup schedulePopupFirstFocusableDomId
                                 ( InlineEditTodo, InlineEditTodo.getTodoId edt )
                                 |> Tuple.mapFirst (flip setSchedulePopup model)
@@ -1154,11 +1154,11 @@ viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg =
-            \todoId -> TodoEditorOpenSchedulePopup |> OnIETMsg
+            \todoId -> IETOpenSchedulePopup |> OnIETMsg
         , titleChangedMsg =
-            \todoId title -> TodoEditorTitleChanged title |> OnIETMsg
-        , cancelMsg = OnIETMsg TodoEditorCanceled
-        , saveMsg = OnIETMsg TodoEditorSaved
+            \todoId title -> IETTitleChanged title |> OnIETMsg
+        , cancelMsg = OnIETMsg IETCanceled
+        , saveMsg = OnIETMsg IETSaved
         }
         model.here
         (viewSchedulePopup
