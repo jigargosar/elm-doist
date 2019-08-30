@@ -567,6 +567,15 @@ persistMaybeInlineEditTodo model =
             )
 
 
+persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
+persistInlineEditTodoCmd edt =
+    InlineEditTodo.toUpdateMessages edt
+        |> MX.unwrap Cmd.none
+            (\( todo, todoUpdateMsgList ) ->
+                patchTodoCmd todo.id todoUpdateMsgList
+            )
+
+
 startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
     case findTodoById todoId model of
