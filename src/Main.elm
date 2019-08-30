@@ -1153,10 +1153,8 @@ viewTodoItem model todo =
 viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
-        { editDueMsg =
-            IETOpenSchedulePopup |> OnIETMsg
-        , titleChangedMsg =
-            \title -> IETTitleChanged title |> OnIETMsg
+        { editDueMsg = OnIETMsg IETOpenSchedulePopup
+        , titleChangedMsg = OnIETMsg << IETTitleChanged
         , cancelMsg = OnIETMsg IETCanceled
         , saveMsg = OnIETMsg IETSaved
         }
