@@ -36,7 +36,6 @@ import ProjectId exposing (ProjectId)
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
-import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
@@ -99,7 +98,7 @@ type Popup a
 
 
 type CloseReason
-    = EscapeKey
+    = EscapeKeyPressed
     | FocusOutside
 
 
@@ -133,7 +132,26 @@ type alias TodoPopupModel =
 
 todoPopupFirstFocusableDomId : String
 todoPopupFirstFocusableDomId =
-    "todo-popup--first-focusable--dom-id"
+    "todo-popup--first-focusable"
+
+
+
+-- SchedulePopupModel
+
+
+type SchedulePopupLocation
+    = TodoPopup
+    | InlineEditTodo
+    | TodoItem
+
+
+type alias SchedulePopupModel =
+    Popup ( SchedulePopupLocation, TodoId )
+
+
+schedulePopupFirstFocusableDomId : String
+schedulePopupFirstFocusableDomId =
+    "schedule-popup__first-focusable"
 
 
 
@@ -145,7 +163,7 @@ type alias Model =
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
     , todoPopup : TodoPopupModel
-    , schedulePopup : SchedulePopup.Model
+    , schedulePopup : SchedulePopupModel
     , dialog : Dialog.Model
     , authState : AuthState
     , errors : Errors
@@ -191,7 +209,7 @@ init encodedFlags url key =
             , projectList = []
             , inlineEditTodo = Nothing
             , todoPopup = initPopup
-            , schedulePopup = SchedulePopup.initialValue
+            , schedulePopup = initPopup
             , dialog = Dialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -230,9 +248,9 @@ type Msg
     | OnMoveClicked TodoId
     | OpenTodoPopupClicked TodoId
     | CloseTodoPopup CloseReason
-    | OnScheduleClicked SchedulePopup.Location TodoId
-    | OnSchedulePopupMsg SchedulePopup.Msg
-    | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
+    | OpenSchedulePopupClicked SchedulePopupLocation TodoId
+    | CloseSchedulePopup CloseReason
+    | SchedulePopupDueAtClicked Todo.DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
@@ -400,10 +418,60 @@ update message model =
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
-        OnScheduleClicked loc todoId ->
-            updateSchedulePopup
-                (SchedulePopup.openFor loc todoId)
-                model
+        OpenSchedulePopupClicked loc todoId ->
+            openPopup schedulePopupFirstFocusableDomId ( loc, todoId )
+                |> Tuple.mapFirst (flip setSchedulePopup model)
+
+        SchedulePopupDueAtClicked dueAt_ ->
+            let
+                maybeDueAt =
+                    Just dueAt_
+            in
+            case model.schedulePopup of
+                PopupClosed ->
+                    pure model
+
+                PopupOpened ( loc, todoId ) ->
+                    case loc of
+                        InlineEditTodo ->
+                            model.inlineEditTodo
+                                |> MX.filter (InlineEditTodo.idEq todoId)
+                                |> Maybe.map2
+                                    (\dueAt _ ->
+                                        model
+                                            |> updateInlineEditTodoAndCache
+                                                (InlineEditTodo.setDueAt
+                                                    dueAt
+                                                )
+                                    )
+                                    maybeDueAt
+                                |> Maybe.withDefault (pure model)
+
+                        TodoPopup ->
+                            maybeDueAt
+                                |> MX.unwrap (pure model)
+                                    (\dueAt ->
+                                        ( model
+                                        , patchTodoCmd
+                                            todoId
+                                            [ Todo.SetDueAt dueAt ]
+                                        )
+                                    )
+
+                        TodoItem ->
+                            maybeDueAt
+                                |> MX.unwrap (pure model)
+                                    (\dueAt ->
+                                        ( model
+                                        , patchTodoCmd
+                                            todoId
+                                            [ Todo.SetDueAt dueAt ]
+                                        )
+                                    )
+
+        CloseSchedulePopup by ->
+            closePopup by
+                |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopupClicked todoId ->
             openPopup todoPopupFirstFocusableDomId todoId
@@ -413,9 +481,6 @@ update message model =
             closePopup by
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
-        OnSchedulePopupMsg msg ->
-            updateSchedulePopup msg model
-
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
                 |> command
@@ -423,44 +488,6 @@ update message model =
                         todoId
                         [ Todo.SetProjectId pid ]
                     )
-
-        OnSchedulePopupClosed loc todoId maybeDueAt ->
-            case loc of
-                SchedulePopup.InlineEditTodo ->
-                    model.inlineEditTodo
-                        |> MX.filter (InlineEditTodo.idEq todoId)
-                        |> Maybe.map2
-                            (\dueAt _ ->
-                                model
-                                    |> updateInlineEditTodoAndCache
-                                        (InlineEditTodo.setDueAt
-                                            dueAt
-                                        )
-                            )
-                            maybeDueAt
-                        |> Maybe.withDefault (pure model)
-
-                SchedulePopup.TodoPopup ->
-                    maybeDueAt
-                        |> MX.unwrap (pure model)
-                            (\dueAt ->
-                                ( model
-                                , patchTodoCmd
-                                    todoId
-                                    [ Todo.SetDueAt dueAt ]
-                                )
-                            )
-
-                SchedulePopup.TodoItem ->
-                    maybeDueAt
-                        |> MX.unwrap (pure model)
-                            (\dueAt ->
-                                ( model
-                                , patchTodoCmd
-                                    todoId
-                                    [ Todo.SetDueAt dueAt ]
-                                )
-                            )
 
         TodoEditorTitleChanged todoId title ->
             model.inlineEditTodo
@@ -594,18 +621,6 @@ updateInlineEditTodoAndCache mfn model =
         |> effect cacheInlineEditTodoEffect
 
 
-updateSchedulePopup : SchedulePopup.Msg -> Model -> Return
-updateSchedulePopup message model =
-    SchedulePopup.update
-        { focus = focus
-        , onClose = OnSchedulePopupClosed
-        }
-        message
-        model.schedulePopup
-        |> Tuple.mapFirst (flip setSchedulePopup model)
-
-
-setSchedulePopup : SchedulePopup.Model -> Model -> Model
 setSchedulePopup schedulePopup model =
     { model | schedulePopup = schedulePopup }
 
@@ -1147,28 +1162,67 @@ viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg =
-            OnScheduleClicked
-                SchedulePopup.InlineEditTodo
+            OpenSchedulePopupClicked InlineEditTodo
         , titleChangedMsg = TodoEditorTitleChanged
         , cancelMsg = TodoEditorCanceled
         , saveMsg = TodoEditorSaved
         }
         model.here
         (viewSchedulePopup
-            SchedulePopup.InlineEditTodo
+            InlineEditTodo
             (InlineEditTodo.getTodoId edt)
             model
         )
         edt
 
 
-viewSchedulePopup : SchedulePopup.Location -> TodoId -> Model -> Html Msg
+viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopup loc todoId model =
-    SchedulePopup.view { toMsg = OnSchedulePopupMsg, location = loc }
-        model.here
-        model.today
-        todoId
-        model.schedulePopup
+    HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
+        (viewHelp model.here model.today)
+
+
+viewHelp : Zone -> Calendar.Date -> Html Msg
+viewHelp zone today =
+    let
+        todayFmt =
+            Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
+
+        yesterday =
+            Calendar.decrementDay today
+
+        yesterdayFmt =
+            Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
+
+        setDueMsg : DueAt -> Msg
+        setDueMsg =
+            SchedulePopupDueAtClicked
+
+        viewSetDueButton dueAt label attrs =
+            TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
+
+        closeMsg =
+            CloseSchedulePopup
+    in
+    H.node "track-focus-outside"
+        [ class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , class "z-1" -- if removed; causes flickering with hover icons
+        , tabindex -1
+        , on "focusOutside" (JD.succeed <| closeMsg FocusOutside)
+        , Key.onEscape (closeMsg EscapeKeyPressed)
+        ]
+        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
+            [ div [ class " b  " ] [ text "Due Date" ]
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
+                ("Today: " ++ todayFmt)
+                [ A.id schedulePopupFirstFocusableDomId ]
+            , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
+                ("Yesterday: " ++ yesterdayFmt)
+                []
+            , viewSetDueButton Todo.NoDue "No Due Date" []
+            ]
+        ]
 
 
 viewTodoItemBase :
@@ -1183,7 +1237,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , viewSchedulePopup SchedulePopup.TodoItem todo.id model
+            , viewSchedulePopup TodoItem todo.id model
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopupClicked todo.id)
@@ -1212,7 +1266,7 @@ viewTodoPopupContainer =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , on "focusOutside" (JD.succeed <| CloseTodoPopup FocusOutside)
-        , Key.onEscape (CloseTodoPopup EscapeKey)
+        , Key.onEscape (CloseTodoPopup EscapeKeyPressed)
         , tabindex -1
         ]
 
@@ -1234,10 +1288,10 @@ viewTodoPopupItems firstFocusable todoId model =
             [ class "pa2" ]
         ]
     , containerDiv
-        [ TextButton.view (OnScheduleClicked SchedulePopup.TodoPopup todoId)
+        [ TextButton.view (OpenSchedulePopupClicked TodoPopup todoId)
             "Schedule"
             [ class "pa2" ]
-        , viewSchedulePopup SchedulePopup.TodoPopup todoId model
+        , viewSchedulePopup TodoPopup todoId model
         ]
     , containerDiv
         [ TextButton.view (OnDelete todoId)
@@ -1251,7 +1305,7 @@ viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
     let
         action =
-            OnScheduleClicked SchedulePopup.TodoItem todo.id
+            OpenSchedulePopupClicked TodoItem todo.id
     in
     todo
         |> Todo.dueMilli
