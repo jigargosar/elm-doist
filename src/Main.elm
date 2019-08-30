@@ -1142,11 +1142,11 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem model >> H.map OnInlineEditTodoMsg)
+            (viewInlineEditTodo model >> H.map OnInlineEditTodoMsg)
 
 
-viewEditTodoItem : Model -> InlineEditTodo.Model -> Html InlineEditTodoMsg
-viewEditTodoItem model edt =
+viewInlineEditTodo : Model -> InlineEditTodo.Model -> Html InlineEditTodoMsg
+viewInlineEditTodo model =
     InlineEditTodo.view
         { editDueMsg = IETOpenSchedulePopup
         , titleChangedMsg = IETTitleChanged
@@ -1162,7 +1162,6 @@ viewEditTodoItem model edt =
             model.here
             model.today
         )
-        edt
 
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
