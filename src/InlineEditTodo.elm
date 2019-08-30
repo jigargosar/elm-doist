@@ -2,8 +2,8 @@ module InlineEditTodo exposing
     ( Model
     , decoder
     , dueAtOrDefault
+    , firstFocusableDomId
     , fromTodo
-    , getTodoId
     , idEq
     , maybeEncoder
     , setDueAt
@@ -15,6 +15,7 @@ module InlineEditTodo exposing
     )
 
 import BasicsExtra exposing (ifElse)
+import Calendar
 import Css exposing (minWidth, none, px, resize)
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
 import Html.Styled.Attributes as A
@@ -33,6 +34,7 @@ import Json.Encode as JE exposing (Value)
 import Maybe as M exposing (Maybe)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
+import SchedulePopup
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -122,11 +124,6 @@ toUpdateMessages (Model { todo, dueAt, title }) =
         |> (\l -> ifElse (List.isEmpty l) Nothing (Just ( todo, l )))
 
 
-getTodoId : Model -> TodoId
-getTodoId (Model { todo }) =
-    todo.id
-
-
 titleOrDefault : Model -> String
 titleOrDefault (Model { todo, title }) =
     title
@@ -138,8 +135,8 @@ dueAtOrDefault (Model { todo, dueAt }) =
     dueAt |> Maybe.withDefault todo.dueAt
 
 
-inlineEditTodoTitleDomId todoId =
-    TodoId.toString todoId ++ "inline-edit-todo-title-dom-id"
+firstFocusableDomId =
+    "inline-edit-todo__first-focusable"
 
 
 isSchedulePopupVisible : Model -> Bool
@@ -152,12 +149,17 @@ view :
     , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
+    , schedulePopupConfig :
+        { close : msg
+        , dueAtSelected : DueAt -> msg
+        , firstFocusableDomId : String
+        }
     }
     -> Time.Zone
-    -> Html msg
+    -> Calendar.Date
     -> Model
     -> Html msg
-view conf here schedulePopupView model =
+view conf here today model =
     let
         { openSchedulePopupMsg, titleChangedMsg, cancelMsg, saveMsg } =
             conf
@@ -169,14 +171,11 @@ view conf here schedulePopupView model =
             dueAtOrDefault model
                 |> Todo.dueAtToMillis
 
-        todoId =
-            getTodoId model
-
         viewIP =
             H.node "auto-resize-textarea"
                 [ class "flex-grow-1 flex ba b--moon-gray" ]
                 [ textarea
-                    [ A.id <| inlineEditTodoTitleDomId todoId
+                    [ A.id firstFocusableDomId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
                     , onInput titleChangedMsg
@@ -217,5 +216,5 @@ view conf here schedulePopupView model =
             [ TextButton.primary saveMsg "Save" [ class "pa2" ]
             , TextButton.secondary cancelMsg "Cancel" [ class "pa2" ]
             ]
-        , HX.viewIf (isSchedulePopupVisible model) schedulePopupView
+        , HX.viewIf (isSchedulePopupVisible model) (SchedulePopup.view conf.schedulePopupConfig here today)
         ]

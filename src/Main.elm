@@ -566,7 +566,7 @@ setInlineEditTodoAndCache todo model =
         |> setInlineEditTodo (InlineEditTodo.fromTodo todo)
         |> pure
         |> effect cacheInlineEditTodoEffect
-        |> command (focus <| inlineEditTodoTitleDomId todo.id)
+        |> command (focus InlineEditTodo.firstFocusableDomId)
 
 
 cacheInlineEditTodoEffect model =
@@ -1156,16 +1156,14 @@ viewInlineEditTodo here today =
         , titleChangedMsg = IETTitleChanged
         , cancelMsg = IETCancel
         , saveMsg = IETSave
-        }
-        here
-        (SchedulePopup.view
+        , schedulePopupConfig =
             { close = IETCloseSchedulePopup
             , dueAtSelected = IETDueAtSelected
             , firstFocusableDomId = schedulePopupFirstFocusableDomId
             }
-            here
-            today
-        )
+        }
+        here
+        today
 
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
