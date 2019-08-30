@@ -537,6 +537,25 @@ focus domId =
     Dom.focus domId |> Task.attempt Focused
 
 
+
+-- INLINE EDIT TODO_
+
+
+setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
+setInlineEditTodo_ inlineEditTodo model =
+    { model | inlineEditTodo = inlineEditTodo }
+
+
+updateInlineEditTodoAndCache :
+    (InlineEditTodo.Model -> InlineEditTodo.Model)
+    -> Model
+    -> Return
+updateInlineEditTodoAndCache mfn model =
+    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
+        |> pure
+        |> effect cacheInlineEditTodoEffect
+
+
 persistInlineEditTodo : Model -> Return
 persistInlineEditTodo model =
     model.inlineEditTodo
@@ -556,24 +575,9 @@ startEditingTodoId todoId model =
             (\todo ->
                 model
                     |> persistInlineEditTodo
-                    |> andThen (setInlineEditTodoAndCache todo)
+                    |> andThen (setInlineEditTodoAndCache <| (Just <| InlineEditTodo.fromTodo todo))
+                    |> command (focus InlineEditTodo.firstFocusableDomId)
             )
-
-
-setInlineEditTodoAndCache : Todo -> Model -> Return
-setInlineEditTodoAndCache todo model =
-    model
-        |> setInlineEditTodo_ (Just <| InlineEditTodo.fromTodo todo)
-        |> pure
-        |> effect cacheInlineEditTodoEffect
-        |> command (focus InlineEditTodo.firstFocusableDomId)
-
-
-cacheInlineEditTodoEffect model =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , InlineEditTodo.maybeEncoder model.inlineEditTodo
-        )
 
 
 resetInlineEditTodoAndCache : Model -> Return
@@ -583,19 +587,27 @@ resetInlineEditTodoAndCache model =
         |> effect cacheInlineEditTodoEffect
 
 
-setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo_ inlineEditTodo model =
-    { model | inlineEditTodo = inlineEditTodo }
+setInlineEditTodoAndCache inlineEditTodo model =
+    ( setInlineEditTodo_ inlineEditTodo model
+    , cacheInlineEditTodoCmd inlineEditTodo
+    )
 
 
-updateInlineEditTodoAndCache :
-    (InlineEditTodo.Model -> InlineEditTodo.Model)
-    -> Model
-    -> Return
-updateInlineEditTodoAndCache mfn model =
-    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
-        |> pure
-        |> effect cacheInlineEditTodoEffect
+cacheInlineEditTodoEffect : Model -> Cmd msg
+cacheInlineEditTodoEffect model =
+    cacheInlineEditTodoCmd model.inlineEditTodo
+
+
+cacheInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
+cacheInlineEditTodoCmd inlineEditTodo =
+    Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , InlineEditTodo.maybeEncoder inlineEditTodo
+        )
+
+
+
+-- SCHEDULE POPUP
 
 
 setSchedulePopup schedulePopup model =
