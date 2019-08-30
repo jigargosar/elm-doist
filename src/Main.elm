@@ -1165,8 +1165,8 @@ viewEditTodoItem model edt =
         edt
 
 
-viewSchedulePopupForTodoId : SchedulePopupLocation -> TodoId -> Model -> Html Msg
-viewSchedulePopupForTodoId loc todoId model =
+viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
+viewSchedulePopup loc todoId model =
     HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
         (SchedulePopup.view
             { close = CloseSchedulePopup
@@ -1190,7 +1190,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , viewSchedulePopupForTodoId InTodoItem todo.id model
+            , viewSchedulePopup InTodoItem todo.id model
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopupClicked todo.id)
@@ -1244,7 +1244,7 @@ viewTodoPopupItems firstFocusable todoId model =
         [ TextButton.view (OpenSchedulePopupClicked InTodoPopupMenu todoId)
             "Schedule"
             [ class "pa2" ]
-        , viewSchedulePopupForTodoId InTodoPopupMenu todoId model
+        , viewSchedulePopup InTodoPopupMenu todoId model
         ]
     , containerDiv
         [ TextButton.view (OnDelete todoId)
