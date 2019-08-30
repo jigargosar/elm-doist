@@ -557,9 +557,12 @@ updateInlineEditTodoAndCache mfn model =
 
 persistMaybeInlineEditTodo : Model -> Return
 persistMaybeInlineEditTodo model =
-    model.inlineEditTodo
-        |> MX.unpack (\_ -> pure model)
-            (\edt -> ( model, persistInlineEditTodoCmd edt ))
+    case model.inlineEditTodo of
+        Nothing ->
+            pure model
+
+        Just edt ->
+            ( model, persistInlineEditTodoCmd edt )
 
 
 persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
