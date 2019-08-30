@@ -7,7 +7,7 @@ import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
 import Millis exposing (Millis)
 import Time exposing (Zone)
-import Todo exposing (DueAt, Todo, TodoList)
+import Todo exposing (DueAt)
 import UI.Key as Key
 import UI.TextButton as TextButton
 
