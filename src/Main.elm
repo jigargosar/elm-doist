@@ -232,9 +232,11 @@ init encodedFlags url key =
 
 type InlineEditTodoMsg
     = IETTitleChanged String
+    | IETOpenSchedulePopup
+    | IETCloseSchedulePopup CloseReason
+    | IETDueAtSelected DueAt
     | IETCancel
     | IETSave
-    | IETOpenSchedulePopup
 
 
 type Msg
@@ -435,6 +437,12 @@ update message model =
                             openPopup schedulePopupFirstFocusableDomId
                                 ( InlineEditTodo, InlineEditTodo.getTodoId edt )
                                 |> Tuple.mapFirst (flip setSchedulePopup model)
+
+                        IETCloseSchedulePopup closeReason ->
+                            pure model
+
+                        IETDueAtSelected dueAt ->
+                            pure model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -1147,21 +1155,21 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewEditTodoItem model)
+            (viewEditTodoItem model >> H.map OnIETMsg)
 
 
-viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
+viewEditTodoItem : Model -> InlineEditTodo.Model -> Html InlineEditTodoMsg
 viewEditTodoItem model edt =
     InlineEditTodo.view
-        { editDueMsg = OnIETMsg IETOpenSchedulePopup
-        , titleChangedMsg = OnIETMsg << IETTitleChanged
-        , cancelMsg = OnIETMsg IETCancel
-        , saveMsg = OnIETMsg IETSave
+        { editDueMsg = IETOpenSchedulePopup
+        , titleChangedMsg = IETTitleChanged
+        , cancelMsg = IETCancel
+        , saveMsg = IETSave
         }
         model.here
         (viewSchedulePopup
-            { close = CloseSchedulePopup
-            , dueAtSelected = SchedulePopupDueAtSelected
+            { close = IETCloseSchedulePopup
+            , dueAtSelected = IETDueAtSelected
             }
             model.here
             model.today
