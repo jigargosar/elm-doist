@@ -558,13 +558,8 @@ updateInlineEditTodoAndCache mfn model =
 persistMaybeInlineEditTodo : Model -> Return
 persistMaybeInlineEditTodo model =
     model.inlineEditTodo
-        |> Maybe.andThen InlineEditTodo.toUpdateMessages
         |> MX.unpack (\_ -> pure model)
-            (\( todo, todoUpdateMsgList ) ->
-                ( model
-                , patchTodoCmd todo.id todoUpdateMsgList
-                )
-            )
+            (\edt -> ( model, persistInlineEditTodoCmd edt ))
 
 
 persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
