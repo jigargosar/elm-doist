@@ -91,6 +91,48 @@ flagsDecoder =
 
 
 
+-- POPUP MODEL
+
+
+type Popup a
+    = PopupOpened a
+    | PopupClosed
+
+
+type CloseReason
+    = EscapeKey
+    | FocusOutside
+
+
+openPopup : String -> a -> ( Popup a, Cmd Msg )
+openPopup firstFocusableDomId a =
+    ( PopupOpened a, focus firstFocusableDomId )
+
+
+closePopup : CloseReason -> Popup a
+closePopup _ =
+    PopupClosed
+
+
+isPopupOpenFor : a -> Popup a -> Bool
+isPopupOpenFor a popup =
+    popup == PopupOpened a
+
+
+
+-- TodoPopup MODEL
+
+
+type alias TodoPopupMenu =
+    Popup TodoId
+
+
+todoPopupFirstFocusableDomId : String
+todoPopupFirstFocusableDomId =
+    "todo-popup--first-focusable--dom-id"
+
+
+
 -- MODEL
 
 
