@@ -1164,17 +1164,18 @@ inlineEditTodoViewConfig =
     }
 
 
+schedulePopupConfig =
+    { close = CloseSchedulePopup
+    , dueAtSelected = SchedulePopupDueAtSelected
+    , firstFocusableDomId = schedulePopupFirstFocusableDomId
+    }
+
+
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopup loc todoId model =
     HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
         (\_ ->
-            SchedulePopup.view
-                { close = CloseSchedulePopup
-                , dueAtSelected = SchedulePopupDueAtSelected
-                , firstFocusableDomId = schedulePopupFirstFocusableDomId
-                }
-                model.here
-                model.today
+            SchedulePopup.view schedulePopupConfig model.here model.today
         )
 
 
