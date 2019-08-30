@@ -150,11 +150,7 @@ type alias ViewConfig msg =
     , titleChanged : String -> msg
     , cancel : msg
     , save : msg
-    , schedulePopupConfig :
-        { close : msg
-        , dueAtSelected : DueAt -> msg
-        , firstFocusableDomId : String
-        }
+    , schedulePopupConfig : SchedulePopup.ViewConfig msg
     }
 
 

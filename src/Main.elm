@@ -1164,6 +1164,7 @@ inlineEditTodoViewConfig =
     }
 
 
+schedulePopupConfig : SchedulePopup.ViewConfig Msg
 schedulePopupConfig =
     { close = CloseSchedulePopup
     , dueAtSelected = SchedulePopupDueAtSelected

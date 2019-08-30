@@ -1,4 +1,4 @@
-module SchedulePopup exposing (..)
+module SchedulePopup exposing (ViewConfig, view)
 
 import Calendar
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -12,11 +12,15 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-view :
+type alias ViewConfig msg =
     { close : msg
     , dueAtSelected : DueAt -> msg
     , firstFocusableDomId : String
     }
+
+
+view :
+    ViewConfig msg
     -> Zone
     -> Calendar.Date
     -> Html msg
