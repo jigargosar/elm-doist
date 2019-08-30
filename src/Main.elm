@@ -1152,7 +1152,9 @@ viewInlineEditTodo :
     -> Html InlineEditTodoMsg
 viewInlineEditTodo here today =
     InlineEditTodo.view
-        { editDueMsg = IETOpenSchedulePopup
+        { openSchedulePopupMsg = IETOpenSchedulePopup
+        , closeSchedulePopupMsg = IETCloseSchedulePopup
+        , dueAtSelectedMsg = IETDueAtSelected
         , titleChangedMsg = IETTitleChanged
         , cancelMsg = IETCancel
         , saveMsg = IETSave

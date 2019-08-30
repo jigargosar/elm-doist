@@ -148,7 +148,9 @@ isSchedulePopupVisible (Model { isScheduling }) =
 
 
 view :
-    { editDueMsg : msg
+    { openSchedulePopupMsg : msg
+    , closeSchedulePopupMsg : msg
+    , dueAtSelectedMsg : DueAt -> msg
     , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
@@ -159,7 +161,7 @@ view :
     -> Html msg
 view conf here schedulePopupView model =
     let
-        { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } =
+        { openSchedulePopupMsg, titleChangedMsg, cancelMsg, saveMsg } =
             conf
 
         titleValue =
@@ -197,7 +199,7 @@ view conf here schedulePopupView model =
                     )
 
         viewDue =
-            TextButton.secondary editDueMsg
+            TextButton.secondary openSchedulePopupMsg
                 txt
                 [ class "pa1 ba b--moon-gray"
                 , class cls
