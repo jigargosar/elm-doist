@@ -14,7 +14,6 @@ module InlineEditTodo exposing
     , view
     )
 
-import Basics.Extra exposing (flip)
 import BasicsExtra exposing (ifElse)
 import Css exposing (minWidth, none, px, resize)
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
@@ -150,9 +149,9 @@ isSchedulePopupVisible (Model { isScheduling }) =
 
 view :
     { editDueMsg : msg
+    , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
-    , toMsg : Model -> msg
     }
     -> Time.Zone
     -> Html msg
@@ -160,7 +159,7 @@ view :
     -> Html msg
 view conf here schedulePopupView model =
     let
-        { editDueMsg, cancelMsg, saveMsg, toMsg } =
+        { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } =
             conf
 
         titleValue =
@@ -180,7 +179,7 @@ view conf here schedulePopupView model =
                     [ A.id <| inlineEditTodoTitleDomId todoId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
-                    , onInput (flip setTitle model >> toMsg)
+                    , onInput titleChangedMsg
                     , Key.onEnter saveMsg
                     , rows 1
                     , css [ resize none ]
