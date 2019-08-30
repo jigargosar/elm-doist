@@ -250,7 +250,7 @@ type Msg
     | CloseTodoPopup CloseReason
     | OpenSchedulePopupClicked SchedulePopupLocation TodoId
     | CloseSchedulePopup CloseReason
-    | SchedulePopupDueAtClicked Todo.DueAt
+    | SchedulePopupDueAtSelected Todo.DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
@@ -422,11 +422,7 @@ update message model =
             openPopup schedulePopupFirstFocusableDomId ( loc, todoId )
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
-        SchedulePopupDueAtClicked dueAt_ ->
-            let
-                maybeDueAt =
-                    Just dueAt_
-            in
+        SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
                 PopupClosed ->
                     pure model
@@ -436,38 +432,29 @@ update message model =
                         InlineEditTodo ->
                             model.inlineEditTodo
                                 |> MX.filter (InlineEditTodo.idEq todoId)
-                                |> Maybe.map2
-                                    (\dueAt _ ->
+                                |> Maybe.map
+                                    (\_ ->
                                         model
                                             |> updateInlineEditTodoAndCache
                                                 (InlineEditTodo.setDueAt
                                                     dueAt
                                                 )
                                     )
-                                    maybeDueAt
                                 |> Maybe.withDefault (pure model)
 
                         TodoPopup ->
-                            maybeDueAt
-                                |> MX.unwrap (pure model)
-                                    (\dueAt ->
-                                        ( model
-                                        , patchTodoCmd
-                                            todoId
-                                            [ Todo.SetDueAt dueAt ]
-                                        )
-                                    )
+                            ( model
+                            , patchTodoCmd
+                                todoId
+                                [ Todo.SetDueAt dueAt ]
+                            )
 
                         TodoItem ->
-                            maybeDueAt
-                                |> MX.unwrap (pure model)
-                                    (\dueAt ->
-                                        ( model
-                                        , patchTodoCmd
-                                            todoId
-                                            [ Todo.SetDueAt dueAt ]
-                                        )
-                                    )
+                            ( model
+                            , patchTodoCmd
+                                todoId
+                                [ Todo.SetDueAt dueAt ]
+                            )
 
         CloseSchedulePopup by ->
             closePopup by
@@ -1196,7 +1183,7 @@ viewHelp zone today =
 
         setDueMsg : DueAt -> Msg
         setDueMsg =
-            SchedulePopupDueAtClicked
+            SchedulePopupDueAtSelected
 
         viewSetDueButton dueAt label attrs =
             TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
