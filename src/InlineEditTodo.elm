@@ -131,8 +131,8 @@ inlineEditTodoTitleDomId todoId =
 
 
 view :
-    { editDueMsg : TodoId -> msg
-    , titleChangedMsg : TodoId -> String -> msg
+    { editDueMsg : msg
+    , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
     }
@@ -140,8 +140,11 @@ view :
     -> Html msg
     -> Model
     -> Html msg
-view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView model =
+view conf here schedulePopupView model =
     let
+        { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } =
+            conf
+
         titleValue =
             titleOrDefault model
 
@@ -159,7 +162,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     [ A.id <| inlineEditTodoTitleDomId todoId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
-                    , onInput (titleChangedMsg todoId)
+                    , onInput titleChangedMsg
                     , Key.onEnter saveMsg
                     , rows 1
                     , css [ resize none ]
@@ -177,7 +180,7 @@ view { editDueMsg, titleChangedMsg, cancelMsg, saveMsg } here schedulePopupView 
                     )
 
         viewDue =
-            TextButton.secondary (editDueMsg <| todoId)
+            TextButton.secondary editDueMsg
                 txt
                 [ class "pa1 ba b--moon-gray"
                 , class cls
