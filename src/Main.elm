@@ -574,14 +574,15 @@ startEditingTodoId todoId model =
             pure model
 
         Just todo ->
-            startEditingTodo todo model
+            model
+                |> persistMaybeInlineEditTodo
+                |> andThen (startEditingTodo todo)
 
 
 startEditingTodo : Todo -> Model -> Return
 startEditingTodo todo model =
     model
-        |> persistMaybeInlineEditTodo
-        |> andThen (setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo))
+        |> setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
         |> command (focus InlineEditTodo.firstFocusableDomId)
 
 
