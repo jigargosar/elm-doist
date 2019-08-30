@@ -1,4 +1,4 @@
-module HtmlExtra exposing (empty, viewIf, viewIfNotEmpty)
+module HtmlExtra exposing (empty, viewIf, viewNonEmptyList)
 
 -- VIEW HELPERS
 
@@ -19,8 +19,8 @@ empty =
     text ""
 
 
-viewIfNotEmpty : (List a -> Html msg) -> List a -> Html msg
-viewIfNotEmpty vfn list =
+viewNonEmptyList : (List a -> Html msg) -> List a -> Html msg
+viewNonEmptyList vfn list =
     if List.isEmpty list then
         empty
 

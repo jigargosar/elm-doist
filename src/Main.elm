@@ -1074,7 +1074,7 @@ todayContent model =
     in
     div [ class "pv2 vs3" ]
         [ overDueList
-            |> HX.viewIfNotEmpty
+            |> HX.viewNonEmptyList
                 (\_ ->
                     div [ class "vs3" ]
                         [ div [ class "pv2 flex items-center hs3" ]
