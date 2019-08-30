@@ -1,5 +1,6 @@
 module InlineEditTodo exposing
     ( Model
+    , ViewConfig
     , decoder
     , dueAtOrDefault
     , firstFocusableDomId
@@ -144,7 +145,7 @@ isSchedulePopupVisible (Model { isScheduling }) =
     isScheduling
 
 
-view :
+type alias ViewConfig msg =
     { openSchedulePopup : msg
     , titleChanged : String -> msg
     , cancel : msg
@@ -155,6 +156,10 @@ view :
         , firstFocusableDomId : String
         }
     }
+
+
+view :
+    ViewConfig msg
     -> Time.Zone
     -> Calendar.Date
     -> Model

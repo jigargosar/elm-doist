@@ -1142,28 +1142,26 @@ viewTodoItem model todo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todo.id)
         |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (viewInlineEditTodo model.here model.today >> H.map OnInlineEditTodoMsg)
+            (InlineEditTodo.view
+                inlineEditTodoViewConfig
+                model.here
+                model.today
+                >> H.map OnInlineEditTodoMsg
+            )
 
 
-viewInlineEditTodo :
-    Zone
-    -> Calendar.Date
-    -> InlineEditTodo.Model
-    -> Html InlineEditTodoMsg
-viewInlineEditTodo here today =
-    InlineEditTodo.view
-        { openSchedulePopup = IETOpenSchedulePopup
-        , titleChanged = IETTitleChanged
-        , cancel = IETCancel
-        , save = IETSave
-        , schedulePopupConfig =
-            { close = IETCloseSchedulePopup
-            , dueAtSelected = IETDueAtSelected
-            , firstFocusableDomId = schedulePopupFirstFocusableDomId
-            }
+inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
+inlineEditTodoViewConfig =
+    { openSchedulePopup = IETOpenSchedulePopup
+    , titleChanged = IETTitleChanged
+    , cancel = IETCancel
+    , save = IETSave
+    , schedulePopupConfig =
+        { close = IETCloseSchedulePopup
+        , dueAtSelected = IETDueAtSelected
+        , firstFocusableDomId = schedulePopupFirstFocusableDomId
         }
-        here
-        today
+    }
 
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
