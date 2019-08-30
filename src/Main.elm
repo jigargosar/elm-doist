@@ -541,8 +541,8 @@ focus domId =
 -- INLINE EDIT TODO_
 
 
-setInlineEditTodo_ : Maybe InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo_ inlineEditTodo model =
+setInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
+setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
 
@@ -551,7 +551,7 @@ updateInlineEditTodoAndCache :
     -> Model
     -> Return
 updateInlineEditTodoAndCache mfn model =
-    setInlineEditTodo_ (Maybe.map mfn model.inlineEditTodo) model
+    setInlineEditTodo (Maybe.map mfn model.inlineEditTodo) model
         |> pure
         |> effect cacheInlineEditTodoEffect
 
@@ -581,14 +581,13 @@ startEditingTodoId todoId model =
 
 
 resetInlineEditTodoAndCache : Model -> Return
-resetInlineEditTodoAndCache model =
-    setInlineEditTodo_ Nothing model
-        |> pure
-        |> effect cacheInlineEditTodoEffect
+resetInlineEditTodoAndCache =
+    setInlineEditTodoAndCache Nothing
 
 
+setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
 setInlineEditTodoAndCache inlineEditTodo model =
-    ( setInlineEditTodo_ inlineEditTodo model
+    ( setInlineEditTodo inlineEditTodo model
     , cacheInlineEditTodoCmd inlineEditTodo
     )
 
@@ -675,7 +674,7 @@ updateFromFlags flags model =
         |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
-        |> setInlineEditTodo_ flags.cachedInlineEditTodo
+        |> setInlineEditTodo flags.cachedInlineEditTodo
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
