@@ -262,7 +262,7 @@ type Msg
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
       -- TodoEditorMsg
-    | OnTodoEditorMsg TodoEditorMsg
+    | OnIETMsg TodoEditorMsg
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
     | AddTodo ProjectId Millis
@@ -412,7 +412,7 @@ update message model =
             startEditingTodoId todoId model
                 |> Maybe.withDefault (pure model)
 
-        OnTodoEditorMsg msg ->
+        OnIETMsg msg ->
             case model.inlineEditTodo of
                 Nothing ->
                     pure model
@@ -1154,11 +1154,11 @@ viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg =
-            \todoId -> TodoEditorOpenSchedulePopup |> OnTodoEditorMsg
+            \todoId -> TodoEditorOpenSchedulePopup |> OnIETMsg
         , titleChangedMsg =
-            \todoId title -> TodoEditorTitleChanged title |> OnTodoEditorMsg
-        , cancelMsg = OnTodoEditorMsg TodoEditorCanceled
-        , saveMsg = OnTodoEditorMsg TodoEditorSaved
+            \todoId title -> TodoEditorTitleChanged title |> OnIETMsg
+        , cancelMsg = OnIETMsg TodoEditorCanceled
+        , saveMsg = OnIETMsg TodoEditorSaved
         }
         model.here
         (viewSchedulePopup
