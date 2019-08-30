@@ -188,7 +188,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | OnMoveClcked TodoId
+    | OnMoveClicked TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
     | OnScheduleClicked SchedulePopup.Location TodoId
@@ -356,7 +356,7 @@ update message model =
             persistInlineEditTodo model
                 |> andThen resetInlineEditTodoAndCache
 
-        OnMoveClcked todoId ->
+        OnMoveClicked todoId ->
             findTodoById todoId model
                 |> MX.unwrap pure startMoving
                 |> callWith model
@@ -1181,7 +1181,7 @@ viewTodoPopupItems firstFocusable todoId model =
             [ class "pa2", A.id firstFocusable ]
         ]
     , containerDiv
-        [ TextButton.view (OnMoveClcked todoId)
+        [ TextButton.view (OnMoveClicked todoId)
             "Move to Project"
             [ class "pa2" ]
         ]
