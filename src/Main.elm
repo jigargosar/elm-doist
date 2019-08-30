@@ -188,15 +188,15 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | OnMoveStart TodoId
+    | OnMoveClcked TodoId
     | OnTodoPopupTriggered TodoId
     | OnTodoPopupMsg TodoPopup.Msg
-    | OnSchedulePopupTriggered SchedulePopup.Location TodoId
+    | OnScheduleClicked SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
-    | EditTodoRequested TodoId
+    | OnEditClicked TodoId
     | TodoEditorTitleChanged TodoId String
     | TodoEditorCanceled
     | TodoEditorSaved
@@ -345,7 +345,7 @@ update message model =
             , Fire.addProject (Project.new now)
             )
 
-        EditTodoRequested todoId ->
+        OnEditClicked todoId ->
             startEditingTodoId todoId model
                 |> Maybe.withDefault (pure model)
 
@@ -356,12 +356,12 @@ update message model =
             persistInlineEditTodo model
                 |> andThen resetInlineEditTodoAndCache
 
-        OnMoveStart todoId ->
+        OnMoveClcked todoId ->
             findTodoById todoId model
                 |> MX.unwrap pure startMoving
                 |> callWith model
 
-        OnSchedulePopupTriggered loc todoId ->
+        OnScheduleClicked loc todoId ->
             updateSchedulePopup
                 (SchedulePopup.openFor loc todoId)
                 model
@@ -1118,7 +1118,7 @@ viewEditTodoItem : Model -> InlineEditTodo.Model -> Html Msg
 viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg =
-            OnSchedulePopupTriggered
+            OnScheduleClicked
                 SchedulePopup.InlineEditTodo
         , titleChangedMsg = TodoEditorTitleChanged
         , cancelMsg = TodoEditorCanceled
@@ -1177,10 +1177,10 @@ type TodoMenuItem
 
 todoPopupItems : List TodoMenuItem
 todoPopupItems =
-    [ FirstTodoMenuItem EditTodoRequested "Edit"
-    , TodoMenuItem OnMoveStart "Move to Project"
+    [ FirstTodoMenuItem OnEditClicked "Edit"
+    , TodoMenuItem OnMoveClcked "Move to Project"
     , SchedulePopupTriggerTodoMenuItem
-        (OnSchedulePopupTriggered SchedulePopup.TodoPopup)
+        (OnScheduleClicked SchedulePopup.TodoPopup)
         "Schedule"
     , TodoMenuItem OnDelete "Delete"
     ]
@@ -1189,17 +1189,17 @@ todoPopupItems =
 viewTodoPopupItems : String -> TodoId -> Model -> List (Html Msg)
 viewTodoPopupItems firstFocusable todoId model =
     [ div [ class "relative" ]
-        [ TextButton.view (EditTodoRequested todoId)
+        [ TextButton.view (OnEditClicked todoId)
             "Edit"
             [ class "pa2", A.id firstFocusable ]
         ]
     , div [ class "relative" ]
-        [ TextButton.view (OnMoveStart todoId)
+        [ TextButton.view (OnMoveClcked todoId)
             "Move to Project"
             [ class "pa2" ]
         ]
     , div [ class "relative" ]
-        [ TextButton.view (OnSchedulePopupTriggered SchedulePopup.TodoPopup todoId)
+        [ TextButton.view (OnScheduleClicked SchedulePopup.TodoPopup todoId)
             "Schedule"
             [ class "pa2" ]
         , viewSchedulePopup SchedulePopup.TodoPopup todoId model
@@ -1242,7 +1242,7 @@ viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
     let
         action =
-            OnSchedulePopupTriggered SchedulePopup.TodoItem todo.id
+            OnScheduleClicked SchedulePopup.TodoItem todo.id
     in
     todo
         |> Todo.dueMilli
@@ -1283,7 +1283,7 @@ viewTodoItemTitle todo =
                 ( todo.title, "" )
 
         viewTitle =
-            div [ class "", onClick (EditTodoRequested todo.id) ]
+            div [ class "", onClick (OnEditClicked todo.id) ]
                 [ text title ]
     in
     div
