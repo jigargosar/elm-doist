@@ -230,7 +230,7 @@ init encodedFlags url key =
 -- MSG
 
 
-type TodoEditorMsg
+type InlineEditTodoMsg
     = IETTitleChanged String
     | IETCanceled
     | IETSaved
@@ -262,7 +262,7 @@ type Msg
     | OnDialogOverlayClickedOrEscapePressed
     | OnEditClicked TodoId
       -- TodoEditorMsg
-    | OnIETMsg TodoEditorMsg
+    | OnIETMsg InlineEditTodoMsg
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
     | AddTodo ProjectId Millis
