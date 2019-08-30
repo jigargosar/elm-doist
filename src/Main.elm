@@ -437,6 +437,7 @@ update message model =
                             model
                                 |> updateInlineEditTodoAndCache
                                     (InlineEditTodo.setIsScheduling True)
+                                |> command (focus schedulePopupFirstFocusableDomId)
 
                         IETCloseSchedulePopup _ ->
                             model
@@ -1176,6 +1177,7 @@ viewEditTodoItem model edt =
         (viewSchedulePopup
             { close = IETCloseSchedulePopup
             , dueAtSelected = IETDueAtSelected
+            , firstFocusableDomId = schedulePopupFirstFocusableDomId
             }
             model.here
             model.today
@@ -1189,6 +1191,7 @@ viewSchedulePopupForTodoId loc todoId model =
         (viewSchedulePopup
             { close = CloseSchedulePopup
             , dueAtSelected = SchedulePopupDueAtSelected
+            , firstFocusableDomId = schedulePopupFirstFocusableDomId
             }
             model.here
             model.today
@@ -1198,6 +1201,7 @@ viewSchedulePopupForTodoId loc todoId model =
 viewSchedulePopup :
     { close : CloseReason -> msg
     , dueAtSelected : DueAt -> msg
+    , firstFocusableDomId : String
     }
     -> Zone
     -> Calendar.Date
