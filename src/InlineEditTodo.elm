@@ -145,10 +145,10 @@ isSchedulePopupVisible (Model { isScheduling }) =
 
 
 view :
-    { openSchedulePopupMsg : msg
-    , titleChangedMsg : String -> msg
-    , cancelMsg : msg
-    , saveMsg : msg
+    { openSchedulePopup : msg
+    , titleChanged : String -> msg
+    , cancel : msg
+    , save : msg
     , schedulePopupConfig :
         { close : msg
         , dueAtSelected : DueAt -> msg
@@ -161,7 +161,7 @@ view :
     -> Html msg
 view conf here today model =
     let
-        { openSchedulePopupMsg, titleChangedMsg, cancelMsg, saveMsg } =
+        { openSchedulePopup, titleChanged, cancel, save } =
             conf
 
         titleValue =
@@ -178,8 +178,8 @@ view conf here today model =
                     [ A.id firstFocusableDomId
                     , class "pa1 flex-grow-1 lh-copy bn"
                     , value titleValue
-                    , onInput titleChangedMsg
-                    , Key.onEnter saveMsg
+                    , onInput titleChanged
+                    , Key.onEnter save
                     , rows 1
                     , css [ resize none ]
                     , class "overflow-hidden"
@@ -196,7 +196,7 @@ view conf here today model =
                     )
 
         viewDue =
-            TextButton.secondary openSchedulePopupMsg
+            TextButton.secondary openSchedulePopup
                 txt
                 [ class "pa1 ba b--moon-gray"
                 , class cls
@@ -206,15 +206,16 @@ view conf here today model =
     div
         [ class "pv3 ph2 relative"
         , tabindex 0
-        , Key.onEscape cancelMsg
+        , Key.onEscape cancel
         ]
         [ div [ class "flex" ]
             [ viewIP
             , viewDue
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary saveMsg "Save" [ class "pa2" ]
-            , TextButton.secondary cancelMsg "Cancel" [ class "pa2" ]
+            [ TextButton.primary save "Save" [ class "pa2" ]
+            , TextButton.secondary cancel "Cancel" [ class "pa2" ]
             ]
-        , HX.viewIf (isSchedulePopupVisible model) (SchedulePopup.view conf.schedulePopupConfig here today)
+        , HX.viewIfLazy (isSchedulePopupVisible model)
+            (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
         ]

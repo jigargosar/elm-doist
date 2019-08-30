@@ -1,4 +1,4 @@
-module HtmlExtra exposing (empty, viewIf, viewMaybe, viewNotEmpty, viewUnless)
+module HtmlExtra exposing (empty, viewIfLazy, viewMaybe, viewNotEmpty, viewUnless)
 
 -- VIEW HELPERS
 
@@ -9,6 +9,14 @@ import Maybe.Extra
 viewIf bool v =
     if bool then
         v
+
+    else
+        text ""
+
+
+viewIfLazy bool vfn =
+    if bool then
+        vfn ()
 
     else
         text ""

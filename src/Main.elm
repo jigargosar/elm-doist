@@ -1152,10 +1152,10 @@ viewInlineEditTodo :
     -> Html InlineEditTodoMsg
 viewInlineEditTodo here today =
     InlineEditTodo.view
-        { openSchedulePopupMsg = IETOpenSchedulePopup
-        , titleChangedMsg = IETTitleChanged
-        , cancelMsg = IETCancel
-        , saveMsg = IETSave
+        { openSchedulePopup = IETOpenSchedulePopup
+        , titleChanged = IETTitleChanged
+        , cancel = IETCancel
+        , save = IETSave
         , schedulePopupConfig =
             { close = IETCloseSchedulePopup
             , dueAtSelected = IETDueAtSelected
@@ -1168,14 +1168,15 @@ viewInlineEditTodo here today =
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopup loc todoId model =
-    HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
-        (SchedulePopup.view
-            { close = CloseSchedulePopup
-            , dueAtSelected = SchedulePopupDueAtSelected
-            , firstFocusableDomId = schedulePopupFirstFocusableDomId
-            }
-            model.here
-            model.today
+    HX.viewIfLazy (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
+        (\_ ->
+            SchedulePopup.view
+                { close = CloseSchedulePopup
+                , dueAtSelected = SchedulePopupDueAtSelected
+                , firstFocusableDomId = schedulePopupFirstFocusableDomId
+                }
+                model.here
+                model.today
         )
 
 
@@ -1205,12 +1206,13 @@ viewTodoItemBase model todo =
 
 viewTodoPopup : TodoId -> Model -> Html Msg
 viewTodoPopup todoId model =
-    HX.viewIf (isPopupOpenFor todoId model.todoPopup)
-        (viewTodoPopupContainer
-            (viewTodoPopupItems todoPopupFirstFocusableDomId
-                todoId
-                model
-            )
+    HX.viewIfLazy (isPopupOpenFor todoId model.todoPopup)
+        (\_ ->
+            viewTodoPopupContainer
+                (viewTodoPopupItems todoPopupFirstFocusableDomId
+                    todoId
+                    model
+                )
         )
 
 
