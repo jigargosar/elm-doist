@@ -42,6 +42,7 @@ type alias ModelRecord =
     { todo : Todo
     , title : Maybe String
     , dueAt : Maybe DueAt
+    , showSchedulePopup : Bool
     }
 
 
@@ -49,22 +50,24 @@ type Model
     = Model ModelRecord
 
 
-encoder : Model -> Value
-encoder (Model { todo, title, dueAt }) =
-    JE.object
-        (( "todo", Todo.encoder todo )
-            :: MX.unwrap []
-                (\t -> [ ( "title", JE.string t ) ])
-                title
-            ++ MX.unwrap []
-                (\da -> [ ( "dueAt", Todo.dueAtEncoder da ) ])
-                dueAt
-        )
-
-
 maybeEncoder : Maybe Model -> Value
 maybeEncoder =
     MX.unwrap JE.null encoder
+
+
+encoder : Model -> Value
+encoder (Model { todo, title, dueAt, showSchedulePopup }) =
+    let
+        maybeNull : (a -> Value) -> Maybe a -> Value
+        maybeNull enc =
+            MX.unwrap JE.null enc
+    in
+    JE.object
+        [ ( "todo", Todo.encoder todo )
+        , ( "showSchedulePopup", JE.bool showSchedulePopup )
+        , ( "title", title |> MX.unwrap JE.null JE.string )
+        , ( "dueAt", dueAt |> MX.unwrap JE.null Todo.dueAtEncoder )
+        ]
 
 
 decoder : Decoder Model
@@ -73,6 +76,7 @@ decoder =
         |> JDP.required "todo" Todo.decoder
         |> JDP.optional "title" (JD.nullable JD.string) Nothing
         |> JDP.optional "dueAt" (JD.nullable Todo.dueAtDecoder) Nothing
+        |> JDP.optional "showSchedulePopup" JD.bool False
         |> JD.map Model
 
 
@@ -83,7 +87,7 @@ fromRecord =
 
 fromTodo : Todo -> Model
 fromTodo todo =
-    { todo = todo, title = Nothing, dueAt = Nothing } |> fromRecord
+    { todo = todo, title = Nothing, dueAt = Nothing, showSchedulePopup = False } |> fromRecord
 
 
 setDueAt : DueAt -> Model -> Model
