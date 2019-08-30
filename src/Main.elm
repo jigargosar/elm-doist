@@ -135,8 +135,8 @@ todoPopupFirstFocusableDomId =
 
 
 type SchedulePopupLocation
-    = TodoPopup
-    | TodoItem
+    = InTodoPopupMenu
+    | InTodoItem
 
 
 type alias SchedulePopupModel =
@@ -1242,7 +1242,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , viewSchedulePopupForTodoId TodoItem todo.id model
+            , viewSchedulePopupForTodoId InTodoItem todo.id model
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopupClicked todo.id)
@@ -1293,10 +1293,10 @@ viewTodoPopupItems firstFocusable todoId model =
             [ class "pa2" ]
         ]
     , containerDiv
-        [ TextButton.view (OpenSchedulePopupClicked TodoPopup todoId)
+        [ TextButton.view (OpenSchedulePopupClicked InTodoPopupMenu todoId)
             "Schedule"
             [ class "pa2" ]
-        , viewSchedulePopupForTodoId TodoPopup todoId model
+        , viewSchedulePopupForTodoId InTodoPopupMenu todoId model
         ]
     , containerDiv
         [ TextButton.view (OnDelete todoId)
@@ -1310,7 +1310,7 @@ viewDueAt : Zone -> Todo -> Html Msg
 viewDueAt here todo =
     let
         action =
-            OpenSchedulePopupClicked TodoItem todo.id
+            OpenSchedulePopupClicked InTodoItem todo.id
     in
     todo
         |> Todo.dueMilli
