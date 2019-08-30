@@ -407,7 +407,6 @@ update message model =
 
         OnEditClicked todoId ->
             startEditingTodoId todoId model
-                |> Maybe.withDefault (pure model)
 
         OnInlineEditTodoMsg msg ->
             case model.inlineEditTodo of
@@ -568,16 +567,22 @@ persistInlineEditTodo model =
             )
 
 
-startEditingTodoId : TodoId -> Model -> Maybe Return
+startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
-    findTodoById todoId model
-        |> Maybe.map
-            (\todo ->
-                model
-                    |> persistInlineEditTodo
-                    |> andThen (setInlineEditTodoAndCache <| (Just <| InlineEditTodo.fromTodo todo))
-                    |> command (focus InlineEditTodo.firstFocusableDomId)
-            )
+    case findTodoById todoId model of
+        Nothing ->
+            pure model
+
+        Just todo ->
+            startEditingTodo todo model
+
+
+startEditingTodo : Todo -> Model -> Return
+startEditingTodo todo model =
+    model
+        |> persistInlineEditTodo
+        |> andThen (setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo))
+        |> command (focus InlineEditTodo.firstFocusableDomId)
 
 
 resetInlineEditTodoAndCache : Model -> Return
