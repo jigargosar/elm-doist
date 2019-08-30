@@ -423,38 +423,33 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         SchedulePopupDueAtSelected dueAt ->
-            case model.schedulePopup of
-                PopupClosed ->
+            case ( model.schedulePopup, model.inlineEditTodo ) of
+                ( PopupOpened ( InlineEditTodo, todoId ), Just edt ) ->
+                    ifElse (InlineEditTodo.idEq todoId edt)
+                        (model
+                            |> updateInlineEditTodoAndCache
+                                (InlineEditTodo.setDueAt
+                                    dueAt
+                                )
+                        )
+                        (pure model)
+
+                ( PopupOpened ( TodoItem, todoId ), _ ) ->
+                    ( model
+                    , patchTodoCmd
+                        todoId
+                        [ Todo.SetDueAt dueAt ]
+                    )
+
+                ( PopupOpened ( TodoPopup, todoId ), _ ) ->
+                    ( model
+                    , patchTodoCmd
+                        todoId
+                        [ Todo.SetDueAt dueAt ]
+                    )
+
+                _ ->
                     pure model
-
-                PopupOpened ( loc, todoId ) ->
-                    case loc of
-                        InlineEditTodo ->
-                            model.inlineEditTodo
-                                |> MX.filter (InlineEditTodo.idEq todoId)
-                                |> Maybe.map
-                                    (\_ ->
-                                        model
-                                            |> updateInlineEditTodoAndCache
-                                                (InlineEditTodo.setDueAt
-                                                    dueAt
-                                                )
-                                    )
-                                |> Maybe.withDefault (pure model)
-
-                        TodoPopup ->
-                            ( model
-                            , patchTodoCmd
-                                todoId
-                                [ Todo.SetDueAt dueAt ]
-                            )
-
-                        TodoItem ->
-                            ( model
-                            , patchTodoCmd
-                                todoId
-                                [ Todo.SetDueAt dueAt ]
-                            )
 
         CloseSchedulePopup by ->
             closePopup by
