@@ -64,9 +64,9 @@ encoder (Model { todo, title, dueAt, showSchedulePopup }) =
     in
     JE.object
         [ ( "todo", Todo.encoder todo )
+        , ( "title", maybeNull JE.string title )
+        , ( "dueAt", maybeNull Todo.dueAtEncoder dueAt )
         , ( "showSchedulePopup", JE.bool showSchedulePopup )
-        , ( "title", title |> MX.unwrap JE.null JE.string )
-        , ( "dueAt", dueAt |> MX.unwrap JE.null Todo.dueAtEncoder )
         ]
 
 
