@@ -1170,11 +1170,11 @@ viewEditTodoItem model edt =
 viewSchedulePopupForTodoId : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopupForTodoId loc todoId model =
     HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
-        (viewHelp model.here model.today)
+        (viewSchedulePopup model.here model.today)
 
 
-viewHelp : Zone -> Calendar.Date -> Html Msg
-viewHelp zone today =
+viewSchedulePopup : Zone -> Calendar.Date -> Html Msg
+viewSchedulePopup zone today =
     let
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
