@@ -149,8 +149,6 @@ isSchedulePopupVisible (Model { isScheduling }) =
 
 view :
     { openSchedulePopupMsg : msg
-    , closeSchedulePopupMsg : msg
-    , dueAtSelectedMsg : DueAt -> msg
     , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
