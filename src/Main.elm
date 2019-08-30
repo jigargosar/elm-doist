@@ -1170,11 +1170,23 @@ viewEditTodoItem model edt =
 viewSchedulePopupForTodoId : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopupForTodoId loc todoId model =
     HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
-        (viewSchedulePopup model.here model.today)
+        (viewSchedulePopup
+            { close = CloseSchedulePopup
+            , dueAtSelected = SchedulePopupDueAtSelected
+            }
+            model.here
+            model.today
+        )
 
 
-viewSchedulePopup : Zone -> Calendar.Date -> Html Msg
-viewSchedulePopup zone today =
+viewSchedulePopup :
+    { close : CloseReason -> msg
+    , dueAtSelected : DueAt -> msg
+    }
+    -> Zone
+    -> Calendar.Date
+    -> Html msg
+viewSchedulePopup conf zone today =
     let
         todayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (Calendar.toMillis today)
@@ -1185,15 +1197,18 @@ viewSchedulePopup zone today =
         yesterdayFmt =
             Millis.formatDate "ddd MMM yyyy" zone (yesterday |> Calendar.toMillis)
 
-        setDueMsg : DueAt -> Msg
+        setDueMsg : DueAt -> msg
         setDueMsg =
-            SchedulePopupDueAtSelected
+            -- SchedulePopupDueAtSelected
+            conf.dueAtSelected
 
         viewSetDueButton dueAt label attrs =
             TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
 
+        closeMsg : CloseReason -> msg
         closeMsg =
-            CloseSchedulePopup
+            -- CloseSchedulePopup
+            conf.close
     in
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
