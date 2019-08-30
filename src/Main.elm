@@ -141,7 +141,6 @@ todoPopupFirstFocusableDomId =
 
 type SchedulePopupLocation
     = TodoPopup
-    | InlineEditTodo
     | TodoItem
 
 
@@ -461,32 +460,22 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         SchedulePopupDueAtSelected dueAt ->
-            case ( model.schedulePopup, model.inlineEditTodo ) of
-                ( PopupOpened ( InlineEditTodo, todoId ), Just edt ) ->
-                    ifElse (InlineEditTodo.idEq todoId edt)
-                        (model
-                            |> updateInlineEditTodoAndCache
-                                (InlineEditTodo.setDueAt
-                                    dueAt
-                                )
-                        )
-                        (pure model)
-
-                ( PopupOpened ( TodoItem, todoId ), _ ) ->
+            case model.schedulePopup of
+                PopupOpened ( TodoItem, todoId ) ->
                     ( model
                     , patchTodoCmd
                         todoId
                         [ Todo.SetDueAt dueAt ]
                     )
 
-                ( PopupOpened ( TodoPopup, todoId ), _ ) ->
+                PopupOpened ( TodoPopup, todoId ) ->
                     ( model
                     , patchTodoCmd
                         todoId
                         [ Todo.SetDueAt dueAt ]
                     )
 
-                _ ->
+                PopupClosed ->
                     pure model
 
         CloseSchedulePopup by ->
