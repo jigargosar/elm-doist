@@ -97,11 +97,6 @@ type Popup a
     | PopupClosed
 
 
-type CloseReason
-    = EscapeKeyPressed
-    | FocusOutside
-
-
 initPopup : Popup a
 initPopup =
     PopupClosed
@@ -112,8 +107,8 @@ openPopup firstFocusableDomId a =
     ( PopupOpened a, focus firstFocusableDomId )
 
 
-closePopup : CloseReason -> ( Popup a, Cmd msg )
-closePopup _ =
+closePopup : ( Popup a, Cmd msg )
+closePopup =
     ( PopupClosed, Cmd.none )
 
 
@@ -232,7 +227,7 @@ init encodedFlags url key =
 type InlineEditTodoMsg
     = IETTitleChanged String
     | IETOpenSchedulePopup
-    | IETCloseSchedulePopup CloseReason
+    | IETCloseSchedulePopup
     | IETDueAtSelected DueAt
     | IETCancel
     | IETSave
@@ -255,9 +250,9 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg) Millis
     | OnMoveClicked TodoId
     | OpenTodoPopupClicked TodoId
-    | CloseTodoPopup CloseReason
+    | CloseTodoPopup
     | OpenSchedulePopupClicked SchedulePopupLocation TodoId
-    | CloseSchedulePopup CloseReason
+    | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
@@ -438,7 +433,7 @@ update message model =
                                     (InlineEditTodo.setIsScheduling True)
                                 |> command (focus schedulePopupFirstFocusableDomId)
 
-                        IETCloseSchedulePopup _ ->
+                        IETCloseSchedulePopup ->
                             model
                                 |> updateInlineEditTodoAndCache
                                     (InlineEditTodo.setIsScheduling False)
@@ -461,33 +456,28 @@ update message model =
 
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
-                PopupOpened ( TodoItem, todoId ) ->
-                    ( model
-                    , patchTodoCmd
-                        todoId
-                        [ Todo.SetDueAt dueAt ]
-                    )
-
-                PopupOpened ( TodoPopup, todoId ) ->
-                    ( model
-                    , patchTodoCmd
-                        todoId
-                        [ Todo.SetDueAt dueAt ]
-                    )
+                PopupOpened ( _, todoId ) ->
+                    closePopup
+                        |> Tuple.mapFirst (flip setSchedulePopup model)
+                        |> command
+                            (patchTodoCmd
+                                todoId
+                                [ Todo.SetDueAt dueAt ]
+                            )
 
                 PopupClosed ->
                     pure model
 
-        CloseSchedulePopup by ->
-            closePopup by
+        CloseSchedulePopup ->
+            closePopup
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopupClicked todoId ->
             openPopup todoPopupFirstFocusableDomId todoId
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
-        CloseTodoPopup by ->
-            closePopup by
+        CloseTodoPopup ->
+            closePopup
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
         OnMoveToProject todoId pid ->
@@ -1188,7 +1178,7 @@ viewSchedulePopupForTodoId loc todoId model =
 
 
 viewSchedulePopup :
-    { close : CloseReason -> msg
+    { close : msg
     , dueAtSelected : DueAt -> msg
     , firstFocusableDomId : String
     }
@@ -1214,7 +1204,7 @@ viewSchedulePopup conf zone today =
         viewSetDueButton dueAt label attrs =
             TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
 
-        closeMsg : CloseReason -> msg
+        closeMsg : msg
         closeMsg =
             -- CloseSchedulePopup
             conf.close
@@ -1224,8 +1214,8 @@ viewSchedulePopup conf zone today =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
-        , on "focusOutside" (JD.succeed <| closeMsg FocusOutside)
-        , Key.onEscape (closeMsg EscapeKeyPressed)
+        , on "focusOutside" (JD.succeed closeMsg)
+        , Key.onEscape closeMsg
         ]
         [ div [ class "bg-white pa3 lh-copy shadow-1" ]
             [ div [ class " b  " ] [ text "Due Date" ]
@@ -1280,8 +1270,8 @@ viewTodoPopupContainer =
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
-        , on "focusOutside" (JD.succeed <| CloseTodoPopup FocusOutside)
-        , Key.onEscape (CloseTodoPopup EscapeKeyPressed)
+        , on "focusOutside" (JD.succeed CloseTodoPopup)
+        , Key.onEscape CloseTodoPopup
         , tabindex -1
         ]
 
