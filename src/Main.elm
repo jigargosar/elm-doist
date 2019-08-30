@@ -1159,10 +1159,12 @@ viewEditTodoItem model edt =
         , saveMsg = OnIETMsg IETSave
         }
         model.here
-        (viewSchedulePopupForTodoId
-            InlineEditTodo
-            (InlineEditTodo.getTodoId edt)
-            model
+        (viewSchedulePopup
+            { close = CloseSchedulePopup
+            , dueAtSelected = SchedulePopupDueAtSelected
+            }
+            model.here
+            model.today
         )
         edt
 
