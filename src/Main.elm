@@ -232,8 +232,8 @@ init encodedFlags url key =
 
 type InlineEditTodoMsg
     = IETTitleChanged String
-    | IETCanceled
-    | IETSaved
+    | IETCancel
+    | IETSave
     | IETOpenSchedulePopup
 
 
@@ -419,10 +419,10 @@ update message model =
 
                 Just edt ->
                     case msg of
-                        IETCanceled ->
+                        IETCancel ->
                             resetInlineEditTodoAndCache model
 
-                        IETSaved ->
+                        IETSave ->
                             persistInlineEditTodo model
                                 |> andThen resetInlineEditTodoAndCache
 
@@ -1155,8 +1155,8 @@ viewEditTodoItem model edt =
     InlineEditTodo.view
         { editDueMsg = OnIETMsg IETOpenSchedulePopup
         , titleChangedMsg = OnIETMsg << IETTitleChanged
-        , cancelMsg = OnIETMsg IETCanceled
-        , saveMsg = OnIETMsg IETSaved
+        , cancelMsg = OnIETMsg IETCancel
+        , saveMsg = OnIETMsg IETSave
         }
         model.here
         (viewSchedulePopup
