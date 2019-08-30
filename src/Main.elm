@@ -1162,7 +1162,7 @@ viewTodoItemBase model todo =
                 FAS.ellipsisH
                 []
             , TodoPopup.view OnTodoPopupMsg
-                (viewTodoPopupItems todo.id model)
+                (viewTodoPopupItems TodoPopup.firstFocusableDomId todo.id model)
                 todo.id
                 model.todoPopup
             ]
@@ -1186,13 +1186,34 @@ todoPopupItems =
     ]
 
 
-viewTodoPopupItems : TodoId -> Model -> List (Html Msg)
-viewTodoPopupItems todoId model =
-    todoPopupItems |> List.map (viewMenuItem todoId model)
+viewTodoPopupItems : String -> TodoId -> Model -> List (Html Msg)
+viewTodoPopupItems firstFocusable todoId model =
+    [ div [ class "relative" ]
+        [ TextButton.view (EditTodoRequested todoId)
+            "Edit"
+            [ class "pa2", A.id firstFocusable ]
+        ]
+    , div [ class "relative" ]
+        [ TextButton.view (OnMoveStart todoId)
+            "Move to Project"
+            [ class "pa2" ]
+        ]
+    , div [ class "relative" ]
+        [ TextButton.view (OnSchedulePopupTriggered SchedulePopup.TodoPopup todoId)
+            "Schedule"
+            [ class "pa2" ]
+        , viewSchedulePopup SchedulePopup.TodoPopup todoId model
+        ]
+    , div [ class "relative" ]
+        [ TextButton.view (OnDelete todoId)
+            "Delete"
+            [ class "pa2" ]
+        ]
+    ]
 
 
-viewMenuItem : TodoId -> Model -> TodoMenuItem -> Html Msg
-viewMenuItem todoId model todoMenuItem =
+viewTodoPopupMenuItem : TodoId -> Model -> TodoMenuItem -> Html Msg
+viewTodoPopupMenuItem todoId model todoMenuItem =
     case todoMenuItem of
         TodoMenuItem todoAction label ->
             div [ class "relative" ]
@@ -1212,9 +1233,7 @@ viewMenuItem todoId model todoMenuItem =
 
         SchedulePopupTriggerTodoMenuItem todoAction label ->
             div [ class "relative" ]
-                [ TextButton.view (todoAction todoId)
-                    label
-                    [ class "pa2" ]
+                [ TextButton.view (todoAction todoId) label [ class "pa2" ]
                 , viewSchedulePopup SchedulePopup.TodoPopup todoId model
                 ]
 
