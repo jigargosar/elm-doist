@@ -150,7 +150,6 @@ isSchedulePopupVisible (Model { isScheduling }) =
 
 view :
     { editDueMsg : msg
-    , titleChangedMsg : String -> msg
     , cancelMsg : msg
     , saveMsg : msg
     , toMsg : Model -> msg
@@ -161,7 +160,7 @@ view :
     -> Html msg
 view conf here schedulePopupView model =
     let
-        { editDueMsg, titleChangedMsg, cancelMsg, saveMsg, toMsg } =
+        { editDueMsg, cancelMsg, saveMsg, toMsg } =
             conf
 
         titleValue =
