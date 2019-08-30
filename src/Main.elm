@@ -20,16 +20,8 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A
-    exposing
-        ( checked
-        , class
-        , classList
-        , css
-        , disabled
-        , href
-        )
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex)
+import Html.Styled.Events exposing (on, onClick)
 import HtmlExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
@@ -56,6 +48,7 @@ import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
+import UI.Key as Key
 import UI.TextButton as TextButton
 import UpdateExtra exposing (andThen, command, effect, pure)
 import Url exposing (Url)
@@ -151,7 +144,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
-            , todoPopup = TodoPopup.initialValue
+            , todoPopup = TodoPopup.Closed
             , schedulePopup = SchedulePopup.initialValue
             , dialog = Dialog.init
             , authState = AuthState.initial
@@ -189,8 +182,8 @@ type Msg
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | OnMoveClicked TodoId
-    | OnTodoPopupTriggered TodoId
-    | OnTodoPopupMsg TodoPopup.Msg
+    | OpenTodoPopupClicked TodoId
+    | CloseTodoPopup TodoPopup.By
     | OnScheduleClicked SchedulePopup.Location TodoId
     | OnSchedulePopupMsg SchedulePopup.Msg
     | OnSchedulePopupClosed SchedulePopup.Location TodoId (Maybe DueAt)
@@ -366,11 +359,15 @@ update message model =
                 (SchedulePopup.openFor loc todoId)
                 model
 
-        OnTodoPopupTriggered todoId ->
-            updateTodoPopup (TodoPopup.open todoId) model
+        OpenTodoPopupClicked todoId ->
+            ( { model | todoPopup = TodoPopup.Open todoId }
+            , focus TodoPopup.firstFocusableDomId
+            )
 
-        OnTodoPopupMsg msg ->
-            updateTodoPopup msg model
+        CloseTodoPopup by_ ->
+            ( { model | todoPopup = TodoPopup.Closed }
+            , Cmd.none
+            )
 
         OnSchedulePopupMsg msg ->
             updateSchedulePopup msg model
@@ -567,17 +564,6 @@ updateSchedulePopup message model =
 setSchedulePopup : SchedulePopup.Model -> Model -> Model
 setSchedulePopup schedulePopup model =
     { model | schedulePopup = schedulePopup }
-
-
-updateTodoPopup : TodoPopup.Msg -> Model -> Return
-updateTodoPopup msg model =
-    TodoPopup.update
-        { focus = focus
-        , firstFocusable = TodoPopup.firstFocusableDomId
-        }
-        msg
-        model.todoPopup
-        |> Tuple.mapFirst (flip setTodoPopup model)
 
 
 setTodoPopup : TodoPopup.Model -> Model -> Model
@@ -1157,15 +1143,34 @@ viewTodoItemBase model todo =
             , viewSchedulePopup SchedulePopup.TodoItem todo.id model
             ]
         , div [ class "relative flex" ]
-            [ IconButton.view (OnTodoPopupTriggered todo.id)
+            [ IconButton.view (OpenTodoPopupClicked todo.id)
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , TodoPopup.view OnTodoPopupMsg
-                (viewTodoPopupItems TodoPopup.firstFocusableDomId todo.id model)
-                todo.id
-                model.todoPopup
+            , viewTodoPopup todo.id model
             ]
+        ]
+
+
+viewTodoPopup : TodoId -> Model -> Html Msg
+viewTodoPopup todoId model =
+    HX.viewIf (model.todoPopup == TodoPopup.Open todoId)
+        (viewTodoPopupContainer
+            (viewTodoPopupItems TodoPopup.firstFocusableDomId
+                todoId
+                model
+            )
+        )
+
+
+viewTodoPopupContainer =
+    H.node "track-focus-outside"
+        [ class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , class "z-1" -- if removed; causes flickering with hover icons
+        , on "focusOutside" (JD.succeed <| CloseTodoPopup TodoPopup.FocusOutside)
+        , Key.onEscape (CloseTodoPopup TodoPopup.EscapeKey)
+        , tabindex -1
         ]
 
 
