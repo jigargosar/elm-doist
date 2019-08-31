@@ -1177,20 +1177,6 @@ schedulePopupConfig =
     }
 
 
-viewSchedulePopupHelp :
-    SchedulePopupLocation
-    -> TodoId
-    -> Zone
-    -> Calendar.Date
-    -> SchedulePopupModel
-    -> Html Msg
-viewSchedulePopupHelp loc todoId here today schedulePopup =
-    HX.viewIf (isPopupOpenFor ( loc, todoId ) schedulePopup)
-        (\_ ->
-            SchedulePopup.view schedulePopupConfig here today
-        )
-
-
 viewTodoItemBase :
     Model
     -> Todo
@@ -1201,10 +1187,7 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , div [ class "flex-shrink-0 relative flex" ]
-            [ viewDueAt model.here todo
-            , viewSchedulePopupHelp InTodoItem todo.id model.here model.today model.schedulePopup
-            ]
+        , viewTodoItemDueAt todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopupClicked todo.id)
                 [ class "pa2 tc child" ]
@@ -1258,7 +1241,10 @@ viewTodoPopupItems firstFocusable todoId model =
         [ TextButton.view (OpenSchedulePopupClicked InTodoPopupMenu todoId)
             "Schedule"
             [ class "pa2" ]
-        , viewSchedulePopupHelp InTodoPopupMenu todoId model.here model.today model.schedulePopup
+        , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) model.schedulePopup)
+            (\_ ->
+                SchedulePopup.view schedulePopupConfig model.here model.today
+            )
         ]
     , containerDiv
         [ TextButton.view (OnDelete todoId)
@@ -1268,8 +1254,24 @@ viewTodoPopupItems firstFocusable todoId model =
     ]
 
 
-viewDueAt : Zone -> Todo -> Html Msg
-viewDueAt here todo =
+viewTodoItemDueAt :
+    Todo
+    -> Zone
+    -> Calendar.Date
+    -> SchedulePopupModel
+    -> Html Msg
+viewTodoItemDueAt todo here today schedulePopup =
+    div [ class "flex-shrink-0 relative flex" ]
+        [ viewDueAtHelp here todo
+        , HX.viewIf (isPopupOpenFor ( InTodoItem, todo.id ) schedulePopup)
+            (\_ ->
+                SchedulePopup.view schedulePopupConfig here today
+            )
+        ]
+
+
+viewDueAtHelp : Zone -> Todo -> Html Msg
+viewDueAtHelp here todo =
     let
         action =
             OpenSchedulePopupClicked InTodoItem todo.id
