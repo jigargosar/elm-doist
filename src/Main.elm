@@ -12,6 +12,7 @@ import Css exposing (none, outline)
 import Dialog
 import Errors exposing (Errors)
 import Fire
+import Focus
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
 import FontAwesome.Regular as FAR
@@ -235,8 +236,8 @@ type InlineEditTodoMsg
     | IETSave
 
 
-updateOnInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
-updateOnInlineEditTodoMsg message edt model =
+updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
+updateInlineEditTodo message edt model =
     let
         mapAndCache fn =
             setMaybeInlineEditTodoAndCache (Just <| fn edt)
@@ -454,7 +455,7 @@ update message model =
                     pure model
 
                 Just edt ->
-                    updateOnInlineEditTodoMsg msg edt model
+                    updateInlineEditTodo msg edt model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -543,8 +544,8 @@ handleFirestoreQueryResponse qs model =
 
 
 focus : String -> Cmd Msg
-focus domId =
-    Dom.focus domId |> Task.attempt Focused
+focus =
+    Focus.attempt Focused
 
 
 
