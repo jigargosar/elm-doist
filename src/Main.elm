@@ -245,6 +245,10 @@ updateInlineEditTodo message edt model =
         setAndCache fn =
             setInlineEditTodoAndCache (fn edt)
 
+        resetInlineEditTodo : Model -> Model
+        resetInlineEditTodo =
+            setMaybeInlineEditTodo Nothing
+
         resetInlineEditTodoCacheCmd : Cmd msg
         resetInlineEditTodoCacheCmd =
             Ports.localStorageSetJsonItem
@@ -254,12 +258,12 @@ updateInlineEditTodo message edt model =
     in
     case message of
         IETCancel ->
-            ( setMaybeInlineEditTodo Nothing model
+            ( resetInlineEditTodo model
             , resetInlineEditTodoCacheCmd
             )
 
         IETSave ->
-            ( setMaybeInlineEditTodo Nothing model
+            ( resetInlineEditTodo model
             , Cmd.batch
                 [ persistInlineEditTodoCmd edt
                 , resetInlineEditTodoCacheCmd
