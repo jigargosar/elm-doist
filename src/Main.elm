@@ -137,7 +137,7 @@ todoPopupFirstFocusableDomId =
 
 type SchedulePopupLocation
     = InTodoPopupMenu
-    | InTodoItem
+    | InTodoItemDueDate
 
 
 type alias SchedulePopupModel =
@@ -1263,7 +1263,7 @@ viewTodoItemDueAt :
 viewTodoItemDueAt todo here today schedulePopup =
     let
         action =
-            OpenSchedulePopupClicked InTodoItem todo.id
+            OpenSchedulePopupClicked InTodoItemDueDate todo.id
     in
     div [ class "flex-shrink-0 relative flex" ]
         [ case Todo.dueMilli todo of
@@ -1277,7 +1277,7 @@ viewTodoItemDueAt todo here today schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (isPopupOpenFor ( InTodoItem, todo.id ) schedulePopup)
+        , HX.viewIf (isPopupOpenFor ( InTodoItemDueDate, todo.id ) schedulePopup)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )
