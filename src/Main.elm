@@ -239,10 +239,10 @@ updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Ret
 updateInlineEditTodo message edt model =
     let
         mapAndCache fn =
-            setInlineEditTodoAndCache (Just <| fn edt)
+            setMaybeInlineEditTodoAndCache (Just <| fn edt)
 
         resetAndCache =
-            setInlineEditTodoAndCache Nothing
+            setMaybeInlineEditTodoAndCache Nothing
     in
     case message of
         IETCancel ->
@@ -551,8 +551,8 @@ focus domId =
 -- INLINE EDIT TODO_
 
 
-setInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo inlineEditTodo model =
+setMaybeInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
+setMaybeInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
 
@@ -578,14 +578,14 @@ startEditingTodoId todoId model =
                         |> MX.unwrap Cmd.none persistInlineEditTodoCmd
             in
             model
-                |> setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
+                |> setMaybeInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
                 |> command (focus InlineEditTodo.firstFocusableDomId)
                 |> command persistCmd
 
 
-setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
-setInlineEditTodoAndCache inlineEditTodo model =
-    ( setInlineEditTodo inlineEditTodo model
+setMaybeInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
+setMaybeInlineEditTodoAndCache inlineEditTodo model =
+    ( setMaybeInlineEditTodo inlineEditTodo model
     , cacheInlineEditTodoCmd inlineEditTodo
     )
 
@@ -667,7 +667,7 @@ updateFromFlags flags model =
         |> setProjectList flags.cachedProjectList
         |> setAuthState flags.cachedAuthState
         |> setDialog flags.cachedDialog
-        |> setInlineEditTodo flags.cachedInlineEditTodo
+        |> setMaybeInlineEditTodo flags.cachedInlineEditTodo
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
         |> pure
