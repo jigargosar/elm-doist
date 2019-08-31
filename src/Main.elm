@@ -235,8 +235,8 @@ type InlineEditTodoMsg
     | IETSave
 
 
-updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
-updateInlineEditTodo message edt model =
+updateOnInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
+updateOnInlineEditTodoMsg message edt model =
     let
         mapAndCache fn =
             setMaybeInlineEditTodoAndCache (Just <| fn edt)
@@ -454,7 +454,7 @@ update message model =
                     pure model
 
                 Just edt ->
-                    updateInlineEditTodo msg edt model
+                    updateOnInlineEditTodoMsg msg edt model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
