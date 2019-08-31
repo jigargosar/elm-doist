@@ -215,8 +215,9 @@ init encodedFlags url key =
             , browserSize = BrowserSize.initial
             }
     in
-    ( model, Millis.hereCmd OnHere )
-        |> Return.andThen (updateFromEncodedFlags encodedFlags)
+    ( updateFromEncodedFlags encodedFlags model
+    , Millis.hereCmd OnHere
+    )
 
 
 
@@ -681,24 +682,20 @@ queryProjectListCmd =
         }
 
 
-updateFromEncodedFlags : Value -> Model -> Return
+updateFromEncodedFlags : Value -> Model -> Model
 updateFromEncodedFlags encodedFlags model =
-    model
-        |> decodeValueAndUnpack
-            ( flagsDecoder, updateFromFlags, onDecodeError )
-            encodedFlags
+    case JD.decodeValue flagsDecoder encodedFlags of
+        Ok flags ->
+            setTodoList flags.cachedTodoList model
+                |> setProjectList flags.cachedProjectList
+                |> setAuthState flags.cachedAuthState
+                |> setDialog flags.cachedDialog
+                |> setMaybeInlineEditTodo flags.cachedInlineEditTodo
+                |> setBrowserSize flags.browserSize
+                |> setTodayFromNow flags.now
 
-
-updateFromFlags : Flags -> Model -> Return
-updateFromFlags flags model =
-    setTodoList flags.cachedTodoList model
-        |> setProjectList flags.cachedProjectList
-        |> setAuthState flags.cachedAuthState
-        |> setDialog flags.cachedDialog
-        |> setMaybeInlineEditTodo flags.cachedInlineEditTodo
-        |> setBrowserSize flags.browserSize
-        |> setTodayFromNow flags.now
-        |> Return.singleton
+        Err err ->
+            HasErrors.addDecodeError err model
 
 
 setTodoList : TodoList -> Model -> Model
