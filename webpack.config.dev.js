@@ -1,19 +1,10 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const webpack = require('webpack')
-
-const NODE_ENV = process.env.NODE_ENV
-const isProduction = NODE_ENV === 'production'
-// console.log('NODE_ENV', NODE_ENV)
-
-// const mode = isProduction ? 'production' : 'development'
-// console.log('mode', mode)
 
 // https://webpack.js.org/configuration/
 module.exports = {
-  // mode: mode,
-  entry: {index:'./src/index.js'},
+  mode: 'development',
+  entry: { index: './src/index.js' },
   output: {
     publicPath: '/',
   },
@@ -22,33 +13,31 @@ module.exports = {
   },
   module: {
     rules: [
+      // { test: /\.js/, loader: ['cache-loader'] },
       { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
       {
         test: /\.elm$/,
         use: [
           {
             loader: 'elm-webpack-loader',
-            options: { optimize: false, debug:true },
+            options: { optimize: false, debug: true },
           },
         ],
       },
     ],
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({ template: './src/index.html' }),
-  ],
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all'
-        }
-      }
-    }
-  },
+  plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
+  // optimization: {
+  //   splitChunks: {
+  //     cacheGroups: {
+  //       commons: {
+  //         test: /[\\/]node_modules[\\/]/,
+  //         name: 'vendors',
+  //         chunks: 'all',
+  //       },
+  //     },
+  //   },
+  // },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
   stats: {
