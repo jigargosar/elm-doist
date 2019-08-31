@@ -188,7 +188,7 @@ view conf here today model =
                     []
                 ]
 
-        ( txt, cls ) =
+        ( dueAtLabel, dueAtCls ) =
             dueAtValue
                 |> MX.unpack
                     (\_ -> ( "Schedule", "gray" ))
@@ -199,9 +199,9 @@ view conf here today model =
         viewDueAt =
             div [ class "flex relative" ]
                 [ TextButton.secondary openSchedulePopup
-                    txt
-                    [ class "pa1 ba b--moon-gray"
-                    , class cls
+                    dueAtLabel
+                    [ class "pa1"
+                    , class dueAtCls
                     , css [ minWidth <| px 100 ]
                     ]
                 , HX.viewIf (isSchedulePopupVisible model)
