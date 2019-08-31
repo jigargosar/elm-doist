@@ -92,7 +92,12 @@ fromRecord =
 
 fromTodo : Todo -> Model
 fromTodo todo =
-    { todo = todo, title = Nothing, dueAt = Nothing, isSchedulePopupOpen = False } |> fromRecord
+    { todo = todo
+    , title = Nothing
+    , dueAt = Nothing
+    , isSchedulePopupOpen = False
+    }
+        |> fromRecord
 
 
 setDueAt : DueAt -> Model -> Model
