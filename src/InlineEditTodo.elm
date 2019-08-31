@@ -197,15 +197,17 @@ view conf here today model =
                     )
 
         viewDue =
-            TextButton.secondary openSchedulePopup
-                txt
-                [ class "pa1 ba b--moon-gray"
-                , class cls
-                , css [ minWidth <| px 100 ]
+            div [ class "flex relative" ]
+                [ TextButton.secondary openSchedulePopup
+                    txt
+                    [ class "pa1 ba b--moon-gray"
+                    , class cls
+                    , css [ minWidth <| px 100 ]
+                    ]
                 ]
     in
     div
-        [ class "pv3 ph2 relative"
+        [ class "pv3 ph2 "
         , tabindex 0
         , Key.onEscape cancel
         ]
