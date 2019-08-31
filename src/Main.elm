@@ -36,7 +36,7 @@ import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Result.Extra as RX
-import Return exposing (andThen, command, return, singleton)
+import Return
 import Route exposing (Route)
 import SchedulePopup
 import Skeleton
@@ -216,9 +216,9 @@ init encodedFlags url key =
             }
     in
     model
-        |> singleton
-        |> andThen (updateFromEncodedFlags encodedFlags)
-        |> command (Millis.hereCmd OnHere)
+        |> Return.singleton
+        |> Return.andThen (updateFromEncodedFlags encodedFlags)
+        |> Return.command (Millis.hereCmd OnHere)
 
 
 
@@ -249,7 +249,7 @@ updateInlineEditTodo message edt model =
 
         IETSave ->
             resetAndCache model
-                |> command (persistInlineEditTodoCmd edt)
+                |> Return.command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
             model |> mapAndCache (InlineEditTodo.setTitle title)
@@ -258,7 +258,7 @@ updateInlineEditTodo message edt model =
             model
                 |> mapAndCache
                     (InlineEditTodo.setIsSchedulePopupOpen True)
-                |> command (focus schedulePopupFirstFocusableDomId)
+                |> Return.command (focus schedulePopupFirstFocusableDomId)
 
         IETCloseSchedulePopup ->
             model
@@ -365,10 +365,10 @@ update message model =
             ( { model | route = route }, Cmd.none )
 
         OnHere here ->
-            singleton { model | here = here }
+            Return.singleton { model | here = here }
 
         OnBrowserResize size ->
-            setBrowserSize size model |> singleton
+            setBrowserSize size model |> Return.singleton
 
         Focused res ->
             res
@@ -376,7 +376,7 @@ update message model =
                     HasErrors.addDomFocusError
                     (always identity)
                 |> callWith model
-                |> singleton
+                |> Return.singleton
 
         OnAuthStateChanged encodedValue ->
             model
@@ -450,14 +450,14 @@ update message model =
         OnInlineEditTodoMsg msg ->
             case model.inlineEditTodo of
                 Nothing ->
-                    singleton model
+                    Return.singleton model
 
                 Just edt ->
                     updateInlineEditTodo msg edt model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
-                |> MX.unwrap singleton startMoving
+                |> MX.unwrap Return.singleton startMoving
                 |> callWith model
 
         OpenSchedulePopupClicked loc todoId ->
@@ -469,14 +469,14 @@ update message model =
                 PopupOpened ( _, todoId ) ->
                     closePopup
                         |> Tuple.mapFirst (flip setSchedulePopup model)
-                        |> command
+                        |> Return.command
                             (patchTodoCmd
                                 todoId
                                 [ Todo.SetDueAt dueAt ]
                             )
 
                 PopupClosed ->
-                    singleton model
+                    Return.singleton model
 
         CloseSchedulePopup ->
             closePopup
@@ -492,7 +492,7 @@ update message model =
 
         OnMoveToProject todoId pid ->
             updateDialogAndCache Dialog.Closed model
-                |> command
+                |> Return.command
                     (patchTodoCmd
                         todoId
                         [ Todo.SetProjectId pid ]
@@ -501,7 +501,7 @@ update message model =
         OnDialogOverlayClickedOrEscapePressed ->
             case model.dialog of
                 Dialog.Closed ->
-                    singleton model
+                    Return.singleton model
 
                 Dialog.MoveToProjectDialog _ _ ->
                     updateDialogAndCache Dialog.Closed model
@@ -538,7 +538,7 @@ handleFirestoreQueryResponse qs model =
 
         _ ->
             HasErrors.add ("Invalid QueryId" ++ qs.id) model
-                |> singleton
+                |> Return.singleton
 
 
 focus : String -> Cmd Msg
@@ -616,16 +616,16 @@ startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
     case findTodoById todoId model of
         Nothing ->
-            singleton model
+            Return.singleton model
 
         Just todo ->
             let
                 persistCmd =
                     persistMaybeInlineEditTodoCmd model.inlineEditTodo
             in
-            return model persistCmd
-                |> andThen (setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo))
-                |> command (focus InlineEditTodo.firstFocusableDomId)
+            Return.return model persistCmd
+                |> Return.andThen (setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo))
+                |> Return.command (focus InlineEditTodo.firstFocusableDomId)
 
 
 
@@ -644,7 +644,7 @@ startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache
         (Dialog.MoveToProjectDialog todo.id todo.projectId)
-        >> command (focus Dialog.firstFocusable)
+        >> Return.command (focus Dialog.firstFocusable)
 
 
 setDialog : Dialog.Model -> Model -> Model
@@ -655,8 +655,8 @@ setDialog dialog model =
 updateDialogAndCache : Dialog.Model -> Model -> Return
 updateDialogAndCache dialog model =
     setDialog dialog model
-        |> singleton
-        |> command
+        |> Return.singleton
+        |> Return.command
             (Ports.localStorageSetJsonItem
                 ( "cachedDialog", Dialog.encoder dialog )
             )
@@ -700,7 +700,7 @@ updateFromFlags flags model =
         |> setMaybeInlineEditTodo flags.cachedInlineEditTodo
         |> setBrowserSize flags.browserSize
         |> setTodayFromNow flags.now
-        |> singleton
+        |> Return.singleton
 
 
 setTodoList : TodoList -> Model -> Model
@@ -711,8 +711,8 @@ setTodoList todoList model =
 updateTodoListFromFirestore : TodoList -> Model -> Return
 updateTodoListFromFirestore todoList model =
     setTodoList todoList model
-        |> singleton
-        |> command
+        |> Return.singleton
+        |> Return.command
             (Ports.localStorageSetJsonItem
                 ( "cachedTodoList", Todo.listEncoder todoList )
             )
@@ -765,9 +765,9 @@ onAuthStateChanged authState model =
                     Nav.replaceUrl model.key Route.topUrl
     in
     setAuthState authState model
-        |> singleton
-        |> command cmd
-        |> command
+        |> Return.singleton
+        |> Return.command cmd
+        |> Return.command
             (Ports.localStorageSetJsonItem
                 ( "cachedAuthState", AuthState.encoder authState )
             )
@@ -776,7 +776,7 @@ onAuthStateChanged authState model =
 onDecodeError : JD.Error -> Model -> Return
 onDecodeError error model =
     HasErrors.addDecodeError error model
-        |> singleton
+        |> Return.singleton
 
 
 
