@@ -599,10 +599,6 @@ persistInlineEditTodoCmd edt =
             )
 
 
-
--- IET + MAYBE IET
-
-
 startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
     case findTodoById todoId model of
