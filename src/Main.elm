@@ -1177,11 +1177,6 @@ schedulePopupConfig =
     }
 
 
-viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
-viewSchedulePopup loc todoId model =
-    viewSchedulePopupHelp loc todoId model.here model.today model.schedulePopup
-
-
 viewSchedulePopupHelp :
     SchedulePopupLocation
     -> TodoId
@@ -1208,7 +1203,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , div [ class "flex-shrink-0 relative flex" ]
             [ viewDueAt model.here todo
-            , viewSchedulePopup InTodoItem todo.id model
+            , viewSchedulePopupHelp InTodoItem todo.id model.here model.today model.schedulePopup
             ]
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopupClicked todo.id)
@@ -1263,7 +1258,7 @@ viewTodoPopupItems firstFocusable todoId model =
         [ TextButton.view (OpenSchedulePopupClicked InTodoPopupMenu todoId)
             "Schedule"
             [ class "pa2" ]
-        , viewSchedulePopup InTodoPopupMenu todoId model
+        , viewSchedulePopupHelp InTodoPopupMenu todoId model.here model.today model.schedulePopup
         ]
     , containerDiv
         [ TextButton.view (OnDelete todoId)
