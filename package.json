@@ -10,10 +10,10 @@
     "wds:start": "nodemon -w webpack.config.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open",
     "wp:build": "env NODE_ENV=production webpack -p",
     "pl:start": "npx parcel src/index.html --open",
-    "pl:build": "parcel build src/index.html",
+    "pl:build": "npx parcel build src/index.html",
     "start": "npm run pl:start",
     "build": "npm run pl:build",
-    "deploy": "firebase deploy --only hosting:elmdoist",
+    "deploy": "npx firebase deploy --only hosting:elmdoist",
     "stage": "npm run build && npm run deploy"
   },
   "private": true,
