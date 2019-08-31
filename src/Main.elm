@@ -22,6 +22,7 @@ import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (on, onClick)
+import Html.Styled.Lazy as HL
 import HtmlExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
@@ -793,6 +794,13 @@ type alias StyledDocument msg =
 
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
+    let
+        viewInlineEditTodoForTodoId_ todoId =
+            viewInlineEditTodoForTodoId todoId
+                model.here
+                model.today
+                model.inlineEditTodo
+    in
     case route of
         Route.Inbox ->
             let
@@ -1151,16 +1159,37 @@ viewTodoItem model todo =
             viewTodoItemBase model todo
 
 
+viewInlineEditTodoForTodoId :
+    TodoId
+    -> Zone
+    -> Calendar.Date
+    -> Maybe InlineEditTodo.Model
+    -> Maybe (Html Msg)
 viewInlineEditTodoForTodoId todoId here today inlineEditTodo =
     inlineEditTodo
         |> MX.filter (InlineEditTodo.idEq todoId)
         |> Maybe.map
-            (InlineEditTodo.view
-                inlineEditTodoViewConfig
-                here
-                today
-                >> H.map OnInlineEditTodoMsg
-            )
+            (\_ -> HL.lazy3 viewInlineEditTodo here today inlineEditTodo)
+
+
+viewInlineEditTodo :
+    Zone
+    -> Calendar.Date
+    -> Maybe InlineEditTodo.Model
+    -> Html Msg
+viewInlineEditTodo here today inlineEditTodo =
+    case inlineEditTodo of
+        Just edt ->
+            edt
+                |> (InlineEditTodo.view
+                        inlineEditTodoViewConfig
+                        here
+                        today
+                        >> H.map OnInlineEditTodoMsg
+                   )
+
+        Nothing ->
+            HX.empty
 
 
 inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
