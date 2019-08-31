@@ -1163,15 +1163,24 @@ viewTodoItem model todo =
 
 inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
 inlineEditTodoViewConfig =
+    let
+        schedulePopupConfig_ =
+            { close = IETCloseSchedulePopup
+            , dueAtSelected = IETDueAtSelected
+            , firstFocusableDomId = schedulePopupFirstFocusableDomId
+            }
+    in
     { openSchedulePopup = IETOpenSchedulePopup
     , titleChanged = IETTitleChanged
     , cancel = IETCancel
     , save = IETSave
-    , schedulePopupConfig =
-        { close = IETCloseSchedulePopup
-        , dueAtSelected = IETDueAtSelected
-        , firstFocusableDomId = schedulePopupFirstFocusableDomId
-        }
+    , viewSchedulePopup =
+        \isOpen here today ->
+            if isOpen then
+                SchedulePopup.view schedulePopupConfig_ here today
+
+            else
+                HX.empty
     }
 
 

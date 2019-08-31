@@ -155,7 +155,7 @@ type alias ViewConfig msg =
     , titleChanged : String -> msg
     , cancel : msg
     , save : msg
-    , schedulePopupConfig : SchedulePopup.ViewConfig msg
+    , viewSchedulePopup : Bool -> Zone -> Calendar.Date -> Html msg
     }
 
 
@@ -206,8 +206,7 @@ view conf here today model =
                     , class dueAtCls
                     , css [ minWidth <| px 100 ]
                     ]
-                , HX.viewIf (getIsSchedulePopupOpen model)
-                    (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
+                , conf.viewSchedulePopup (getIsSchedulePopupOpen model) here today
                 ]
     in
     div
