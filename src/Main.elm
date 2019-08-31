@@ -28,7 +28,7 @@ import HtmlExtra as HX
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode exposing (Value)
+import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -220,6 +220,11 @@ init encodedFlags url key =
     )
 
 
+setMaybeInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
+setMaybeInlineEditTodo inlineEditTodo model =
+    { model | inlineEditTodo = inlineEditTodo }
+
+
 
 -- MSG
 
@@ -236,19 +241,30 @@ type InlineEditTodoMsg
 updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
 updateInlineEditTodo message edt model =
     let
+        setAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
         setAndCache fn =
             setInlineEditTodoAndCache (fn edt)
 
-        resetAndCache =
-            setMaybeInlineEditTodoAndCache Nothing
+        resetInlineEditTodoCacheCmd : Cmd msg
+        resetInlineEditTodoCacheCmd =
+            Ports.localStorageSetJsonItem
+                ( "cachedInlineEditTodo"
+                , JE.null
+                )
     in
     case message of
         IETCancel ->
-            resetAndCache model
+            ( setMaybeInlineEditTodo Nothing model
+            , resetInlineEditTodoCacheCmd
+            )
 
         IETSave ->
-            resetAndCache model
-                |> Return.command (persistInlineEditTodoCmd edt)
+            ( setMaybeInlineEditTodo Nothing model
+            , Cmd.batch
+                [ persistInlineEditTodoCmd edt
+                , resetInlineEditTodoCacheCmd
+                ]
+            )
 
         IETTitleChanged title ->
             model |> setAndCache (InlineEditTodo.setTitle title)
@@ -548,26 +564,6 @@ focus =
 
 
 -- Maybe IET
-
-
-setMaybeInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
-setMaybeInlineEditTodo inlineEditTodo model =
-    { model | inlineEditTodo = inlineEditTodo }
-
-
-setMaybeInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
-setMaybeInlineEditTodoAndCache inlineEditTodo model =
-    ( setMaybeInlineEditTodo inlineEditTodo model
-    , cacheMaybeInlineEditTodoCmd inlineEditTodo
-    )
-
-
-cacheMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
-cacheMaybeInlineEditTodoCmd inlineEditTodo =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , InlineEditTodo.maybeEncoder inlineEditTodo
-        )
 
 
 persistMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd Msg
