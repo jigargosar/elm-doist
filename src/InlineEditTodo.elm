@@ -168,10 +168,6 @@ view conf here today model =
         titleValue =
             titleOrDefault model
 
-        dueAtValue =
-            dueAtOrDefault model
-                |> Todo.dueAtToMillis
-
         viewTitleInput =
             H.node "auto-resize-textarea"
                 [ class "flex-grow-1 flex ba b--moon-gray" ]
@@ -189,7 +185,8 @@ view conf here today model =
                 ]
 
         ( dueAtLabel, dueAtCls ) =
-            dueAtValue
+            dueAtOrDefault model
+                |> Todo.dueAtToMillis
                 |> MX.unpack
                     (\_ -> ( "Schedule", "gray" ))
                     (\mi ->
