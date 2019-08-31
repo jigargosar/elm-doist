@@ -572,21 +572,15 @@ startEditingTodoId todoId model =
             pure model
 
         Just todo ->
-            (case model.inlineEditTodo of
-                Nothing ->
-                    pure model
-
-                Just edt ->
-                    ( model, persistInlineEditTodoCmd edt )
-            )
-                |> andThen (startEditingTodo todo)
-
-
-startEditingTodo : Todo -> Model -> Return
-startEditingTodo todo model =
-    model
-        |> setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
-        |> command (focus InlineEditTodo.firstFocusableDomId)
+            let
+                persistCmd =
+                    model.inlineEditTodo
+                        |> MX.unwrap Cmd.none persistInlineEditTodoCmd
+            in
+            model
+                |> setInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
+                |> command (focus InlineEditTodo.firstFocusableDomId)
+                |> command persistCmd
 
 
 setInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
@@ -594,11 +588,6 @@ setInlineEditTodoAndCache inlineEditTodo model =
     ( setInlineEditTodo inlineEditTodo model
     , cacheInlineEditTodoCmd inlineEditTodo
     )
-
-
-cacheInlineEditTodoEffect : Model -> Cmd msg
-cacheInlineEditTodoEffect model =
-    cacheInlineEditTodoCmd model.inlineEditTodo
 
 
 cacheInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
