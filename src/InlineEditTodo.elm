@@ -170,22 +170,6 @@ view conf here today model =
         { openSchedulePopup, titleChanged, cancel, save } =
             conf
 
-        viewTitleInput =
-            H.node "auto-resize-textarea"
-                [ class "flex-grow-1 flex br b--moon-gray" ]
-                [ textarea
-                    [ A.id firstFocusableDomId
-                    , class "pa1 flex-grow-1 lh-copy bn"
-                    , value <| titleOrDefault model
-                    , onInput titleChanged
-                    , Key.onEnter save
-                    , rows 1
-                    , css [ resize none ]
-                    , class "overflow-hidden"
-                    ]
-                    []
-                ]
-
         ( dueAtLabel, dueAtCls ) =
             dueAtOrDefault model
                 |> Todo.dueAtToMillis
@@ -211,9 +195,30 @@ view conf here today model =
         , tabindex 0
         , Key.onEscape cancel
         ]
-        [ div [ class "flex ba b--moon-gray" ] [ viewTitleInput, viewDueAt ]
+        [ div [ class "flex ba b--moon-gray" ]
+            [ viewTitleInput titleChanged save (titleOrDefault model)
+            , viewDueAt
+            ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary save "Save" [ class "pa2" ]
             , TextButton.secondary cancel "Cancel" [ class "pa2" ]
             ]
+        ]
+
+
+viewTitleInput : (String -> msg) -> msg -> String -> Html msg
+viewTitleInput onInput_ onEnter title =
+    H.node "auto-resize-textarea"
+        [ class "flex-grow-1 flex br b--moon-gray" ]
+        [ textarea
+            [ A.id firstFocusableDomId
+            , class "pa1 flex-grow-1 lh-copy bn"
+            , value title
+            , onInput onInput_
+            , Key.onEnter onEnter
+            , rows 1
+            , css [ resize none ]
+            , class "overflow-hidden"
+            ]
+            []
         ]
