@@ -235,43 +235,38 @@ type InlineEditTodoMsg
     | IETSave
 
 
-updateInlineEditTodo : InlineEditTodoMsg -> Model -> Return
-updateInlineEditTodo message model =
-    case model.inlineEditTodo of
-        Nothing ->
-            pure model
+updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
+updateInlineEditTodo message edt model =
+    case message of
+        IETCancel ->
+            setInlineEditTodoAndCache Nothing model
 
-        Just edt ->
-            case message of
-                IETCancel ->
-                    setInlineEditTodoAndCache Nothing model
+        IETSave ->
+            persistMaybeInlineEditTodo model
+                |> andThen (setInlineEditTodoAndCache Nothing)
 
-                IETSave ->
-                    persistMaybeInlineEditTodo model
-                        |> andThen (setInlineEditTodoAndCache Nothing)
+        IETTitleChanged title ->
+            model
+                |> updateInlineEditTodoAndCache
+                    (InlineEditTodo.setTitle title)
 
-                IETTitleChanged title ->
-                    model
-                        |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setTitle title)
+        IETOpenSchedulePopup ->
+            model
+                |> updateInlineEditTodoAndCache
+                    (InlineEditTodo.setIsSchedulePopupOpen True)
+                |> command (focus schedulePopupFirstFocusableDomId)
 
-                IETOpenSchedulePopup ->
-                    model
-                        |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setIsSchedulePopupOpen True)
-                        |> command (focus schedulePopupFirstFocusableDomId)
+        IETCloseSchedulePopup ->
+            model
+                |> updateInlineEditTodoAndCache
+                    (InlineEditTodo.setIsSchedulePopupOpen False)
 
-                IETCloseSchedulePopup ->
-                    model
-                        |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setIsSchedulePopupOpen False)
-
-                IETDueAtSelected dueAt ->
-                    model
-                        |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setDueAt dueAt
-                                >> InlineEditTodo.setIsSchedulePopupOpen False
-                            )
+        IETDueAtSelected dueAt ->
+            model
+                |> updateInlineEditTodoAndCache
+                    (InlineEditTodo.setDueAt dueAt
+                        >> InlineEditTodo.setIsSchedulePopupOpen False
+                    )
 
 
 type Msg
@@ -449,7 +444,12 @@ update message model =
             startEditingTodoId todoId model
 
         OnInlineEditTodoMsg msg ->
-            updateInlineEditTodo msg model
+            case model.inlineEditTodo of
+                Nothing ->
+                    pure model
+
+                Just edt ->
+                    updateInlineEditTodo msg edt model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
