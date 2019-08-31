@@ -1143,16 +1143,22 @@ viewTodoItem model todo =
     let
         { inlineEditTodo, here } =
             model
+
+        maybeEdt =
+            inlineEditTodo
+                |> MX.filter (InlineEditTodo.idEq todo.id)
     in
-    inlineEditTodo
-        |> MX.filter (InlineEditTodo.idEq todo.id)
-        |> MX.unpack (\_ -> viewTodoItemBase model todo)
-            (InlineEditTodo.view
-                inlineEditTodoViewConfig
-                model.here
-                model.today
-                >> H.map OnInlineEditTodoMsg
-            )
+    case maybeEdt of
+        Just edt ->
+            edt
+                |> InlineEditTodo.view
+                    inlineEditTodoViewConfig
+                    model.here
+                    model.today
+                |> H.map OnInlineEditTodoMsg
+
+        Nothing ->
+            viewTodoItemBase model todo
 
 
 inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
