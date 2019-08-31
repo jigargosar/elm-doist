@@ -5,20 +5,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
   mode: 'development',
   entry: { index: './src/index.js' },
-
-
   output: {
     publicPath: '/',
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'build'),
   },
   resolve: {
     extensions: ['.js', '.elm'],
   },
-
   module: {
     rules: [
-      // { test: /\.js/, loader: ['cache-loader'] },
       { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
       {
         test: /\.elm$/,
@@ -32,17 +27,9 @@ module.exports = {
     ],
   },
   plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
-  // optimization: {
-  //   splitChunks: {
-  //     cacheGroups: {
-  //       commons: {
-  //         test: /[\\/]node_modules[\\/]/,
-  //         name: 'vendors',
-  //         chunks: 'all',
-  //       },
-  //     },
-  //   },
-  // },
+  optimization: {
+    splitChunks: false,
+  },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
   stats: {

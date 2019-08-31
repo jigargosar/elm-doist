@@ -25,29 +25,31 @@ function Disposables() {
 
 export async function Fire() {
   const firebase = await import(
-    /* webpackPrefetch: true
-    , webpackChunkName: "firebase/app" */
+    /* webpackChunkName: "firebase" */
     'firebase/app'
   )
+  firebase.initializeApp(firebaseConfig)
+
+
   await import(
-    /* webpackPrefetch: true
-    , webpackChunkName: "firebase/auth" */
+    /* webpackChunkName: "firebase" */
     'firebase/auth'
   )
-
-  firebase.initializeApp(firebaseConfig)
   const auth = firebase.auth()
-  const dbPromise = import(
-    /* webpackPrefetch: true
-    , webpackChunkName: "firebase/firestore" */
-    'firebase/firestore'
-  ).then(() => firebase.firestore())
   const authChangeDisposables = Disposables()
   const namedDisposables = {}
 
   auth.onAuthStateChanged(user => {
     authChangeDisposables.dispose()
   })
+
+
+  const dbPromise = import(
+    /* webpackPrefetch: true
+    , webpackChunkName: "firestore" */
+    'firebase/firestore'
+    ).then(() => firebase.firestore())
+
   return {
     onAuthStateChanged(cb) {
       return auth.onAuthStateChanged(cb)

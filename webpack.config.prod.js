@@ -1,34 +1,33 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const webpack = require('webpack')
-
-const NODE_ENV = process.env.NODE_ENV
-const isProduction = NODE_ENV === 'production'
-// console.log('NODE_ENV', NODE_ENV)
-
-// const mode = isProduction ? 'production' : 'development'
-// console.log('mode', mode)
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const TerserJSPlugin = require('terser-webpack-plugin')
 
 // https://webpack.js.org/configuration/
 module.exports = {
-  // mode: mode,
-  entry: {index:'./src/index.js'},
+  mode: 'production',
+  entry: { index: './src/index.js' },
   output: {
     publicPath: '/',
+    path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
     extensions: ['.js', '.elm'],
   },
   module: {
     rules: [
-      { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
+      {
+        test: /\.css$/,
+        loader: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
       {
         test: /\.elm$/,
         use: [
           {
             loader: 'elm-webpack-loader',
-            options: { optimize: false, debug:true },
+            options: { optimize: true },
           },
         ],
       },
@@ -37,18 +36,16 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({ template: './src/index.html' }),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      // filename: '[name].css',
+      // chunkFilename: '[id].css',
+    }),
   ],
-  // optimization: {
-  //   splitChunks: {
-  //     cacheGroups: {
-  //       commons: {
-  //         test: /[\\/]node_modules[\\/]/,
-  //         name: 'vendors',
-  //         chunks: 'all'
-  //       }
-  //     }
-  //   }
-  // },
+  optimization: {
+    minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+  },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
   stats: {
@@ -58,14 +55,4 @@ module.exports = {
   // devtool: isProduction ? 'source-map' : 'eval-source-map',
   // devtool: isProduction ? 'source-map' : false,
   devtool: false,
-  // https://webpack.js.org/configuration/dev-server/
-  devServer: {
-    historyApiFallback: true,
-    overlay: {
-      warnings: true,
-      errors: true,
-    },
-    hot: false,
-    // hotOnly: true,
-  },
 }
