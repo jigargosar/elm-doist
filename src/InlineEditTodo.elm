@@ -8,7 +8,7 @@ module InlineEditTodo exposing
     , idEq
     , maybeEncoder
     , setDueAt
-    , setIsScheduling
+    , setIsSchedulePopupOpen
     , setTitle
     , titleOrDefault
     , toUpdateMessages
@@ -112,8 +112,8 @@ setTitle title (Model modelRecord) =
         |> Model
 
 
-setIsScheduling : Bool -> Model -> Model
-setIsScheduling bool (Model modelRecord) =
+setIsSchedulePopupOpen : Bool -> Model -> Model
+setIsSchedulePopupOpen bool (Model modelRecord) =
     { modelRecord | isSchedulePopupOpen = bool }
         |> Model
 

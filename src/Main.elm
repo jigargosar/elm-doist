@@ -258,19 +258,19 @@ updateInlineEditTodo message model =
                 IETOpenSchedulePopup ->
                     model
                         |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setIsScheduling True)
+                            (InlineEditTodo.setIsSchedulePopupOpen True)
                         |> command (focus schedulePopupFirstFocusableDomId)
 
                 IETCloseSchedulePopup ->
                     model
                         |> updateInlineEditTodoAndCache
-                            (InlineEditTodo.setIsScheduling False)
+                            (InlineEditTodo.setIsSchedulePopupOpen False)
 
                 IETDueAtSelected dueAt ->
                     model
                         |> updateInlineEditTodoAndCache
                             (InlineEditTodo.setDueAt dueAt
-                                >> InlineEditTodo.setIsScheduling False
+                                >> InlineEditTodo.setIsSchedulePopupOpen False
                             )
 
 
