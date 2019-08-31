@@ -140,8 +140,8 @@ firstFocusableDomId =
     "inline-edit-todo__first-focusable"
 
 
-isSchedulePopupVisible : Model -> Bool
-isSchedulePopupVisible (Model { isScheduling }) =
+isSchedulePopupOpen : Model -> Bool
+isSchedulePopupOpen (Model { isScheduling }) =
     isScheduling
 
 
@@ -201,7 +201,7 @@ view conf here today model =
                     , class dueAtCls
                     , css [ minWidth <| px 100 ]
                     ]
-                , HX.viewIf (isSchedulePopupVisible model)
+                , HX.viewIf (isSchedulePopupOpen model)
                     (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
                 ]
     in
