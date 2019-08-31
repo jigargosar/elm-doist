@@ -567,15 +567,6 @@ focus =
 
 
 
--- Maybe IET
-
-
-persistMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd Msg
-persistMaybeInlineEditTodoCmd maybeIET =
-    maybeIET |> MX.unwrap Cmd.none persistInlineEditTodoCmd
-
-
-
 -- IET
 
 
@@ -621,7 +612,8 @@ startEditingTodoId todoId model =
         Just todo ->
             let
                 persistOldIETCmd =
-                    persistMaybeInlineEditTodoCmd model.inlineEditTodo
+                    model.inlineEditTodo
+                        |> MX.unwrap Cmd.none persistInlineEditTodoCmd
             in
             ( setInlineEditTodo (InlineEditTodo.fromTodo todo) model
             , Cmd.batch
