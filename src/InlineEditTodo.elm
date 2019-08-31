@@ -47,7 +47,7 @@ type alias ModelRecord =
     { todo : Todo
     , title : Maybe String
     , dueAt : Maybe DueAt
-    , isScheduling : Bool
+    , isSchedulePopupOpen : Bool
     }
 
 
@@ -61,7 +61,7 @@ maybeEncoder =
 
 
 encoder : Model -> Value
-encoder (Model { todo, title, dueAt, isScheduling }) =
+encoder (Model { todo, title, dueAt, isSchedulePopupOpen }) =
     let
         maybeNull : (a -> Value) -> Maybe a -> Value
         maybeNull enc =
@@ -71,7 +71,7 @@ encoder (Model { todo, title, dueAt, isScheduling }) =
         [ ( "todo", Todo.encoder todo )
         , ( "title", maybeNull JE.string title )
         , ( "dueAt", maybeNull Todo.dueAtEncoder dueAt )
-        , ( "isScheduling", JE.bool isScheduling )
+        , ( "isScheduling", JE.bool isSchedulePopupOpen )
         ]
 
 
@@ -92,7 +92,7 @@ fromRecord =
 
 fromTodo : Todo -> Model
 fromTodo todo =
-    { todo = todo, title = Nothing, dueAt = Nothing, isScheduling = False } |> fromRecord
+    { todo = todo, title = Nothing, dueAt = Nothing, isSchedulePopupOpen = False } |> fromRecord
 
 
 setDueAt : DueAt -> Model -> Model
@@ -109,7 +109,7 @@ setTitle title (Model modelRecord) =
 
 setIsScheduling : Bool -> Model -> Model
 setIsScheduling bool (Model modelRecord) =
-    { modelRecord | isScheduling = bool }
+    { modelRecord | isSchedulePopupOpen = bool }
         |> Model
 
 
@@ -140,9 +140,9 @@ firstFocusableDomId =
     "inline-edit-todo__first-focusable"
 
 
-isSchedulePopupOpen : Model -> Bool
-isSchedulePopupOpen (Model { isScheduling }) =
-    isScheduling
+getIsSchedulePopupOpen : Model -> Bool
+getIsSchedulePopupOpen (Model { isSchedulePopupOpen }) =
+    isSchedulePopupOpen
 
 
 type alias ViewConfig msg =
@@ -201,7 +201,7 @@ view conf here today model =
                     , class dueAtCls
                     , css [ minWidth <| px 100 ]
                     ]
-                , HX.viewIf (isSchedulePopupOpen model)
+                , HX.viewIf (getIsSchedulePopupOpen model)
                     (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
                 ]
     in
