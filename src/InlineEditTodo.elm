@@ -166,10 +166,42 @@ view :
     -> Model
     -> Html msg
 view conf here today model =
-    let
-        { openSchedulePopup, titleChanged, cancel, save } =
-            conf
+    div
+        [ class "pv3 ph2 "
+        , tabindex 0
+        , Key.onEscape conf.cancel
+        ]
+        [ div [ class "flex ba b--moon-gray" ]
+            [ viewTitleInput conf model
+            , viewDueAt conf here today model
+            ]
+        , div [ class "flex hs3 lh-copy" ]
+            [ TextButton.primary conf.save "Save" [ class "pa2" ]
+            , TextButton.secondary conf.cancel "Cancel" [ class "pa2" ]
+            ]
+        ]
 
+
+viewTitleInput : { a | titleChanged : String -> msg, save : msg } -> Model -> Html msg
+viewTitleInput conf model =
+    H.node "auto-resize-textarea"
+        [ class "flex-grow-1 flex br b--moon-gray" ]
+        [ textarea
+            [ A.id firstFocusableDomId
+            , class "pa1 flex-grow-1 lh-copy bn"
+            , value <| titleOrDefault model
+            , onInput conf.titleChanged
+            , Key.onEnter conf.save
+            , rows 1
+            , css [ resize none ]
+            , class "overflow-hidden"
+            ]
+            []
+        ]
+
+
+viewDueAt conf here today model =
+    let
         ( dueAtLabel, dueAtCls ) =
             dueAtOrDefault model
                 |> Todo.dueAtToMillis
@@ -178,47 +210,13 @@ view conf here today model =
                     (\mi ->
                         ( Millis.formatDate "MMM dd" here <| mi, "near-black" )
                     )
-
-        viewDueAt =
-            div [ class "flex relative" ]
-                [ TextButton.secondary openSchedulePopup
-                    dueAtLabel
-                    [ class "pa1"
-                    , class dueAtCls
-                    , css [ minWidth <| px 100 ]
-                    ]
-                , conf.viewSchedulePopup (getIsSchedulePopupOpen model) here today
-                ]
     in
-    div
-        [ class "pv3 ph2 "
-        , tabindex 0
-        , Key.onEscape cancel
-        ]
-        [ div [ class "flex ba b--moon-gray" ]
-            [ viewTitleInput titleChanged save (titleOrDefault model)
-            , viewDueAt
+    div [ class "flex relative" ]
+        [ TextButton.secondary conf.openSchedulePopup
+            dueAtLabel
+            [ class "pa1"
+            , class dueAtCls
+            , css [ minWidth <| px 100 ]
             ]
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary save "Save" [ class "pa2" ]
-            , TextButton.secondary cancel "Cancel" [ class "pa2" ]
-            ]
-        ]
-
-
-viewTitleInput : (String -> msg) -> msg -> String -> Html msg
-viewTitleInput onInput_ onEnter title =
-    H.node "auto-resize-textarea"
-        [ class "flex-grow-1 flex br b--moon-gray" ]
-        [ textarea
-            [ A.id firstFocusableDomId
-            , class "pa1 flex-grow-1 lh-copy bn"
-            , value title
-            , onInput onInput_
-            , Key.onEnter onEnter
-            , rows 1
-            , css [ resize none ]
-            , class "overflow-hidden"
-            ]
-            []
+        , conf.viewSchedulePopup (getIsSchedulePopupOpen model) here today
         ]
