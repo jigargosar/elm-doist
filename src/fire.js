@@ -1,6 +1,3 @@
-import firebase from 'firebase/app'
-import 'firebase/auth'
-
 import { invariant } from './invariant'
 
 const firebaseConfig = {
@@ -12,8 +9,6 @@ const firebaseConfig = {
   messagingSenderId: '476064436883',
   appId: '1:476064436883:web:bcd2d5b958a90fa6',
 }
-
-firebase.initializeApp(firebaseConfig)
 
 function Disposables() {
   const disposables = []
@@ -28,9 +23,25 @@ function Disposables() {
   }
 }
 
-export function Fire() {
+export async function Fire() {
+  const firebase = await import(
+    /* webpackPrefetch: true
+    , webpackChunkName: "firebase/app" */
+    'firebase/app'
+  )
+  await import(
+    /* webpackPrefetch: true
+    , webpackChunkName: "firebase/auth" */
+    'firebase/auth'
+  )
+
+  firebase.initializeApp(firebaseConfig)
   const auth = firebase.auth()
-  const dbPromise = import(/* webpackPrefetch: true */'firebase/firestore').then(()=>firebase.firestore())
+  const dbPromise = import(
+    /* webpackPrefetch: true
+    , webpackChunkName: "firebase/firestore" */
+    'firebase/firestore'
+  ).then(() => firebase.firestore())
   const authChangeDisposables = Disposables()
   const namedDisposables = {}
 
@@ -68,14 +79,14 @@ export function Fire() {
     },
     addDisposerWithId(id, disposer) {
       const prevDisposer = namedDisposables[id]
-      if(prevDisposer){
+      if (prevDisposer) {
         prevDisposer()
       }
       namedDisposables[id] = disposer
     },
-    disposeNamed(id){
+    disposeNamed(id) {
       const prevDisposer = namedDisposables[id]
-      if(prevDisposer){
+      if (prevDisposer) {
         prevDisposer()
         delete namedDisposables[id]
       }

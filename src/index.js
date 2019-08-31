@@ -2,6 +2,7 @@ import 'tachyons'
 import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
+import {Fire} from './fire'
 
 import {
   forEachObjIndexed,
@@ -68,7 +69,7 @@ const app = Elm.Main.init({
     now: Date.now(),
   },
 })
-const firePromise = import('./fire').then(({Fire})=> Fire())
+const firePromise = Fire()
 
 const pubs = initPubs({
   onAuthStateChanged: identity,
