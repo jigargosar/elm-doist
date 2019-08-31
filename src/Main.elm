@@ -1128,12 +1128,17 @@ pendingForProjectContent pid title model displayTodoList =
             [ div [ class "b flex-grow-1" ] [ text title ]
             , TextButton.primary (OnAddTodoStart pid) "add task" []
             ]
-        , div [ class "" ] (List.map (viewTodoItem model) displayTodoList)
+        , div [ class "" ] (viewTodoItems model displayTodoList)
         ]
 
 
 
 -- TodoItem
+
+
+viewTodoItems : Model -> List Todo -> List (Html Msg)
+viewTodoItems model =
+    List.map (viewTodoItem model)
 
 
 viewTodoItem : Model -> Todo -> Html Msg
