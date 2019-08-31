@@ -556,15 +556,6 @@ setMaybeInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
 
-persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
-persistInlineEditTodoCmd edt =
-    InlineEditTodo.toUpdateMessages edt
-        |> MX.unwrap Cmd.none
-            (\( todo, todoUpdateMsgList ) ->
-                patchTodoCmd todo.id todoUpdateMsgList
-            )
-
-
 startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
     case findTodoById todoId model of
@@ -581,6 +572,15 @@ startEditingTodoId todoId model =
                 |> setMaybeInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
                 |> command (focus InlineEditTodo.firstFocusableDomId)
                 |> command persistCmd
+
+
+persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
+persistInlineEditTodoCmd edt =
+    InlineEditTodo.toUpdateMessages edt
+        |> MX.unwrap Cmd.none
+            (\( todo, todoUpdateMsgList ) ->
+                patchTodoCmd todo.id todoUpdateMsgList
+            )
 
 
 setMaybeInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
