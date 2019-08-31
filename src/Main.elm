@@ -235,6 +235,45 @@ type InlineEditTodoMsg
     | IETSave
 
 
+updateInlineEditTodo : InlineEditTodoMsg -> Model -> Return
+updateInlineEditTodo msg model =
+    case model.inlineEditTodo of
+        Nothing ->
+            pure model
+
+        Just edt ->
+            case msg of
+                IETCancel ->
+                    setInlineEditTodoAndCache Nothing model
+
+                IETSave ->
+                    persistMaybeInlineEditTodo model
+                        |> andThen (setInlineEditTodoAndCache Nothing)
+
+                IETTitleChanged title ->
+                    model
+                        |> updateInlineEditTodoAndCache
+                            (InlineEditTodo.setTitle title)
+
+                IETOpenSchedulePopup ->
+                    model
+                        |> updateInlineEditTodoAndCache
+                            (InlineEditTodo.setIsScheduling True)
+                        |> command (focus schedulePopupFirstFocusableDomId)
+
+                IETCloseSchedulePopup ->
+                    model
+                        |> updateInlineEditTodoAndCache
+                            (InlineEditTodo.setIsScheduling False)
+
+                IETDueAtSelected dueAt ->
+                    model
+                        |> updateInlineEditTodoAndCache
+                            (InlineEditTodo.setDueAt dueAt
+                                >> InlineEditTodo.setIsScheduling False
+                            )
+
+
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -410,41 +449,7 @@ update message model =
             startEditingTodoId todoId model
 
         OnInlineEditTodoMsg msg ->
-            case model.inlineEditTodo of
-                Nothing ->
-                    pure model
-
-                Just edt ->
-                    case msg of
-                        IETCancel ->
-                            setInlineEditTodoAndCache Nothing model
-
-                        IETSave ->
-                            persistMaybeInlineEditTodo model
-                                |> andThen (setInlineEditTodoAndCache Nothing)
-
-                        IETTitleChanged title ->
-                            model
-                                |> updateInlineEditTodoAndCache
-                                    (InlineEditTodo.setTitle title)
-
-                        IETOpenSchedulePopup ->
-                            model
-                                |> updateInlineEditTodoAndCache
-                                    (InlineEditTodo.setIsScheduling True)
-                                |> command (focus schedulePopupFirstFocusableDomId)
-
-                        IETCloseSchedulePopup ->
-                            model
-                                |> updateInlineEditTodoAndCache
-                                    (InlineEditTodo.setIsScheduling False)
-
-                        IETDueAtSelected dueAt ->
-                            model
-                                |> updateInlineEditTodoAndCache
-                                    (InlineEditTodo.setDueAt dueAt
-                                        >> InlineEditTodo.setIsScheduling False
-                                    )
+            updateInlineEditTodo msg model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
