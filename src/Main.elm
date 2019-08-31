@@ -620,12 +620,15 @@ startEditingTodoId todoId model =
 
         Just todo ->
             let
-                persistCmd =
+                persistOldIETCmd =
                     persistMaybeInlineEditTodoCmd model.inlineEditTodo
             in
-            Return.return model persistCmd
-                |> Return.andThen (setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo))
-                |> Return.command (focus InlineEditTodo.firstFocusableDomId)
+            ( setInlineEditTodo (InlineEditTodo.fromTodo todo) model
+            , Cmd.batch
+                [ persistOldIETCmd
+                , focus InlineEditTodo.firstFocusableDomId
+                ]
+            )
 
 
 
