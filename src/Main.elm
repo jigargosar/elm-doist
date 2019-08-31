@@ -1135,30 +1135,32 @@ pendingForProjectContent pid title model displayTodoList =
 -- TodoItem
 
 
-viewTodoItem :
-    Model
-    -> Todo
-    -> Html Msg
+viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
-    let
-        { inlineEditTodo, here } =
-            model
-
-        maybeEdt =
-            inlineEditTodo
-                |> MX.filter (InlineEditTodo.idEq todo.id)
-    in
-    case maybeEdt of
-        Just edt ->
-            edt
-                |> InlineEditTodo.view
-                    inlineEditTodoViewConfig
-                    model.here
-                    model.today
-                |> H.map OnInlineEditTodoMsg
+    case
+        viewInlineEditTodoForTodoId
+            todo.id
+            model.here
+            model.today
+            model.inlineEditTodo
+    of
+        Just view_ ->
+            view_
 
         Nothing ->
             viewTodoItemBase model todo
+
+
+viewInlineEditTodoForTodoId todoId here today inlineEditTodo =
+    inlineEditTodo
+        |> MX.filter (InlineEditTodo.idEq todoId)
+        |> Maybe.map
+            (InlineEditTodo.view
+                inlineEditTodoViewConfig
+                here
+                today
+                >> H.map OnInlineEditTodoMsg
+            )
 
 
 inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
