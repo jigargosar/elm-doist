@@ -36,13 +36,12 @@ import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Result.Extra as RX
-import Return
+import Return exposing (andThen, command, return)
 import Route exposing (Route)
 import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
-import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -51,7 +50,7 @@ import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.Key as Key
 import UI.TextButton as TextButton
-import UpdateExtra exposing (andThen, command, effect, pure)
+import UpdateExtra exposing (pure)
 import Url exposing (Url)
 
 
@@ -625,10 +624,9 @@ startEditingTodoId todoId model =
                 persistCmd =
                     persistMaybeInlineEditTodoCmd model.inlineEditTodo
             in
-            model
-                |> setMaybeInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
+            return model persistCmd
+                |> andThen (setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo))
                 |> command (focus InlineEditTodo.firstFocusableDomId)
-                |> command persistCmd
 
 
 
