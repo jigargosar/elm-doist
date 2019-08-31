@@ -1092,8 +1092,7 @@ todayContent model =
                                 [ text "Overdue" ]
                             ]
                         , div [ class "" ]
-                            (List.map
-                                (viewTodoItem model)
+                            (viewTodoItems model
                                 overDueList
                             )
                         ]
@@ -1104,8 +1103,7 @@ todayContent model =
                 , TextButton.primary OnAddTodoTodayStart "add task" []
                 ]
             , div [ class "" ]
-                (List.map
-                    (viewTodoItem model)
+                (viewTodoItems model
                     displayTodoList
                 )
             ]
@@ -1138,23 +1136,23 @@ pendingForProjectContent pid title model displayTodoList =
 
 viewTodoItems : Model -> List Todo -> List (Html Msg)
 viewTodoItems model =
-    List.map (viewTodoItem model)
+    let
+        viewTodoItem : Todo -> Html Msg
+        viewTodoItem todo =
+            case
+                viewInlineEditTodoForTodoId
+                    todo.id
+                    model.here
+                    model.today
+                    model.inlineEditTodo
+            of
+                Just view_ ->
+                    view_
 
-
-viewTodoItem : Model -> Todo -> Html Msg
-viewTodoItem model todo =
-    case
-        viewInlineEditTodoForTodoId
-            todo.id
-            model.here
-            model.today
-            model.inlineEditTodo
-    of
-        Just view_ ->
-            view_
-
-        Nothing ->
-            viewTodoItemBase model todo
+                Nothing ->
+                    viewTodoItemBase model todo
+    in
+    List.map viewTodoItem
 
 
 viewInlineEditTodoForTodoId :
