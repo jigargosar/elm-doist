@@ -200,6 +200,15 @@ viewTitleInput conf model =
         ]
 
 
+viewDueAt :
+    { a
+        | openSchedulePopup : msg
+        , viewSchedulePopup : Bool -> Zone -> c -> Html msg
+    }
+    -> Zone
+    -> c
+    -> Model
+    -> Html msg
 viewDueAt conf here today model =
     let
         ( dueAtLabel, dueAtCls ) =
