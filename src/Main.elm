@@ -1266,20 +1266,17 @@ viewTodoItemDueAt todo here today schedulePopup =
             OpenSchedulePopupClicked InTodoItem todo.id
     in
     div [ class "flex-shrink-0 relative flex" ]
-        [ todo
-            |> Todo.dueMilli
-            |> MX.unpack
-                (\_ ->
-                    IconButton.view action
-                        [ class "pa2 child" ]
-                        FAR.calendarPlus
-                        []
-                )
-                (\dueMillis ->
-                    TextButton.view action
-                        (Millis.formatDate "MMM dd" here dueMillis)
-                        [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-                )
+        [ case Todo.dueMilli todo of
+            Nothing ->
+                IconButton.view action
+                    [ class "pa2 child" ]
+                    FAR.calendarPlus
+                    []
+
+            Just dueMillis ->
+                TextButton.view action
+                    (Millis.formatDate "MMM dd" here dueMillis)
+                    [ class "pa2 flex-shrink-0 f7 lh-copy" ]
         , HX.viewIf (isPopupOpenFor ( InTodoItem, todo.id ) schedulePopup)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
