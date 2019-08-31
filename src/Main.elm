@@ -215,10 +215,8 @@ init encodedFlags url key =
             , browserSize = BrowserSize.initial
             }
     in
-    model
-        |> Return.singleton
+    ( model, Millis.hereCmd OnHere )
         |> Return.andThen (updateFromEncodedFlags encodedFlags)
-        |> Return.command (Millis.hereCmd OnHere)
 
 
 
