@@ -182,7 +182,10 @@ view conf here today model =
         ]
 
 
-viewTitleInput : { a | titleChanged : String -> msg, save : msg } -> Model -> Html msg
+viewTitleInput :
+    ViewConfig msg
+    -> Model
+    -> Html msg
 viewTitleInput conf model =
     H.node "auto-resize-textarea"
         [ class "flex-grow-1 flex br b--moon-gray" ]
@@ -201,12 +204,9 @@ viewTitleInput conf model =
 
 
 viewDueAt :
-    { a
-        | openSchedulePopup : msg
-        , viewSchedulePopup : Bool -> Zone -> c -> Html msg
-    }
+    ViewConfig msg
     -> Zone
-    -> c
+    -> Calendar.Date
     -> Model
     -> Html msg
 viewDueAt conf here today model =
