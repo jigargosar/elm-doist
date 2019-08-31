@@ -2,7 +2,7 @@ import 'tachyons'
 import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
-import { Fire } from './fire'
+
 import {
   forEachObjIndexed,
   identity,
@@ -68,14 +68,14 @@ const app = Elm.Main.init({
     now: Date.now(),
   },
 })
-const fire = Fire()
+const firePromise = import('./fire').then(({Fire})=> Fire())
 
 const pubs = initPubs({
   onAuthStateChanged: identity,
   onFirestoreQueryResponse: identity,
 })
 
-fire.onAuthStateChanged(pubs.onAuthStateChanged)
+firePromise.then(fire=> fire.onAuthStateChanged(pubs.onAuthStateChanged))
 
 function resizeTextArea(el) {
   el.style.height = 'auto'
@@ -87,15 +87,16 @@ function resizeTextAreaOnInputListener(ev) {
 }
 
 function dynamicImportPrefetchFaker() {
-  return import(/* webpackPrefetch: true */ 'faker')
+  return import(/* webpackPrefetch: true, webpackChunkName: "faker"  */ 'faker')
 }
 
 initSubs({
   localStorageSetJsonItem,
-  signIn: () => fire.signIn(),
-  signOut: () => fire.signOut(),
+  signIn: async () => (await firePromise).signIn(),
+  signOut: async () => (await firePromise).signOut(),
   queryFirestore: async options => {
-    const cRef = fire.userCRef(options.userCollectionName)
+    const fire = await firePromise
+    const cRef = await fire.userCRef(options.userCollectionName)
     const query = options.whereClause.reduce(
       (query, [fieldPath, op, value]) => {
         return query.where(fieldPath, op, value)
@@ -111,20 +112,24 @@ initSubs({
       }),
     )
   },
-  disposeFirestoreQuery: id => {
+  disposeFirestoreQuery: async id => {
+    const fire = await firePromise
     fire.disposeNamed(id)
   },
-  updateFirestoreDoc: options => {
-    const doc = fire.userDocRef(options.userDocPath)
+  updateFirestoreDoc: async options => {
+    const fire = await firePromise
+    const doc = await fire.userDocRef(options.userDocPath)
     return doc.update(options.data)
   },
-  deleteFirestoreDoc: options => {
-    const doc = fire.userDocRef(options.userDocPath)
+  deleteFirestoreDoc: async options => {
+    const fire = await firePromise
+    const doc = await fire.userDocRef(options.userDocPath)
     return doc.delete()
   },
   addFirestoreDoc: async options => {
     const faker = await dynamicImportPrefetchFaker()
-    const cRef = fire.userCRef(options.userCollectionName)
+    const fire = await firePromise
+    const cRef = await fire.userCRef(options.userCollectionName)
 
     const docRef = cRef.doc()
 

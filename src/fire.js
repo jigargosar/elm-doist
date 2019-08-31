@@ -1,6 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
-import 'firebase/firestore'
+
 import { invariant } from './invariant'
 
 const firebaseConfig = {
@@ -30,7 +30,7 @@ function Disposables() {
 
 export function Fire() {
   const auth = firebase.auth()
-  const db = firebase.firestore()
+  const dbPromise = import(/* webpackPrefetch: true */'firebase/firestore').then(()=>firebase.firestore())
   const authChangeDisposables = Disposables()
   const namedDisposables = {}
 
@@ -52,16 +52,18 @@ export function Fire() {
     disposeOnAuthChange(fn) {
       authChangeDisposables.add(fn)
     },
-    userCRef(name) {
+    async userCRef(name) {
       const uid = auth.currentUser.uid
       invariant(name.trim().length > 0)
       invariant(uid.trim().length > 0)
+      const db = await dbPromise
       return db.collection(`users/${uid}/${name}`)
     },
-    userDocRef(userDocPath) {
+    async userDocRef(userDocPath) {
       const uid = auth.currentUser.uid
       invariant(userDocPath.trim().length > 0)
       invariant(uid.trim().length > 0)
+      const db = await dbPromise
       return db.doc(`users/${uid}/${userDocPath}`)
     },
     addDisposerWithId(id, disposer) {
