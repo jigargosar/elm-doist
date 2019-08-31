@@ -523,9 +523,15 @@ handleFirestoreQueryResponse qs model =
     in
     case qs.id of
         "todoList" ->
-            decodeAndUpdate
-                Todo.listDecoder
-                updateTodoListFromFirestore
+            case JD.decodeValue Todo.listDecoder qs.docDataList of
+                Ok todoList ->
+                    ( setTodoList todoList model
+                    , Ports.localStorageSetJsonItem
+                        ( "cachedTodoList", Todo.listEncoder todoList )
+                    )
+
+                Err error ->
+                    ( HasErrors.addDecodeError error model, Cmd.none )
 
         "projectList" ->
             decodeAndUpdate
@@ -701,16 +707,6 @@ updateFromEncodedFlags encodedFlags model =
 setTodoList : TodoList -> Model -> Model
 setTodoList todoList model =
     { model | todoList = todoList }
-
-
-updateTodoListFromFirestore : TodoList -> Model -> Return
-updateTodoListFromFirestore todoList model =
-    setTodoList todoList model
-        |> Return.singleton
-        |> Return.command
-            (Ports.localStorageSetJsonItem
-                ( "cachedTodoList", Todo.listEncoder todoList )
-            )
 
 
 setProjectList : ProjectList -> Model -> Model
