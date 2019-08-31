@@ -213,10 +213,7 @@ view conf here today model =
         , tabindex 0
         , Key.onEscape cancel
         ]
-        [ div [ class "flex" ]
-            [ viewIP
-            , viewDue
-            ]
+        [ div [ class "flex" ] [ viewIP, viewDue ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary save "Save" [ class "pa2" ]
             , TextButton.secondary cancel "Cancel" [ class "pa2" ]
