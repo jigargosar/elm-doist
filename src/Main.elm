@@ -236,13 +236,13 @@ type InlineEditTodoMsg
 
 
 updateInlineEditTodo : InlineEditTodoMsg -> Model -> Return
-updateInlineEditTodo msg model =
+updateInlineEditTodo message model =
     case model.inlineEditTodo of
         Nothing ->
             pure model
 
         Just edt ->
-            case msg of
+            case message of
                 IETCancel ->
                     setInlineEditTodoAndCache Nothing model
 
