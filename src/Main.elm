@@ -236,8 +236,8 @@ type InlineEditTodoMsg
 updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
 updateInlineEditTodo message edt model =
     let
-        mapAndCache fn =
-            setMaybeInlineEditTodoAndCache (Just <| fn edt)
+        setAndCache fn =
+            setInlineEditTodoAndCache (fn edt)
 
         resetAndCache =
             setMaybeInlineEditTodoAndCache Nothing
@@ -251,22 +251,22 @@ updateInlineEditTodo message edt model =
                 |> Return.command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
-            model |> mapAndCache (InlineEditTodo.setTitle title)
+            model |> setAndCache (InlineEditTodo.setTitle title)
 
         IETOpenSchedulePopup ->
             model
-                |> mapAndCache
+                |> setAndCache
                     (InlineEditTodo.setIsSchedulePopupOpen True)
                 |> Return.command (focus schedulePopupFirstFocusableDomId)
 
         IETCloseSchedulePopup ->
             model
-                |> mapAndCache
+                |> setAndCache
                     (InlineEditTodo.setIsSchedulePopupOpen False)
 
         IETDueAtSelected dueAt ->
             model
-                |> mapAndCache
+                |> setAndCache
                     (InlineEditTodo.setDueAt dueAt
                         >> InlineEditTodo.setIsSchedulePopupOpen False
                     )
