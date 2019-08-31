@@ -175,7 +175,7 @@ view conf here today model =
 
         viewTitleInput =
             H.node "auto-resize-textarea"
-                [ class "flex-grow-1 flex ba b--moon-gray" ]
+                [ class "flex-grow-1 flex br b--moon-gray" ]
                 [ textarea
                     [ A.id firstFocusableDomId
                     , class "pa1 flex-grow-1 lh-copy bn"
