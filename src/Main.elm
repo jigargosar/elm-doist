@@ -1261,35 +1261,30 @@ viewTodoItemDueAt :
     -> SchedulePopupModel
     -> Html Msg
 viewTodoItemDueAt todo here today schedulePopup =
+    let
+        action =
+            OpenSchedulePopupClicked InTodoItem todo.id
+    in
     div [ class "flex-shrink-0 relative flex" ]
-        [ viewDueAtHelp here todo
+        [ todo
+            |> Todo.dueMilli
+            |> MX.unpack
+                (\_ ->
+                    IconButton.view action
+                        [ class "pa2 child" ]
+                        FAR.calendarPlus
+                        []
+                )
+                (\dueMillis ->
+                    TextButton.view action
+                        (Millis.formatDate "MMM dd" here dueMillis)
+                        [ class "pa2 flex-shrink-0 f7 lh-copy" ]
+                )
         , HX.viewIf (isPopupOpenFor ( InTodoItem, todo.id ) schedulePopup)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )
         ]
-
-
-viewDueAtHelp : Zone -> Todo -> Html Msg
-viewDueAtHelp here todo =
-    let
-        action =
-            OpenSchedulePopupClicked InTodoItem todo.id
-    in
-    todo
-        |> Todo.dueMilli
-        |> MX.unpack
-            (\_ ->
-                IconButton.view action
-                    [ class "pa2 child" ]
-                    FAR.calendarPlus
-                    []
-            )
-            (\dueMillis ->
-                TextButton.view action
-                    (Millis.formatDate "MMM dd" here dueMillis)
-                    [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-            )
 
 
 viewCheck : Bool -> (Bool -> msg) -> Html msg
