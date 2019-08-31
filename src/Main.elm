@@ -511,16 +511,6 @@ handleFirestoreQueryResponse :
     -> Model
     -> Return
 handleFirestoreQueryResponse qs model =
-    let
-        decodeAndUpdate decoder successFn =
-            model
-                |> decodeValueAndUnpack
-                    ( decoder
-                    , successFn
-                    , onDecodeError
-                    )
-                    qs.docDataList
-    in
     case qs.id of
         "todoList" ->
             case JD.decodeValue Todo.listDecoder qs.docDataList of
