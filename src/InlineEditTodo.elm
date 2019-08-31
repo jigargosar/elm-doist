@@ -172,7 +172,7 @@ view conf here today model =
             dueAtOrDefault model
                 |> Todo.dueAtToMillis
 
-        viewIP =
+        viewTitleInput =
             H.node "auto-resize-textarea"
                 [ class "flex-grow-1 flex ba b--moon-gray" ]
                 [ textarea
@@ -196,7 +196,7 @@ view conf here today model =
                         ( Millis.formatDate "MMM dd" here <| mi, "near-black" )
                     )
 
-        viewDue =
+        viewDueAt =
             div [ class "flex relative" ]
                 [ TextButton.secondary openSchedulePopup
                     txt
@@ -213,7 +213,7 @@ view conf here today model =
         , tabindex 0
         , Key.onEscape cancel
         ]
-        [ div [ class "flex" ] [ viewIP, viewDue ]
+        [ div [ class "flex" ] [ viewTitleInput, viewDueAt ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary save "Save" [ class "pa2" ]
             , TextButton.secondary cancel "Cancel" [ class "pa2" ]
