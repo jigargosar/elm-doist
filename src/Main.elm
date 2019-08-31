@@ -1143,7 +1143,7 @@ viewTodoItems model =
                 model.inlineEditTodo
                     |> MX.filter (InlineEditTodo.idEq todo.id)
                     |> Maybe.map
-                        (\_ -> HL.lazy3 viewInlineEditTodo model.here model.today model.inlineEditTodo)
+                        (HL.lazy3 viewInlineEditTodo model.here model.today)
             of
                 Just view_ ->
                     view_
@@ -1157,21 +1157,14 @@ viewTodoItems model =
 viewInlineEditTodo :
     Zone
     -> Calendar.Date
-    -> Maybe InlineEditTodo.Model
+    -> InlineEditTodo.Model
     -> Html Msg
-viewInlineEditTodo here today inlineEditTodo =
-    case inlineEditTodo of
-        Just edt ->
-            edt
-                |> (InlineEditTodo.view
-                        inlineEditTodoViewConfig
-                        here
-                        today
-                        >> H.map OnInlineEditTodoMsg
-                   )
-
-        Nothing ->
-            HX.empty
+viewInlineEditTodo here today =
+    InlineEditTodo.view
+        inlineEditTodoViewConfig
+        here
+        today
+        >> H.map OnInlineEditTodoMsg
 
 
 inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
