@@ -794,13 +794,6 @@ type alias StyledDocument msg =
 
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
-    let
-        viewInlineEditTodoForTodoId_ todoId =
-            viewInlineEditTodoForTodoId todoId
-                model.here
-                model.today
-                model.inlineEditTodo
-    in
     case route of
         Route.Inbox ->
             let
