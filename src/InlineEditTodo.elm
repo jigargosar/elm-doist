@@ -170,16 +170,13 @@ view conf here today model =
         { openSchedulePopup, titleChanged, cancel, save } =
             conf
 
-        titleValue =
-            titleOrDefault model
-
         viewTitleInput =
             H.node "auto-resize-textarea"
                 [ class "flex-grow-1 flex br b--moon-gray" ]
                 [ textarea
                     [ A.id firstFocusableDomId
                     , class "pa1 flex-grow-1 lh-copy bn"
-                    , value titleValue
+                    , value <| titleOrDefault model
                     , onInput titleChanged
                     , Key.onEnter save
                     , rows 1
