@@ -237,33 +237,38 @@ type InlineEditTodoMsg
 
 updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
 updateInlineEditTodo message edt model =
+    let
+        mapAndCache fn =
+            setInlineEditTodoAndCache (Just <| fn edt)
+
+        resetAndCache =
+            setInlineEditTodoAndCache Nothing
+    in
     case message of
         IETCancel ->
-            setInlineEditTodoAndCache Nothing model
+            resetAndCache model
 
         IETSave ->
-            persistMaybeInlineEditTodo model
-                |> andThen (setInlineEditTodoAndCache Nothing)
+            resetAndCache model
+                |> command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
-            model
-                |> updateInlineEditTodoAndCache
-                    (InlineEditTodo.setTitle title)
+            model |> mapAndCache (InlineEditTodo.setTitle title)
 
         IETOpenSchedulePopup ->
             model
-                |> updateInlineEditTodoAndCache
+                |> mapAndCache
                     (InlineEditTodo.setIsSchedulePopupOpen True)
                 |> command (focus schedulePopupFirstFocusableDomId)
 
         IETCloseSchedulePopup ->
             model
-                |> updateInlineEditTodoAndCache
+                |> mapAndCache
                     (InlineEditTodo.setIsSchedulePopupOpen False)
 
         IETDueAtSelected dueAt ->
             model
-                |> updateInlineEditTodoAndCache
+                |> mapAndCache
                     (InlineEditTodo.setDueAt dueAt
                         >> InlineEditTodo.setIsSchedulePopupOpen False
                     )
