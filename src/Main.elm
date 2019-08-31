@@ -1179,9 +1179,20 @@ schedulePopupConfig =
 
 viewSchedulePopup : SchedulePopupLocation -> TodoId -> Model -> Html Msg
 viewSchedulePopup loc todoId model =
-    HX.viewIf (isPopupOpenFor ( loc, todoId ) model.schedulePopup)
+    viewSchedulePopupHelp loc todoId model.here model.today model.schedulePopup
+
+
+viewSchedulePopupHelp :
+    SchedulePopupLocation
+    -> TodoId
+    -> Zone
+    -> Calendar.Date
+    -> SchedulePopupModel
+    -> Html Msg
+viewSchedulePopupHelp loc todoId here today schedulePopup =
+    HX.viewIf (isPopupOpenFor ( loc, todoId ) schedulePopup)
         (\_ ->
-            SchedulePopup.view schedulePopupConfig model.here model.today
+            SchedulePopup.view schedulePopupConfig here today
         )
 
 
