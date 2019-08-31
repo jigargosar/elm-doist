@@ -204,6 +204,8 @@ view conf here today model =
                     , class cls
                     , css [ minWidth <| px 100 ]
                     ]
+                , HX.viewIf (isSchedulePopupVisible model)
+                    (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
                 ]
     in
     div
@@ -219,6 +221,4 @@ view conf here today model =
             [ TextButton.primary save "Save" [ class "pa2" ]
             , TextButton.secondary cancel "Cancel" [ class "pa2" ]
             ]
-        , HX.viewIf (isSchedulePopupVisible model)
-            (\_ -> SchedulePopup.view conf.schedulePopupConfig here today)
         ]
