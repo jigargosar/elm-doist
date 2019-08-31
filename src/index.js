@@ -86,6 +86,10 @@ function resizeTextAreaOnInputListener(ev) {
   resizeTextArea(ev.target)
 }
 
+function dynamicImportPrefetchFaker() {
+  return import(/* webpackPrefetch: true */ 'faker')
+}
+
 initSubs({
   localStorageSetJsonItem,
   signIn: () => fire.signIn(),
@@ -119,7 +123,7 @@ initSubs({
     return doc.delete()
   },
   addFirestoreDoc: async options => {
-    const faker = await import('faker')
+    const faker = await dynamicImportPrefetchFaker()
     const cRef = fire.userCRef(options.userCollectionName)
 
     const docRef = cRef.doc()
