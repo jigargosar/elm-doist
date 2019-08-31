@@ -556,26 +556,6 @@ setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
 
-updateInlineEditTodoAndCache :
-    (InlineEditTodo.Model -> InlineEditTodo.Model)
-    -> Model
-    -> Return
-updateInlineEditTodoAndCache mfn model =
-    setInlineEditTodo (Maybe.map mfn model.inlineEditTodo) model
-        |> pure
-        |> effect cacheInlineEditTodoEffect
-
-
-persistMaybeInlineEditTodo : Model -> Return
-persistMaybeInlineEditTodo model =
-    case model.inlineEditTodo of
-        Nothing ->
-            pure model
-
-        Just edt ->
-            ( model, persistInlineEditTodoCmd edt )
-
-
 persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
 persistInlineEditTodoCmd edt =
     InlineEditTodo.toUpdateMessages edt
@@ -592,8 +572,13 @@ startEditingTodoId todoId model =
             pure model
 
         Just todo ->
-            model
-                |> persistMaybeInlineEditTodo
+            (case model.inlineEditTodo of
+                Nothing ->
+                    pure model
+
+                Just edt ->
+                    ( model, persistInlineEditTodoCmd edt )
+            )
                 |> andThen (startEditingTodo todo)
 
 
