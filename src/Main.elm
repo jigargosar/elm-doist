@@ -534,12 +534,17 @@ handleFirestoreQueryResponse qs model =
                     ( HasErrors.addDecodeError error model, Cmd.none )
 
         "projectList" ->
-            decodeAndUpdate
-                Project.listDecoder
-                (\projectList ->
-                    updateProjectListFromFirestore projectList
-                 -- >> effect Fire.cleanupTodoList
-                )
+            case JD.decodeValue Project.listDecoder qs.docDataList of
+                Ok projectList ->
+                    ( setProjectList projectList model
+                    , Ports.localStorageSetJsonItem
+                        ( "cachedProjectList"
+                        , Project.listEncoder projectList
+                        )
+                    )
+
+                Err error ->
+                    ( HasErrors.addDecodeError error model, Cmd.none )
 
         _ ->
             HasErrors.add ("Invalid QueryId" ++ qs.id) model
@@ -712,16 +717,6 @@ setTodoList todoList model =
 setProjectList : ProjectList -> Model -> Model
 setProjectList projectList model =
     { model | projectList = projectList }
-
-
-updateProjectListFromFirestore : ProjectList -> Model -> Return
-updateProjectListFromFirestore projectList model =
-    ( setProjectList projectList model
-    , Ports.localStorageSetJsonItem
-        ( "cachedProjectList"
-        , Project.listEncoder projectList
-        )
-    )
 
 
 setAuthState : AuthState -> Model -> Model
