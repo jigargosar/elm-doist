@@ -3,6 +3,7 @@ module InlineEditTodo exposing
     , ViewConfig
     , decoder
     , dueAtOrDefault
+    , encoder
     , firstFocusableDomId
     , fromTodo
     , idEq

@@ -549,7 +549,7 @@ focus =
 
 
 
--- INLINE EDIT TODO_
+-- Maybe IET
 
 
 setMaybeInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
@@ -557,22 +557,48 @@ setMaybeInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = inlineEditTodo }
 
 
-startEditingTodoId : TodoId -> Model -> Return
-startEditingTodoId todoId model =
-    case findTodoById todoId model of
-        Nothing ->
-            pure model
+setMaybeInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
+setMaybeInlineEditTodoAndCache inlineEditTodo model =
+    ( setMaybeInlineEditTodo inlineEditTodo model
+    , cacheMaybeInlineEditTodoCmd inlineEditTodo
+    )
 
-        Just todo ->
-            let
-                persistCmd =
-                    model.inlineEditTodo
-                        |> MX.unwrap Cmd.none persistInlineEditTodoCmd
-            in
-            model
-                |> setMaybeInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
-                |> command (focus InlineEditTodo.firstFocusableDomId)
-                |> command persistCmd
+
+cacheMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
+cacheMaybeInlineEditTodoCmd inlineEditTodo =
+    Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , InlineEditTodo.maybeEncoder inlineEditTodo
+        )
+
+
+persistMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd Msg
+persistMaybeInlineEditTodoCmd maybeIET =
+    maybeIET |> MX.unwrap Cmd.none persistInlineEditTodoCmd
+
+
+
+-- IET
+
+
+setInlineEditTodo : InlineEditTodo.Model -> Model -> Model
+setInlineEditTodo inlineEditTodo model =
+    { model | inlineEditTodo = Just inlineEditTodo }
+
+
+setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
+setInlineEditTodoAndCache inlineEditTodo model =
+    ( setInlineEditTodo inlineEditTodo model
+    , cacheInlineEditTodoCmd inlineEditTodo
+    )
+
+
+cacheInlineEditTodoCmd : InlineEditTodo.Model -> Cmd msg
+cacheInlineEditTodoCmd inlineEditTodo =
+    Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , InlineEditTodo.encoder inlineEditTodo
+        )
 
 
 persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
@@ -584,19 +610,25 @@ persistInlineEditTodoCmd edt =
             )
 
 
-setMaybeInlineEditTodoAndCache : Maybe InlineEditTodo.Model -> Model -> Return
-setMaybeInlineEditTodoAndCache inlineEditTodo model =
-    ( setMaybeInlineEditTodo inlineEditTodo model
-    , cacheInlineEditTodoCmd inlineEditTodo
-    )
+
+-- IET + MAYBE IET
 
 
-cacheInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
-cacheInlineEditTodoCmd inlineEditTodo =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , InlineEditTodo.maybeEncoder inlineEditTodo
-        )
+startEditingTodoId : TodoId -> Model -> Return
+startEditingTodoId todoId model =
+    case findTodoById todoId model of
+        Nothing ->
+            pure model
+
+        Just todo ->
+            let
+                persistCmd =
+                    persistMaybeInlineEditTodoCmd model.inlineEditTodo
+            in
+            model
+                |> setMaybeInlineEditTodoAndCache (Just <| InlineEditTodo.fromTodo todo)
+                |> command (focus InlineEditTodo.firstFocusableDomId)
+                |> command persistCmd
 
 
 
