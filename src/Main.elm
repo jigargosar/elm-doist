@@ -303,6 +303,11 @@ type Msg
     | OnFirestoreQueryResponse FirestoreQueryResponse
     | OnSignInClicked
     | OnSignOutClicked
+      -- NewTodoOperations
+    | OnAddTodoStart ProjectId
+    | AddTodo ProjectId Millis
+    | OnAddTodoTodayStart
+    | AddTodoToday Millis
       -- ExistingTodoOperations
     | OnChecked TodoId Bool
     | OnDelete TodoId
@@ -315,14 +320,9 @@ type Msg
     | SchedulePopupDueAtSelected Todo.DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
-      -- TodoEditing
+      -- InlineTodoEditing
     | OnEditClicked TodoId
     | OnInlineEditTodoMsg InlineEditTodoMsg
-      -- NewTodoOperations
-    | OnAddTodoStart ProjectId
-    | AddTodo ProjectId Millis
-    | OnAddTodoTodayStart
-    | AddTodoToday Millis
       -- Project
     | OnDeleteProject ProjectId
     | OnAddProjectStart
