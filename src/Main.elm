@@ -238,60 +238,6 @@ type InlineEditTodoMsg
     | IETSave
 
 
-updateInlineEditTodo : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
-updateInlineEditTodo message edt model =
-    let
-        setAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
-        setAndCache fn =
-            setInlineEditTodoAndCache (fn edt)
-
-        resetInlineEditTodo : Model -> Model
-        resetInlineEditTodo =
-            setMaybeInlineEditTodo Nothing
-
-        resetInlineEditTodoCacheCmd : Cmd msg
-        resetInlineEditTodoCacheCmd =
-            Ports.localStorageSetJsonItem
-                ( "cachedInlineEditTodo"
-                , JE.null
-                )
-    in
-    case message of
-        IETCancel ->
-            ( resetInlineEditTodo model
-            , resetInlineEditTodoCacheCmd
-            )
-
-        IETSave ->
-            ( resetInlineEditTodo model
-            , Cmd.batch
-                [ persistInlineEditTodoCmd edt
-                , resetInlineEditTodoCacheCmd
-                ]
-            )
-
-        IETTitleChanged title ->
-            model |> setAndCache (InlineEditTodo.setTitle title)
-
-        IETOpenSchedulePopup ->
-            model
-                |> setAndCache
-                    (InlineEditTodo.setIsSchedulePopupOpen True)
-                |> Return.command (focus schedulePopupFirstFocusableDomId)
-
-        IETCloseSchedulePopup ->
-            model
-                |> setAndCache
-                    (InlineEditTodo.setIsSchedulePopupOpen False)
-
-        IETDueAtSelected dueAt ->
-            model
-                |> setAndCache
-                    (InlineEditTodo.setDueAt dueAt
-                        >> InlineEditTodo.setIsSchedulePopupOpen False
-                    )
-
-
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -472,7 +418,7 @@ update message model =
                     Return.singleton model
 
                 Just edt ->
-                    updateInlineEditTodo msg edt model
+                    onInlineEditTodoMsg msg edt model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -575,21 +521,6 @@ setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = Just inlineEditTodo }
 
 
-setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
-setInlineEditTodoAndCache inlineEditTodo model =
-    ( setInlineEditTodo inlineEditTodo model
-    , cacheInlineEditTodoCmd inlineEditTodo
-    )
-
-
-cacheInlineEditTodoCmd : InlineEditTodo.Model -> Cmd msg
-cacheInlineEditTodoCmd inlineEditTodo =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , InlineEditTodo.encoder inlineEditTodo
-        )
-
-
 persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
 persistInlineEditTodoCmd edt =
     InlineEditTodo.toUpdateMessages edt
@@ -617,6 +548,70 @@ startEditingTodoId todoId model =
                 , focus InlineEditTodo.firstFocusableDomId
                 ]
             )
+
+
+setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
+setInlineEditTodoAndCache inlineEditTodo model =
+    ( setInlineEditTodo inlineEditTodo model
+    , Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , InlineEditTodo.encoder inlineEditTodo
+        )
+    )
+
+
+onInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
+onInlineEditTodoMsg message edt model =
+    let
+        setAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
+        setAndCache fn =
+            setInlineEditTodoAndCache (fn edt)
+
+        resetInlineEditTodo : Model -> Model
+        resetInlineEditTodo =
+            setMaybeInlineEditTodo Nothing
+
+        resetInlineEditTodoCacheCmd : Cmd msg
+        resetInlineEditTodoCacheCmd =
+            Ports.localStorageSetJsonItem
+                ( "cachedInlineEditTodo"
+                , JE.null
+                )
+    in
+    case message of
+        IETCancel ->
+            ( resetInlineEditTodo model
+            , resetInlineEditTodoCacheCmd
+            )
+
+        IETSave ->
+            ( resetInlineEditTodo model
+            , Cmd.batch
+                [ persistInlineEditTodoCmd edt
+                , resetInlineEditTodoCacheCmd
+                ]
+            )
+
+        IETTitleChanged title ->
+            model |> setAndCache (InlineEditTodo.setTitle title)
+
+        IETOpenSchedulePopup ->
+            model
+                |> setAndCache
+                    (InlineEditTodo.setIsSchedulePopupOpen True)
+                |> Return.command (focus schedulePopupFirstFocusableDomId)
+
+        IETCloseSchedulePopup ->
+            model
+                |> setAndCache
+                    (InlineEditTodo.setIsSchedulePopupOpen False)
+
+        IETDueAtSelected dueAt ->
+            model
+                |> setAndCache
+                    (InlineEditTodo.setDueAt dueAt
+                        >> InlineEditTodo.setIsSchedulePopupOpen False
+                    )
 
 
 
