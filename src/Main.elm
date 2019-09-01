@@ -313,9 +313,9 @@ type Msg
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | OnMoveClicked TodoId
-    | OpenTodoPopupClicked TodoId
+    | OpenTodoPopup TodoId
     | CloseTodoPopup
-    | OpenSchedulePopupClicked SchedulePopupLocation TodoId
+    | OpenSchedulePopup SchedulePopupLocation TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
     | OnMoveToProject TodoId ProjectId
@@ -479,7 +479,7 @@ update message model =
                 |> MX.unwrap Return.singleton startMoving
                 |> callWith model
 
-        OpenSchedulePopupClicked loc todoId ->
+        OpenSchedulePopup loc todoId ->
             openPopup schedulePopupFirstFocusableDomId ( loc, todoId )
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
@@ -501,7 +501,7 @@ update message model =
             closePopup
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
-        OpenTodoPopupClicked todoId ->
+        OpenTodoPopup todoId ->
             openPopup todoPopupFirstFocusableDomId todoId
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
@@ -1191,7 +1191,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewTodoItemDueAt todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
-            [ IconButton.view (OpenTodoPopupClicked todo.id)
+            [ IconButton.view (OpenTodoPopup todo.id)
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
@@ -1240,7 +1240,7 @@ viewTodoPopupItems firstFocusable todoId model =
             [ class "pa2" ]
         ]
     , containerDiv
-        [ TextButton.view (OpenSchedulePopupClicked InTodoPopupMenu todoId)
+        [ TextButton.view (OpenSchedulePopup InTodoPopupMenu todoId)
             "Schedule"
             [ class "pa2" ]
         , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) model.schedulePopup)
@@ -1265,7 +1265,7 @@ viewTodoItemDueAt :
 viewTodoItemDueAt todo here today schedulePopup =
     let
         action =
-            OpenSchedulePopupClicked InTodoListItemDueDate todo.id
+            OpenSchedulePopup InTodoListItemDueDate todo.id
     in
     div [ class "flex-shrink-0 relative flex" ]
         [ case Todo.dueMilli todo of
