@@ -565,20 +565,11 @@ resetInlineEditTodoAndCache model =
 
 
 cacheMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
-cacheMaybeInlineEditTodoCmd inlineEditTodo =
-    let
-        cacheEncodedCmd value =
-            Ports.localStorageSetJsonItem
-                ( "cachedInlineEditTodo"
-                , value
-                )
-    in
-    case inlineEditTodo of
-        Just edt ->
-            cacheEncodedCmd <| InlineEditTodo.encoder edt
-
-        Nothing ->
-            cacheEncodedCmd JE.null
+cacheMaybeInlineEditTodoCmd maybeIET =
+    Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , maybeIET |> MX.unwrap JE.null InlineEditTodo.encoder
+        )
 
 
 onInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
