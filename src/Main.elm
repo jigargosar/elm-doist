@@ -521,10 +521,10 @@ setInlineEditTodo inlineEditTodo model =
     { model | inlineEditTodo = Just inlineEditTodo }
 
 
-persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
-persistInlineEditTodoCmd edt =
-    InlineEditTodo.toUpdateMessages edt
-        |> MX.unwrap Cmd.none
+persistMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd Msg
+persistMaybeInlineEditTodoCmd =
+    Maybe.andThen InlineEditTodo.toUpdateMessages
+        >> MX.unwrap Cmd.none
             (\( todo, todoUpdateMsgList ) ->
                 patchTodoCmd todo.id todoUpdateMsgList
             )
@@ -539,15 +539,15 @@ startEditingTodoId todoId model =
         Just todo ->
             let
                 persistOldIETCmd =
-                    model.inlineEditTodo
-                        |> MX.unwrap Cmd.none persistInlineEditTodoCmd
+                    persistMaybeInlineEditTodoCmd model.inlineEditTodo
             in
-            ( setInlineEditTodo (InlineEditTodo.fromTodo todo) model
-            , Cmd.batch
-                [ persistOldIETCmd
-                , focus InlineEditTodo.firstFocusableDomId
-                ]
-            )
+            setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo) model
+                |> command
+                    (Cmd.batch
+                        [ persistOldIETCmd
+                        , focus InlineEditTodo.firstFocusableDomId
+                        ]
+                    )
 
 
 setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
@@ -585,7 +585,7 @@ onInlineEditTodoMsg message edt model =
 
         IETSave ->
             resetInlineEditTodoAndCache model
-                |> command (persistInlineEditTodoCmd edt)
+                |> command (persistMaybeInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
             model |> setAndCache (InlineEditTodo.setTitle title)
