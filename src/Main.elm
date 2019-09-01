@@ -315,8 +315,8 @@ type Msg
     | SchedulePopupDueAtSelected Todo.DueAt
     | OnMoveToProject TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
+      -- EditTodo
     | OnEditClicked TodoId
-      -- TodoEditorMsg
     | OnInlineEditTodoMsg InlineEditTodoMsg
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
