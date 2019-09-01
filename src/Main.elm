@@ -553,23 +553,32 @@ startEditingTodoId todoId model =
 setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
 setInlineEditTodoAndCache inlineEditTodo model =
     ( setInlineEditTodo inlineEditTodo model
-    , cacheInlineEditTodoCmd
-        (InlineEditTodo.encoder inlineEditTodo)
+    , cacheMaybeInlineEditTodoCmd <| Just inlineEditTodo
     )
 
 
 resetInlineEditTodoAndCache : Model -> Return
 resetInlineEditTodoAndCache model =
     ( setMaybeInlineEditTodo Nothing model
-    , cacheInlineEditTodoCmd JE.null
+    , cacheMaybeInlineEditTodoCmd Nothing
     )
 
 
-cacheInlineEditTodoCmd encodedValue =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , encodedValue
-        )
+cacheMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
+cacheMaybeInlineEditTodoCmd inlineEditTodo =
+    let
+        cacheEncodedCmd value =
+            Ports.localStorageSetJsonItem
+                ( "cachedInlineEditTodo"
+                , value
+                )
+    in
+    case inlineEditTodo of
+        Just edt ->
+            cacheEncodedCmd <| InlineEditTodo.encoder edt
+
+        Nothing ->
+            cacheEncodedCmd JE.null
 
 
 onInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
