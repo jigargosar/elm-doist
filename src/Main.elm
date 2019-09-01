@@ -530,6 +530,11 @@ persistMaybeInlineEditTodoCmd =
             )
 
 
+persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
+persistInlineEditTodoCmd =
+    Just >> persistMaybeInlineEditTodoCmd
+
+
 startEditingTodoId : TodoId -> Model -> Return
 startEditingTodoId todoId model =
     case findTodoById todoId model of
@@ -585,7 +590,7 @@ onInlineEditTodoMsg message edt model =
 
         IETSave ->
             resetInlineEditTodoAndCache model
-                |> command (persistMaybeInlineEditTodoCmd edt)
+                |> command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
             model |> setAndCache (InlineEditTodo.setTitle title)
