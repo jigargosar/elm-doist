@@ -36,7 +36,7 @@ import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Result.Extra as RX
-import Return exposing (command)
+import Return
 import Route exposing (Route)
 import SchedulePopup
 import Skeleton
@@ -547,7 +547,7 @@ startEditingTodoId todoId model =
                     persistMaybeInlineEditTodoCmd model.inlineEditTodo
             in
             setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo) model
-                |> command
+                |> Return.command
                     (Cmd.batch
                         [ persistOldIETCmd
                         , focus InlineEditTodo.firstFocusableDomId
@@ -590,7 +590,7 @@ onInlineEditTodoMsg message edt model =
 
         IETSave ->
             resetInlineEditTodoAndCache model
-                |> command (persistInlineEditTodoCmd edt)
+                |> Return.command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
             model |> setAndCache (InlineEditTodo.setTitle title)
