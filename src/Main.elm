@@ -36,7 +36,7 @@ import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Result.Extra as RX
-import Return
+import Return exposing (command)
 import Route exposing (Route)
 import SchedulePopup
 import Skeleton
@@ -560,37 +560,30 @@ setInlineEditTodoAndCache inlineEditTodo model =
     )
 
 
+resetInlineEditTodoAndCache : Model -> Return
+resetInlineEditTodoAndCache model =
+    ( setMaybeInlineEditTodo Nothing model
+    , Ports.localStorageSetJsonItem
+        ( "cachedInlineEditTodo"
+        , JE.null
+        )
+    )
+
+
 onInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
 onInlineEditTodoMsg message edt model =
     let
         setAndCache : (InlineEditTodo.Model -> InlineEditTodo.Model) -> Model -> Return
         setAndCache fn =
             setInlineEditTodoAndCache (fn edt)
-
-        resetInlineEditTodo : Model -> Model
-        resetInlineEditTodo =
-            setMaybeInlineEditTodo Nothing
-
-        resetInlineEditTodoCacheCmd : Cmd msg
-        resetInlineEditTodoCacheCmd =
-            Ports.localStorageSetJsonItem
-                ( "cachedInlineEditTodo"
-                , JE.null
-                )
     in
     case message of
         IETCancel ->
-            ( resetInlineEditTodo model
-            , resetInlineEditTodoCacheCmd
-            )
+            resetInlineEditTodoAndCache model
 
         IETSave ->
-            ( resetInlineEditTodo model
-            , Cmd.batch
-                [ persistInlineEditTodoCmd edt
-                , resetInlineEditTodoCacheCmd
-                ]
-            )
+            resetInlineEditTodoAndCache model
+                |> command (persistInlineEditTodoCmd edt)
 
         IETTitleChanged title ->
             model |> setAndCache (InlineEditTodo.setTitle title)
