@@ -409,21 +409,6 @@ update message model =
                         model
 
         OnIETMsg msg ->
-            let
-                ietConfig : IET.Config Msg
-                ietConfig =
-                    { onSaveOrOverwrite =
-                        \todoId { title, dueAt } ->
-                            patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
-                    , focus = focus
-                    , onChanged =
-                        \encoded ->
-                            Ports.localStorageSetJsonItem
-                                ( "cachedInlineEditTodo"
-                                , encoded
-                                )
-                    }
-            in
             IET.update ietConfig msg model.iet
                 |> Tuple.mapFirst (\iet -> { model | iet = iet })
 
@@ -521,6 +506,24 @@ focus =
 
 
 -- IET
+
+
+ietConfig : IET.Config Msg
+ietConfig =
+    { onSaveOrOverwrite =
+        \todoId { title, dueAt } ->
+            patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
+    , focus = focus
+    , onChanged =
+        \encoded ->
+            Ports.localStorageSetJsonItem
+                ( "cachedInlineEditTodo"
+                , encoded
+                )
+    }
+
+
+
 -- SCHEDULE POPUP
 
 
