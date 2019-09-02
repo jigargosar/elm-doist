@@ -1069,21 +1069,42 @@ viewTodoItemBase model todo =
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , viewTodoPopup todo.id model
+            , HX.viewIf (isPopupOpenFor todo.id model.todoPopup)
+                (\_ ->
+                    viewTodoPopupContainer
+                        (viewTodoPopupMenuItems todoPopupFirstFocusableDomId
+                            todo.id
+                            model
+                        )
+                )
             ]
         ]
 
 
-viewTodoPopup : TodoId -> Model -> Html Msg
-viewTodoPopup todoId model =
-    HX.viewIf (isPopupOpenFor todoId model.todoPopup)
-        (\_ ->
-            viewTodoPopupContainer
-                (viewTodoPopupMenuItems todoPopupFirstFocusableDomId
-                    todoId
-                    model
-                )
-        )
+type alias TodoPopupView msg =
+    { edit : TodoId -> msg
+    , move : TodoId -> msg
+    , delete : TodoId -> msg
+    , schedule : TodoId -> msg
+    , close : msg
+    }
+
+
+viewTodoPopup : TodoPopupView msg -> TodoId -> Zone -> Calendar.Date -> TodoPopupModel -> Html msg
+viewTodoPopup config todoId zone today model =
+    if isPopupOpenFor todoId model then
+        H.node "track-focus-outside"
+            [ class "absolute right-0 top-1"
+            , class "bg-white shadow-1 w5"
+            , class "z-1" -- if removed; causes flickering with hover icons
+            , on "focusOutside" (JD.succeed config.close)
+            , Key.onEscape config.close
+            , tabindex -1
+            ]
+            []
+
+    else
+        HX.empty
 
 
 viewTodoPopupContainer =
