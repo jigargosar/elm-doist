@@ -1200,7 +1200,7 @@ viewTodoPopup todoId model =
     HX.viewIf (isPopupOpenFor todoId model.todoPopup)
         (\_ ->
             viewTodoPopupContainer
-                (viewTodoPopupItems todoPopupFirstFocusableDomId
+                (viewTodoPopupMenuItems todoPopupFirstFocusableDomId
                     todoId
                     model
                 )
@@ -1218,8 +1218,8 @@ viewTodoPopupContainer =
         ]
 
 
-viewTodoPopupItems : String -> TodoId -> Model -> List (Html Msg)
-viewTodoPopupItems firstFocusable todoId model =
+viewTodoPopupMenuItems : String -> TodoId -> Model -> List (Html Msg)
+viewTodoPopupMenuItems firstFocusable todoId model =
     let
         containerDiv =
             div [ class "relative" ]
