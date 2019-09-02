@@ -452,8 +452,12 @@ update message model =
                         \todoId { title, dueAt } ->
                             patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
                     , focus = focus
-                    , onChanged = OnIETChanged
-                    , toMsg = OnIETMsg
+                    , onChanged =
+                        \encoded ->
+                            Ports.localStorageSetJsonItem
+                                ( "cachedInlineEditTodo"
+                                , encoded
+                                )
                     }
             in
             IET.update ietConfig msg model.iet

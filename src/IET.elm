@@ -106,8 +106,7 @@ startEditing =
 type alias Config msg =
     { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> Cmd msg
     , focus : String -> Cmd msg
-    , onChanged : Value -> msg
-    , toMsg : Msg -> msg
+    , onChanged : Value -> Cmd msg
     }
 
 
