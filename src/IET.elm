@@ -15,7 +15,8 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onInput)
 import HtmlExtra as HX
-import Json.Encode exposing (Value)
+import Json.Decode as JD
+import Json.Encode as JE exposing (Value)
 import Maybe exposing (Maybe)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -31,6 +32,13 @@ import UI.TextButton as TextButton
 
 type Editable a
     = Editable a a
+
+
+editableEncoder valEncoder (Editable old new) =
+    JE.object
+        [ ( "old", valEncoder old )
+        , ( "new", valEncoder new )
+        ]
 
 
 getCurrent : Editable a -> a
@@ -68,6 +76,24 @@ initEdit todoId { title, dueAt } =
 type Model
     = Editing Edit
     | Closed
+
+
+encoder : Model -> Value
+encoder model =
+    case model of
+        Editing edit ->
+            JE.object
+                [ ( "tag", JE.string "Editing" )
+                , ( "todoId", TodoId.encoder edit.todoId )
+                , ( "title", editableEncoder JE.string edit.title )
+                , ( "dueAt", editableEncoder Todo.dueAtEncoder edit.dueAt )
+                , ( "isScheduling", JE.bool edit.schedulePopupOpened )
+                ]
+
+        Closed ->
+            JE.object
+                [ ( "tag", JE.string "Closed" )
+                ]
 
 
 initial : Model
@@ -160,9 +186,10 @@ update config message model =
         |> Return.effect_ (cacheIfChanged config model)
 
 
+cacheIfChanged : Config msg -> Model -> Model -> Cmd msg
 cacheIfChanged config oldModel newModel =
     if oldModel /= newModel then
-        Cmd.none
+        config.onChanged (encoder newModel)
 
     else
         Cmd.none
