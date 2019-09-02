@@ -1,4 +1,4 @@
-module IET exposing (Config, Model, update, viewEditingForTodoId)
+module IET exposing (Config, Model, Msg, initial, update, viewEditingForTodoId)
 
 import Browser.Dom as Dom
 import Calendar
@@ -47,6 +47,11 @@ type Model
     | Closed
 
 
+initial : Model
+initial =
+    Closed
+
+
 firstFocusableDomId =
     "inline-edit-todo__first-focusable"
 
@@ -77,16 +82,16 @@ update :
     Config msg
     -> Msg
     -> Model
-    -> ( Model, Cmd msg )
+    -> ( Model, Maybe msg )
 update config msg model =
     let
         nop =
             ( model, Cmd.none )
     in
     case model of
-        Editing rec ->
+        Editing edit ->
             case msg of
-                StartEditing todoId record ->
+                StartEditing todoId { title, dueAt } ->
                     nop
 
                 Cancel ->
@@ -162,13 +167,14 @@ viewConfig =
     }
 
 
-viewEditingForTodoId : TodoId -> Zone -> Calendar.Date -> Model -> Maybe (Html Msg)
-viewEditingForTodoId todoId zone today model =
+viewEditingForTodoId : (Msg -> msg) -> TodoId -> Zone -> Calendar.Date -> Model -> Maybe (Html msg)
+viewEditingForTodoId toMsg todoId zone today model =
     case model of
         Editing editModel ->
             if editModel.todoId == todoId then
                 Just <|
-                    viewEditing viewConfig zone today editModel
+                    H.map toMsg <|
+                        viewEditing viewConfig zone today editModel
 
             else
                 Nothing

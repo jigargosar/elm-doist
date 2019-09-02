@@ -25,6 +25,7 @@ import Html.Styled.Attributes as A exposing (checked, class, classList, css, dis
 import Html.Styled.Events exposing (on, onClick)
 import Html.Styled.Lazy as HL
 import HtmlExtra as HX
+import IET
 import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -157,6 +158,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineEditTodo : Maybe InlineEditTodo.Model
+    , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
     , dialog : Dialog.Model
@@ -203,6 +205,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineEditTodo = Nothing
+            , iet = IET.initial
             , todoPopup = initPopup
             , schedulePopup = initPopup
             , dialog = Dialog.init
@@ -269,6 +272,7 @@ type Msg
       -- InlineTodoEditing
     | OnEditClicked TodoId
     | OnInlineEditTodoMsg InlineEditTodoMsg
+    | OnIETMsg IET.Msg
       -- Project
     | OnDeleteProject ProjectId
     | OnAddProjectStart
@@ -414,6 +418,21 @@ update message model =
 
         OnInlineEditTodoMsg msg ->
             onMaybeIETMsg msg model
+
+        OnIETMsg msg ->
+            let
+                ietConfig : IET.Config Msg
+                ietConfig =
+                    { onSaveOrOverwrite = \_ _ -> NoOp
+                    , onFocusError = \_ -> NoOp
+                    , onChanged = \_ -> NoOp
+                    }
+
+                _ =
+                    IET.update ietConfig msg model.iet
+                        |> Tuple.mapFirst (\iet -> { model | iet = iet })
+            in
+            Return.singleton model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -1132,6 +1151,18 @@ viewTodoItems model =
                     |> MX.filter (InlineEditTodo.idEq todo.id)
                     |> Maybe.map
                         (HL.lazy3 viewInlineEditTodo model.here model.today)
+            of
+                Just view_ ->
+                    view_
+
+                Nothing ->
+                    viewTodoItemBase model todo
+
+        viewTodoItem2 : Todo -> Html Msg
+        viewTodoItem2 todo =
+            case
+                model.iet
+                    |> IET.viewEditingForTodoId OnIETMsg todo.id model.here model.today
             of
                 Just view_ ->
                     view_
