@@ -63,7 +63,7 @@ type alias Flags =
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
     , cachedDialog : Dialog.Model
-    , cachedInlineEditTodo : Maybe InlineEditTodo.Model
+    , cachedInlineEditTodo : IET.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -83,9 +83,7 @@ flagsDecoder =
             AuthState.decoder
             AuthState.initial
         |> cachedField "cachedDialog" Dialog.decoder Dialog.init
-        |> cachedField "cachedInlineEditTodo"
-            (JD.nullable InlineEditTodo.decoder)
-            Nothing
+        |> cachedField "cachedInlineEditTodo" IET.decoder IET.initial
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -725,12 +723,17 @@ updateFromEncodedFlags encodedFlags model =
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
                 |> setDialog flags.cachedDialog
-                |> setMaybeInlineEditTodo flags.cachedInlineEditTodo
+                |> setIET flags.cachedInlineEditTodo
                 |> setBrowserSize flags.browserSize
                 |> setTodayFromNow flags.now
 
         Err err ->
             HasErrors.addDecodeError err model
+
+
+setIET : a -> { b | iet : a } -> { b | iet : a }
+setIET iet model =
+    { model | iet = iet }
 
 
 setTodoList : TodoList -> Model -> Model

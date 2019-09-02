@@ -1,4 +1,4 @@
-module IET exposing (Config, Model, Msg, initial, startEditing, update, viewEditingForTodoId)
+module IET exposing (Config, Model, Msg, decoder, initial, startEditing, update, viewEditingForTodoId)
 
 import Browser.Dom as Dom
 import Calendar
