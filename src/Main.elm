@@ -577,6 +577,16 @@ cacheMaybeInlineEditTodoCmd maybeIET =
         )
 
 
+onMaybeInlineEditTodoMsg : InlineEditTodoMsg -> Maybe InlineEditTodo.Model -> Model -> Return
+onMaybeInlineEditTodoMsg message maybeIET model =
+    case maybeIET of
+        Just iet ->
+            onInlineEditTodoMsg message iet model
+
+        Nothing ->
+            Return.singleton model
+
+
 onInlineEditTodoMsg : InlineEditTodoMsg -> InlineEditTodo.Model -> Model -> Return
 onInlineEditTodoMsg message edt model =
     let
