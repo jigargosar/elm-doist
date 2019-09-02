@@ -1069,12 +1069,15 @@ viewTodoItemBase model todo =
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , viewTodoPopup todoPopupConfig
-                todo.id
-                model.here
-                model.today
-                (isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup)
-                model.todoPopup
+            , if isPopupOpenFor todo.id model.todoPopup then
+                viewTodoPopup todoPopupConfig
+                    todo.id
+                    model.here
+                    model.today
+                    (isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup)
+
+              else
+                HX.none
             ]
         ]
 
@@ -1106,52 +1109,47 @@ viewTodoPopup :
     -> Zone
     -> Calendar.Date
     -> Bool
-    -> TodoPopupModel
     -> Html msg
-viewTodoPopup config todoId zone today schedulePopupOpen model =
-    if isPopupOpenFor todoId model then
-        H.node "track-focus-outside"
-            [ class "absolute right-0 top-1"
-            , class "bg-white shadow-1 w5"
-            , class "z-1" -- if removed; causes flickering with hover icons
-            , on "focusOutside" (JD.succeed config.close)
-            , Key.onEscape config.close
-            , tabindex -1
+viewTodoPopup config todoId zone today schedulePopupOpen =
+    H.node "track-focus-outside"
+        [ class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , class "z-1" -- if removed; causes flickering with hover icons
+        , on "focusOutside" (JD.succeed config.close)
+        , Key.onEscape config.close
+        , tabindex -1
+        ]
+        (let
+            containerDiv =
+                div [ class "relative" ]
+         in
+         [ containerDiv
+            [ TextButton.view (config.edit todoId)
+                "Edit"
+                [ class "pa2", A.id todoPopupFirstFocusableDomId ]
             ]
-            (let
-                containerDiv =
-                    div [ class "relative" ]
-             in
-             [ containerDiv
-                [ TextButton.view (config.edit todoId)
-                    "Edit"
-                    [ class "pa2", A.id todoPopupFirstFocusableDomId ]
-                ]
-             , containerDiv
-                [ TextButton.view (config.move todoId)
-                    "Move to Project"
-                    [ class "pa2" ]
-                ]
-             , containerDiv
-                [ TextButton.view (config.schedule todoId)
-                    "Schedule"
-                    [ class "pa2" ]
-                , if schedulePopupOpen then
-                    SchedulePopup.view config.schedulePopupConfig zone today
+         , containerDiv
+            [ TextButton.view (config.move todoId)
+                "Move to Project"
+                [ class "pa2" ]
+            ]
+         , containerDiv
+            [ TextButton.view (config.schedule todoId)
+                "Schedule"
+                [ class "pa2" ]
+            , if schedulePopupOpen then
+                SchedulePopup.view config.schedulePopupConfig zone today
 
-                  else
-                    HX.none
-                ]
-             , containerDiv
-                [ TextButton.view (config.delete todoId)
-                    "Delete"
-                    [ class "pa2" ]
-                ]
-             ]
-            )
-
-    else
-        HX.none
+              else
+                HX.none
+            ]
+         , containerDiv
+            [ TextButton.view (config.delete todoId)
+                "Delete"
+                [ class "pa2" ]
+            ]
+         ]
+        )
 
 
 viewTodoItemDueDate :
