@@ -16,6 +16,7 @@ import Html.Styled.Attributes as A
 import Html.Styled.Events exposing (onInput)
 import HtmlExtra as HX
 import Json.Decode as JD
+import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
 import Maybe exposing (Maybe)
 import Maybe.Extra as MX
@@ -34,11 +35,19 @@ type Editable a
     = Editable a a
 
 
+editableEncoder : (a -> Value) -> Editable a -> Value
 editableEncoder valEncoder (Editable old new) =
     JE.object
         [ ( "old", valEncoder old )
         , ( "new", valEncoder new )
         ]
+
+
+editableDecoder : JD.Decoder a -> JD.Decoder (Editable a)
+editableDecoder valueDecoder =
+    JD.succeed Editable
+        |> JDP.required "old" valueDecoder
+        |> JDP.required "new" valueDecoder
 
 
 getCurrent : Editable a -> a
@@ -87,13 +96,34 @@ encoder model =
                 , ( "todoId", TodoId.encoder edit.todoId )
                 , ( "title", editableEncoder JE.string edit.title )
                 , ( "dueAt", editableEncoder Todo.dueAtEncoder edit.dueAt )
-                , ( "isScheduling", JE.bool edit.schedulePopupOpened )
+                , ( "schedulePopupOpened", JE.bool edit.schedulePopupOpened )
                 ]
 
         Closed ->
             JE.object
                 [ ( "tag", JE.string "Closed" )
                 ]
+
+
+decoder =
+    JD.field "tag" JD.string
+        |> JD.andThen
+            (\tag ->
+                case tag of
+                    "Editing" ->
+                        JD.succeed Edit
+                            |> JDP.required "todoId" TodoId.decoder
+                            |> JDP.required "title" (editableDecoder JD.string)
+                            |> JDP.required "dueAt" (editableDecoder Todo.dueAtDecoder)
+                            |> JDP.required "schedulePopupOpened" JD.bool
+                            |> JD.map Editing
+
+                    "Closed" ->
+                        JD.succeed Closed
+
+                    _ ->
+                        JD.fail ("IET: unknown tag: " ++ tag)
+            )
 
 
 initial : Model
