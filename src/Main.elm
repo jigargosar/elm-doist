@@ -1193,7 +1193,7 @@ viewTodoItems model =
                 Nothing ->
                     viewTodoItemBase model todo
     in
-    List.map viewTodoItem
+    List.map viewTodoItem2
 
 
 viewInlineEditTodo :

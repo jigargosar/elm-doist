@@ -140,11 +140,16 @@ update config message model =
         StartEditing todoId fields ->
             case model of
                 Closed ->
-                    ( Editing <| initEdit todoId fields, Cmd.none )
+                    ( Editing <| initEdit todoId fields
+                    , Focus.attempt config.focused firstFocusableDomId
+                    )
 
                 Editing edit ->
                     ( Editing <| initEdit todoId fields
-                    , saveIfDirty config edit
+                    , Cmd.batch
+                        [ saveIfDirty config edit
+                        , Focus.attempt config.focused firstFocusableDomId
+                        ]
                     )
 
         OnEditingMsg msg ->
