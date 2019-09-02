@@ -82,14 +82,18 @@ schedulePopupFirstFocusableDomId =
     "inline-edit-todo__schedule-popup__first-focusable"
 
 
-type Msg
-    = StartEditing TodoId { title : String, dueAt : Todo.DueAt }
-    | Cancel
+type UpdateMsg
+    = Cancel
     | Save
     | OpenSchedulePopup
     | CloseSchedulePopup
     | TitleChanged String
     | DueAtChanged Todo.DueAt
+
+
+type Msg
+    = StartEditing TodoId { title : String, dueAt : Todo.DueAt }
+    | OnUpdateMsg UpdateMsg
 
 
 startEditing : TodoId -> { title : String, dueAt : DueAt } -> Msg
@@ -213,6 +217,7 @@ schedulePopupConfig_ =
     }
 
 
+viewConfig : ViewConfig UpdateMsg
 viewConfig =
     { openSchedulePopup = OpenSchedulePopup
     , titleChanged = TitleChanged
@@ -233,9 +238,10 @@ viewEditingForTodoId toMsg todoId zone today model =
     case model of
         Editing editModel ->
             if editModel.todoId == todoId then
-                Just <|
-                    H.map toMsg <|
-                        viewEditing viewConfig zone today editModel
+                Just
+                    (H.map (OnUpdateMsg >> toMsg)
+                        (viewEditing viewConfig zone today editModel)
+                    )
 
             else
                 Nothing
