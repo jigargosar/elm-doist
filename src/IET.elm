@@ -1,9 +1,16 @@
-module IET exposing (Config, Model, Msg, decoder, initial, startEditing, update, viewEditingForTodoId)
+module IET exposing
+    ( Config
+    , Model
+    , Msg
+    , decoder
+    , initial
+    , startEditing
+    , update
+    , viewEditingForTodoId
+    )
 
-import Browser.Dom as Dom
 import Calendar
 import Css exposing (minWidth, none, px, resize)
-import Focus
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
 import Html.Styled.Attributes as A
     exposing
@@ -23,7 +30,6 @@ import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Return
 import SchedulePopup
-import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
