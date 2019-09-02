@@ -1,5 +1,6 @@
 module IET exposing (Config, Model, update, viewEditingForTodoId)
 
+import Browser.Dom as Dom
 import Calendar
 import Css exposing (minWidth, none, px, resize)
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
@@ -66,8 +67,8 @@ type Msg
 
 
 type alias Config msg =
-    { onSave : TodoId -> { title : Maybe String, dueAt : Maybe Todo.DueAt } -> msg
-    , onFocusError : String -> msg
+    { onSaveOrOverwrite : TodoId -> { title : Maybe String, dueAt : Maybe Todo.DueAt } -> msg
+    , onFocusError : Dom.Error -> msg
     , onChanged : Value -> msg
     }
 
