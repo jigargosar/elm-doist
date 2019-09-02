@@ -164,7 +164,9 @@ updateEditingModel config msg edit =
 
         OpenSchedulePopup ->
             ( Editing { edit | schedulePopupOpened = True }
-            , Cmd.none
+            , config.focus schedulePopupFirstFocusableDomId
+                |> Task.succeed
+                |> Task.perform identity
             )
 
         CloseSchedulePopup ->
