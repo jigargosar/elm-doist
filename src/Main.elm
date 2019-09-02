@@ -44,6 +44,7 @@ import Svg.Attributes as SA
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
+import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
@@ -121,11 +122,6 @@ isPopupOpenFor a popup =
 
 type alias TodoPopupModel =
     Popup TodoId
-
-
-todoPopupFirstFocusableDomId : String
-todoPopupFirstFocusableDomId =
-    "todo-popup--first-focusable"
 
 
 
@@ -437,7 +433,7 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            openPopup todoPopupFirstFocusableDomId todoId
+            openPopup TodoPopup.todoPopupFirstFocusableDomId todoId
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
         CloseTodoPopup ->
@@ -1070,7 +1066,7 @@ viewTodoItemBase model todo =
                 FAS.ellipsisH
                 []
             , if isPopupOpenFor todo.id model.todoPopup then
-                viewTodoPopup todoPopupConfig
+                TodoPopup.view todoPopupConfig
                     todo.id
                     model.here
                     model.today
@@ -1082,17 +1078,7 @@ viewTodoItemBase model todo =
         ]
 
 
-type alias TodoPopupView msg =
-    { edit : TodoId -> msg
-    , move : TodoId -> msg
-    , delete : TodoId -> msg
-    , schedule : TodoId -> msg
-    , close : msg
-    , schedulePopupConfig : SchedulePopup.ViewConfig msg
-    }
-
-
-todoPopupConfig : TodoPopupView Msg
+todoPopupConfig : TodoPopup.ViewConfig Msg
 todoPopupConfig =
     { edit = OnEditClicked
     , move = OnMoveClicked
@@ -1101,55 +1087,6 @@ todoPopupConfig =
     , close = CloseSchedulePopup
     , schedulePopupConfig = schedulePopupConfig
     }
-
-
-viewTodoPopup :
-    TodoPopupView msg
-    -> TodoId
-    -> Zone
-    -> Calendar.Date
-    -> Bool
-    -> Html msg
-viewTodoPopup config todoId zone today schedulePopupOpen =
-    H.node "track-focus-outside"
-        [ class "absolute right-0 top-1"
-        , class "bg-white shadow-1 w5"
-        , class "z-1" -- if removed; causes flickering with hover icons
-        , on "focusOutside" (JD.succeed config.close)
-        , Key.onEscape config.close
-        , tabindex -1
-        ]
-        (let
-            containerDiv =
-                div [ class "relative" ]
-         in
-         [ containerDiv
-            [ TextButton.view (config.edit todoId)
-                "Edit"
-                [ class "pa2", A.id todoPopupFirstFocusableDomId ]
-            ]
-         , containerDiv
-            [ TextButton.view (config.move todoId)
-                "Move to Project"
-                [ class "pa2" ]
-            ]
-         , containerDiv
-            [ TextButton.view (config.schedule todoId)
-                "Schedule"
-                [ class "pa2" ]
-            , if schedulePopupOpen then
-                SchedulePopup.view config.schedulePopupConfig zone today
-
-              else
-                HX.none
-            ]
-         , containerDiv
-            [ TextButton.view (config.delete todoId)
-                "Delete"
-                [ class "pa2" ]
-            ]
-         ]
-        )
 
 
 viewTodoItemDueDate :
