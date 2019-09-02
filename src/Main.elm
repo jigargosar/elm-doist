@@ -424,7 +424,7 @@ update message model =
                 ietConfig : IET.Config Msg
                 ietConfig =
                     { onSaveOrOverwrite = \_ _ -> NoOp
-                    , onFocusError = \_ -> NoOp
+                    , focus = \_ -> NoOp
                     , onChanged = \_ -> NoOp
                     }
 

@@ -73,7 +73,7 @@ type Msg
 
 type alias Config msg =
     { onSaveOrOverwrite : TodoId -> { title : Maybe String, dueAt : Maybe Todo.DueAt } -> msg
-    , onFocusError : Dom.Error -> msg
+    , focus : String -> msg
     , onChanged : Value -> msg
     }
 
@@ -86,7 +86,7 @@ update :
 update config msg model =
     let
         nop =
-            ( model, Cmd.none )
+            ( model, Nothing )
     in
     case model of
         Editing edit ->
