@@ -17,6 +17,7 @@ import Json.Encode exposing (Value)
 import Maybe exposing (Maybe)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
+import Return
 import SchedulePopup
 import Task
 import Time exposing (Zone)
@@ -133,7 +134,7 @@ update :
     -> Model
     -> ( Model, Cmd msg )
 update config message model =
-    case message of
+    (case message of
         StartEditing todoId fields ->
             case model of
                 Closed ->
@@ -151,6 +152,16 @@ update config message model =
 
                 Editing edit ->
                     updateEditingModel config msg edit
+    )
+        |> Return.effect_ (cacheIfChanged config model)
+
+
+cacheIfChanged config oldModel newModel =
+    if oldModel /= newModel then
+        Cmd.none
+
+    else
+        Cmd.none
 
 
 updateEditingModel : Config msg -> EditingMsg -> Edit -> ( Model, Cmd msg )
