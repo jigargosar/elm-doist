@@ -1,6 +1,5 @@
 module IET exposing (Config, Model, Msg, initial, startEditing, update, viewEditingForTodoId)
 
-import Browser.Dom as Dom
 import Calendar
 import Css exposing (minWidth, none, px, resize)
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
@@ -134,10 +133,6 @@ update :
     -> Model
     -> ( Model, Cmd msg )
 update config message model =
-    let
-        returnNoOp =
-            ( model, Cmd.none )
-    in
     case message of
         StartEditing todoId fields ->
             case model of
@@ -152,40 +147,45 @@ update config message model =
         OnEditingMsg msg ->
             case model of
                 Closed ->
-                    returnNoOp
+                    ( model, Cmd.none )
 
                 Editing edit ->
-                    case msg of
-                        Cancel ->
-                            ( Closed, Cmd.none )
+                    updateEditingModel config msg edit
 
-                        Save ->
-                            ( Closed, saveIfDirty config edit )
 
-                        OpenSchedulePopup ->
-                            ( Editing
-                                { edit
-                                    | schedulePopupOpened = True
-                                }
-                            , Cmd.none
-                            )
+updateEditingModel : Config msg -> EditingMsg -> Edit -> ( Model, Cmd msg )
+updateEditingModel config msg edit =
+    case msg of
+        Cancel ->
+            ( Closed, Cmd.none )
 
-                        CloseSchedulePopup ->
-                            ( Editing
-                                { edit | schedulePopupOpened = False }
-                            , Cmd.none
-                            )
+        Save ->
+            ( Closed, saveIfDirty config edit )
 
-                        TitleChanged newTitle ->
-                            ( Editing
-                                { edit | title = changeEditable newTitle edit.title }
-                            , Cmd.none
-                            )
+        OpenSchedulePopup ->
+            ( Editing
+                { edit
+                    | schedulePopupOpened = True
+                }
+            , Cmd.none
+            )
 
-                        DueAtChanged newDueAt ->
-                            ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
-                            , Cmd.none
-                            )
+        CloseSchedulePopup ->
+            ( Editing
+                { edit | schedulePopupOpened = False }
+            , Cmd.none
+            )
+
+        TitleChanged newTitle ->
+            ( Editing
+                { edit | title = changeEditable newTitle edit.title }
+            , Cmd.none
+            )
+
+        DueAtChanged newDueAt ->
+            ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
+            , Cmd.none
+            )
 
 
 type alias ViewConfig msg =
