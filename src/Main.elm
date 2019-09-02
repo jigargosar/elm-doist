@@ -1087,6 +1087,7 @@ type alias TodoPopupView msg =
     , delete : TodoId -> msg
     , schedule : TodoId -> msg
     , close : msg
+    , schedulePopupConfig : SchedulePopup.ViewConfig msg
     }
 
 
@@ -1095,11 +1096,10 @@ viewTodoPopup :
     -> TodoId
     -> Zone
     -> Calendar.Date
-    -> SchedulePopup.ViewConfig msg
     -> SchedulePopupModel
     -> TodoPopupModel
     -> Html msg
-viewTodoPopup config todoId zone today schedulePopupConfig_ schedulePopupModel model =
+viewTodoPopup config todoId zone today schedulePopupModel model =
     if isPopupOpenFor todoId model then
         H.node "track-focus-outside"
             [ class "absolute right-0 top-1"
@@ -1129,7 +1129,7 @@ viewTodoPopup config todoId zone today schedulePopupConfig_ schedulePopupModel m
                     [ class "pa2" ]
                 , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) schedulePopupModel)
                     (\_ ->
-                        SchedulePopup.view schedulePopupConfig_ zone today
+                        SchedulePopup.view config.schedulePopupConfig zone today
                     )
                 ]
              , containerDiv
