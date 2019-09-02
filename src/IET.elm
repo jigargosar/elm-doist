@@ -1,4 +1,4 @@
-module IET exposing (Config, Model, Msg, initial, update, viewEditingForTodoId)
+module IET exposing (Config, Model, Msg, initial, startEditing, update, viewEditingForTodoId)
 
 import Browser.Dom as Dom
 import Calendar
@@ -69,6 +69,11 @@ type Msg
     | CloseSchedulePopup
     | TitleChanged String
     | DueAtChanged Todo.DueAt
+
+
+startEditing : TodoId -> { title : String, dueAt : DueAt } -> Msg
+startEditing =
+    StartEditing
 
 
 type alias Config msg =

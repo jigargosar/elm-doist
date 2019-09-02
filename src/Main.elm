@@ -414,7 +414,20 @@ update message model =
             )
 
         OnEditClicked todoId ->
-            startEditingTodoId todoId model
+            -- startEditingTodoId todoId model
+            case findTodoById todoId model of
+                Nothing ->
+                    Return.singleton model
+
+                Just todo ->
+                    update
+                        (OnIETMsg <|
+                            IET.startEditing todoId
+                                { title = todo.title
+                                , dueAt = todo.dueAt
+                                }
+                        )
+                        model
 
         OnInlineEditTodoMsg msg ->
             onMaybeIETMsg msg model
