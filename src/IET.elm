@@ -107,24 +107,24 @@ encoder model =
 
 decoder : JD.Decoder Model
 decoder =
-    JD.field "tag" JD.string
-        |> JD.andThen
-            (\tag ->
-                case tag of
-                    "Editing" ->
-                        JD.succeed Edit
-                            |> JDP.required "todoId" TodoId.decoder
-                            |> JDP.required "title" (editableDecoder JD.string)
-                            |> JDP.required "dueAt" (editableDecoder Todo.dueAtDecoder)
-                            |> JDP.required "schedulePopupOpened" JD.bool
-                            |> JD.map Editing
+    JD.field "tag" JD.string |> JD.andThen taggedDecoder
 
-                    "Closed" ->
-                        JD.succeed Closed
 
-                    _ ->
-                        JD.fail ("IET: unknown tag: " ++ tag)
-            )
+taggedDecoder tag =
+    case tag of
+        "Editing" ->
+            JD.succeed Edit
+                |> JDP.required "todoId" TodoId.decoder
+                |> JDP.required "title" (editableDecoder JD.string)
+                |> JDP.required "dueAt" (editableDecoder Todo.dueAtDecoder)
+                |> JDP.required "schedulePopupOpened" JD.bool
+                |> JD.map Editing
+
+        "Closed" ->
+            JD.succeed Closed
+
+        _ ->
+            JD.fail ("IET: unknown tag: " ++ tag)
 
 
 initial : Model
