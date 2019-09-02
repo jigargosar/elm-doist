@@ -82,7 +82,7 @@ schedulePopupFirstFocusableDomId =
     "inline-edit-todo__schedule-popup__first-focusable"
 
 
-type UpdateMsg
+type EditingMsg
     = Cancel
     | Save
     | OpenSchedulePopup
@@ -93,7 +93,7 @@ type UpdateMsg
 
 type Msg
     = StartEditing TodoId { title : String, dueAt : Todo.DueAt }
-    | OnUpdateMsg UpdateMsg
+    | OnEditingMsg EditingMsg
 
 
 startEditing : TodoId -> { title : String, dueAt : DueAt } -> Msg
@@ -149,7 +149,7 @@ update config message model =
                     , saveIfDirty config edit
                     )
 
-        OnUpdateMsg msg ->
+        OnEditingMsg msg ->
             case model of
                 Closed ->
                     returnNoOp
@@ -204,7 +204,7 @@ schedulePopupConfig_ =
     }
 
 
-viewConfig : ViewConfig UpdateMsg
+viewConfig : ViewConfig EditingMsg
 viewConfig =
     { openSchedulePopup = OpenSchedulePopup
     , titleChanged = TitleChanged
@@ -226,7 +226,7 @@ viewEditingForTodoId toMsg todoId zone today model =
         Editing editModel ->
             if editModel.todoId == todoId then
                 Just
-                    (H.map (OnUpdateMsg >> toMsg)
+                    (H.map (OnEditingMsg >> toMsg)
                         (viewEditing viewConfig zone today editModel)
                     )
 
