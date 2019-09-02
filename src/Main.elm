@@ -271,6 +271,9 @@ type Msg
     | OnDialogOverlayClickedOrEscapePressed
       -- InlineTodoEditing
     | OnEditClicked TodoId
+    | OnIETSave TodoId { title : String, dueAt : Todo.DueAt }
+    | OnIETFocus String
+    | OnIETChanged Value
     | OnInlineEditTodoMsg InlineEditTodoMsg
     | OnIETMsg IET.Msg
       -- Project
@@ -432,12 +435,21 @@ update message model =
         OnInlineEditTodoMsg msg ->
             onMaybeIETMsg msg model
 
+        OnIETSave todoId { title, dueAt } ->
+            ( model, patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ] )
+
+        OnIETFocus domId ->
+            ( model, focus domId )
+
+        OnIETChanged encodedValue ->
+            ( model, Cmd.none )
+
         OnIETMsg msg ->
             let
                 ietConfig : IET.Config Msg
                 ietConfig =
-                    { onSaveOrOverwrite = \_ _ -> NoOp
-                    , focus = \_ -> NoOp
+                    { onSaveOrOverwrite = OnIETSave
+                    , focus = OnIETFocus
                     , onChanged = \_ -> NoOp
                     }
 
