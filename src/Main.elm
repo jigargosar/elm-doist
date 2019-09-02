@@ -1108,7 +1108,7 @@ viewTodoPopup :
     -> Bool
     -> TodoPopupModel
     -> Html msg
-viewTodoPopup config todoId zone today shedulePopupOpen model =
+viewTodoPopup config todoId zone today schedulePopupOpen model =
     if isPopupOpenFor todoId model then
         H.node "track-focus-outside"
             [ class "absolute right-0 top-1"
@@ -1136,7 +1136,7 @@ viewTodoPopup config todoId zone today shedulePopupOpen model =
                 [ TextButton.view (config.schedule todoId)
                     "Schedule"
                     [ class "pa2" ]
-                , if shedulePopupOpen then
+                , if schedulePopupOpen then
                     SchedulePopup.view config.schedulePopupConfig zone today
 
                   else
