@@ -23,13 +23,11 @@ import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (on, onClick)
-import Html.Styled.Lazy as HL
 import HtmlExtra as HX
 import IET
-import InlineEditTodo
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -155,7 +153,6 @@ schedulePopupFirstFocusableDomId =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , inlineEditTodo : Maybe InlineEditTodo.Model
     , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
@@ -202,7 +199,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , inlineEditTodo = Nothing
             , iet = IET.initial
             , todoPopup = initPopup
             , schedulePopup = initPopup
@@ -221,22 +217,8 @@ init encodedFlags url key =
     )
 
 
-setMaybeInlineEditTodo : Maybe InlineEditTodo.Model -> Model -> Model
-setMaybeInlineEditTodo inlineEditTodo model =
-    { model | inlineEditTodo = inlineEditTodo }
-
-
 
 -- MSG
-
-
-type InlineEditTodoMsg
-    = IETTitleChanged String
-    | IETOpenSchedulePopup
-    | IETCloseSchedulePopup
-    | IETDueAtSelected DueAt
-    | IETCancel
-    | IETSave
 
 
 type Msg
@@ -269,7 +251,6 @@ type Msg
     | OnDialogOverlayClickedOrEscapePressed
       -- InlineTodoEditing
     | OnEditClicked TodoId
-    | OnInlineEditTodoMsg InlineEditTodoMsg
     | OnIETMsg IET.Msg
       -- Project
     | OnDeleteProject ProjectId
@@ -427,9 +408,6 @@ update message model =
                         )
                         model
 
-        OnInlineEditTodoMsg msg ->
-            onMaybeIETMsg msg model
-
         OnIETMsg msg ->
             let
                 ietConfig : IET.Config Msg
@@ -543,124 +521,6 @@ focus =
 
 
 -- IET
-
-
-setInlineEditTodo : InlineEditTodo.Model -> Model -> Model
-setInlineEditTodo inlineEditTodo model =
-    { model | inlineEditTodo = Just inlineEditTodo }
-
-
-persistMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd Msg
-persistMaybeInlineEditTodoCmd =
-    Maybe.andThen InlineEditTodo.toUpdateMessages
-        >> MX.unwrap Cmd.none
-            (\( todo, todoUpdateMsgList ) ->
-                patchTodoCmd todo.id todoUpdateMsgList
-            )
-
-
-persistInlineEditTodoCmd : InlineEditTodo.Model -> Cmd Msg
-persistInlineEditTodoCmd =
-    Just >> persistMaybeInlineEditTodoCmd
-
-
-startEditingTodoId : TodoId -> Model -> Return
-startEditingTodoId todoId model =
-    case findTodoById todoId model of
-        Nothing ->
-            Return.singleton model
-
-        Just todo ->
-            let
-                persistOldIETCmd =
-                    persistMaybeInlineEditTodoCmd model.inlineEditTodo
-            in
-            setInlineEditTodoAndCache (InlineEditTodo.fromTodo todo) model
-                |> Return.command
-                    (Cmd.batch
-                        [ persistOldIETCmd
-                        , focus InlineEditTodo.firstFocusableDomId
-                        ]
-                    )
-
-
-setInlineEditTodoAndCache : InlineEditTodo.Model -> Model -> Return
-setInlineEditTodoAndCache inlineEditTodo model =
-    ( setInlineEditTodo inlineEditTodo model
-    , cacheMaybeInlineEditTodoCmd <| Just inlineEditTodo
-    )
-
-
-cacheMaybeInlineEditTodoCmd : Maybe InlineEditTodo.Model -> Cmd msg
-cacheMaybeInlineEditTodoCmd maybeIET =
-    Ports.localStorageSetJsonItem
-        ( "cachedInlineEditTodo"
-        , maybeIET |> MX.unwrap JE.null InlineEditTodo.encoder
-        )
-
-
-onMaybeIETMsg : InlineEditTodoMsg -> Model -> Return
-onMaybeIETMsg message model =
-    maybeIETUpdate message model.inlineEditTodo
-        |> Tuple.mapFirst (flip setMaybeInlineEditTodo model)
-
-
-maybeIETUpdate :
-    InlineEditTodoMsg
-    -> Maybe InlineEditTodo.Model
-    -> ( Maybe InlineEditTodo.Model, Cmd Msg )
-maybeIETUpdate message model =
-    case model of
-        Just iet ->
-            let
-                setAndCache :
-                    InlineEditTodo.Model
-                    -> ( Maybe InlineEditTodo.Model, Cmd msg )
-                setAndCache =
-                    Just >> (\newM -> ( newM, cacheMaybeInlineEditTodoCmd newM ))
-
-                resetAndCache : ( Maybe InlineEditTodo.Model, Cmd msg )
-                resetAndCache =
-                    ( Nothing
-                    , cacheMaybeInlineEditTodoCmd Nothing
-                    )
-            in
-            case message of
-                IETCancel ->
-                    resetAndCache
-
-                IETSave ->
-                    resetAndCache
-                        |> Return.command (persistInlineEditTodoCmd iet)
-
-                IETTitleChanged title ->
-                    iet
-                        |> InlineEditTodo.setTitle title
-                        |> setAndCache
-
-                IETOpenSchedulePopup ->
-                    iet
-                        |> InlineEditTodo.setIsSchedulePopupOpen True
-                        |> setAndCache
-                        |> Return.command (focus schedulePopupFirstFocusableDomId)
-
-                IETCloseSchedulePopup ->
-                    iet
-                        |> InlineEditTodo.setIsSchedulePopupOpen False
-                        |> setAndCache
-
-                IETDueAtSelected dueAt ->
-                    iet
-                        |> (InlineEditTodo.setDueAt dueAt
-                                >> InlineEditTodo.setIsSchedulePopupOpen False
-                           )
-                        |> setAndCache
-
-        Nothing ->
-            Return.singleton Nothing
-
-
-
 -- SCHEDULE POPUP
 
 
@@ -1167,20 +1027,6 @@ viewTodoItems model =
         viewTodoItem : Todo -> Html Msg
         viewTodoItem todo =
             case
-                model.inlineEditTodo
-                    |> MX.filter (InlineEditTodo.idEq todo.id)
-                    |> Maybe.map
-                        (HL.lazy3 viewInlineEditTodo model.here model.today)
-            of
-                Just view_ ->
-                    view_
-
-                Nothing ->
-                    viewTodoItemBase model todo
-
-        viewTodoItem2 : Todo -> Html Msg
-        viewTodoItem2 todo =
-            case
                 model.iet
                     |> IET.viewEditingForTodoId OnIETMsg todo.id model.here model.today
             of
@@ -1190,43 +1036,7 @@ viewTodoItems model =
                 Nothing ->
                     viewTodoItemBase model todo
     in
-    List.map viewTodoItem2
-
-
-viewInlineEditTodo :
-    Zone
-    -> Calendar.Date
-    -> InlineEditTodo.Model
-    -> Html Msg
-viewInlineEditTodo here today =
-    InlineEditTodo.view
-        inlineEditTodoViewConfig
-        here
-        today
-        >> H.map OnInlineEditTodoMsg
-
-
-inlineEditTodoViewConfig : InlineEditTodo.ViewConfig InlineEditTodoMsg
-inlineEditTodoViewConfig =
-    let
-        schedulePopupConfig_ =
-            { close = IETCloseSchedulePopup
-            , dueAtSelected = IETDueAtSelected
-            , firstFocusableDomId = schedulePopupFirstFocusableDomId
-            }
-    in
-    { openSchedulePopup = IETOpenSchedulePopup
-    , titleChanged = IETTitleChanged
-    , cancel = IETCancel
-    , save = IETSave
-    , viewSchedulePopup =
-        \isOpen here today ->
-            if isOpen then
-                SchedulePopup.view schedulePopupConfig_ here today
-
-            else
-                HX.empty
-    }
+    List.map viewTodoItem
 
 
 schedulePopupConfig : SchedulePopup.ViewConfig Msg
