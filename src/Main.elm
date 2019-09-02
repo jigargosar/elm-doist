@@ -413,12 +413,7 @@ update message model =
             startEditingTodoId todoId model
 
         OnInlineEditTodoMsg msg ->
-            case model.inlineEditTodo of
-                Nothing ->
-                    Return.singleton model
-
-                Just edt ->
-                    onInlineEditTodoMsg msg edt model
+            onMaybeInlineEditTodoMsg msg model.inlineEditTodo model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -575,6 +570,61 @@ cacheMaybeInlineEditTodoCmd maybeIET =
         ( "cachedInlineEditTodo"
         , maybeIET |> MX.unwrap JE.null InlineEditTodo.encoder
         )
+
+
+maybeIETUpdate :
+    InlineEditTodoMsg
+    -> Maybe InlineEditTodo.Model
+    -> ( Maybe InlineEditTodo.Model, Cmd msg )
+maybeIETUpdate message model =
+    case model of
+        Just iet ->
+            let
+                setAndCache :
+                    InlineEditTodo.Model
+                    -> ( Maybe InlineEditTodo.Model, Cmd msg )
+                setAndCache =
+                    Just >> (\newM -> ( newM, cacheMaybeInlineEditTodoCmd newM ))
+
+                resetAndCache : ( Maybe InlineEditTodo.Model, Cmd msg )
+                resetAndCache =
+                    ( Nothing
+                    , cacheMaybeInlineEditTodoCmd Nothing
+                    )
+            in
+            case message of
+                IETCancel ->
+                    resetAndCache
+
+                IETSave ->
+                    resetAndCache
+                        |> Return.command (persistInlineEditTodoCmd iet)
+
+                IETTitleChanged title ->
+                    iet
+                        |> InlineEditTodo.setTitle title
+                        |> setAndCache
+
+                IETOpenSchedulePopup ->
+                    iet
+                        |> InlineEditTodo.setIsSchedulePopupOpen True
+                        |> setAndCache
+                        |> Return.command (focus schedulePopupFirstFocusableDomId)
+
+                IETCloseSchedulePopup ->
+                    iet
+                        |> InlineEditTodo.setIsSchedulePopupOpen False
+                        |> setAndCache
+
+                IETDueAtSelected dueAt ->
+                    iet
+                        |> (InlineEditTodo.setDueAt dueAt
+                                >> InlineEditTodo.setIsSchedulePopupOpen False
+                           )
+                        |> setAndCache
+
+        Nothing ->
+            Return.singleton Nothing
 
 
 onMaybeInlineEditTodoMsg : InlineEditTodoMsg -> Maybe InlineEditTodo.Model -> Model -> Return
