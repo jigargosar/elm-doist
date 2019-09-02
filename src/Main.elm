@@ -1184,7 +1184,7 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueAt todo model.here model.today model.schedulePopup
+        , viewTodoItemDueDate todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopup todo.id)
                 [ class "pa2 tc child" ]
@@ -1251,13 +1251,13 @@ viewTodoPopupItems firstFocusable todoId model =
     ]
 
 
-viewTodoItemDueAt :
+viewTodoItemDueDate :
     Todo
     -> Zone
     -> Calendar.Date
     -> SchedulePopupModel
     -> Html Msg
-viewTodoItemDueAt todo here today schedulePopup =
+viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
             OpenSchedulePopup InTodoListItemDueDate todo.id
