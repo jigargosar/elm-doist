@@ -616,7 +616,7 @@ onMaybeIETMsg message model =
 maybeIETUpdate :
     InlineEditTodoMsg
     -> Maybe InlineEditTodo.Model
-    -> ( Maybe InlineEditTodo.Model, Cmd msg )
+    -> ( Maybe InlineEditTodo.Model, Cmd Msg )
 maybeIETUpdate message model =
     case model of
         Just iet ->
