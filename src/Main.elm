@@ -393,24 +393,21 @@ update message model =
             )
 
         OnEditClicked todoId ->
-            -- startEditingTodoId todoId model
             case findTodoById todoId model of
                 Nothing ->
                     Return.singleton model
 
                 Just todo ->
-                    update
-                        (OnIETMsg <|
-                            IET.startEditing todoId
-                                { title = todo.title
-                                , dueAt = todo.dueAt
-                                }
+                    updateIET
+                        (IET.startEditing todoId
+                            { title = todo.title
+                            , dueAt = todo.dueAt
+                            }
                         )
                         model
 
         OnIETMsg msg ->
-            IET.update ietConfig msg model.iet
-                |> Tuple.mapFirst (\iet -> { model | iet = iet })
+            updateIET msg model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -521,6 +518,12 @@ ietConfig =
                 , encoded
                 )
     }
+
+
+updateIET : IET.Msg -> Model -> Return
+updateIET msg model =
+    IET.update ietConfig msg model.iet
+        |> Tuple.mapFirst (\iet -> { model | iet = iet })
 
 
 
