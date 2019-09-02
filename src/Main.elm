@@ -1069,14 +1069,12 @@ viewTodoItemBase model todo =
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , HX.viewIf (isPopupOpenFor todo.id model.todoPopup)
-                (\_ ->
-                    viewTodoPopupContainer
-                        (viewTodoPopupMenuItems todoPopupFirstFocusableDomId
-                            todo.id
-                            model
-                        )
-                )
+            , viewTodoPopup todoPopupConfig
+                todo.id
+                model.here
+                model.today
+                model.schedulePopup
+                model.todoPopup
             ]
         ]
 
@@ -1088,6 +1086,17 @@ type alias TodoPopupView msg =
     , schedule : TodoId -> msg
     , close : msg
     , schedulePopupConfig : SchedulePopup.ViewConfig msg
+    }
+
+
+todoPopupConfig : TodoPopupView Msg
+todoPopupConfig =
+    { edit = OnEditClicked
+    , move = OnMoveClicked
+    , delete = OnDelete
+    , schedule = OpenSchedulePopup InTodoPopupMenu
+    , close = CloseSchedulePopup
+    , schedulePopupConfig = schedulePopupConfig
     }
 
 
@@ -1142,50 +1151,6 @@ viewTodoPopup config todoId zone today schedulePopupModel model =
 
     else
         HX.empty
-
-
-viewTodoPopupContainer =
-    H.node "track-focus-outside"
-        [ class "absolute right-0 top-1"
-        , class "bg-white shadow-1 w5"
-        , class "z-1" -- if removed; causes flickering with hover icons
-        , on "focusOutside" (JD.succeed CloseTodoPopup)
-        , Key.onEscape CloseTodoPopup
-        , tabindex -1
-        ]
-
-
-viewTodoPopupMenuItems : String -> TodoId -> Model -> List (Html Msg)
-viewTodoPopupMenuItems firstFocusable todoId model =
-    let
-        containerDiv =
-            div [ class "relative" ]
-    in
-    [ containerDiv
-        [ TextButton.view (OnEditClicked todoId)
-            "Edit"
-            [ class "pa2", A.id firstFocusable ]
-        ]
-    , containerDiv
-        [ TextButton.view (OnMoveClicked todoId)
-            "Move to Project"
-            [ class "pa2" ]
-        ]
-    , containerDiv
-        [ TextButton.view (OpenSchedulePopup InTodoPopupMenu todoId)
-            "Schedule"
-            [ class "pa2" ]
-        , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) model.schedulePopup)
-            (\_ ->
-                SchedulePopup.view schedulePopupConfig model.here model.today
-            )
-        ]
-    , containerDiv
-        [ TextButton.view (OnDelete todoId)
-            "Delete"
-            [ class "pa2" ]
-        ]
-    ]
 
 
 viewTodoItemDueDate :
