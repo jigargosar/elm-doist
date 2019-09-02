@@ -451,18 +451,11 @@ update message model =
                     { onSaveOrOverwrite = OnIETSave
                     , focus = OnIETFocus
                     , onChanged = \_ -> NoOp
+                    , toMsg = OnIETMsg
                     }
-
-                ( newModel, maybeMsg ) =
-                    IET.update ietConfig msg model.iet
-                        |> Tuple.mapFirst (\iet -> { model | iet = iet })
             in
-            case maybeMsg of
-                Just newMsg ->
-                    update newMsg newModel
-
-                Nothing ->
-                    ( newModel, Cmd.none )
+            IET.update ietConfig msg model.iet
+                |> Tuple.mapFirst (\iet -> { model | iet = iet })
 
         OnMoveClicked todoId ->
             findTodoById todoId model

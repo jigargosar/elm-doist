@@ -19,6 +19,7 @@ import Maybe exposing (Maybe)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import SchedulePopup
+import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -30,16 +31,36 @@ type Editable a
     = Editable a a
 
 
+getCurrent : Editable a -> a
 getCurrent (Editable _ a) =
     a
 
 
+initEditable : a -> Editable a
+initEditable new =
+    Editable new new
+
+
+changeEditable : a -> Editable a -> Editable a
+changeEditable new (Editable old _) =
+    Editable old new
+
+
+isDirty (Editable old new) =
+    old /= new
+
+
 type alias Edit =
     { todoId : TodoId
-    , dueAt : Editable Todo.DueAt
     , title : Editable String
+    , dueAt : Editable Todo.DueAt
     , schedulePopupOpened : Bool
     }
+
+
+initEdit : TodoId -> { title : String, dueAt : DueAt } -> Edit
+initEdit todoId { title, dueAt } =
+    Edit todoId (initEditable title) (initEditable dueAt) False
 
 
 type Model
@@ -80,65 +101,100 @@ type alias Config msg =
     { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> msg
     , focus : String -> msg
     , onChanged : Value -> msg
+    , toMsg : Msg -> msg
     }
+
+
+hasChanges : Edit -> Bool
+hasChanges edit =
+    isDirty edit.dueAt || isDirty edit.title
+
+
+saveIfDirty : Config msg -> Edit -> Cmd msg
+saveIfDirty config edit =
+    if hasChanges edit then
+        config.onSaveOrOverwrite edit.todoId
+            { title = getCurrent edit.title
+            , dueAt = getCurrent edit.dueAt
+            }
+            |> Task.succeed
+            |> Task.perform identity
+
+    else
+        Cmd.none
 
 
 update :
     Config msg
     -> Msg
     -> Model
-    -> ( Model, Maybe msg )
+    -> ( Model, Cmd msg )
 update config msg model =
     let
-        nop =
-            ( model, Nothing )
+        returnNoOp =
+            ( model, Cmd.none )
     in
     case model of
         Editing edit ->
             case msg of
-                StartEditing todoId { title, dueAt } ->
-                    nop
+                StartEditing todoId fields ->
+                    ( Editing <| initEdit todoId fields
+                    , saveIfDirty config edit
+                    )
 
                 Cancel ->
-                    nop
+                    ( Closed, Cmd.none )
 
                 Save ->
-                    nop
+                    ( Closed, saveIfDirty config edit )
 
                 OpenSchedulePopup ->
-                    nop
+                    ( Editing
+                        { edit
+                            | schedulePopupOpened = True
+                        }
+                    , Cmd.none
+                    )
 
                 CloseSchedulePopup ->
-                    nop
+                    ( Editing
+                        { edit | schedulePopupOpened = False }
+                    , Cmd.none
+                    )
 
                 TitleChanged newTitle ->
-                    nop
+                    ( Editing
+                        { edit | title = changeEditable newTitle edit.title }
+                    , Cmd.none
+                    )
 
-                DueAtChanged dueAt ->
-                    nop
+                DueAtChanged newDueAt ->
+                    ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
+                    , Cmd.none
+                    )
 
         Closed ->
             case msg of
-                StartEditing todoId record ->
-                    nop
+                StartEditing todoId fields ->
+                    ( Editing <| initEdit todoId fields, Cmd.none )
 
                 Cancel ->
-                    nop
+                    returnNoOp
 
                 Save ->
-                    nop
+                    returnNoOp
 
                 OpenSchedulePopup ->
-                    nop
+                    returnNoOp
 
                 CloseSchedulePopup ->
-                    nop
+                    returnNoOp
 
-                TitleChanged string ->
-                    nop
+                TitleChanged _ ->
+                    returnNoOp
 
-                DueAtChanged dueAt ->
-                    nop
+                DueAtChanged _ ->
+                    returnNoOp
 
 
 type alias ViewConfig msg =
