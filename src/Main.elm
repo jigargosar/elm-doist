@@ -21,8 +21,8 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex)
-import Html.Styled.Events exposing (on, onClick)
+import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href)
+import Html.Styled.Events exposing (onClick)
 import HtmlExtra as HX
 import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
@@ -48,7 +48,6 @@ import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
-import UI.Key as Key
 import UI.TextButton as TextButton
 import Url exposing (Url)
 
