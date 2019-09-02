@@ -105,6 +105,7 @@ encoder model =
                 ]
 
 
+decoder : JD.Decoder Model
 decoder =
     JD.field "tag" JD.string
         |> JD.andThen
