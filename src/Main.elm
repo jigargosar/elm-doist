@@ -448,8 +448,10 @@ update message model =
             let
                 ietConfig : IET.Config Msg
                 ietConfig =
-                    { onSaveOrOverwrite = OnIETSave
-                    , focused = Focused
+                    { onSaveOrOverwrite =
+                        \todoId { title, dueAt } ->
+                            patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
+                    , focus = focus
                     , onChanged = OnIETChanged
                     , toMsg = OnIETMsg
                     }

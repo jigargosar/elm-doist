@@ -104,8 +104,8 @@ startEditing =
 
 
 type alias Config msg =
-    { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> msg
-    , focused : Result Dom.Error () -> msg
+    { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> Cmd msg
+    , focus : String -> Cmd msg
     , onChanged : Value -> msg
     , toMsg : Msg -> msg
     }
@@ -123,8 +123,6 @@ saveIfDirty config edit =
             { title = getCurrent edit.title
             , dueAt = getCurrent edit.dueAt
             }
-            |> Task.succeed
-            |> Task.perform identity
 
     else
         Cmd.none
@@ -141,14 +139,14 @@ update config message model =
             case model of
                 Closed ->
                     ( Editing <| initEdit todoId fields
-                    , Focus.attempt config.focused firstFocusableDomId
+                    , config.focus firstFocusableDomId
                     )
 
                 Editing edit ->
                     ( Editing <| initEdit todoId fields
                     , Cmd.batch
                         [ saveIfDirty config edit
-                        , Focus.attempt config.focused firstFocusableDomId
+                        , config.focus firstFocusableDomId
                         ]
                     )
 
@@ -182,7 +180,7 @@ updateEditingModel config msg edit =
 
         OpenSchedulePopup ->
             ( Editing { edit | schedulePopupOpened = True }
-            , Focus.attempt config.focused schedulePopupFirstFocusableDomId
+            , config.focus schedulePopupFirstFocusableDomId
             )
 
         CloseSchedulePopup ->
