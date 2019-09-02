@@ -163,22 +163,17 @@ updateEditingModel config msg edit =
             ( Closed, saveIfDirty config edit )
 
         OpenSchedulePopup ->
-            ( Editing
-                { edit
-                    | schedulePopupOpened = True
-                }
+            ( Editing { edit | schedulePopupOpened = True }
             , Cmd.none
             )
 
         CloseSchedulePopup ->
-            ( Editing
-                { edit | schedulePopupOpened = False }
+            ( Editing { edit | schedulePopupOpened = False }
             , Cmd.none
             )
 
         TitleChanged newTitle ->
-            ( Editing
-                { edit | title = changeEditable newTitle edit.title }
+            ( Editing { edit | title = changeEditable newTitle edit.title }
             , Cmd.none
             )
 
