@@ -133,72 +133,59 @@ update :
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update config msg model =
+update config message model =
     let
         returnNoOp =
             ( model, Cmd.none )
     in
-    case model of
-        Editing edit ->
-            case msg of
-                StartEditing todoId fields ->
+    case message of
+        StartEditing todoId fields ->
+            case model of
+                Closed ->
+                    ( Editing <| initEdit todoId fields, Cmd.none )
+
+                Editing edit ->
                     ( Editing <| initEdit todoId fields
                     , saveIfDirty config edit
                     )
 
-                Cancel ->
-                    ( Closed, Cmd.none )
-
-                Save ->
-                    ( Closed, saveIfDirty config edit )
-
-                OpenSchedulePopup ->
-                    ( Editing
-                        { edit
-                            | schedulePopupOpened = True
-                        }
-                    , Cmd.none
-                    )
-
-                CloseSchedulePopup ->
-                    ( Editing
-                        { edit | schedulePopupOpened = False }
-                    , Cmd.none
-                    )
-
-                TitleChanged newTitle ->
-                    ( Editing
-                        { edit | title = changeEditable newTitle edit.title }
-                    , Cmd.none
-                    )
-
-                DueAtChanged newDueAt ->
-                    ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
-                    , Cmd.none
-                    )
-
-        Closed ->
-            case msg of
-                StartEditing todoId fields ->
-                    ( Editing <| initEdit todoId fields, Cmd.none )
-
-                Cancel ->
+        OnUpdateMsg msg ->
+            case model of
+                Closed ->
                     returnNoOp
 
-                Save ->
-                    returnNoOp
+                Editing edit ->
+                    case msg of
+                        Cancel ->
+                            ( Closed, Cmd.none )
 
-                OpenSchedulePopup ->
-                    returnNoOp
+                        Save ->
+                            ( Closed, saveIfDirty config edit )
 
-                CloseSchedulePopup ->
-                    returnNoOp
+                        OpenSchedulePopup ->
+                            ( Editing
+                                { edit
+                                    | schedulePopupOpened = True
+                                }
+                            , Cmd.none
+                            )
 
-                TitleChanged _ ->
-                    returnNoOp
+                        CloseSchedulePopup ->
+                            ( Editing
+                                { edit | schedulePopupOpened = False }
+                            , Cmd.none
+                            )
 
-                DueAtChanged _ ->
-                    returnNoOp
+                        TitleChanged newTitle ->
+                            ( Editing
+                                { edit | title = changeEditable newTitle edit.title }
+                            , Cmd.none
+                            )
+
+                        DueAtChanged newDueAt ->
+                            ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
+                            , Cmd.none
+                            )
 
 
 type alias ViewConfig msg =
