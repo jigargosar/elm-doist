@@ -294,13 +294,13 @@ update message model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ifElse (Route.fromUrl url == model.route)
-                        ( model
-                        , Nav.replaceUrl model.key (Url.toString url)
-                        )
-                        ( model
-                        , Nav.pushUrl model.key (Url.toString url)
-                        )
+                    ( model
+                    , if Route.fromUrl url == model.route then
+                        Nav.replaceUrl model.key (Url.toString url)
+
+                      else
+                        Nav.pushUrl model.key (Url.toString url)
+                    )
 
                 Browser.External href ->
                     ( model, Nav.load href )
