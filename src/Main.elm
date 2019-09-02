@@ -565,6 +565,12 @@ cacheMaybeInlineEditTodoCmd maybeIET =
         )
 
 
+onMaybeIETMsg : InlineEditTodoMsg -> Model -> Return
+onMaybeIETMsg message model =
+    maybeIETUpdate message model.inlineEditTodo
+        |> Tuple.mapFirst (flip setMaybeInlineEditTodo model)
+
+
 maybeIETUpdate :
     InlineEditTodoMsg
     -> Maybe InlineEditTodo.Model
@@ -618,12 +624,6 @@ maybeIETUpdate message model =
 
         Nothing ->
             Return.singleton Nothing
-
-
-onMaybeIETMsg : InlineEditTodoMsg -> Model -> Return
-onMaybeIETMsg message model =
-    maybeIETUpdate message model.inlineEditTodo
-        |> Tuple.mapFirst (flip setMaybeInlineEditTodo model)
 
 
 
