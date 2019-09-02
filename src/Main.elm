@@ -449,7 +449,7 @@ update message model =
                 ietConfig : IET.Config Msg
                 ietConfig =
                     { onSaveOrOverwrite = OnIETSave
-                    , focus = OnIETFocus
+                    , focused = Focused
                     , onChanged = OnIETChanged
                     , toMsg = OnIETMsg
                     }

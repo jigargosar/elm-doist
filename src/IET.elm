@@ -1,7 +1,9 @@
 module IET exposing (Config, Model, Msg, initial, startEditing, update, viewEditingForTodoId)
 
+import Browser.Dom as Dom
 import Calendar
 import Css exposing (minWidth, none, px, resize)
+import Focus
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
 import Html.Styled.Attributes as A
     exposing
@@ -103,7 +105,7 @@ startEditing =
 
 type alias Config msg =
     { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> msg
-    , focus : String -> msg
+    , focused : Result Dom.Error () -> msg
     , onChanged : Value -> msg
     , toMsg : Msg -> msg
     }
@@ -175,9 +177,7 @@ updateEditingModel config msg edit =
 
         OpenSchedulePopup ->
             ( Editing { edit | schedulePopupOpened = True }
-            , config.focus schedulePopupFirstFocusableDomId
-                |> Task.succeed
-                |> Task.perform identity
+            , Focus.attempt config.focused schedulePopupFirstFocusableDomId
             )
 
         CloseSchedulePopup ->
