@@ -1090,8 +1090,16 @@ type alias TodoPopupView msg =
     }
 
 
-viewTodoPopup : TodoPopupView msg -> TodoId -> Zone -> Calendar.Date -> TodoPopupModel -> Html msg
-viewTodoPopup config todoId zone today model =
+viewTodoPopup :
+    TodoPopupView msg
+    -> TodoId
+    -> Zone
+    -> Calendar.Date
+    -> SchedulePopup.ViewConfig msg
+    -> SchedulePopupModel
+    -> TodoPopupModel
+    -> Html msg
+viewTodoPopup config todoId zone today schedulePopupConfig_ schedulePopupModel model =
     if isPopupOpenFor todoId model then
         H.node "track-focus-outside"
             [ class "absolute right-0 top-1"
@@ -1101,7 +1109,36 @@ viewTodoPopup config todoId zone today model =
             , Key.onEscape config.close
             , tabindex -1
             ]
-            []
+            (let
+                containerDiv =
+                    div [ class "relative" ]
+             in
+             [ containerDiv
+                [ TextButton.view (config.edit todoId)
+                    "Edit"
+                    [ class "pa2", A.id todoPopupFirstFocusableDomId ]
+                ]
+             , containerDiv
+                [ TextButton.view (config.move todoId)
+                    "Move to Project"
+                    [ class "pa2" ]
+                ]
+             , containerDiv
+                [ TextButton.view (config.schedule todoId)
+                    "Schedule"
+                    [ class "pa2" ]
+                , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) schedulePopupModel)
+                    (\_ ->
+                        SchedulePopup.view schedulePopupConfig_ zone today
+                    )
+                ]
+             , containerDiv
+                [ TextButton.view (config.delete todoId)
+                    "Delete"
+                    [ class "pa2" ]
+                ]
+             ]
+            )
 
     else
         HX.empty
