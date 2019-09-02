@@ -294,7 +294,7 @@ viewConfig =
                 SchedulePopup.view schedulePopupConfig_ zone today
 
             else
-                HX.empty
+                HX.none
     }
 
 

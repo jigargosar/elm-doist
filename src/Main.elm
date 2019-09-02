@@ -869,7 +869,7 @@ viewFooter model =
     else
         case model.dialog of
             Dialog.Closed ->
-                HX.empty
+                HX.none
 
             Dialog.MoveToProjectDialog todoId projectId ->
                 viewMoveDialog
@@ -1073,7 +1073,7 @@ viewTodoItemBase model todo =
                 todo.id
                 model.here
                 model.today
-                model.schedulePopup
+                (isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup)
                 model.todoPopup
             ]
         ]
@@ -1105,10 +1105,10 @@ viewTodoPopup :
     -> TodoId
     -> Zone
     -> Calendar.Date
-    -> SchedulePopupModel
+    -> Bool
     -> TodoPopupModel
     -> Html msg
-viewTodoPopup config todoId zone today schedulePopupModel model =
+viewTodoPopup config todoId zone today shedulePopupOpen model =
     if isPopupOpenFor todoId model then
         H.node "track-focus-outside"
             [ class "absolute right-0 top-1"
@@ -1136,10 +1136,11 @@ viewTodoPopup config todoId zone today schedulePopupModel model =
                 [ TextButton.view (config.schedule todoId)
                     "Schedule"
                     [ class "pa2" ]
-                , HX.viewIf (isPopupOpenFor ( InTodoPopupMenu, todoId ) schedulePopupModel)
-                    (\_ ->
-                        SchedulePopup.view config.schedulePopupConfig zone today
-                    )
+                , if shedulePopupOpen then
+                    SchedulePopup.view config.schedulePopupConfig zone today
+
+                  else
+                    HX.none
                 ]
              , containerDiv
                 [ TextButton.view (config.delete todoId)
@@ -1150,7 +1151,7 @@ viewTodoPopup config todoId zone today schedulePopupModel model =
             )
 
     else
-        HX.empty
+        HX.none
 
 
 viewTodoItemDueDate :
