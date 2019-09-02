@@ -413,7 +413,7 @@ update message model =
             startEditingTodoId todoId model
 
         OnInlineEditTodoMsg msg ->
-            onMaybeInlineEditTodoMsg msg model
+            onMaybeIETMsg msg model
 
         OnMoveClicked todoId ->
             findTodoById todoId model
@@ -620,8 +620,8 @@ maybeIETUpdate message model =
             Return.singleton Nothing
 
 
-onMaybeInlineEditTodoMsg : InlineEditTodoMsg -> Model -> Return
-onMaybeInlineEditTodoMsg message model =
+onMaybeIETMsg : InlineEditTodoMsg -> Model -> Return
+onMaybeIETMsg message model =
     maybeIETUpdate message model.inlineEditTodo
         |> Tuple.mapFirst (flip setMaybeInlineEditTodo model)
 
