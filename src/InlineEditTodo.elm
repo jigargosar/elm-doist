@@ -1,4 +1,4 @@
-module IET exposing
+module InlineEditTodo exposing
     ( Config
     , Model
     , Msg
@@ -130,7 +130,7 @@ taggedDecoder tag =
             JD.succeed Closed
 
         _ ->
-            JD.fail ("IET: unknown tag: " ++ tag)
+            JD.fail ("InlineEditTodo: unknown tag: " ++ tag)
 
 
 initial : Model

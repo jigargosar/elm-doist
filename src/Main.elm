@@ -24,7 +24,7 @@ import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (on, onClick)
 import HtmlExtra as HX
-import IET
+import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -502,7 +502,7 @@ focus =
 
 
 
--- IET
+-- InlineEditTodo
 
 
 ietConfig : IET.Config Msg
