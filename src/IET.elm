@@ -234,7 +234,11 @@ updateEditingModel config msg edit =
             )
 
         DueAtChanged newDueAt ->
-            ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
+            ( Editing
+                { edit
+                    | dueAt = changeEditable newDueAt edit.dueAt
+                    , schedulePopupOpened = False
+                }
             , Cmd.none
             )
 
