@@ -136,23 +136,6 @@ type alias Config msg =
     }
 
 
-hasChanges : Edit -> Bool
-hasChanges edit =
-    isDirty edit.dueAt || isDirty edit.title
-
-
-saveIfDirty : Config msg -> Edit -> Cmd msg
-saveIfDirty config edit =
-    if hasChanges edit then
-        config.onSaveOrOverwrite edit.todoId
-            { title = getCurrent edit.title
-            , dueAt = getCurrent edit.dueAt
-            }
-
-    else
-        Cmd.none
-
-
 update :
     Config msg
     -> Msg
@@ -223,6 +206,23 @@ updateEditingModel config msg edit =
             ( Editing { edit | dueAt = changeEditable newDueAt edit.dueAt }
             , Cmd.none
             )
+
+
+hasChanges : Edit -> Bool
+hasChanges edit =
+    isDirty edit.dueAt || isDirty edit.title
+
+
+saveIfDirty : Config msg -> Edit -> Cmd msg
+saveIfDirty config edit =
+    if hasChanges edit then
+        config.onSaveOrOverwrite edit.todoId
+            { title = getCurrent edit.title
+            , dueAt = getCurrent edit.dueAt
+            }
+
+    else
+        Cmd.none
 
 
 type alias ViewConfig msg =
