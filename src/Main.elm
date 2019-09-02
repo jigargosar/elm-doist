@@ -450,7 +450,7 @@ update message model =
                 ietConfig =
                     { onSaveOrOverwrite = OnIETSave
                     , focus = OnIETFocus
-                    , onChanged = \_ -> NoOp
+                    , onChanged = OnIETChanged
                     , toMsg = OnIETMsg
                     }
             in
