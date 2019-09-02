@@ -428,11 +428,16 @@ update message model =
                     , onChanged = \_ -> NoOp
                     }
 
-                _ =
+                ( newModel, maybeMsg ) =
                     IET.update ietConfig msg model.iet
                         |> Tuple.mapFirst (\iet -> { model | iet = iet })
             in
-            Return.singleton model
+            case maybeMsg of
+                Just newMsg ->
+                    update newMsg newModel
+
+                Nothing ->
+                    ( newModel, Cmd.none )
 
         OnMoveClicked todoId ->
             findTodoById todoId model
