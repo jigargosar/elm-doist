@@ -995,50 +995,55 @@ viewTodoItemBase model todo =
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , case model.todoPopup of
-                TodoPopupClosed ->
-                    HX.none
-
-                TodoPopupOpen todoId_ subPopup_ ->
-                    if todo.id /= todoId_ then
-                        HX.none
-
-                    else
-                        TodoPopup.view
-                            { edit = TodoPopupEdit
-                            , move = TodoPopupSetSub TodoPopup.MoveSubPopup
-                            , delete = TodoPopupDelete
-                            , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
-                            , close = CloseTodoPopup
-                            }
-                            todo.id
-                            (\subPopup ->
-                                if subPopup /= subPopup_ then
-                                    HX.none
-
-                                else
-                                    case subPopup of
-                                        TodoPopup.NoSubPopup ->
-                                            HX.none
-
-                                        TodoPopup.MoveSubPopup ->
-                                            MovePopup.view
-                                                { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
-                                                , move = TodoPopupMoveTodo todoId_
-                                                }
-                                                todo.projectId
-                                                model.projectList
-
-                                        TodoPopup.ScheduleSubPopup ->
-                                            SchedulePopup.view
-                                                { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
-                                                , schedule = TodoPopupScheduleTodo todoId_
-                                                }
-                                                model.here
-                                                model.today
-                            )
+            , viewTodoPopup todo model
             ]
         ]
+
+
+viewTodoPopup : Todo -> Model -> Html Msg
+viewTodoPopup todo model =
+    case model.todoPopup of
+        TodoPopupClosed ->
+            HX.none
+
+        TodoPopupOpen todoId_ subPopup_ ->
+            if todo.id /= todoId_ then
+                HX.none
+
+            else
+                TodoPopup.view
+                    { edit = TodoPopupEdit
+                    , move = TodoPopupSetSub TodoPopup.MoveSubPopup
+                    , delete = TodoPopupDelete
+                    , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
+                    , close = CloseTodoPopup
+                    }
+                    todo.id
+                    (\subPopup ->
+                        if subPopup /= subPopup_ then
+                            HX.none
+
+                        else
+                            case subPopup of
+                                TodoPopup.NoSubPopup ->
+                                    HX.none
+
+                                TodoPopup.MoveSubPopup ->
+                                    MovePopup.view
+                                        { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
+                                        , move = TodoPopupMoveTodo todoId_
+                                        }
+                                        todo.projectId
+                                        model.projectList
+
+                                TodoPopup.ScheduleSubPopup ->
+                                    SchedulePopup.view
+                                        { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
+                                        , schedule = TodoPopupScheduleTodo todoId_
+                                        }
+                                        model.here
+                                        model.today
+                    )
 
 
 viewTodoItemDueDate :
