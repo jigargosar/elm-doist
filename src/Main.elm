@@ -217,12 +217,7 @@ type Msg
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | TodoPopupSetSub TodoPopup.SubPopup TodoId
-    | TodoPopupMoveTodo TodoId ProjectId
-    | TodoPopupScheduleTodo TodoId Todo.DueAt
-    | TodoPopupDelete TodoId
-    | TodoPopupEdit TodoId
     | OpenTodoPopup TodoId
-    | CloseTodoPopup
     | TodoPopupClosedBy TodoPopup.ClosedBy
     | OpenSchedulePopup TodoId
     | CloseSchedulePopup
@@ -414,9 +409,6 @@ update message model =
             , focus TodoPopup.firstFocusable
             )
 
-        CloseTodoPopup ->
-            ( { model | todoPopup = TodoPopup.closed }, Cmd.none )
-
         TodoPopupClosedBy closedBy ->
             { model | todoPopup = TodoPopup.closed }
                 |> (case closedBy of
@@ -448,24 +440,6 @@ update message model =
                 TodoPopup.NoSubPopup ->
                     Cmd.none
             )
-
-        TodoPopupMoveTodo todoId projectId ->
-            ( { model | todoPopup = TodoPopup.closed }
-            , patchTodoCmd todoId [ Todo.SetProjectId projectId ]
-            )
-
-        TodoPopupScheduleTodo todoId dueAt ->
-            ( { model | todoPopup = TodoPopup.closed }
-            , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
-            )
-
-        TodoPopupDelete todoId ->
-            { model | todoPopup = TodoPopup.closed }
-                |> update (OnDelete todoId)
-
-        TodoPopupEdit todoId ->
-            { model | todoPopup = TodoPopup.closed }
-                |> update (OnEditClicked todoId)
 
 
 handleFirestoreQueryResponse :
