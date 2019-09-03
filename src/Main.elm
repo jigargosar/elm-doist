@@ -254,7 +254,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | OnMoveClicked TodoId
+    | TodoPopupMoveClicked TodoId
     | OpenTodoPopup TodoId
     | CloseTodoPopup
     | OpenSchedulePopup SchedulePopupLocation TodoId
@@ -423,10 +423,18 @@ update message model =
         OnIETMsg msg ->
             updateIET msg model
 
-        OnMoveClicked todoId ->
-            findTodoById todoId model
-                |> MX.unwrap Return.singleton startMoving
-                |> callWith model
+        TodoPopupMoveClicked todoId ->
+            case findTodoById todoId model of
+                Just todo ->
+                    ( { model
+                        | todoPopup =
+                            TodoPopupOpen todoId (Just <| MoveSubPopup todo.projectId)
+                      }
+                    , focus MovePopup.firstFocusable
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         OpenSchedulePopup loc todoId ->
             openPopup SchedulePopup.schedulePopupFirstFocusableDomId ( loc, todoId )
@@ -1084,7 +1092,7 @@ schedulePopupConfig =
 todoPopupConfig : TodoPopup.ViewConfig Msg
 todoPopupConfig =
     { edit = OnEditClicked
-    , move = OnMoveClicked
+    , move = TodoPopupMoveClicked
     , delete = OnDelete
     , schedule = OpenSchedulePopup InTodoPopupMenu
     , close = CloseTodoPopup
