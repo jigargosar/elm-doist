@@ -1070,6 +1070,16 @@ schedulePopupConfig =
     }
 
 
+todoPopupConfig : TodoPopup.ViewConfig Msg
+todoPopupConfig =
+    { edit = OnEditClicked
+    , move = OnMoveClicked
+    , delete = OnDelete
+    , schedule = OpenSchedulePopup InTodoPopupMenu
+    , close = CloseTodoPopup
+    }
+
+
 viewTodoItemBase :
     Model
     -> Todo
@@ -1118,16 +1128,6 @@ viewTodoItemBase model todo =
                 HX.none
             ]
         ]
-
-
-todoPopupConfig : TodoPopup.ViewConfig Msg
-todoPopupConfig =
-    { edit = OnEditClicked
-    , move = OnMoveClicked
-    , delete = OnDelete
-    , schedule = OpenSchedulePopup InTodoPopupMenu
-    , close = CloseTodoPopup
-    }
 
 
 viewTodoItemDueDate :
