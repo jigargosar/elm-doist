@@ -131,7 +131,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , iet : IET.Model
-    , todoPopup : TodoPopup.TodoPopupModel
+    , todoPopup : TodoPopup.Model
     , schedulePopup : SchedulePopupModel
     , authState : AuthState
     , errors : Errors

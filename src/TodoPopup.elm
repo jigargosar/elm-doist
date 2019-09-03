@@ -1,8 +1,8 @@
 module TodoPopup exposing
     ( ClosedBy(..)
+    , Model
     , Msg
     , SubPopup(..)
-    , TodoPopupModel
     , firstFocusable
     , init
     , movePopupConfig
@@ -26,24 +26,24 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-type TodoPopupModel
-    = TodoPopupOpen TodoId SubPopup
-    | TodoPopupClosed
+type Model
+    = PopupOpen TodoId SubPopup
+    | PopupClosed
 
 
-init : TodoPopupModel
+init : Model
 init =
-    TodoPopupClosed
+    PopupClosed
 
 
-opened : TodoId -> TodoPopupModel
+opened : TodoId -> Model
 opened todoId =
-    TodoPopupOpen todoId NoSubPopup
+    PopupOpen todoId NoSubPopup
 
 
-closed : TodoPopupModel
+closed : Model
 closed =
-    TodoPopupClosed
+    PopupClosed
 
 
 type SubPopup
@@ -82,17 +82,20 @@ update :
         , closedBy : ClosedBy -> Cmd msg
     }
     -> Msg
-    -> TodoPopupModel
-    -> ( TodoPopupModel, Cmd msg )
+    -> Model
+    -> ( Model, Cmd msg )
 update { focus, closedBy } msg model =
     case msg of
+        OpenPopup todoId ->
+            ( opened todoId, focus firstFocusable )
+
         SetSubPopup _ subPopup ->
             case model of
-                TodoPopupClosed ->
+                PopupClosed ->
                     ( model, Cmd.none )
 
-                TodoPopupOpen todoId _ ->
-                    ( TodoPopupOpen todoId subPopup
+                PopupOpen todoId _ ->
+                    ( PopupOpen todoId subPopup
                     , case subPopup of
                         MoveSubPopup ->
                             focus MovePopup.firstFocusable
@@ -103,9 +106,6 @@ update { focus, closedBy } msg model =
                         NoSubPopup ->
                             Cmd.none
                     )
-
-        OpenPopup todoId ->
-            ( opened todoId, focus firstFocusable )
 
         ClosePopup by ->
             ( closed, closedBy by )
@@ -129,13 +129,13 @@ schedulePopupConfig todoId =
     }
 
 
-view : (Msg -> msg) -> TodoId -> (SubPopup -> Html Msg) -> TodoPopupModel -> Html msg
+view : (Msg -> msg) -> TodoId -> (SubPopup -> Html Msg) -> Model -> Html msg
 view toMsg todoId viewSubPopup model =
     (case model of
-        TodoPopupClosed ->
+        PopupClosed ->
             HX.none
 
-        TodoPopupOpen todoId_ subPopup_ ->
+        PopupOpen todoId_ subPopup_ ->
             if todoId /= todoId_ then
                 HX.none
 
