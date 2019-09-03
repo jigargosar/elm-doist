@@ -127,6 +127,13 @@ type alias SchedulePopupModel =
 -- MODEL
 
 
+type TodoItemDisplayMode
+    = IETMode IET.Model
+    | TodoPopupMode TodoPopup.Model
+    | SchedulePopupMode SchedulePopupModel
+    | NormalDisplayMode
+
+
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
