@@ -1119,38 +1119,38 @@ viewTodoItemBase model todo =
                 TodoPopupClosed ->
                     HX.none
 
-                TodoPopupOpen todoId_ maybeSubPopup ->
+                TodoPopupOpen todoId_ subPopup_ ->
                     if todo.id /= todoId_ then
                         HX.none
 
                     else
                         TodoPopup.view todoPopupConfig
                             todo.id
-                            { viewMovePopup =
-                                case maybeSubPopup of
-                                    TodoPopup.MoveSubPopup ->
-                                        MovePopup.view
-                                            { close = TodoPopupCloseSub todoId_
-                                            , move = TodoPopupMoveTodo todoId_
-                                            }
-                                            todo.projectId
-                                            model.projectList
+                            (\subPopup ->
+                                if subPopup /= subPopup_ then
+                                    HX.none
 
-                                    _ ->
-                                        HX.none
-                            , viewSchedulePopup =
-                                case maybeSubPopup of
-                                    TodoPopup.ScheduleSubPopup ->
-                                        SchedulePopup.view
-                                            { close = TodoPopupCloseSub todoId_
-                                            , schedule = TodoPopupScheduleTodo todoId_
-                                            }
-                                            model.here
-                                            model.today
+                                else
+                                    case subPopup of
+                                        TodoPopup.MoveSubPopup ->
+                                            MovePopup.view
+                                                { close = TodoPopupCloseSub todoId_
+                                                , move = TodoPopupMoveTodo todoId_
+                                                }
+                                                todo.projectId
+                                                model.projectList
 
-                                    _ ->
-                                        HX.none
-                            }
+                                        TodoPopup.ScheduleSubPopup ->
+                                            SchedulePopup.view
+                                                { close = TodoPopupCloseSub todoId_
+                                                , schedule = TodoPopupScheduleTodo todoId_
+                                                }
+                                                model.here
+                                                model.today
+
+                                        TodoPopup.NoSubPopup ->
+                                            HX.none
+                            )
             ]
         ]
 

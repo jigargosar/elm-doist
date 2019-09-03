@@ -32,12 +32,9 @@ type alias ViewConfig msg =
 view :
     ViewConfig msg
     -> TodoId
-    ->
-        { viewMovePopup : Html msg
-        , viewSchedulePopup : Html msg
-        }
+    -> (SubPopup -> Html msg)
     -> Html msg
-view config todoId { viewMovePopup, viewSchedulePopup } =
+view config todoId viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
@@ -59,13 +56,13 @@ view config todoId { viewMovePopup, viewSchedulePopup } =
             [ TextButton.view (config.move todoId)
                 "Move to Project"
                 [ class "pa2" ]
-            , viewMovePopup
+            , viewSubPopup MoveSubPopup
             ]
          , containerDiv
             [ TextButton.view (config.schedule todoId)
                 "Schedule"
                 [ class "pa2" ]
-            , viewSchedulePopup
+            , viewSubPopup ScheduleSubPopup
             ]
          , containerDiv
             [ TextButton.view (config.delete todoId)
