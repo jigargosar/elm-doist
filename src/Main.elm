@@ -1132,6 +1132,9 @@ viewTodoItemBase model todo =
 
                                 else
                                     case subPopup of
+                                        TodoPopup.NoSubPopup ->
+                                            HX.none
+
                                         TodoPopup.MoveSubPopup ->
                                             MovePopup.view
                                                 { close = TodoPopupCloseSub todoId_
@@ -1147,9 +1150,6 @@ viewTodoItemBase model todo =
                                                 }
                                                 model.here
                                                 model.today
-
-                                        TodoPopup.NoSubPopup ->
-                                            HX.none
                             )
             ]
         ]
