@@ -244,8 +244,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | TodoPopupOpenSub TodoPopup.SubPopup TodoId
-    | TodoPopupCloseSub TodoId
+    | TodoPopupSetSub TodoPopup.SubPopup TodoId
     | TodoPopupMoveTodo TodoId ProjectId
     | TodoPopupScheduleTodo TodoId Todo.DueAt
     | TodoPopupDelete TodoId
@@ -468,7 +467,7 @@ update message model =
         CloseTodoPopup ->
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
-        TodoPopupOpenSub subPopup todoId ->
+        TodoPopupSetSub subPopup todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId subPopup }
             , case subPopup of
                 TodoPopup.MoveSubPopup ->
@@ -479,11 +478,6 @@ update message model =
 
                 TodoPopup.NoSubPopup ->
                     Cmd.none
-            )
-
-        TodoPopupCloseSub todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
-            , Cmd.none
             )
 
         TodoPopupMoveTodo todoId projectId ->
@@ -1134,9 +1128,9 @@ viewTodoItemBase model todo =
                     else
                         TodoPopup.view
                             { edit = TodoPopupEdit
-                            , move = TodoPopupOpenSub TodoPopup.MoveSubPopup
+                            , move = TodoPopupSetSub TodoPopup.MoveSubPopup
                             , delete = TodoPopupDelete
-                            , schedule = TodoPopupOpenSub TodoPopup.ScheduleSubPopup
+                            , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
                             , close = CloseTodoPopup
                             }
                             todo.id
@@ -1151,7 +1145,7 @@ viewTodoItemBase model todo =
 
                                         TodoPopup.MoveSubPopup ->
                                             MovePopup.view
-                                                { close = TodoPopupCloseSub todoId_
+                                                { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
                                                 , move = TodoPopupMoveTodo todoId_
                                                 }
                                                 todo.projectId
@@ -1159,7 +1153,7 @@ viewTodoItemBase model todo =
 
                                         TodoPopup.ScheduleSubPopup ->
                                             SchedulePopup.view
-                                                { close = TodoPopupCloseSub todoId_
+                                                { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
                                                 , schedule = TodoPopupScheduleTodo todoId_
                                                 }
                                                 model.here
