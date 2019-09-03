@@ -138,6 +138,15 @@ type alias SchedulePopupModel =
 
 
 
+-- MovePopup
+
+
+type MovePopupModel
+    = MovePopupOpen TodoId ProjectId
+    | MovePopupClosed
+
+
+
 -- MODEL
 
 
@@ -147,7 +156,7 @@ type alias Model =
     , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
-    , movePopup : MovePopup.Model
+    , movePopup : MovePopupModel
     , dialog : MoveDialog.Model
     , authState : AuthState
     , errors : Errors
@@ -194,7 +203,7 @@ init encodedFlags url key =
             , iet = IET.initial
             , todoPopup = initPopup
             , schedulePopup = initPopup
-            , movePopup = MovePopup.initial
+            , movePopup = MovePopupClosed
             , dialog = MoveDialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -240,6 +249,7 @@ type Msg
     | OpenSchedulePopup SchedulePopupLocation TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
+    | CloseMovePopup
     | MoveTodo TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
       -- InlineTodoEditing
@@ -437,8 +447,12 @@ update message model =
             closePopup
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
+        CloseMovePopup ->
+            ( { model | movePopup = MovePopupClosed }, Cmd.none )
+
         MoveTodo todoId pid ->
-            updateDialogAndCache MoveDialog.Closed model
+            { model | movePopup = MovePopupClosed }
+                |> updateDialogAndCache MoveDialog.Closed
                 |> Return.command
                     (patchTodoCmd
                         todoId
@@ -1066,7 +1080,25 @@ viewTodoItemBase model todo =
                     todo.id
                     model.here
                     model.today
-                    (isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup)
+                    { schedulePopupOpen = isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup
+                    , viewMovePopup =
+                        case model.movePopup of
+                            MovePopupOpen todoId_ projectId ->
+                                if todo.id == todoId_ then
+                                    MovePopup.view
+                                        { close = CloseMovePopup
+                                        , move = MoveTodo
+                                        }
+                                        todoId_
+                                        projectId
+                                        model.projectList
+
+                                else
+                                    HX.none
+
+                            MovePopupClosed ->
+                                HX.none
+                    }
 
               else
                 HX.none

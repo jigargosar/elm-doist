@@ -1,10 +1,9 @@
-module MovePopup exposing (Model(..), firstFocusable, initial, view)
+module MovePopup exposing (firstFocusable, view)
 
 import BasicsExtra exposing (..)
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes as A exposing (class, classList, tabindex)
-import Html.Styled.Events exposing (on, onClick)
-import HtmlExtra as HX
+import Html.Styled.Events exposing (on)
 import Json.Decode as JD
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -13,36 +12,12 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-type Model
-    = Closed
-    | OpenFor TodoId ProjectId
-
-
-initial : Model
-initial =
-    Closed
-
-
 firstFocusable =
     "move-popup__first-focusable"
 
 
 type alias ViewConfig msg =
     { close : msg, move : TodoId -> ProjectId -> msg }
-
-
-view : ViewConfig msg -> TodoId -> List Project -> Model -> Html msg
-view config todoId projectList model =
-    case model of
-        OpenFor todoId_ projectId ->
-            if todoId /= todoId_ then
-                HX.none
-
-            else
-                viewHelp config todoId projectId projectList
-
-        Closed ->
-            HX.none
 
 
 type alias DisplayProject =
@@ -65,8 +40,8 @@ toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
 
 
-viewHelp : ViewConfig msg -> TodoId -> ProjectId -> List Project -> Html msg
-viewHelp config todoId projectId projectList =
+view : ViewConfig msg -> TodoId -> ProjectId -> List Project -> Html msg
+view config todoId projectId projectList =
     let
         viewProjectItem idx dp =
             TextButton.view (config.move todoId dp.id)

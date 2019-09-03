@@ -33,9 +33,9 @@ view :
     -> TodoId
     -> Zone
     -> Calendar.Date
-    -> Bool
+    -> { schedulePopupOpen : Bool, viewMovePopup : Html msg }
     -> Html msg
-view config todoId zone today schedulePopupOpen =
+view config todoId zone today { schedulePopupOpen, viewMovePopup } =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
@@ -57,6 +57,7 @@ view config todoId zone today schedulePopupOpen =
             [ TextButton.view (config.move todoId)
                 "Move to Project"
                 [ class "pa2" ]
+            , viewMovePopup
             ]
          , containerDiv
             [ TextButton.view (config.schedule todoId)
