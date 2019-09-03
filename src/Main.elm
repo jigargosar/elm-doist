@@ -1125,9 +1125,9 @@ viewTodoItemBase model todo =
 
                     else
                         TodoPopup.view
-                            { edit = OnEditClicked
+                            { edit = TodoPopupEdit
                             , move = TodoPopupOpenSub TodoPopup.MoveSubPopup
-                            , delete = OnDelete
+                            , delete = TodoPopupDelete
                             , schedule = TodoPopupOpenSub TodoPopup.ScheduleSubPopup
                             , close = CloseTodoPopup
                             }
