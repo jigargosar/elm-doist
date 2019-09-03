@@ -237,7 +237,7 @@ type Msg
     | OpenSchedulePopup SchedulePopupLocation TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
-    | OpenMoveDialog TodoId ProjectId
+    | MoveTodo TodoId ProjectId
     | OnDialogOverlayClickedOrEscapePressed
       -- InlineTodoEditing
     | OnEditClicked TodoId
@@ -434,7 +434,7 @@ update message model =
             closePopup
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
-        OpenMoveDialog todoId pid ->
+        MoveTodo todoId pid ->
             updateDialogAndCache MoveDialog.Closed model
                 |> Return.command
                     (patchTodoCmd
@@ -914,7 +914,7 @@ viewMoveDialog todoId projectId projectList =
     let
         viewProjectItem : Int -> DisplayProject -> Html Msg
         viewProjectItem idx dp =
-            TextButton.view (OpenMoveDialog todoId dp.id)
+            TextButton.view (MoveTodo todoId dp.id)
                 dp.title
                 [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]
