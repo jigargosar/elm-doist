@@ -127,19 +127,12 @@ type alias SchedulePopupModel =
 -- MODEL
 
 
-type TodoItemDisplayMode
-    = IETMode IET.Model
-    | TodoPopupMode TodoPopup.Model
-    | SchedulePopupMode SchedulePopupModel
-
-
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , iet : IET.Model
     , todoPopup : TodoPopup.Model
     , schedulePopup : SchedulePopupModel
-    , todoItemDisplayMode : Maybe TodoItemDisplayMode
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -185,7 +178,6 @@ init encodedFlags url key =
             , iet = IET.initial
             , todoPopup = TodoPopup.init
             , schedulePopup = initPopup
-            , todoItemDisplayMode = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
