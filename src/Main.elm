@@ -453,33 +453,23 @@ update message model =
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
         TodoPopupMoveClicked todoId ->
-            ( { model
-                | todoPopup =
-                    TodoPopupOpen todoId (Just MoveSubPopup)
-              }
+            ( { model | todoPopup = TodoPopupOpen todoId (Just MoveSubPopup) }
             , focus MovePopup.firstFocusable
             )
 
         TodoPopupMoveTodo todoId projectId ->
             ( { model | todoPopup = TodoPopupClosed }
-            , patchTodoCmd
-                todoId
-                [ Todo.SetProjectId projectId ]
+            , patchTodoCmd todoId [ Todo.SetProjectId projectId ]
             )
 
         TodoPopupScheduleClicked todoId ->
-            ( { model
-                | todoPopup =
-                    TodoPopupOpen todoId (Just ScheduleSubPopup)
-              }
+            ( { model | todoPopup = TodoPopupOpen todoId (Just ScheduleSubPopup) }
             , focus MovePopup.firstFocusable
             )
 
         TodoPopupScheduleTodo todoId dueAt ->
             ( { model | todoPopup = TodoPopupClosed }
-            , patchTodoCmd
-                todoId
-                [ Todo.SetDueAt dueAt ]
+            , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
             )
 
         TodoPopupCloseSubPopup todoId ->
