@@ -124,7 +124,6 @@ type alias SchedulePopupModel =
 
 
 
--- TodoPopupModel
 -- MODEL
 
 
