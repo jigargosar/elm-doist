@@ -282,7 +282,7 @@ type alias ViewConfig msg =
 schedulePopupConfig_ : SchedulePopup.ViewConfig EditingMsg
 schedulePopupConfig_ =
     { close = CloseSchedulePopup
-    , dueAtSelected = DueAtChanged
+    , schedule = DueAtChanged
     }
 
 

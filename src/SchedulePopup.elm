@@ -19,7 +19,7 @@ schedulePopupFirstFocusableDomId =
 
 type alias ViewConfig msg =
     { close : msg
-    , dueAtSelected : DueAt -> msg
+    , schedule : DueAt -> msg
     }
 
 
@@ -42,7 +42,7 @@ view conf zone today =
         setDueMsg : DueAt -> msg
         setDueMsg =
             -- SchedulePopupDueAtSelected
-            conf.dueAtSelected
+            conf.schedule
 
         viewSetDueButton dueAt label attrs =
             TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)

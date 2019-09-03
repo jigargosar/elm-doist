@@ -1102,7 +1102,7 @@ viewTodoItems model =
 schedulePopupConfig : SchedulePopup.ViewConfig Msg
 schedulePopupConfig =
     { close = CloseSchedulePopup
-    , dueAtSelected = SchedulePopupDueAtSelected
+    , schedule = SchedulePopupDueAtSelected
     }
 
 
@@ -1161,7 +1161,7 @@ viewTodoItemBase model todo =
                                     Just ScheduleSubPopup ->
                                         SchedulePopup.view
                                             { close = TodoPopupCloseSub todoId_
-                                            , dueAtSelected = TodoPopupScheduleTodo todoId_
+                                            , schedule = TodoPopupScheduleTodo todoId_
                                             }
                                             model.here
                                             model.today
