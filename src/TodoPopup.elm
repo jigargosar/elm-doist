@@ -1,13 +1,10 @@
 module TodoPopup exposing (ViewConfig, todoPopupFirstFocusableDomId, view)
 
-import Calendar
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
-import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import SchedulePopup
-import Time exposing (Zone)
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
@@ -24,18 +21,18 @@ type alias ViewConfig msg =
     , delete : TodoId -> msg
     , schedule : TodoId -> msg
     , close : msg
-    , schedulePopupConfig : SchedulePopup.ViewConfig msg
     }
 
 
 view :
     ViewConfig msg
     -> TodoId
-    -> Zone
-    -> Calendar.Date
-    -> { schedulePopupOpen : Bool, viewMovePopup : Html msg }
+    ->
+        { viewMovePopup : Html msg
+        , viewSchedulePopup : Html msg
+        }
     -> Html msg
-view config todoId zone today { schedulePopupOpen, viewMovePopup } =
+view config todoId { viewMovePopup, viewSchedulePopup } =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
@@ -63,11 +60,7 @@ view config todoId zone today { schedulePopupOpen, viewMovePopup } =
             [ TextButton.view (config.schedule todoId)
                 "Schedule"
                 [ class "pa2" ]
-            , if schedulePopupOpen then
-                SchedulePopup.view config.schedulePopupConfig zone today
-
-              else
-                HX.none
+            , viewSchedulePopup
             ]
          , containerDiv
             [ TextButton.view (config.delete todoId)

@@ -1089,10 +1089,7 @@ viewTodoItemBase model todo =
             , if isPopupOpenFor todo.id model.todoPopup then
                 TodoPopup.view todoPopupConfig
                     todo.id
-                    model.here
-                    model.today
-                    { schedulePopupOpen = isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup
-                    , viewMovePopup =
+                    { viewMovePopup =
                         case model.movePopup of
                             MovePopupOpen todoId_ projectId ->
                                 if todo.id == todoId_ then
@@ -1109,6 +1106,12 @@ viewTodoItemBase model todo =
 
                             MovePopupClosed ->
                                 HX.none
+                    , viewSchedulePopup =
+                        if isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup then
+                            SchedulePopup.view schedulePopupConfig model.here model.today
+
+                        else
+                            HX.none
                     }
 
               else
@@ -1124,7 +1127,6 @@ todoPopupConfig =
     , delete = OnDelete
     , schedule = OpenSchedulePopup InTodoPopupMenu
     , close = CloseTodoPopup
-    , schedulePopupConfig = schedulePopupConfig
     }
 
 
