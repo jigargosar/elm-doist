@@ -130,11 +130,6 @@ type TodoPopupModel
     | TodoPopupClosed
 
 
-openTodoPopup : TodoId -> TodoPopupModel
-openTodoPopup todoId =
-    TodoPopupOpen todoId Nothing
-
-
 
 -- SchedulePopupModel
 
@@ -423,19 +418,6 @@ update message model =
         OnIETMsg msg ->
             updateIET msg model
 
-        TodoPopupMoveClicked todoId ->
-            case findTodoById todoId model of
-                Just todo ->
-                    ( { model
-                        | todoPopup =
-                            TodoPopupOpen todoId (Just <| MoveSubPopup todo.projectId)
-                      }
-                    , focus MovePopup.firstFocusable
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
-
         OpenSchedulePopup loc todoId ->
             openPopup SchedulePopup.schedulePopupFirstFocusableDomId ( loc, todoId )
                 |> Tuple.mapFirst (flip setSchedulePopup model)
@@ -459,12 +441,25 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            ( { model | todoPopup = openTodoPopup todoId }
+            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
             , focus TodoPopup.firstFocusable
             )
 
         CloseTodoPopup ->
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
+
+        TodoPopupMoveClicked todoId ->
+            case findTodoById todoId model of
+                Just todo ->
+                    ( { model
+                        | todoPopup =
+                            TodoPopupOpen todoId (Just <| MoveSubPopup todo.projectId)
+                      }
+                    , focus MovePopup.firstFocusable
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         CloseMovePopup ->
             ( { model | movePopup = MovePopupClosed }, Cmd.none )
