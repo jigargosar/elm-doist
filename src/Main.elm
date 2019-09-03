@@ -852,12 +852,6 @@ viewFooter model =
         HX.none
 
 
-type alias DisplayProject =
-    { id : ProjectId
-    , title : String
-    }
-
-
 viewSignInDialog =
     MoveDialog.view NoOp
         [ div
