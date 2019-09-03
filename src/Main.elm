@@ -409,7 +409,7 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            ( { model | todoPopup = TodoPopup.open todoId }
+            ( { model | todoPopup = TodoPopup.opened todoId }
             , focus TodoPopup.firstFocusable
             )
 
@@ -417,7 +417,7 @@ update message model =
             ( { model | todoPopup = TodoPopup.closed }, Cmd.none )
 
         TodoPopupSetSub subPopup todoId ->
-            ( { model | todoPopup = TodoPopup.openSub todoId subPopup }
+            ( { model | todoPopup = TodoPopup.openedWithSub todoId subPopup }
             , case subPopup of
                 TodoPopup.MoveSubPopup ->
                     focus MovePopup.firstFocusable

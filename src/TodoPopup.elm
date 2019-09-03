@@ -1,10 +1,12 @@
-module TodoPopup exposing (SubPopup(..), TodoPopupModel, ViewConfig, closed, firstFocusable, init, open, openSub, view)
+module TodoPopup exposing (SubPopup(..), TodoPopupModel, ViewConfig, closed, firstFocusable, init, opened, openedWithSub, view)
 
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
+import MovePopup
+import SchedulePopup
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
@@ -20,8 +22,8 @@ init =
     TodoPopupClosed
 
 
-open : TodoId -> TodoPopupModel
-open todoId =
+opened : TodoId -> TodoPopupModel
+opened todoId =
     TodoPopupOpen todoId NoSubPopup
 
 
@@ -30,8 +32,8 @@ closed =
     TodoPopupClosed
 
 
-openSub : TodoId -> SubPopup -> TodoPopupModel
-openSub =
+openedWithSub : TodoId -> SubPopup -> TodoPopupModel
+openedWithSub =
     TodoPopupOpen
 
 
@@ -44,6 +46,38 @@ type SubPopup
 firstFocusable : String
 firstFocusable =
     "todo-popup--first-focusable"
+
+
+type Msg
+    = SetSubPopup TodoId SubPopup
+    | OpenPopup TodoId
+    | ClosePopup
+
+
+update { focus } msg _ =
+    case msg of
+        SetSubPopup todoId subPopup ->
+            ( TodoPopupOpen todoId subPopup
+            , case subPopup of
+                MoveSubPopup ->
+                    focus MovePopup.firstFocusable
+
+                ScheduleSubPopup ->
+                    focus SchedulePopup.schedulePopupFirstFocusableDomId
+
+                NoSubPopup ->
+                    Cmd.none
+            )
+
+        OpenPopup todoId ->
+            ( opened todoId, focus firstFocusable )
+
+        ClosePopup ->
+            ( closed, Cmd.none )
+
+
+
+-- VIEW
 
 
 type alias ViewConfig msg =
