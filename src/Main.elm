@@ -956,13 +956,7 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo
-            model.here
-            (HX.viewIf (isPopupOpenFor todo.id model.schedulePopup)
-                (\_ ->
-                    SchedulePopup.view schedulePopupConfig model.here model.today
-                )
-            )
+        , viewTodoItemDueDate todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopup todo.id)
                 [ class "pa2 tc child" ]
@@ -1001,8 +995,8 @@ viewTodoPopup todo model =
             )
 
 
-viewTodoItemDueDate : Todo -> Zone -> Html Msg -> Html Msg
-viewTodoItemDueDate todo here schedulePopup =
+viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopupModel -> Html Msg
+viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
             OpenSchedulePopup todo.id
@@ -1019,7 +1013,10 @@ viewTodoItemDueDate todo here schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , schedulePopup
+        , HX.viewIf (isPopupOpenFor todo.id schedulePopup)
+            (\_ ->
+                SchedulePopup.view schedulePopupConfig here today
+            )
         ]
 
 
