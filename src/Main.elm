@@ -120,8 +120,19 @@ isPopupOpenFor a popup =
 -- TodoPopupModel
 
 
-type alias TodoPopupModel =
-    Popup TodoId
+type SubPopup
+    = ScheduleSubPopup
+    | MoveSubPopup
+
+
+type TodoPopupModel
+    = TodoPopupOpen TodoId (Maybe SubPopup)
+    | TodoPopupClosed
+
+
+openTodoPopup : TodoId -> TodoPopupModel
+openTodoPopup todoId =
+    TodoPopupOpen todoId Nothing
 
 
 
@@ -201,7 +212,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , iet = IET.initial
-            , todoPopup = initPopup
+            , todoPopup = TodoPopupClosed
             , schedulePopup = initPopup
             , movePopup = MovePopupClosed
             , dialog = MoveDialog.init
@@ -440,12 +451,12 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            openPopup TodoPopup.todoPopupFirstFocusableDomId todoId
-                |> Tuple.mapFirst (flip setTodoPopup model)
+            ( { model | todoPopup = openTodoPopup todoId }
+            , focus TodoPopup.firstFocusable
+            )
 
         CloseTodoPopup ->
-            closePopup
-                |> Tuple.mapFirst (flip setTodoPopup model)
+            ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
         CloseMovePopup ->
             ( { model | movePopup = MovePopupClosed }, Cmd.none )
@@ -1096,36 +1107,41 @@ viewTodoItemBase model todo =
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
-            , if isPopupOpenFor todo.id model.todoPopup then
-                TodoPopup.view todoPopupConfig
-                    todo.id
-                    { viewMovePopup =
-                        case model.movePopup of
-                            MovePopupOpen todoId_ projectId ->
-                                if todo.id == todoId_ then
-                                    MovePopup.view
-                                        { close = CloseMovePopup
-                                        , move = MoveTodo
-                                        }
-                                        todoId_
-                                        projectId
-                                        model.projectList
+            , case model.todoPopup of
+                TodoPopupClosed ->
+                    HX.none
+
+                TodoPopupOpen todoId_ maybeSubPopup ->
+                    if todo.id /= todoId_ then
+                        HX.none
+
+                    else
+                        TodoPopup.view todoPopupConfig
+                            todo.id
+                            { viewMovePopup =
+                                case model.movePopup of
+                                    MovePopupOpen todoId__ projectId ->
+                                        if todo.id == todoId__ then
+                                            MovePopup.view
+                                                { close = CloseMovePopup
+                                                , move = MoveTodo
+                                                }
+                                                todoId__
+                                                projectId
+                                                model.projectList
+
+                                        else
+                                            HX.none
+
+                                    MovePopupClosed ->
+                                        HX.none
+                            , viewSchedulePopup =
+                                if isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup then
+                                    SchedulePopup.view schedulePopupConfig model.here model.today
 
                                 else
                                     HX.none
-
-                            MovePopupClosed ->
-                                HX.none
-                    , viewSchedulePopup =
-                        if isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup then
-                            SchedulePopup.view schedulePopupConfig model.here model.today
-
-                        else
-                            HX.none
-                    }
-
-              else
-                HX.none
+                            }
             ]
         ]
 

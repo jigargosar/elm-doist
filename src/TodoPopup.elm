@@ -1,4 +1,4 @@
-module TodoPopup exposing (ViewConfig, todoPopupFirstFocusableDomId, view)
+module TodoPopup exposing (ViewConfig, firstFocusable, view)
 
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
@@ -10,8 +10,8 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-todoPopupFirstFocusableDomId : String
-todoPopupFirstFocusableDomId =
+firstFocusable : String
+firstFocusable =
     "todo-popup--first-focusable"
 
 
@@ -48,7 +48,7 @@ view config todoId { viewMovePopup, viewSchedulePopup } =
          [ containerDiv
             [ TextButton.view (config.edit todoId)
                 "Edit"
-                [ class "pa2", A.id todoPopupFirstFocusableDomId ]
+                [ class "pa2", A.id firstFocusable ]
             ]
          , containerDiv
             [ TextButton.view (config.move todoId)
