@@ -64,7 +64,7 @@ firstFocusable =
 type Msg
     = SetSubPopup TodoId SubPopup
     | OpenPopup TodoId
-    | ClosePopup
+    | ClosePopup ClosedBy
 
 
 type ClosedBy
@@ -75,7 +75,7 @@ type ClosedBy
     | Edit TodoId
 
 
-update { focus } msg _ =
+update { focus, closedBy } msg _ =
     case msg of
         SetSubPopup todoId subPopup ->
             ( TodoPopupOpen todoId subPopup
@@ -93,8 +93,72 @@ update { focus } msg _ =
         OpenPopup todoId ->
             ( opened todoId, focus firstFocusable )
 
-        ClosePopup ->
-            ( closed, Cmd.none )
+        ClosePopup by ->
+            ( closed, closedBy by )
+
+
+
+-- NEW VIEW
+
+
+newView todoId viewSubPopup model =
+    case model of
+        TodoPopupClosed ->
+            HX.none
+
+        TodoPopupOpen todoId_ subPopup_ ->
+            if todoId /= todoId_ then
+                HX.none
+
+            else
+                newViewHelp
+                    todoId
+                    (\subPopup ->
+                        if subPopup /= subPopup_ then
+                            HX.none
+
+                        else
+                            viewSubPopup subPopup
+                    )
+
+
+newViewHelp todoId viewSubPopup =
+    H.node "track-focus-outside"
+        [ class "absolute right-0 top-1"
+        , class "bg-white shadow-1 w5"
+        , class "z-1" -- if removed; causes flickering with hover icons
+        , on "focusOutside" (JD.succeed (ClosePopup Cancel))
+        , Key.onEscape (ClosePopup Cancel)
+        , tabindex -1
+        ]
+        (let
+            containerDiv =
+                div [ class "relative" ]
+         in
+         [ containerDiv
+            [ TextButton.view (ClosePopup <| Edit todoId)
+                "Edit"
+                [ class "pa2", A.id firstFocusable ]
+            ]
+         , containerDiv
+            [ TextButton.view (SetSubPopup todoId MoveSubPopup)
+                "Move to Project"
+                [ class "pa2" ]
+            , viewSubPopup MoveSubPopup
+            ]
+         , containerDiv
+            [ TextButton.view (SetSubPopup todoId ScheduleSubPopup)
+                "Schedule"
+                [ class "pa2" ]
+            , viewSubPopup ScheduleSubPopup
+            ]
+         , containerDiv
+            [ TextButton.view (ClosePopup <| Delete todoId)
+                "Delete"
+                [ class "pa2" ]
+            ]
+         ]
+        )
 
 
 
