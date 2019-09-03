@@ -1147,7 +1147,7 @@ viewTodoItemBase model todo =
                                 case maybeSubPopup of
                                     Just MoveSubPopup ->
                                         MovePopup.view
-                                            { close = TodoPopupCloseSub todo.id
+                                            { close = TodoPopupCloseSub todoId_
                                             , move = TodoPopupMoveTodo
                                             }
                                             todoId_
@@ -1161,7 +1161,7 @@ viewTodoItemBase model todo =
                                     Just ScheduleSubPopup ->
                                         SchedulePopup.view
                                             { close = TodoPopupCloseSub todo.id
-                                            , dueAtSelected = TodoPopupScheduleTodo todo.id
+                                            , dueAtSelected = TodoPopupScheduleTodo todoId_
                                             }
                                             model.here
                                             model.today
