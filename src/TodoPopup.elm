@@ -63,17 +63,17 @@ type Msg
     | ClosePopup ClosedBy
 
 
-open : TodoId -> Msg
-open =
-    OpenPopup
-
-
 type ClosedBy
     = Cancel
     | Schedule Todo.DueAt
     | Move ProjectId
     | Delete
     | Edit
+
+
+open : TodoId -> Msg
+open =
+    OpenPopup
 
 
 update :
