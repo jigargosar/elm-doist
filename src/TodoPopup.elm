@@ -1,13 +1,18 @@
-module TodoPopup exposing (ViewConfig, firstFocusable, view)
+module TodoPopup exposing (SubPopup(..), ViewConfig, firstFocusable, view)
 
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
-import SchedulePopup
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
+
+
+type SubPopup
+    = ScheduleSubPopup
+    | MoveSubPopup
+    | NoSubPopup
 
 
 firstFocusable : String

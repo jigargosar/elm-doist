@@ -120,13 +120,8 @@ isPopupOpenFor a popup =
 -- TodoPopupModel
 
 
-type SubPopup
-    = ScheduleSubPopup
-    | MoveSubPopup
-
-
 type TodoPopupModel
-    = TodoPopupOpen TodoId (Maybe SubPopup)
+    = TodoPopupOpen TodoId TodoPopup.SubPopup
     | TodoPopupClosed
 
 
@@ -249,9 +244,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | TodoPopupOpenSub SubPopup TodoId
-    | TodoPopupMoveClicked TodoId
-    | TodoPopupScheduleClicked TodoId
+    | TodoPopupOpenSub TodoPopup.SubPopup TodoId
     | TodoPopupCloseSub TodoId
     | TodoPopupMoveTodo TodoId ProjectId
     | TodoPopupScheduleTodo TodoId Todo.DueAt
@@ -466,7 +459,7 @@ update message model =
                     updateDialogAndCache MoveDialog.Closed model
 
         OpenTodoPopup todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
+            ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
             , focus TodoPopup.firstFocusable
             )
 
@@ -474,28 +467,18 @@ update message model =
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
         TodoPopupOpenSub subPopup todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId (Just subPopup) }
+            ( { model | todoPopup = TodoPopupOpen todoId subPopup }
             , focus MovePopup.firstFocusable
             )
 
         TodoPopupCloseSub todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
-            , focus MovePopup.firstFocusable
-            )
-
-        TodoPopupMoveClicked todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId (Just MoveSubPopup) }
+            ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
             , focus MovePopup.firstFocusable
             )
 
         TodoPopupMoveTodo todoId projectId ->
             ( { model | todoPopup = TodoPopupClosed }
             , patchTodoCmd todoId [ Todo.SetProjectId projectId ]
-            )
-
-        TodoPopupScheduleClicked todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId (Just ScheduleSubPopup) }
-            , focus MovePopup.firstFocusable
             )
 
         TodoPopupScheduleTodo todoId dueAt ->
@@ -1109,9 +1092,9 @@ schedulePopupConfig =
 todoPopupConfig : TodoPopup.ViewConfig Msg
 todoPopupConfig =
     { edit = OnEditClicked
-    , move = TodoPopupOpenSub MoveSubPopup
+    , move = TodoPopupOpenSub TodoPopup.MoveSubPopup
     , delete = OnDelete
-    , schedule = TodoPopupOpenSub ScheduleSubPopup
+    , schedule = TodoPopupOpenSub TodoPopup.ScheduleSubPopup
     , close = CloseTodoPopup
     }
 
@@ -1145,7 +1128,7 @@ viewTodoItemBase model todo =
                             todo.id
                             { viewMovePopup =
                                 case maybeSubPopup of
-                                    Just MoveSubPopup ->
+                                    TodoPopup.MoveSubPopup ->
                                         MovePopup.view
                                             { close = TodoPopupCloseSub todoId_
                                             , move = TodoPopupMoveTodo todoId_
@@ -1157,7 +1140,7 @@ viewTodoItemBase model todo =
                                         HX.none
                             , viewSchedulePopup =
                                 case maybeSubPopup of
-                                    Just ScheduleSubPopup ->
+                                    TodoPopup.ScheduleSubPopup ->
                                         SchedulePopup.view
                                             { close = TodoPopupCloseSub todoId_
                                             , schedule = TodoPopupScheduleTodo todoId_
