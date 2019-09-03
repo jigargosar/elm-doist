@@ -266,6 +266,10 @@ saveIfDirty config edit =
         Cmd.none
 
 
+
+-- VIEW
+
+
 type alias ViewConfig msg =
     { openSchedulePopup : msg
     , titleChanged : String -> msg
@@ -298,7 +302,13 @@ viewConfig =
     }
 
 
-viewEditingForTodoId : (Msg -> msg) -> TodoId -> Zone -> Calendar.Date -> Model -> Maybe (Html msg)
+viewEditingForTodoId :
+    (Msg -> msg)
+    -> TodoId
+    -> Zone
+    -> Calendar.Date
+    -> Model
+    -> Maybe (Html msg)
 viewEditingForTodoId toMsg todoId zone today model =
     case model of
         Editing editModel ->
