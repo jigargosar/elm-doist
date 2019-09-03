@@ -253,6 +253,7 @@ type Msg
     | TodoPopupScheduleClicked TodoId
     | TodoPopupCloseSubPopup TodoId
     | TodoPopupMoveTodo TodoId ProjectId
+    | TodoPopupScheduleTodo TodoId Todo.DueAt
     | OpenTodoPopup TodoId
     | CloseTodoPopup
     | OpenSchedulePopup SchedulePopupLocation TodoId
@@ -464,6 +465,13 @@ update message model =
             , patchTodoCmd
                 todoId
                 [ Todo.SetProjectId projectId ]
+            )
+
+        TodoPopupScheduleTodo todoId dueAt ->
+            ( { model | todoPopup = TodoPopupClosed }
+            , patchTodoCmd
+                todoId
+                [ Todo.SetDueAt dueAt ]
             )
 
         TodoPopupScheduleClicked todoId ->
