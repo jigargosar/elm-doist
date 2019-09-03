@@ -136,11 +136,6 @@ type alias SchedulePopupModel =
     Popup ( SchedulePopupLocation, TodoId )
 
 
-schedulePopupFirstFocusableDomId : String
-schedulePopupFirstFocusableDomId =
-    "schedule-popup__first-focusable"
-
-
 
 -- MODEL
 
@@ -410,7 +405,7 @@ update message model =
                 |> callWith model
 
         OpenSchedulePopup loc todoId ->
-            openPopup schedulePopupFirstFocusableDomId ( loc, todoId )
+            openPopup SchedulePopup.schedulePopupFirstFocusableDomId ( loc, todoId )
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         SchedulePopupDueAtSelected dueAt ->
@@ -1044,7 +1039,6 @@ schedulePopupConfig : SchedulePopup.ViewConfig Msg
 schedulePopupConfig =
     { close = CloseSchedulePopup
     , dueAtSelected = SchedulePopupDueAtSelected
-    , firstFocusableDomId = schedulePopupFirstFocusableDomId
     }
 
 

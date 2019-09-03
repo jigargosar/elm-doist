@@ -1,4 +1,4 @@
-module SchedulePopup exposing (ViewConfig, view)
+module SchedulePopup exposing (ViewConfig, schedulePopupFirstFocusableDomId, view)
 
 import Calendar
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -12,10 +12,14 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
+schedulePopupFirstFocusableDomId : String
+schedulePopupFirstFocusableDomId =
+    "schedule-popup__first-focusable"
+
+
 type alias ViewConfig msg =
     { close : msg
     , dueAtSelected : DueAt -> msg
-    , firstFocusableDomId : String
     }
 
 
@@ -60,7 +64,7 @@ view conf zone today =
             [ div [ class " b  " ] [ text "Due Date" ]
             , viewSetDueButton (Todo.DueAt <| Calendar.toMillis today)
                 ("Today: " ++ todayFmt)
-                [ A.id conf.firstFocusableDomId ]
+                [ A.id schedulePopupFirstFocusableDomId ]
             , viewSetDueButton (Todo.DueAt <| Calendar.toMillis yesterday)
                 ("Yesterday: " ++ yesterdayFmt)
                 []
