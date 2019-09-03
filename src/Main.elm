@@ -1160,7 +1160,7 @@ viewTodoItemBase model todo =
                                 case maybeSubPopup of
                                     Just ScheduleSubPopup ->
                                         SchedulePopup.view
-                                            { close = TodoPopupCloseSub todo.id
+                                            { close = TodoPopupCloseSub todoId_
                                             , dueAtSelected = TodoPopupScheduleTodo todoId_
                                             }
                                             model.here
