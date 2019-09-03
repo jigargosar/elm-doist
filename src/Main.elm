@@ -251,6 +251,8 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg) Millis
     | TodoPopupMoveClicked TodoId
     | TodoPopupScheduleClicked TodoId
+    | TodoPopupCloseSubPopup TodoId
+    | TodoPopupMoveTodo TodoId ProjectId
     | OpenTodoPopup TodoId
     | CloseTodoPopup
     | OpenSchedulePopup SchedulePopupLocation TodoId
@@ -457,10 +459,25 @@ update message model =
             , focus MovePopup.firstFocusable
             )
 
+        TodoPopupMoveTodo todoId projectId ->
+            ( { model | todoPopup = TodoPopupClosed }
+            , patchTodoCmd
+                todoId
+                [ Todo.SetProjectId projectId ]
+            )
+
         TodoPopupScheduleClicked todoId ->
             ( { model
                 | todoPopup =
                     TodoPopupOpen todoId (Just ScheduleSubPopup)
+              }
+            , focus MovePopup.firstFocusable
+            )
+
+        TodoPopupCloseSubPopup todoId ->
+            ( { model
+                | todoPopup =
+                    TodoPopupOpen todoId Nothing
               }
             , focus MovePopup.firstFocusable
             )
