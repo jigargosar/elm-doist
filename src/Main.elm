@@ -132,14 +132,6 @@ type alias SchedulePopupModel =
 
 
 
--- MovePopup
-
-
-type MovePopupModel
-    = MovePopupClosed
-
-
-
 -- MODEL
 
 
@@ -149,7 +141,6 @@ type alias Model =
     , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
-    , movePopup : MovePopupModel
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -195,7 +186,6 @@ init encodedFlags url key =
             , iet = IET.initial
             , todoPopup = TodoPopupClosed
             , schedulePopup = initPopup
-            , movePopup = MovePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -244,7 +234,6 @@ type Msg
     | OpenSchedulePopup TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
-    | CloseMovePopup
       -- InlineTodoEditing
     | OnEditClicked TodoId
     | OnIETMsg IET.Msg
@@ -426,9 +415,6 @@ update message model =
         CloseSchedulePopup ->
             closePopup
                 |> Tuple.mapFirst (flip setSchedulePopup model)
-
-        CloseMovePopup ->
-            ( { model | movePopup = MovePopupClosed }, Cmd.none )
 
         OpenTodoPopup todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
