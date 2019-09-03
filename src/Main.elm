@@ -249,9 +249,10 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
+    | TodoPopupOpenSub SubPopup TodoId
     | TodoPopupMoveClicked TodoId
     | TodoPopupScheduleClicked TodoId
-    | TodoPopupCloseSubPopup TodoId
+    | TodoPopupCloseSub TodoId
     | TodoPopupMoveTodo TodoId ProjectId
     | TodoPopupScheduleTodo TodoId Todo.DueAt
     | OpenTodoPopup TodoId
@@ -452,6 +453,16 @@ update message model =
         CloseTodoPopup ->
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
+        TodoPopupOpenSub subPopup todoId ->
+            ( { model | todoPopup = TodoPopupOpen todoId (Just subPopup) }
+            , focus MovePopup.firstFocusable
+            )
+
+        TodoPopupCloseSub todoId ->
+            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
+            , focus MovePopup.firstFocusable
+            )
+
         TodoPopupMoveClicked todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId (Just MoveSubPopup) }
             , focus MovePopup.firstFocusable
@@ -470,11 +481,6 @@ update message model =
         TodoPopupScheduleTodo todoId dueAt ->
             ( { model | todoPopup = TodoPopupClosed }
             , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
-            )
-
-        TodoPopupCloseSubPopup todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
-            , focus MovePopup.firstFocusable
             )
 
         CloseMovePopup ->
