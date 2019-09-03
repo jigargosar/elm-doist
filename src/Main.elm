@@ -217,7 +217,6 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | TodoPopupSetSub TodoPopup.SubPopup TodoId
     | OpenTodoPopup TodoId
     | TodoPopupClosedBy TodoPopup.ClosedBy
     | OnTodoPopupMsg TodoPopup.Msg
@@ -407,12 +406,10 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            ( { model | todoPopup = TodoPopup.opened todoId }
-            , focus TodoPopup.firstFocusable
-            )
+            model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
 
         TodoPopupClosedBy closedBy ->
-            { model | todoPopup = TodoPopup.closed }
+            model
                 |> (case closedBy of
                         TodoPopup.Edit todoId ->
                             update (OnEditClicked todoId)
@@ -438,19 +435,6 @@ update message model =
                 msg
                 model.todoPopup
                 |> Tuple.mapFirst (\ntp -> { model | todoPopup = ntp })
-
-        TodoPopupSetSub subPopup todoId ->
-            ( { model | todoPopup = TodoPopup.openedWithSub todoId subPopup }
-            , case subPopup of
-                TodoPopup.MoveSubPopup ->
-                    focus MovePopup.firstFocusable
-
-                TodoPopup.ScheduleSubPopup ->
-                    focus SchedulePopup.schedulePopupFirstFocusableDomId
-
-                TodoPopup.NoSubPopup ->
-                    Cmd.none
-            )
 
 
 handleFirestoreQueryResponse :

@@ -3,12 +3,10 @@ module TodoPopup exposing
     , Msg
     , SubPopup(..)
     , TodoPopupModel
-    , closed
     , firstFocusable
     , init
     , movePopupConfig
-    , opened
-    , openedWithSub
+    , open
     , schedulePopupConfig
     , update
     , view
@@ -48,11 +46,6 @@ closed =
     TodoPopupClosed
 
 
-openedWithSub : TodoId -> SubPopup -> TodoPopupModel
-openedWithSub =
-    TodoPopupOpen
-
-
 type SubPopup
     = ScheduleSubPopup
     | MoveSubPopup
@@ -68,6 +61,11 @@ type Msg
     = SetSubPopup TodoId SubPopup
     | OpenPopup TodoId
     | ClosePopup ClosedBy
+
+
+open : TodoId -> Msg
+open =
+    OpenPopup
 
 
 type ClosedBy
