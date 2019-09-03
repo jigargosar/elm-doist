@@ -122,7 +122,7 @@ isPopupOpenFor a popup =
 
 type SubPopup
     = ScheduleSubPopup
-    | MoveSubPopup ProjectId
+    | MoveSubPopup
 
 
 type TodoPopupModel
@@ -250,6 +250,7 @@ type Msg
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | TodoPopupMoveClicked TodoId
+    | TodoPopupScheduleClicked TodoId
     | OpenTodoPopup TodoId
     | CloseTodoPopup
     | OpenSchedulePopup SchedulePopupLocation TodoId
@@ -449,17 +450,20 @@ update message model =
             ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
 
         TodoPopupMoveClicked todoId ->
-            case findTodoById todoId model of
-                Just todo ->
-                    ( { model
-                        | todoPopup =
-                            TodoPopupOpen todoId (Just <| MoveSubPopup todo.projectId)
-                      }
-                    , focus MovePopup.firstFocusable
-                    )
+            ( { model
+                | todoPopup =
+                    TodoPopupOpen todoId (Just MoveSubPopup)
+              }
+            , focus MovePopup.firstFocusable
+            )
 
-                _ ->
-                    ( model, Cmd.none )
+        TodoPopupScheduleClicked todoId ->
+            ( { model
+                | todoPopup =
+                    TodoPopupOpen todoId (Just ScheduleSubPopup)
+              }
+            , focus MovePopup.firstFocusable
+            )
 
         CloseMovePopup ->
             ( { model | movePopup = MovePopupClosed }, Cmd.none )
@@ -1123,13 +1127,13 @@ viewTodoItemBase model todo =
                             todo.id
                             { viewMovePopup =
                                 case maybeSubPopup of
-                                    Just (MoveSubPopup projectId) ->
+                                    Just MoveSubPopup ->
                                         MovePopup.view
                                             { close = CloseMovePopup
                                             , move = MoveTodo
                                             }
                                             todoId_
-                                            projectId
+                                            todo.projectId
                                             model.projectList
 
                                     _ ->
