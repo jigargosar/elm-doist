@@ -1148,9 +1148,8 @@ viewTodoItemBase model todo =
                                     Just MoveSubPopup ->
                                         MovePopup.view
                                             { close = TodoPopupCloseSub todoId_
-                                            , move = TodoPopupMoveTodo
+                                            , move = TodoPopupMoveTodo todoId_
                                             }
-                                            todoId_
                                             todo.projectId
                                             model.projectList
 

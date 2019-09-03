@@ -17,7 +17,7 @@ firstFocusable =
 
 
 type alias ViewConfig msg =
-    { close : msg, move : TodoId -> ProjectId -> msg }
+    { close : msg, move : ProjectId -> msg }
 
 
 type alias DisplayProject =
@@ -40,11 +40,11 @@ toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
 
 
-view : ViewConfig msg -> TodoId -> ProjectId -> List Project -> Html msg
-view config todoId projectId projectList =
+view : ViewConfig msg -> ProjectId -> List Project -> Html msg
+view config projectId projectList =
     let
         viewProjectItem idx dp =
-            TextButton.view (config.move todoId dp.id)
+            TextButton.view (config.move dp.id)
                 dp.title
                 [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]
