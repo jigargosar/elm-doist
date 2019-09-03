@@ -7,12 +7,8 @@
     "last 2 Chrome versions"
   ],
   "scripts": {
-    "wds:start": "npx nodemon -w webpack.config.dev.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open --config webpack.config.dev.js",
-    "wp:build": "webpack -p --config webpack.config.prod.js",
-    "pl:start": "npx parcel src/index.html --open",
-    "pl:build": "npx parcel build src/index.html",
-    "start": "npm run pl:start",
-    "build": "npm run pl:build",
+    "start": "npx nodemon -w webpack.config.dev.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open --config webpack.config.dev.js",
+    "build": "webpack -p --config webpack.config.prod.js",
     "deploy": "npx firebase deploy --only hosting:elmdoist",
     "stage": "npm run build && npm run deploy"
   },
