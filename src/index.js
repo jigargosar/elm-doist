@@ -2,7 +2,7 @@ import 'tachyons'
 import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
-import {Fire} from './fire'
+import { Fire } from './fire'
 
 import {
   forEachObjIndexed,
@@ -55,7 +55,6 @@ function getCached(key) {
 const cachedProjectList = getCached('cachedProjectList')
 const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
-const cachedDialog = getCached('cachedDialog')
 const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
 
 const app = Elm.Main.init({
@@ -63,7 +62,6 @@ const app = Elm.Main.init({
     cachedTodoList,
     cachedProjectList,
     cachedAuthState,
-    cachedDialog,
     cachedInlineEditTodo,
     browserSize: { width: window.innerWidth, height: window.innerHeight },
     now: Date.now(),
@@ -76,7 +74,7 @@ const pubs = initPubs({
   onFirestoreQueryResponse: identity,
 })
 
-firePromise.then(fire=> fire.onAuthStateChanged(pubs.onAuthStateChanged))
+firePromise.then(fire => fire.onAuthStateChanged(pubs.onAuthStateChanged))
 
 function resizeTextArea(el) {
   el.style.height = 'auto'
@@ -88,7 +86,9 @@ function resizeTextAreaOnInputListener(ev) {
 }
 
 function dynamicImportPrefetchFaker() {
-  return import(/* webpackPrefetch: true, webpackChunkName: "faker"  */ 'faker')
+  return import(
+    /* webpackPrefetch: true, webpackChunkName: "faker"  */ 'faker'
+  )
 }
 
 initSubs({
