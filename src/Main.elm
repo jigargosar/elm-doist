@@ -20,7 +20,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (checked, class, classList, css, disabled, href)
+import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href)
 import Html.Styled.Events exposing (onClick)
 import HtmlExtra as HX
 import InlineEditTodo as IET
@@ -61,7 +61,6 @@ type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
-    , cachedDialog : MoveDialog.Model
     , cachedInlineEditTodo : IET.Model
     , browserSize : BrowserSize
     , now : Millis
@@ -81,7 +80,6 @@ flagsDecoder =
         |> cachedField "cachedAuthState"
             AuthState.decoder
             AuthState.initial
-        |> cachedField "cachedDialog" MoveDialog.decoder MoveDialog.init
         |> cachedField "cachedInlineEditTodo" IET.decoder IET.initial
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
@@ -152,7 +150,6 @@ type alias Model =
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
     , movePopup : MovePopupModel
-    , dialog : MoveDialog.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -199,7 +196,6 @@ init encodedFlags url key =
             , todoPopup = TodoPopupClosed
             , schedulePopup = initPopup
             , movePopup = MovePopupClosed
-            , dialog = MoveDialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -249,8 +245,6 @@ type Msg
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
     | CloseMovePopup
-    | MoveTodo TodoId ProjectId
-    | OnDialogOverlayClickedOrEscapePressed
       -- InlineTodoEditing
     | OnEditClicked TodoId
     | OnIETMsg IET.Msg
@@ -436,23 +430,6 @@ update message model =
         CloseMovePopup ->
             ( { model | movePopup = MovePopupClosed }, Cmd.none )
 
-        MoveTodo todoId pid ->
-            { model | movePopup = MovePopupClosed }
-                |> updateDialogAndCache MoveDialog.Closed
-                |> Return.command
-                    (patchTodoCmd
-                        todoId
-                        [ Todo.SetProjectId pid ]
-                    )
-
-        OnDialogOverlayClickedOrEscapePressed ->
-            case model.dialog of
-                MoveDialog.Closed ->
-                    Return.singleton model
-
-                MoveDialog.OpenFor _ _ ->
-                    updateDialogAndCache MoveDialog.Closed model
-
         OpenTodoPopup todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
             , focus TodoPopup.firstFocusable
@@ -566,21 +543,6 @@ setSchedulePopup schedulePopup model =
     { model | schedulePopup = schedulePopup }
 
 
-setDialog : MoveDialog.Model -> Model -> Model
-setDialog dialog model =
-    { model | dialog = dialog }
-
-
-updateDialogAndCache : MoveDialog.Model -> Model -> Return
-updateDialogAndCache dialog model =
-    setDialog dialog model
-        |> Return.singleton
-        |> Return.command
-            (Ports.localStorageSetJsonItem
-                ( "cachedDialog", MoveDialog.encoder dialog )
-            )
-
-
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsgList =
     PatchTodo todoId todoMsgList |> Millis.nowCmd
@@ -609,7 +571,6 @@ updateFromEncodedFlags encodedFlags model =
             setTodoList flags.cachedTodoList model
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
-                |> setDialog flags.cachedDialog
                 |> setIET flags.cachedInlineEditTodo
                 |> setBrowserSize flags.browserSize
                 |> setTodayFromNow flags.now
@@ -888,34 +849,13 @@ viewFooter model =
         viewSignInDialog
 
     else
-        case model.dialog of
-            MoveDialog.Closed ->
-                HX.none
-
-            MoveDialog.OpenFor todoId projectId ->
-                viewMoveDialog
-                    todoId
-                    projectId
-                    (Project.filterActive model.projectList)
+        HX.none
 
 
 type alias DisplayProject =
     { id : ProjectId
     , title : String
     }
-
-
-toDisplayProject : Project -> DisplayProject
-toDisplayProject p =
-    { id = p.id, title = p.title }
-
-
-inboxDisplayProject =
-    { id = ProjectId.default, title = "Inbox" }
-
-
-toDisplayProjectList projectList =
-    inboxDisplayProject :: List.map toDisplayProject projectList
 
 
 viewSignInDialog =
@@ -938,34 +878,6 @@ viewSignInDialog =
                 ]
             ]
         ]
-
-
-viewMoveDialog : TodoId -> ProjectId -> List Project -> Html Msg
-viewMoveDialog todoId projectId projectList =
-    let
-        viewProjectItem : Int -> DisplayProject -> Html Msg
-        viewProjectItem idx dp =
-            TextButton.view (MoveTodo todoId dp.id)
-                dp.title
-                [ class "ph3 pv2"
-                , classList [ ( "b", dp.id == projectId ) ]
-                , A.id <| ifElse (idx == 0) MoveDialog.firstFocusable ""
-                ]
-    in
-    viewDialog
-        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-            (div [ class "b" ] [ text "Move To Project ..." ]
-                :: (projectList
-                        |> toDisplayProjectList
-                        |> List.indexedMap viewProjectItem
-                   )
-            )
-        ]
-
-
-viewDialog : List (Html Msg) -> Html Msg
-viewDialog =
-    MoveDialog.view OnDialogOverlayClickedOrEscapePressed
 
 
 
