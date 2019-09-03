@@ -1,4 +1,15 @@
-module TodoPopup exposing (SubPopup(..), TodoPopupModel, ViewConfig, closed, firstFocusable, init, opened, openedWithSub, view)
+module TodoPopup exposing
+    ( ClosedBy(..)
+    , SubPopup(..)
+    , TodoPopupModel
+    , ViewConfig
+    , closed
+    , firstFocusable
+    , init
+    , opened
+    , openedWithSub
+    , view
+    )
 
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
