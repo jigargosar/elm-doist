@@ -55,7 +55,12 @@ type alias ViewConfig msg =
     }
 
 
-view : ViewConfig msg -> TodoId -> (SubPopup -> Html msg) -> TodoPopupModel -> Html msg
+view :
+    ViewConfig msg
+    -> TodoId
+    -> (SubPopup -> Html msg)
+    -> TodoPopupModel
+    -> Html msg
 view config todoId viewSubPopup model =
     case model of
         TodoPopupClosed ->
