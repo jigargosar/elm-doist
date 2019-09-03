@@ -27,6 +27,24 @@ firstFocusable =
     "move-popup__first-focusable"
 
 
+type alias ViewConfig msg =
+    { close : msg, move : TodoId -> ProjectId -> msg }
+
+
+view : ViewConfig msg -> TodoId -> List Project -> Model -> Html msg
+view config todoId projectList model =
+    case model of
+        OpenFor todoId_ projectId ->
+            if todoId /= todoId_ then
+                HX.none
+
+            else
+                viewHelp config todoId projectId projectList
+
+        Closed ->
+            HX.none
+
+
 type alias DisplayProject =
     { id : ProjectId
     , title : String
@@ -45,24 +63,6 @@ inboxDisplayProject =
 toDisplayProjectList : List Project -> List DisplayProject
 toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
-
-
-type alias ViewConfig msg =
-    { close : msg, move : TodoId -> ProjectId -> msg }
-
-
-view : ViewConfig msg -> TodoId -> List Project -> Model -> Html msg
-view config todoId projectList model =
-    case model of
-        OpenFor todoId_ projectId ->
-            if todoId /= todoId_ then
-                HX.none
-
-            else
-                viewHelp config todoId projectId projectList
-
-        Closed ->
-            HX.none
 
 
 viewHelp : ViewConfig msg -> TodoId -> ProjectId -> List Project -> Html msg
