@@ -6,7 +6,9 @@ import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import MovePopup
+import ProjectId exposing (ProjectId)
 import SchedulePopup
+import Todo
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
@@ -52,6 +54,14 @@ type Msg
     = SetSubPopup TodoId SubPopup
     | OpenPopup TodoId
     | ClosePopup
+
+
+type ClosedBy
+    = Cancel
+    | Schedule TodoId Todo.DueAt
+    | Move TodoId ProjectId
+    | Delete TodoId
+    | Edit TodoId
 
 
 update { focus } msg _ =
