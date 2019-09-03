@@ -248,6 +248,8 @@ type Msg
     | TodoPopupCloseSub TodoId
     | TodoPopupMoveTodo TodoId ProjectId
     | TodoPopupScheduleTodo TodoId Todo.DueAt
+    | TodoPopupDelete TodoId
+    | TodoPopupEdit TodoId
     | OpenTodoPopup TodoId
     | CloseTodoPopup
     | OpenSchedulePopup SchedulePopupLocation TodoId
@@ -485,6 +487,14 @@ update message model =
             ( { model | todoPopup = TodoPopupClosed }
             , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
             )
+
+        TodoPopupDelete todoId ->
+            { model | todoPopup = TodoPopupClosed }
+                |> update (OnDelete todoId)
+
+        TodoPopupEdit todoId ->
+            { model | todoPopup = TodoPopupClosed }
+                |> update (OnEditClicked todoId)
 
 
 handleFirestoreQueryResponse :
