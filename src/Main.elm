@@ -217,7 +217,7 @@ type Msg
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
     | OpenTodoPopup TodoId
-    | TodoPopupClosedBy TodoPopup.ClosedBy
+    | TodoPopupClosedBy { todoId : TodoId, closedBy : TodoPopup.ClosedBy }
     | OnTodoPopupMsg TodoPopup.Msg
     | OpenSchedulePopup TodoId
     | CloseSchedulePopup
@@ -407,22 +407,22 @@ update message model =
         OpenTodoPopup todoId ->
             model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
 
-        TodoPopupClosedBy closedBy ->
+        TodoPopupClosedBy { todoId, closedBy } ->
             model
                 |> (case closedBy of
-                        TodoPopup.Edit todoId ->
+                        TodoPopup.Edit ->
                             update (OnEditClicked todoId)
 
                         TodoPopup.Cancel ->
                             flip Tuple.pair Cmd.none
 
-                        TodoPopup.Schedule todoId dueAt ->
+                        TodoPopup.Schedule dueAt ->
                             flip Tuple.pair (patchTodoCmd todoId [ Todo.SetDueAt dueAt ])
 
-                        TodoPopup.Move todoId projectId ->
+                        TodoPopup.Move projectId ->
                             flip Tuple.pair (patchTodoCmd todoId [ Todo.SetProjectId projectId ])
 
-                        TodoPopup.Delete todoId ->
+                        TodoPopup.Delete ->
                             update (OnDelete todoId)
                    )
 
@@ -982,13 +982,13 @@ viewTodoPopup todo model =
 
                     TodoPopup.MoveSubPopup ->
                         MovePopup.view
-                            (TodoPopup.movePopupConfig todoId)
+                            TodoPopup.movePopupConfig
                             todo.projectId
                             model.projectList
 
                     TodoPopup.ScheduleSubPopup ->
                         SchedulePopup.view
-                            (TodoPopup.schedulePopupConfig todoId)
+                            TodoPopup.schedulePopupConfig
                             model.here
                             model.today
             )

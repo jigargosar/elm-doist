@@ -70,16 +70,16 @@ open =
 
 type ClosedBy
     = Cancel
-    | Schedule TodoId Todo.DueAt
-    | Move TodoId ProjectId
-    | Delete TodoId
-    | Edit TodoId
+    | Schedule Todo.DueAt
+    | Move ProjectId
+    | Delete
+    | Edit
 
 
 update :
     { a
         | focus : String -> Cmd msg
-        , closedBy : ClosedBy -> Cmd msg
+        , closedBy : { todoId : TodoId, closedBy : ClosedBy } -> Cmd msg
     }
     -> Msg
     -> Model
@@ -108,24 +108,29 @@ update { focus, closedBy } msg model =
                     )
 
         ClosePopup by ->
-            ( closed, closedBy by )
+            case model of
+                PopupClosed ->
+                    ( model, Cmd.none )
+
+                PopupOpen todoId _ ->
+                    ( closed, closedBy { todoId = todoId, closedBy = by } )
 
 
 
 --  VIEW
 
 
-movePopupConfig : TodoId -> MovePopup.ViewConfig Msg
-movePopupConfig todoId =
+movePopupConfig : MovePopup.ViewConfig Msg
+movePopupConfig =
     { close = SetSubPopup NoSubPopup
-    , move = ClosePopup << Move todoId
+    , move = ClosePopup << Move
     }
 
 
-schedulePopupConfig : TodoId -> SchedulePopup.ViewConfig Msg
-schedulePopupConfig todoId =
+schedulePopupConfig : SchedulePopup.ViewConfig Msg
+schedulePopupConfig =
     { close = SetSubPopup NoSubPopup
-    , schedule = ClosePopup << Schedule todoId
+    , schedule = ClosePopup << Schedule
     }
 
 
@@ -141,7 +146,6 @@ view toMsg todoId viewSubPopup model =
 
             else
                 viewHelp
-                    todoId
                     (\subPopup ->
                         if subPopup /= subPopup_ then
                             HX.none
@@ -153,7 +157,7 @@ view toMsg todoId viewSubPopup model =
         |> H.map toMsg
 
 
-viewHelp todoId viewSubPopup =
+viewHelp viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
@@ -180,7 +184,7 @@ viewHelp todoId viewSubPopup =
                 viewBtn ""
          in
          [ containerDiv
-            [ viewFirstBtn (ClosePopup <| Edit todoId) "Edit"
+            [ viewFirstBtn (ClosePopup Edit) "Edit"
             ]
          , containerDiv
             [ viewRemainingBtn (SetSubPopup MoveSubPopup) "Move to Project"
@@ -191,7 +195,7 @@ viewHelp todoId viewSubPopup =
             , viewSubPopup ScheduleSubPopup
             ]
          , containerDiv
-            [ viewRemainingBtn (ClosePopup <| Delete todoId) "Delete"
+            [ viewRemainingBtn (ClosePopup Delete) "Delete"
             ]
          ]
         )
