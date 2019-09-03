@@ -1109,9 +1109,9 @@ schedulePopupConfig =
 todoPopupConfig : TodoPopup.ViewConfig Msg
 todoPopupConfig =
     { edit = OnEditClicked
-    , move = TodoPopupMoveClicked
+    , move = TodoPopupOpenSub MoveSubPopup
     , delete = OnDelete
-    , schedule = OpenSchedulePopup InTodoPopupMenu
+    , schedule = TodoPopupOpenSub ScheduleSubPopup
     , close = CloseTodoPopup
     }
 
