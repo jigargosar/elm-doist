@@ -129,13 +129,8 @@ type TodoPopupModel
 -- SchedulePopupModel
 
 
-type SchedulePopupLocation
-    = InTodoPopupMenu
-    | InTodoListItemDueDate
-
-
 type alias SchedulePopupModel =
-    Popup ( SchedulePopupLocation, TodoId )
+    Popup TodoId
 
 
 
@@ -143,8 +138,7 @@ type alias SchedulePopupModel =
 
 
 type MovePopupModel
-    = MovePopupOpen TodoId ProjectId
-    | MovePopupClosed
+    = MovePopupClosed
 
 
 
@@ -251,7 +245,7 @@ type Msg
     | TodoPopupEdit TodoId
     | OpenTodoPopup TodoId
     | CloseTodoPopup
-    | OpenSchedulePopup SchedulePopupLocation TodoId
+    | OpenSchedulePopup TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
     | CloseMovePopup
@@ -417,13 +411,13 @@ update message model =
         OnIETMsg msg ->
             updateIET msg model
 
-        OpenSchedulePopup loc todoId ->
-            openPopup SchedulePopup.schedulePopupFirstFocusableDomId ( loc, todoId )
+        OpenSchedulePopup todoId ->
+            openPopup SchedulePopup.schedulePopupFirstFocusableDomId todoId
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
-                PopupOpened ( _, todoId ) ->
+                PopupOpened todoId ->
                     closePopup
                         |> Tuple.mapFirst (flip setSchedulePopup model)
                         |> Return.command
@@ -570,28 +564,6 @@ updateIET msg model =
 
 setSchedulePopup schedulePopup model =
     { model | schedulePopup = schedulePopup }
-
-
-setTodoPopup todoPopup model =
-    { model | todoPopup = todoPopup }
-
-
-startMoving : Todo -> Model -> Return
-startMoving todo model =
-    ( { model
-        | movePopup = MovePopupOpen todo.id todo.projectId
-      }
-    , focus MovePopup.firstFocusable
-    )
-
-
-
---startMoving : Todo -> Model -> Return
---startMoving todo =
---    updateDialogAndCache
---        (MoveDialog.OpenFor todo.id todo.projectId)
---        >> Return.command (focus MoveDialog.firstFocusable)
---
 
 
 setDialog : MoveDialog.Model -> Model -> Model
@@ -1172,7 +1144,7 @@ viewTodoItemDueDate :
 viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
-            OpenSchedulePopup InTodoListItemDueDate todo.id
+            OpenSchedulePopup todo.id
     in
     div [ class "flex-shrink-0 relative flex" ]
         [ case Todo.dueMilli todo of
@@ -1186,7 +1158,7 @@ viewTodoItemDueDate todo here today schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (isPopupOpenFor ( InTodoListItemDueDate, todo.id ) schedulePopup)
+        , HX.viewIf (isPopupOpenFor todo.id schedulePopup)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )
