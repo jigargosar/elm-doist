@@ -12,7 +12,7 @@ import UI.Key as Key
 
 type Model
     = Closed
-    | MoveToProjectDialog TodoId ProjectId
+    | OpenFor TodoId ProjectId
 
 
 init : Model
@@ -32,7 +32,7 @@ encoder dialog =
         Closed ->
             JE.object [ ( "tag", JE.string "Closed" ) ]
 
-        MoveToProjectDialog todoId projectId ->
+        OpenFor todoId projectId ->
             JE.object
                 [ ( "tag", JE.string "MoveToProjectDialog" )
                 , ( "todoId", TodoId.encoder todoId )
@@ -47,7 +47,7 @@ dialogDecoderForTag tag =
             JD.succeed Closed
 
         "MoveToProjectDialog" ->
-            JD.map2 MoveToProjectDialog
+            JD.map2 OpenFor
                 (JD.field "todoId" TodoId.decoder)
                 (JD.field "projectId" ProjectId.decoder)
 

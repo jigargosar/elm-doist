@@ -447,7 +447,7 @@ update message model =
                 MoveDialog.Closed ->
                     Return.singleton model
 
-                MoveDialog.MoveToProjectDialog _ _ ->
+                MoveDialog.OpenFor _ _ ->
                     updateDialogAndCache MoveDialog.Closed model
 
 
@@ -531,7 +531,7 @@ setTodoPopup todoPopup model =
 startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache
-        (MoveDialog.MoveToProjectDialog todo.id todo.projectId)
+        (MoveDialog.OpenFor todo.id todo.projectId)
         >> Return.command (focus MoveDialog.firstFocusable)
 
 
@@ -861,7 +861,7 @@ viewFooter model =
             MoveDialog.Closed ->
                 HX.none
 
-            MoveDialog.MoveToProjectDialog todoId projectId ->
+            MoveDialog.OpenFor todoId projectId ->
                 viewMoveDialog
                     todoId
                     projectId
