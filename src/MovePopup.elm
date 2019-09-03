@@ -59,13 +59,11 @@ view config todoId projectId projectList =
         , on "focusOutside" (JD.succeed config.close)
         , Key.onEscape config.close
         ]
-        [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-            [ div [ class "bg-white pa3 lh-copy shadow-1" ]
-                (div [ class "b" ] [ text "Move To Project ..." ]
-                    :: (projectList
-                            |> toDisplayProjectList
-                            |> List.indexedMap viewProjectItem
-                       )
-                )
-            ]
+        [ div [ class "pa3 lh-copy" ]
+            (div [ class "b" ] [ text "Move To Project ..." ]
+                :: (projectList
+                        |> toDisplayProjectList
+                        |> List.indexedMap viewProjectItem
+                   )
+            )
         ]

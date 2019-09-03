@@ -1123,7 +1123,7 @@ todoPopupConfig =
     , move = OnMoveClicked
     , delete = OnDelete
     , schedule = OpenSchedulePopup InTodoPopupMenu
-    , close = CloseSchedulePopup
+    , close = CloseTodoPopup
     , schedulePopupConfig = schedulePopupConfig
     }
 
