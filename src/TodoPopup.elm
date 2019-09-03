@@ -160,28 +160,33 @@ newViewHelp todoId viewSubPopup =
         (let
             containerDiv =
                 div [ class "relative" ]
+
+            viewBtn id action label =
+                TextButton.view action
+                    label
+                    [ class "pa2", A.id id ]
+
+            viewFirstBtn : msg -> String -> Html msg
+            viewFirstBtn =
+                viewBtn firstFocusable
+
+            viewRemainingBtn : msg -> String -> Html msg
+            viewRemainingBtn =
+                viewBtn ""
          in
          [ containerDiv
-            [ TextButton.view (ClosePopup <| Edit todoId)
-                "Edit"
-                [ class "pa2", A.id firstFocusable ]
+            [ viewFirstBtn (ClosePopup <| Edit todoId) "Edit"
             ]
          , containerDiv
-            [ TextButton.view (SetSubPopup todoId MoveSubPopup)
-                "Move to Project"
-                [ class "pa2" ]
+            [ viewRemainingBtn (SetSubPopup todoId MoveSubPopup) "Move to Project"
             , viewSubPopup MoveSubPopup
             ]
          , containerDiv
-            [ TextButton.view (SetSubPopup todoId ScheduleSubPopup)
-                "Schedule"
-                [ class "pa2" ]
+            [ viewRemainingBtn (SetSubPopup todoId ScheduleSubPopup) "Schedule"
             , viewSubPopup ScheduleSubPopup
             ]
          , containerDiv
-            [ TextButton.view (ClosePopup <| Delete todoId)
-                "Delete"
-                [ class "pa2" ]
+            [ viewRemainingBtn (ClosePopup <| Delete todoId) "Delete"
             ]
          ]
         )
