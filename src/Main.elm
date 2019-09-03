@@ -467,13 +467,6 @@ update message model =
                 [ Todo.SetProjectId projectId ]
             )
 
-        TodoPopupScheduleTodo todoId dueAt ->
-            ( { model | todoPopup = TodoPopupClosed }
-            , patchTodoCmd
-                todoId
-                [ Todo.SetDueAt dueAt ]
-            )
-
         TodoPopupScheduleClicked todoId ->
             ( { model
                 | todoPopup =
@@ -482,11 +475,15 @@ update message model =
             , focus MovePopup.firstFocusable
             )
 
+        TodoPopupScheduleTodo todoId dueAt ->
+            ( { model | todoPopup = TodoPopupClosed }
+            , patchTodoCmd
+                todoId
+                [ Todo.SetDueAt dueAt ]
+            )
+
         TodoPopupCloseSubPopup todoId ->
-            ( { model
-                | todoPopup =
-                    TodoPopupOpen todoId Nothing
-              }
+            ( { model | todoPopup = TodoPopupOpen todoId Nothing }
             , focus MovePopup.firstFocusable
             )
 
