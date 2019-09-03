@@ -47,15 +47,6 @@ toDisplayProjectList projectList =
     inboxDisplayProject :: List.map toDisplayProject projectList
 
 
-isOpenForTodoId todoId model =
-    case model of
-        OpenFor todoId_ _ ->
-            True
-
-        Closed ->
-            False
-
-
 type alias ViewConfig msg =
     { close : msg, move : TodoId -> ProjectId -> msg }
 
