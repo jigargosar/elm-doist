@@ -82,22 +82,27 @@ update :
         , closedBy : ClosedBy -> Cmd msg
     }
     -> Msg
-    -> c
+    -> TodoPopupModel
     -> ( TodoPopupModel, Cmd msg )
-update { focus, closedBy } msg _ =
+update { focus, closedBy } msg model =
     case msg of
-        SetSubPopup todoId subPopup ->
-            ( TodoPopupOpen todoId subPopup
-            , case subPopup of
-                MoveSubPopup ->
-                    focus MovePopup.firstFocusable
+        SetSubPopup _ subPopup ->
+            case model of
+                TodoPopupClosed ->
+                    ( model, Cmd.none )
 
-                ScheduleSubPopup ->
-                    focus SchedulePopup.schedulePopupFirstFocusableDomId
+                TodoPopupOpen todoId _ ->
+                    ( TodoPopupOpen todoId subPopup
+                    , case subPopup of
+                        MoveSubPopup ->
+                            focus MovePopup.firstFocusable
 
-                NoSubPopup ->
-                    Cmd.none
-            )
+                        ScheduleSubPopup ->
+                            focus SchedulePopup.schedulePopupFirstFocusableDomId
+
+                        NoSubPopup ->
+                            Cmd.none
+                    )
 
         OpenPopup todoId ->
             ( opened todoId, focus firstFocusable )
