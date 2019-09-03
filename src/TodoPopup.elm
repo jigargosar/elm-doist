@@ -205,9 +205,19 @@ type alias MenuItem =
     { action : Msg, label : String, subPopup : SubPopup }
 
 
+closeMenuItem : ClosedBy -> String -> MenuItem
+closeMenuItem closeBy label =
+    MenuItem (ClosePopup closeBy) label NoSubPopup
+
+
+openSubPopupMenuItem : SubPopup -> String -> MenuItem
+openSubPopupMenuItem subPopup label =
+    MenuItem (SetSubPopup subPopup) label subPopup
+
+
 menuItems =
-    [ MenuItem (ClosePopup Edit) "Edit" NoSubPopup
-    , MenuItem (SetSubPopup MoveSubPopup) "Move to Project" MoveSubPopup
-    , MenuItem (SetSubPopup ScheduleSubPopup) "Schedule" ScheduleSubPopup
-    , MenuItem (ClosePopup Delete) "Delete" NoSubPopup
+    [ closeMenuItem Edit "Edit"
+    , openSubPopupMenuItem MoveSubPopup "Move to Project"
+    , openSubPopupMenuItem ScheduleSubPopup "Schedule"
+    , closeMenuItem Delete "Delete"
     ]
