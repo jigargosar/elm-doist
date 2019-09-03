@@ -445,6 +445,26 @@ update message model =
             closePopup
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
+        CloseMovePopup ->
+            ( { model | movePopup = MovePopupClosed }, Cmd.none )
+
+        MoveTodo todoId pid ->
+            { model | movePopup = MovePopupClosed }
+                |> updateDialogAndCache MoveDialog.Closed
+                |> Return.command
+                    (patchTodoCmd
+                        todoId
+                        [ Todo.SetProjectId pid ]
+                    )
+
+        OnDialogOverlayClickedOrEscapePressed ->
+            case model.dialog of
+                MoveDialog.Closed ->
+                    Return.singleton model
+
+                MoveDialog.OpenFor _ _ ->
+                    updateDialogAndCache MoveDialog.Closed model
+
         OpenTodoPopup todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId Nothing }
             , focus TodoPopup.firstFocusable
@@ -482,26 +502,6 @@ update message model =
             ( { model | todoPopup = TodoPopupClosed }
             , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
             )
-
-        CloseMovePopup ->
-            ( { model | movePopup = MovePopupClosed }, Cmd.none )
-
-        MoveTodo todoId pid ->
-            { model | movePopup = MovePopupClosed }
-                |> updateDialogAndCache MoveDialog.Closed
-                |> Return.command
-                    (patchTodoCmd
-                        todoId
-                        [ Todo.SetProjectId pid ]
-                    )
-
-        OnDialogOverlayClickedOrEscapePressed ->
-            case model.dialog of
-                MoveDialog.Closed ->
-                    Return.singleton model
-
-                MoveDialog.OpenFor _ _ ->
-                    updateDialogAndCache MoveDialog.Closed model
 
 
 handleFirestoreQueryResponse :
