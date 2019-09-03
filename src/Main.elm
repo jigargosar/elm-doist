@@ -546,10 +546,21 @@ setTodoPopup todoPopup model =
 
 
 startMoving : Todo -> Model -> Return
-startMoving todo =
-    updateDialogAndCache
-        (MoveDialog.OpenFor todo.id todo.projectId)
-        >> Return.command (focus MoveDialog.firstFocusable)
+startMoving todo model =
+    ( { model
+        | movePopup = MovePopupOpen todo.id todo.projectId
+      }
+    , focus MovePopup.firstFocusable
+    )
+
+
+
+--startMoving : Todo -> Model -> Return
+--startMoving todo =
+--    updateDialogAndCache
+--        (MoveDialog.OpenFor todo.id todo.projectId)
+--        >> Return.command (focus MoveDialog.firstFocusable)
+--
 
 
 setDialog : MoveDialog.Model -> Model -> Model
