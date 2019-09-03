@@ -115,20 +115,20 @@ isPopupOpenFor a popup =
 
 
 
+-- SchedulePopupModel
+
+
+type alias SchedulePopupModel =
+    Popup TodoId
+
+
+
 -- TodoPopupModel
 
 
 type TodoPopupModel
     = TodoPopupOpen TodoId TodoPopup.SubPopup
     | TodoPopupClosed
-
-
-
--- SchedulePopupModel
-
-
-type alias SchedulePopupModel =
-    Popup TodoId
 
 
 
