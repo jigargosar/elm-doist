@@ -157,6 +157,19 @@ view toMsg todoId viewSubPopup model =
         |> H.map toMsg
 
 
+type alias MenuItem =
+    { action : Msg, label : String, subPopup : SubPopup }
+
+
+menuItems : List MenuItem
+menuItems =
+    [ closeByMenuItem Edit "Edit"
+    , openSubMenuItem MoveSubPopup "Move to Project"
+    , openSubMenuItem ScheduleSubPopup "Schedule"
+    , closeByMenuItem Delete "Delete"
+    ]
+
+
 viewHelp viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
@@ -166,58 +179,38 @@ viewHelp viewSubPopup =
         , Key.onEscape (ClosePopup Cancel)
         , tabindex -1
         ]
-        (let
-            containerDiv =
-                div [ class "relative" ]
+        (menuItems |> List.map (viewMenuItem viewSubPopup))
 
-            viewBtn id action label =
-                TextButton.view action
-                    label
-                    [ class "pa2", A.id id ]
 
-            viewFirstBtn : msg -> String -> Html msg
-            viewFirstBtn =
-                viewBtn firstFocusable
+viewMenuItem viewSubPopup menuItem =
+    let
+        id =
+            if Just menuItem == maybeFirstMenuItem then
+                firstFocusable
 
-            viewRemainingBtn : msg -> String -> Html msg
-            viewRemainingBtn =
-                viewBtn ""
-         in
-         [ containerDiv
-            [ viewFirstBtn (ClosePopup Edit) "Edit"
+            else
+                ""
+    in
+    div [ class "relative" ]
+        [ TextButton.view
+            menuItem.action
+            menuItem.label
+            [ class "pa2"
+            , A.id id
             ]
-         , containerDiv
-            [ viewRemainingBtn (SetSubPopup MoveSubPopup) "Move to Project"
-            , viewSubPopup MoveSubPopup
-            ]
-         , containerDiv
-            [ viewRemainingBtn (SetSubPopup ScheduleSubPopup) "Schedule"
-            , viewSubPopup ScheduleSubPopup
-            ]
-         , containerDiv
-            [ viewRemainingBtn (ClosePopup Delete) "Delete"
-            ]
-         ]
-        )
+        , viewSubPopup menuItem.subPopup
+        ]
 
 
-type alias MenuItem =
-    { action : Msg, label : String, subPopup : SubPopup }
-
-
-closeMenuItem : ClosedBy -> String -> MenuItem
-closeMenuItem closeBy label =
+closeByMenuItem : ClosedBy -> String -> MenuItem
+closeByMenuItem closeBy label =
     MenuItem (ClosePopup closeBy) label NoSubPopup
 
 
-openSubPopupMenuItem : SubPopup -> String -> MenuItem
-openSubPopupMenuItem subPopup label =
+openSubMenuItem : SubPopup -> String -> MenuItem
+openSubMenuItem subPopup label =
     MenuItem (SetSubPopup subPopup) label subPopup
 
 
-menuItems =
-    [ closeMenuItem Edit "Edit"
-    , openSubPopupMenuItem MoveSubPopup "Move to Project"
-    , openSubPopupMenuItem ScheduleSubPopup "Schedule"
-    , closeMenuItem Delete "Delete"
-    ]
+maybeFirstMenuItem =
+    List.head menuItems
