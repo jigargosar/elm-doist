@@ -142,11 +142,6 @@ firstFocusableDomId =
     "inline-edit-todo__first-focusable"
 
 
-schedulePopupFirstFocusableDomId : String
-schedulePopupFirstFocusableDomId =
-    "inline-edit-todo__schedule-popup__first-focusable"
-
-
 type EditingMsg
     = Cancel
     | Save
@@ -226,7 +221,7 @@ updateEditingModel config msg edit =
 
         OpenSchedulePopup ->
             ( Editing { edit | schedulePopupOpened = True }
-            , config.focus schedulePopupFirstFocusableDomId
+            , config.focus SchedulePopup.schedulePopupFirstFocusableDomId
             )
 
         CloseSchedulePopup ->

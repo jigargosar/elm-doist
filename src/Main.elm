@@ -470,12 +470,20 @@ update message model =
 
         TodoPopupOpenSub subPopup todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId subPopup }
-            , focus MovePopup.firstFocusable
+            , case subPopup of
+                TodoPopup.MoveSubPopup ->
+                    focus MovePopup.firstFocusable
+
+                TodoPopup.ScheduleSubPopup ->
+                    focus SchedulePopup.schedulePopupFirstFocusableDomId
+
+                TodoPopup.NoSubPopup ->
+                    Cmd.none
             )
 
         TodoPopupCloseSub todoId ->
             ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
-            , focus MovePopup.firstFocusable
+            , Cmd.none
             )
 
         TodoPopupMoveTodo todoId projectId ->
