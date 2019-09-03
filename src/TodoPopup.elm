@@ -1,12 +1,38 @@
-module TodoPopup exposing (SubPopup(..), ViewConfig, firstFocusable, view)
+module TodoPopup exposing (SubPopup(..), TodoPopupModel, ViewConfig, closed, firstFocusable, init, open, openSub, view)
 
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
+import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
+
+
+type TodoPopupModel
+    = TodoPopupOpen TodoId SubPopup
+    | TodoPopupClosed
+
+
+init : TodoPopupModel
+init =
+    TodoPopupClosed
+
+
+open : TodoId -> TodoPopupModel
+open todoId =
+    TodoPopupOpen todoId NoSubPopup
+
+
+closed : TodoPopupModel
+closed =
+    TodoPopupClosed
+
+
+openSub : TodoId -> SubPopup -> TodoPopupModel
+openSub =
+    TodoPopupOpen
 
 
 type SubPopup
@@ -29,12 +55,35 @@ type alias ViewConfig msg =
     }
 
 
-view :
+view : ViewConfig msg -> TodoId -> (SubPopup -> Html msg) -> TodoPopupModel -> Html msg
+view config todoId viewSubPopup model =
+    case model of
+        TodoPopupClosed ->
+            HX.none
+
+        TodoPopupOpen todoId_ subPopup_ ->
+            if todoId /= todoId_ then
+                HX.none
+
+            else
+                viewHelp
+                    config
+                    todoId
+                    (\subPopup ->
+                        if subPopup /= subPopup_ then
+                            HX.none
+
+                        else
+                            viewSubPopup subPopup
+                    )
+
+
+viewHelp :
     ViewConfig msg
     -> TodoId
     -> (SubPopup -> Html msg)
     -> Html msg
-view config todoId viewSubPopup =
+viewHelp config todoId viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"

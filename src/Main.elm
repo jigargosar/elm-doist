@@ -124,14 +124,6 @@ type alias SchedulePopupModel =
 
 
 -- TodoPopupModel
-
-
-type TodoPopupModel
-    = TodoPopupOpen TodoId TodoPopup.SubPopup
-    | TodoPopupClosed
-
-
-
 -- MODEL
 
 
@@ -139,7 +131,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , iet : IET.Model
-    , todoPopup : TodoPopupModel
+    , todoPopup : TodoPopup.TodoPopupModel
     , schedulePopup : SchedulePopupModel
     , authState : AuthState
     , errors : Errors
@@ -184,7 +176,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , iet = IET.initial
-            , todoPopup = TodoPopupClosed
+            , todoPopup = TodoPopup.init
             , schedulePopup = initPopup
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -417,15 +409,15 @@ update message model =
                 |> Tuple.mapFirst (flip setSchedulePopup model)
 
         OpenTodoPopup todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId TodoPopup.NoSubPopup }
+            ( { model | todoPopup = TodoPopup.open todoId }
             , focus TodoPopup.firstFocusable
             )
 
         CloseTodoPopup ->
-            ( { model | todoPopup = TodoPopupClosed }, Cmd.none )
+            ( { model | todoPopup = TodoPopup.closed }, Cmd.none )
 
         TodoPopupSetSub subPopup todoId ->
-            ( { model | todoPopup = TodoPopupOpen todoId subPopup }
+            ( { model | todoPopup = TodoPopup.openSub todoId subPopup }
             , case subPopup of
                 TodoPopup.MoveSubPopup ->
                     focus MovePopup.firstFocusable
@@ -438,21 +430,21 @@ update message model =
             )
 
         TodoPopupMoveTodo todoId projectId ->
-            ( { model | todoPopup = TodoPopupClosed }
+            ( { model | todoPopup = TodoPopup.closed }
             , patchTodoCmd todoId [ Todo.SetProjectId projectId ]
             )
 
         TodoPopupScheduleTodo todoId dueAt ->
-            ( { model | todoPopup = TodoPopupClosed }
+            ( { model | todoPopup = TodoPopup.closed }
             , patchTodoCmd todoId [ Todo.SetDueAt dueAt ]
             )
 
         TodoPopupDelete todoId ->
-            { model | todoPopup = TodoPopupClosed }
+            { model | todoPopup = TodoPopup.closed }
                 |> update (OnDelete todoId)
 
         TodoPopupEdit todoId ->
-            { model | todoPopup = TodoPopupClosed }
+            { model | todoPopup = TodoPopup.closed }
                 |> update (OnEditClicked todoId)
 
 
@@ -988,48 +980,40 @@ viewTodoItemBase model todo =
 
 viewTodoPopup : Todo -> Model -> Html Msg
 viewTodoPopup todo model =
-    case model.todoPopup of
-        TodoPopupClosed ->
-            HX.none
+    let
+        todoId =
+            todo.id
+    in
+    model.todoPopup
+        |> TodoPopup.view
+            { edit = TodoPopupEdit
+            , move = TodoPopupSetSub TodoPopup.MoveSubPopup
+            , delete = TodoPopupDelete
+            , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
+            , close = CloseTodoPopup
+            }
+            todoId
+            (\subPopup ->
+                case subPopup of
+                    TodoPopup.NoSubPopup ->
+                        HX.none
 
-        TodoPopupOpen todoId_ subPopup_ ->
-            if todo.id /= todoId_ then
-                HX.none
+                    TodoPopup.MoveSubPopup ->
+                        MovePopup.view
+                            { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId
+                            , move = TodoPopupMoveTodo todoId
+                            }
+                            todo.projectId
+                            model.projectList
 
-            else
-                TodoPopup.view
-                    { edit = TodoPopupEdit
-                    , move = TodoPopupSetSub TodoPopup.MoveSubPopup
-                    , delete = TodoPopupDelete
-                    , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
-                    , close = CloseTodoPopup
-                    }
-                    todo.id
-                    (\subPopup ->
-                        if subPopup /= subPopup_ then
-                            HX.none
-
-                        else
-                            case subPopup of
-                                TodoPopup.NoSubPopup ->
-                                    HX.none
-
-                                TodoPopup.MoveSubPopup ->
-                                    MovePopup.view
-                                        { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
-                                        , move = TodoPopupMoveTodo todoId_
-                                        }
-                                        todo.projectId
-                                        model.projectList
-
-                                TodoPopup.ScheduleSubPopup ->
-                                    SchedulePopup.view
-                                        { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId_
-                                        , schedule = TodoPopupScheduleTodo todoId_
-                                        }
-                                        model.here
-                                        model.today
-                    )
+                    TodoPopup.ScheduleSubPopup ->
+                        SchedulePopup.view
+                            { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId
+                            , schedule = TodoPopupScheduleTodo todoId
+                            }
+                            model.here
+                            model.today
+            )
 
 
 viewTodoItemDueDate :
