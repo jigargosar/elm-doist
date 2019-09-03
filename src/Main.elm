@@ -1089,16 +1089,6 @@ schedulePopupConfig =
     }
 
 
-todoPopupConfig : TodoPopup.ViewConfig Msg
-todoPopupConfig =
-    { edit = OnEditClicked
-    , move = TodoPopupOpenSub TodoPopup.MoveSubPopup
-    , delete = OnDelete
-    , schedule = TodoPopupOpenSub TodoPopup.ScheduleSubPopup
-    , close = CloseTodoPopup
-    }
-
-
 viewTodoItemBase :
     Model
     -> Todo
@@ -1124,7 +1114,13 @@ viewTodoItemBase model todo =
                         HX.none
 
                     else
-                        TodoPopup.view todoPopupConfig
+                        TodoPopup.view
+                            { edit = OnEditClicked
+                            , move = TodoPopupOpenSub TodoPopup.MoveSubPopup
+                            , delete = OnDelete
+                            , schedule = TodoPopupOpenSub TodoPopup.ScheduleSubPopup
+                            , close = CloseTodoPopup
+                            }
                             todo.id
                             (\subPopup ->
                                 if subPopup /= subPopup_ then
