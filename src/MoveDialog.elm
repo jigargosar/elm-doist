@@ -1,4 +1,4 @@
-module Dialog exposing (Model(..), decoder, encoder, firstFocusable, init, view)
+module MoveDialog exposing (Model(..), decoder, encoder, firstFocusable, init, view)
 
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class, tabindex)
@@ -52,7 +52,7 @@ dialogDecoderForTag tag =
                 (JD.field "projectId" ProjectId.decoder)
 
         _ ->
-            JD.fail ("Invalid Dialog Tag:" ++ tag)
+            JD.fail ("Invalid MoveDialog Tag:" ++ tag)
 
 
 firstFocusable =

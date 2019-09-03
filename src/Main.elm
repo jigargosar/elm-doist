@@ -9,7 +9,6 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
-import Dialog
 import Errors exposing (Errors)
 import Fire
 import Focus
@@ -31,6 +30,7 @@ import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
+import MoveDialog
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -60,7 +60,7 @@ type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
-    , cachedDialog : Dialog.Model
+    , cachedDialog : MoveDialog.Model
     , cachedInlineEditTodo : IET.Model
     , browserSize : BrowserSize
     , now : Millis
@@ -80,7 +80,7 @@ flagsDecoder =
         |> cachedField "cachedAuthState"
             AuthState.decoder
             AuthState.initial
-        |> cachedField "cachedDialog" Dialog.decoder Dialog.init
+        |> cachedField "cachedDialog" MoveDialog.decoder MoveDialog.init
         |> cachedField "cachedInlineEditTodo" IET.decoder IET.initial
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
@@ -146,7 +146,7 @@ type alias Model =
     , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
-    , dialog : Dialog.Model
+    , dialog : MoveDialog.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -192,7 +192,7 @@ init encodedFlags url key =
             , iet = IET.initial
             , todoPopup = initPopup
             , schedulePopup = initPopup
-            , dialog = Dialog.init
+            , dialog = MoveDialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -435,7 +435,7 @@ update message model =
                 |> Tuple.mapFirst (flip setTodoPopup model)
 
         OpenMoveDialog todoId pid ->
-            updateDialogAndCache Dialog.Closed model
+            updateDialogAndCache MoveDialog.Closed model
                 |> Return.command
                     (patchTodoCmd
                         todoId
@@ -444,11 +444,11 @@ update message model =
 
         OnDialogOverlayClickedOrEscapePressed ->
             case model.dialog of
-                Dialog.Closed ->
+                MoveDialog.Closed ->
                     Return.singleton model
 
-                Dialog.MoveToProjectDialog _ _ ->
-                    updateDialogAndCache Dialog.Closed model
+                MoveDialog.MoveToProjectDialog _ _ ->
+                    updateDialogAndCache MoveDialog.Closed model
 
 
 handleFirestoreQueryResponse :
@@ -531,22 +531,22 @@ setTodoPopup todoPopup model =
 startMoving : Todo -> Model -> Return
 startMoving todo =
     updateDialogAndCache
-        (Dialog.MoveToProjectDialog todo.id todo.projectId)
-        >> Return.command (focus Dialog.firstFocusable)
+        (MoveDialog.MoveToProjectDialog todo.id todo.projectId)
+        >> Return.command (focus MoveDialog.firstFocusable)
 
 
-setDialog : Dialog.Model -> Model -> Model
+setDialog : MoveDialog.Model -> Model -> Model
 setDialog dialog model =
     { model | dialog = dialog }
 
 
-updateDialogAndCache : Dialog.Model -> Model -> Return
+updateDialogAndCache : MoveDialog.Model -> Model -> Return
 updateDialogAndCache dialog model =
     setDialog dialog model
         |> Return.singleton
         |> Return.command
             (Ports.localStorageSetJsonItem
-                ( "cachedDialog", Dialog.encoder dialog )
+                ( "cachedDialog", MoveDialog.encoder dialog )
             )
 
 
@@ -858,10 +858,10 @@ viewFooter model =
 
     else
         case model.dialog of
-            Dialog.Closed ->
+            MoveDialog.Closed ->
                 HX.none
 
-            Dialog.MoveToProjectDialog todoId projectId ->
+            MoveDialog.MoveToProjectDialog todoId projectId ->
                 viewMoveDialog
                     todoId
                     projectId
@@ -888,7 +888,7 @@ toDisplayProjectList projectList =
 
 
 viewSignInDialog =
-    Dialog.view NoOp
+    MoveDialog.view NoOp
         [ div
             [ class "vs3 pa4 lh-copy tc bg-white shadow-1"
             , class " ba br1 b--transparent "
@@ -918,7 +918,7 @@ viewMoveDialog todoId projectId projectList =
                 dp.title
                 [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]
-                , A.id <| ifElse (idx == 0) Dialog.firstFocusable ""
+                , A.id <| ifElse (idx == 0) MoveDialog.firstFocusable ""
                 ]
     in
     viewDialog
@@ -934,7 +934,7 @@ viewMoveDialog todoId projectId projectList =
 
 viewDialog : List (Html Msg) -> Html Msg
 viewDialog =
-    Dialog.view OnDialogOverlayClickedOrEscapePressed
+    MoveDialog.view OnDialogOverlayClickedOrEscapePressed
 
 
 
