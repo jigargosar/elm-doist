@@ -122,7 +122,7 @@ isPopupOpenFor a popup =
 
 type SubPopup
     = ScheduleSubPopup
-    | MoveSubPopup
+    | MoveSubPopup ProjectId
 
 
 type TodoPopupModel
@@ -1119,28 +1119,28 @@ viewTodoItemBase model todo =
                         TodoPopup.view todoPopupConfig
                             todo.id
                             { viewMovePopup =
-                                case model.movePopup of
-                                    MovePopupOpen todoId__ projectId ->
-                                        if todo.id == todoId__ then
-                                            MovePopup.view
-                                                { close = CloseMovePopup
-                                                , move = MoveTodo
-                                                }
-                                                todoId__
-                                                projectId
-                                                model.projectList
+                                case maybeSubPopup of
+                                    Just (MoveSubPopup projectId) ->
+                                        MovePopup.view
+                                            { close = CloseMovePopup
+                                            , move = MoveTodo
+                                            }
+                                            todoId_
+                                            projectId
+                                            model.projectList
 
-                                        else
-                                            HX.none
-
-                                    MovePopupClosed ->
+                                    _ ->
                                         HX.none
                             , viewSchedulePopup =
-                                if isPopupOpenFor ( InTodoPopupMenu, todo.id ) model.schedulePopup then
-                                    SchedulePopup.view schedulePopupConfig model.here model.today
+                                case maybeSubPopup of
+                                    Just ScheduleSubPopup ->
+                                        SchedulePopup.view
+                                            schedulePopupConfig
+                                            model.here
+                                            model.today
 
-                                else
-                                    HX.none
+                                    _ ->
+                                        HX.none
                             }
             ]
         ]
