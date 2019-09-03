@@ -31,6 +31,7 @@ import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import MoveDialog
+import MovePopup
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -146,6 +147,7 @@ type alias Model =
     , iet : IET.Model
     , todoPopup : TodoPopupModel
     , schedulePopup : SchedulePopupModel
+    , movePopup : MovePopup.Model
     , dialog : MoveDialog.Model
     , authState : AuthState
     , errors : Errors
@@ -192,6 +194,7 @@ init encodedFlags url key =
             , iet = IET.initial
             , todoPopup = initPopup
             , schedulePopup = initPopup
+            , movePopup = MovePopup.initial
             , dialog = MoveDialog.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
