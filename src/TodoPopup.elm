@@ -135,7 +135,7 @@ view toMsg todoId viewSubPopup model =
                 HX.none
 
             else
-                newViewHelp
+                viewHelp
                     todoId
                     (\subPopup ->
                         if subPopup /= subPopup_ then
@@ -148,7 +148,7 @@ view toMsg todoId viewSubPopup model =
         |> H.map toMsg
 
 
-newViewHelp todoId viewSubPopup =
+viewHelp todoId viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
