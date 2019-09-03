@@ -1,4 +1,4 @@
-module MovePopup exposing (firstFocusable, view)
+module MovePopup exposing (ViewConfig, firstFocusable, view)
 
 import BasicsExtra exposing (..)
 import Html.Styled as H exposing (Attribute, Html, div, text)

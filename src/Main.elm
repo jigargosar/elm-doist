@@ -42,6 +42,7 @@ import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
+import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -219,6 +220,7 @@ type Msg
     | TodoPopupSetSub TodoPopup.SubPopup TodoId
     | OpenTodoPopup TodoId
     | TodoPopupClosedBy TodoPopup.ClosedBy
+    | OnTodoPopupMsg TodoPopup.Msg
     | OpenSchedulePopup TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
@@ -427,6 +429,15 @@ update message model =
                         TodoPopup.Delete todoId ->
                             update (OnDelete todoId)
                    )
+
+        OnTodoPopupMsg msg ->
+            TodoPopup.update
+                { focus = focus
+                , closedBy = TodoPopupClosedBy >> Task.succeed >> Task.perform identity
+                }
+                msg
+                model.todoPopup
+                |> Tuple.mapFirst (\ntp -> { model | todoPopup = ntp })
 
         TodoPopupSetSub subPopup todoId ->
             ( { model | todoPopup = TodoPopup.openedWithSub todoId subPopup }
@@ -979,13 +990,7 @@ viewTodoPopup todo model =
             todo.id
     in
     model.todoPopup
-        |> TodoPopup.view
-            { edit = TodoPopupClosedBy << TodoPopup.Edit
-            , move = TodoPopupSetSub TodoPopup.MoveSubPopup
-            , delete = TodoPopupClosedBy << TodoPopup.Delete
-            , schedule = TodoPopupSetSub TodoPopup.ScheduleSubPopup
-            , close = TodoPopupClosedBy TodoPopup.Cancel
-            }
+        |> TodoPopup.view OnTodoPopupMsg
             todoId
             (\subPopup ->
                 case subPopup of
@@ -994,17 +999,13 @@ viewTodoPopup todo model =
 
                     TodoPopup.MoveSubPopup ->
                         MovePopup.view
-                            { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId
-                            , move = TodoPopupClosedBy << TodoPopup.Move todoId
-                            }
+                            (TodoPopup.movePopupConfig todoId)
                             todo.projectId
                             model.projectList
 
                     TodoPopup.ScheduleSubPopup ->
                         SchedulePopup.view
-                            { close = TodoPopupSetSub TodoPopup.NoSubPopup todoId
-                            , schedule = TodoPopupClosedBy << TodoPopup.Schedule todoId
-                            }
+                            (TodoPopup.schedulePopupConfig todoId)
                             model.here
                             model.today
             )
