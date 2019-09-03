@@ -58,7 +58,7 @@ firstFocusable =
 
 
 type Msg
-    = SetSubPopup TodoId SubPopup
+    = SetSubPopup SubPopup
     | OpenPopup TodoId
     | ClosePopup ClosedBy
 
@@ -89,7 +89,7 @@ update { focus, closedBy } msg model =
         OpenPopup todoId ->
             ( opened todoId, focus firstFocusable )
 
-        SetSubPopup _ subPopup ->
+        SetSubPopup subPopup ->
             case model of
                 PopupClosed ->
                     ( model, Cmd.none )
@@ -117,14 +117,14 @@ update { focus, closedBy } msg model =
 
 movePopupConfig : TodoId -> MovePopup.ViewConfig Msg
 movePopupConfig todoId =
-    { close = SetSubPopup todoId NoSubPopup
+    { close = SetSubPopup NoSubPopup
     , move = ClosePopup << Move todoId
     }
 
 
 schedulePopupConfig : TodoId -> SchedulePopup.ViewConfig Msg
 schedulePopupConfig todoId =
-    { close = SetSubPopup todoId NoSubPopup
+    { close = SetSubPopup NoSubPopup
     , schedule = ClosePopup << Schedule todoId
     }
 
@@ -183,11 +183,11 @@ viewHelp todoId viewSubPopup =
             [ viewFirstBtn (ClosePopup <| Edit todoId) "Edit"
             ]
          , containerDiv
-            [ viewRemainingBtn (SetSubPopup todoId MoveSubPopup) "Move to Project"
+            [ viewRemainingBtn (SetSubPopup MoveSubPopup) "Move to Project"
             , viewSubPopup MoveSubPopup
             ]
          , containerDiv
-            [ viewRemainingBtn (SetSubPopup todoId ScheduleSubPopup) "Schedule"
+            [ viewRemainingBtn (SetSubPopup ScheduleSubPopup) "Schedule"
             , viewSubPopup ScheduleSubPopup
             ]
          , containerDiv
