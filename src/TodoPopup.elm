@@ -199,3 +199,15 @@ viewHelp viewSubPopup =
             ]
          ]
         )
+
+
+type alias MenuItem =
+    { action : Msg, label : String, subPopup : SubPopup }
+
+
+menuItems =
+    [ MenuItem (ClosePopup Edit) "Edit" NoSubPopup
+    , MenuItem (SetSubPopup MoveSubPopup) "Move to Project" MoveSubPopup
+    , MenuItem (SetSubPopup ScheduleSubPopup) "Schedule" ScheduleSubPopup
+    , MenuItem (ClosePopup Delete) "Delete" NoSubPopup
+    ]
