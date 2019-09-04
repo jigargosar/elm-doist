@@ -10,7 +10,7 @@ import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
-import produce from "immer"
+import produce from 'immer'
 
 type Todo = {
   id: string
@@ -20,10 +20,8 @@ type Todo = {
 
 type Model = {
   todoPopup: { tag: 'Closed' } | { tag: 'Open'; todoId: string }
-  todoList: ReadonlyArray <Todo>
+  todoList: ReadonlyArray<Todo>
 }
-
-
 
 function createFakeTodo(): Todo {
   return { id: nanoid(), title: faker.hacker.phrase(), isDone: false }
@@ -44,14 +42,13 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
-
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
     model.todoPopup = { tag: 'Open', todoId: msg.todoId }
     return model
   } else if (msg.tag === 'SetDone') {
-    const maybeTodo = model.todoList.find(todo=>todo.id===msg.todoId)
-    if(maybeTodo){
+    const maybeTodo = model.todoList.find(todo => todo.id === msg.todoId)
+    if (maybeTodo) {
       maybeTodo.isDone = msg.isChecked
     }
     return model
@@ -60,26 +57,28 @@ function update(msg: Msg, model: Model): Model {
 }
 
 const DispatcherContext = createContext((_: Msg) => {})
+const ModelContext = createContext(initialModel)
 
 function App() {
-  const [state, setState] = useState(initialModel)
+  const [model, setModel] = useState(initialModel)
   const dispatch = useCallback(
     (msg: Msg) => {
-      setState(model => {
+      setModel(model => {
         return produce(model, draft => update(msg, draft))
       })
     },
-    [setState],
+    [setModel],
   )
-
   return (
     <DispatcherContext.Provider value={dispatch}>
-      <div className="lh-copy" style={{ maxWidth: 500 }}>
-        <div className="f4 pv1">TodoList</div>
-        {state.todoList.map(todo => (
-          <TodoItem key={todo.id} todo={todo} />
-        ))}
-      </div>
+      <ModelContext.Provider value={model}>
+        <div className="lh-copy" style={{ maxWidth: 500 }}>
+          <div className="f4 pv1">TodoList</div>
+          {model.todoList.map(todo => (
+            <TodoItem key={todo.id} todo={todo} />
+          ))}
+        </div>
+      </ModelContext.Provider>
     </DispatcherContext.Provider>
   )
 }
@@ -104,9 +103,20 @@ function TodoItem({ todo }: { todo: Todo }) {
         />
       </div>
       <div className="ph1 pv1 flex-grow-1 lh-title ">{todo.title}</div>
-      <div className="ph1 b pointer">...</div>
+      <div className="relative">
+        <div className="ph1 b pointer">...</div>
+        <TodoMenu todoId={todo.id} />
+      </div>
     </div>
   )
+}
+
+function TodoMenu({ todoId }: { todoId: string }) {
+  const model = useContext(ModelContext)
+  if(model.todoPopup.tag === 'Open' && model.todoPopup.todoId === todoId){
+    return <div>TODO MENU</div>
+  }
+  return null
 }
 
 render(<App />, document.getElementById('root'))
