@@ -1,6 +1,5 @@
 module SchedulePopup exposing
-    ( SchedulePopupModel(..)
-    , ViewConfig
+    ( ViewConfig
     , schedulePopupFirstFocusableDomId
     , view
     )
@@ -16,11 +15,6 @@ import Todo exposing (DueAt)
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
-
-
-type SchedulePopupModel
-    = SchedulePopupOpened TodoId
-    | SchedulePopupClosed
 
 
 schedulePopupFirstFocusableDomId : String

@@ -86,6 +86,15 @@ flagsDecoder =
 
 
 
+-- SP
+
+
+type SchedulePopupModel
+    = SchedulePopupOpened TodoId
+    | SchedulePopupClosed
+
+
+
 -- MODEL
 
 
@@ -94,7 +103,7 @@ type alias Model =
     , projectList : ProjectList
     , iet : IET.Model
     , todoPopup : TodoPopup.Model
-    , schedulePopup : SchedulePopup.SchedulePopupModel
+    , schedulePopup : SchedulePopupModel
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -139,7 +148,7 @@ init encodedFlags url key =
             , projectList = []
             , iet = IET.initial
             , todoPopup = TodoPopup.init
-            , schedulePopup = SchedulePopup.SchedulePopupClosed
+            , schedulePopup = SchedulePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -346,24 +355,24 @@ update message model =
             updateIET msg model
 
         OpenSchedulePopup todoId ->
-            ( { model | schedulePopup = SchedulePopup.SchedulePopupOpened todoId }
+            ( { model | schedulePopup = SchedulePopupOpened todoId }
             , focus SchedulePopup.schedulePopupFirstFocusableDomId
             )
 
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
-                SchedulePopup.SchedulePopupOpened todoId ->
-                    ( { model | schedulePopup = SchedulePopup.SchedulePopupClosed }
+                SchedulePopupOpened todoId ->
+                    ( { model | schedulePopup = SchedulePopupClosed }
                     , patchTodoCmd
                         todoId
                         [ Todo.SetDueAt dueAt ]
                     )
 
-                SchedulePopup.SchedulePopupClosed ->
+                SchedulePopupClosed ->
                     ( model, Cmd.none )
 
         CloseSchedulePopup ->
-            ( { model | schedulePopup = SchedulePopup.SchedulePopupClosed }, Cmd.none )
+            ( { model | schedulePopup = SchedulePopupClosed }, Cmd.none )
 
         OpenTodoPopup todoId ->
             model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
@@ -967,7 +976,7 @@ viewTodoItemBase model todo =
         ]
 
 
-viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup.SchedulePopupModel -> Html Msg
+viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopupModel -> Html Msg
 viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
@@ -985,7 +994,7 @@ viewTodoItemDueDate todo here today schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (schedulePopup == SchedulePopup.SchedulePopupOpened todo.id)
+        , HX.viewIf (schedulePopup == SchedulePopupOpened todo.id)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )
