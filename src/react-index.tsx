@@ -1,16 +1,11 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-} from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
-import assoc from 'ramda/es/assoc'
+import mergeLeft from 'ramda/es/mergeLeft';
 
 type Todo = {
   id: string
@@ -43,7 +38,7 @@ type Msg =
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
 function setDone(isDone: boolean, todo: Todo): Todo {
-  return Object.assign({}, todo, { isDone })
+  return mergeLeft({ isDone }, todo)
 }
 
 function update(msg: Msg, model: Model): Model {
