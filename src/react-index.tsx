@@ -20,7 +20,7 @@ type Todo = {
 
 type Model = {
   readonly todoPopup: { tag: 'Closed' } | { tag: 'Open'; todoId: string }
-  readonly todoList: Todo[]
+  readonly todoList: ReadonlyArray <Todo>
 }
 
 type WritableModel = {-readonly [K in keyof  Model]: Model[K]}
