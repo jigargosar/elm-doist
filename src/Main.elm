@@ -798,6 +798,16 @@ viewMaybeTodoPopup model maybeTodo =
             viewTodoPopup todo model
 
 
+viewTodoPopup : Todo -> Model -> Html Msg
+viewTodoPopup todo model =
+    TodoPopup.view OnTodoPopupMsg
+        todo.projectId
+        model.projectList
+        model.here
+        model.today
+        model.todoPopup
+
+
 viewSignInDialog =
     MoveDialog.view NoOp
         [ div
@@ -950,16 +960,6 @@ viewTodoItemBase model todo =
                 []
             ]
         ]
-
-
-viewTodoPopup : Todo -> Model -> Html Msg
-viewTodoPopup todo model =
-    TodoPopup.view OnTodoPopupMsg
-        todo.projectId
-        model.projectList
-        model.here
-        model.today
-        model.todoPopup
 
 
 viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg
