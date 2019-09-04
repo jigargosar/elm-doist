@@ -41,23 +41,23 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
-function mergePartial<T>(partial: Partial<T>, full: T): T {
+function changeRecord<T>(partial: Partial<T>, full: T): T {
   return { ...full, ...partial }
 }
 
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return mergePartial(
+    return changeRecord(
       { todoPopup: { tag: 'Open', todoId: msg.todoId } },
       model,
     )
   } else if (msg.tag === 'SetDone') {
     const todoList = model.todoList.map(todo => {
       return todo.id === msg.todoId
-        ? mergePartial({ isDone: msg.isChecked }, todo)
+        ? changeRecord({ isDone: msg.isChecked }, todo)
         : todo
     })
-    return mergePartial({ todoList }, model)
+    return changeRecord({ todoList }, model)
   }
   return exhaustiveCheck(msg)
 }
