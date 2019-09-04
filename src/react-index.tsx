@@ -43,7 +43,7 @@ function TodoItem({ todo }: { todo: Todo }) {
         <input type="checkbox" className="" style={{width:24, height:24}}/>
       </div>
       <div className="ph1 pv1 flex-grow-1 lh-title ">{todo.title}</div>
-      <div className="pa1 pointer">...</div>
+      <div className="ph1 b pointer">...</div>
     </div>
   )
 }
