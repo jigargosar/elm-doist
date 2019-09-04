@@ -27,7 +27,7 @@ function App() {
   const [state] = useState(initialState)
 
   return (
-    <div className="lh-copy">
+    <div className="lh-copy" style={{maxWidth: 500}}>
       <div className="f4 pv1">TodoList</div>
       {state.todoList.map(todo => (
         <TodoItem key={todo.id} todo={todo} />
@@ -38,11 +38,12 @@ function App() {
 
 function TodoItem({ todo }: { todo: Todo }) {
   return (
-    <div className="pa1 flex">
-      <div className="ph1 pv1">
-        <input type="checkbox" className="w1 h1" />
+    <div className="flex">
+      <div className="ph1 pv2">
+        <input type="checkbox" className="" style={{width:24, height:24}}/>
       </div>
-      <div className="lh-title ph1">{todo.title}</div>
+      <div className="ph1 pv1 flex-grow-1 lh-title ">{todo.title}</div>
+      <div className="pa1 pointer">...</div>
     </div>
   )
 }
