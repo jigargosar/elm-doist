@@ -23,6 +23,7 @@ import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
+import Html.Styled.Lazy as HL
 import HtmlExtra as HX
 import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
@@ -900,7 +901,8 @@ viewKeyedTodoItems model =
 viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
     if IET.isOpenForTodoId todo.id model.iet then
-        IET.view OnIETMsg
+        HL.lazy5 IET.view
+            OnIETMsg
             todo.id
             model.here
             model.today
