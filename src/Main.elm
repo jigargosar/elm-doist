@@ -954,25 +954,12 @@ viewTodoItemBase model todo =
 
 viewTodoPopup : Todo -> Model -> Html Msg
 viewTodoPopup todo model =
-    model.todoPopup
-        |> TodoPopup.view OnTodoPopupMsg
-            (\subPopup ->
-                case subPopup of
-                    TodoPopup.NoSubPopup ->
-                        HX.none
-
-                    TodoPopup.MoveSubPopup ->
-                        MovePopup.view
-                            TodoPopup.movePopupConfig
-                            todo.projectId
-                            model.projectList
-
-                    TodoPopup.ScheduleSubPopup ->
-                        SchedulePopup.view
-                            TodoPopup.schedulePopupConfig
-                            model.here
-                            model.today
-            )
+    TodoPopup.view OnTodoPopupMsg
+        todo.projectId
+        model.projectList
+        model.here
+        model.today
+        model.todoPopup
 
 
 viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg

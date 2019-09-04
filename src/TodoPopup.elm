@@ -16,18 +16,20 @@ module TodoPopup exposing
     )
 
 import Browser.Dom as Dom
-import Browser.Events
 import BrowserSize
-import Css exposing (absolute, fixed, left, position, px, right, sticky, top, width, zero)
+import Calendar
+import Css exposing (absolute, left, position, px, top, width)
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import MovePopup
+import Project exposing (Project)
 import ProjectId exposing (ProjectId)
 import SchedulePopup
 import Task
+import Time
 import Todo
 import TodoId exposing (TodoId)
 import UI.Key as Key
@@ -93,7 +95,7 @@ getTodoId model =
         PopupOpening todoId ->
             Just todoId
 
-        PopupOpened todoId subPopup element ->
+        PopupOpened todoId _ _ ->
             Just todoId
 
         PopupClosed ->
@@ -163,7 +165,7 @@ update { focus, closedBy, toMsg } msg model =
 
         SetSubPopup subPopup ->
             case model of
-                PopupOpening todoId ->
+                PopupOpening _ ->
                     ( model, Cmd.none )
 
                 PopupClosed ->
@@ -212,8 +214,15 @@ schedulePopupConfig =
     }
 
 
-view : (Msg -> msg) -> (SubPopup -> Html Msg) -> Model -> Html msg
-view toMsg viewSubPopup model =
+view :
+    (Msg -> msg)
+    -> ProjectId
+    -> List Project
+    -> Time.Zone
+    -> Calendar.Date
+    -> Model
+    -> Html msg
+view toMsg projectId projectList zone today model =
     (case model of
         PopupClosed ->
             HX.none
@@ -228,7 +237,21 @@ view toMsg viewSubPopup model =
                         HX.none
 
                     else
-                        viewSubPopup subPopup
+                        case subPopup of
+                            NoSubPopup ->
+                                HX.none
+
+                            MoveSubPopup ->
+                                MovePopup.view
+                                    movePopupConfig
+                                    projectId
+                                    projectList
+
+                            ScheduleSubPopup ->
+                                SchedulePopup.view
+                                    schedulePopupConfig
+                                    zone
+                                    today
                 )
     )
         |> H.map toMsg
