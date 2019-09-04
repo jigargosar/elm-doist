@@ -9,6 +9,7 @@ module TodoPopup exposing
     , movePopupConfig
     , open
     , schedulePopupConfig
+    , subscriptions
     , triggerContainerDomId
     , update
     , view
@@ -99,17 +100,10 @@ getTodoId model =
             Nothing
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    case model of
-        PopupOpening _ ->
-            Sub.batch [ BrowserSize.onBrowserResize BrowserResized ]
-
-        PopupOpened _ _ _ ->
-            Sub.batch []
-
-        PopupClosed ->
-            Sub.batch []
+subscriptions : (Msg -> msg) -> Model -> Sub msg
+subscriptions toMsg _ =
+    Sub.batch [ BrowserSize.onBrowserResize BrowserResized ]
+        |> Sub.map toMsg
 
 
 update :

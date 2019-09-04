@@ -209,11 +209,12 @@ type Msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , BrowserSize.onBrowserResize OnBrowserResize
+        , TodoPopup.subscriptions OnTodoPopupMsg model.todoPopup
         ]
 
 
