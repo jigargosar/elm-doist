@@ -35,7 +35,7 @@ function exhaustiveCheck(never: never) {
 
 type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
-  | { tag: 'Check'; todoId: string; isChecked: boolean }
+  | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
 function setDone(isDone: boolean, todo: Todo): Todo {
   return assoc('isDone', isDone, todo)
@@ -47,7 +47,7 @@ function update(msg: Msg, model: Model): Model {
       ...model,
       ...{ todoPopup: { tag: 'Open', todoId: msg.todoId } },
     }
-  } else if (msg.tag === 'Check') {
+  } else if (msg.tag === 'SetDone') {
     const todoList: Todo[] = model.todoList.map(todo => {
       return todo.id === msg.todoId ? setDone(msg.isChecked, todo) : todo
     })
@@ -96,14 +96,14 @@ function TodoItem({
           type="checkbox"
           className=""
           checked={todo.isDone}
+          style={{ width: 24, height: 24 }}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             dispatch({
-              tag: 'Check',
+              tag: 'SetDone',
               todoId: todo.id,
               isChecked: e.target.checked,
             })
           }}
-          style={{ width: 24, height: 24 }}
         />
       </div>
       <div className="ph1 pv1 flex-grow-1 lh-title ">{todo.title}</div>
