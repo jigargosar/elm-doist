@@ -35,6 +35,10 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'Check'; todoId: string; isChecked: boolean }
 
+function setDone(isDone:boolean, todo:Todo): Todo {
+  return { ...todo, ...{ isDone } }
+}
+
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
     return {
@@ -42,12 +46,13 @@ function update(msg: Msg, model: Model): Model {
       ...{ todoPopup: { tag: 'Open', todoId: msg.todoId } },
     }
   } else if (msg.tag === 'Check') {
+    const todoList: Todo[] = model.todoList.map(todo => {
+      return todo.id === msg.todoId ? setDone(msg.isChecked, todo) : todo
+    })
     return {
       ...model,
       ...{
-        todoList: model.todoList.map(todo => {
-          return todo.id === msg.todoId ? todo : todo
-        }),
+        todoList,
       },
     }
   }
