@@ -30,18 +30,14 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = PopupOpen TodoId SubPopup
+    = PopupOpening TodoId
+    | PopupOpened TodoId SubPopup Dom.Element
     | PopupClosed
 
 
 init : Model
 init =
     PopupClosed
-
-
-opened : TodoId -> Model
-opened todoId =
-    PopupOpen todoId NoSubPopup
 
 
 closed : Model
@@ -97,7 +93,7 @@ update :
 update { focus, closedBy, toMsg } msg model =
     case msg of
         OpenPopup todoId ->
-            ( opened todoId
+            ( PopupOpening todoId
             , Dom.getElement (triggerContainerDomId todoId)
                 |> Task.attempt GotTriggerElement
                 |> Cmd.map toMsg
@@ -108,15 +104,31 @@ update { focus, closedBy, toMsg } msg model =
                 _ =
                     Debug.log "TodoPopup: Trigger Element" triggerElResult
             in
-            ( model, focus firstFocusable )
-
-        SetSubPopup subPopup ->
             case model of
+                PopupOpening todoId ->
+                    case triggerElResult of
+                        Err _ ->
+                            ( model, Cmd.none )
+
+                        Ok triggerEl ->
+                            ( PopupOpened todoId NoSubPopup triggerEl, focus firstFocusable )
+
+                PopupOpened todoId subPopup element ->
+                    ( model, Cmd.none )
+
                 PopupClosed ->
                     ( model, Cmd.none )
 
-                PopupOpen todoId _ ->
-                    ( PopupOpen todoId subPopup
+        SetSubPopup subPopup ->
+            case model of
+                PopupOpening todoId ->
+                    ( model, Cmd.none )
+
+                PopupClosed ->
+                    ( model, Cmd.none )
+
+                PopupOpened todoId _ triggerEl ->
+                    ( PopupOpened todoId subPopup triggerEl
                     , case subPopup of
                         MoveSubPopup ->
                             focus MovePopup.firstFocusable
@@ -133,8 +145,11 @@ update { focus, closedBy, toMsg } msg model =
                 PopupClosed ->
                     ( model, Cmd.none )
 
-                PopupOpen todoId _ ->
+                PopupOpened todoId _ _ ->
                     ( closed, closedBy { todoId = todoId, closedBy = by } )
+
+                PopupOpening _ ->
+                    ( PopupClosed, Cmd.none )
 
 
 
@@ -161,7 +176,10 @@ view toMsg todoId viewSubPopup model =
         PopupClosed ->
             HX.none
 
-        PopupOpen todoId_ subPopup_ ->
+        PopupOpening _ ->
+            HX.none
+
+        PopupOpened todoId_ subPopup_ triggerEl ->
             if todoId /= todoId_ then
                 HX.none
 
