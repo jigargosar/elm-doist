@@ -93,7 +93,8 @@ function App() {
 
 function TodoItem({ todo }: { todo: Todo }) {
   const dispatch = useContext(DispatcherContext)
-  const openTodoMenuCallback = useCallback(() => {
+  const openTodoMenuCallback = useCallback((e:React.SyntheticEvent) => {
+    e.preventDefault()
     dispatch({
       tag: 'OpenTodoMenu',
       todoId: todo.id,
@@ -122,9 +123,9 @@ function TodoItem({ todo }: { todo: Todo }) {
           className="ph1 b pointer"
           onClick={openTodoMenuCallback}
           tabIndex={0}
-          onKeyDown={e => {
+          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             if (isHK(['enter', 'space'], e.nativeEvent)) {
-              openTodoMenuCallback()
+              openTodoMenuCallback(e)
             }
           }}
         >
