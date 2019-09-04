@@ -588,7 +588,6 @@ view model =
                     , H.toUnstyled <|
                         div
                             [ A.id "root"
-                            , class "h-100 overflow-y-scroll"
                             , css [ outline none ]
                             ]
                             body
