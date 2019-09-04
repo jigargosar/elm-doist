@@ -20,7 +20,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href)
+import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
@@ -31,8 +31,6 @@ import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
-import MoveDialog
-import MovePopup
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -88,15 +86,6 @@ flagsDecoder =
 
 
 
--- SchedulePopup
-
-
-type SchedulePopup
-    = SchedulePopupOpened TodoId
-    | SchedulePopupClosed
-
-
-
 -- MODEL
 
 
@@ -105,7 +94,7 @@ type alias Model =
     , projectList : ProjectList
     , iet : IET.Model
     , todoPopup : TodoPopup.Model
-    , schedulePopup : SchedulePopup
+    , schedulePopup : SchedulePopup.SchedulePopupModel
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -150,7 +139,7 @@ init encodedFlags url key =
             , projectList = []
             , iet = IET.initial
             , todoPopup = TodoPopup.init
-            , schedulePopup = SchedulePopupClosed
+            , schedulePopup = SchedulePopup.SchedulePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -357,24 +346,24 @@ update message model =
             updateIET msg model
 
         OpenSchedulePopup todoId ->
-            ( { model | schedulePopup = SchedulePopupOpened todoId }
+            ( { model | schedulePopup = SchedulePopup.SchedulePopupOpened todoId }
             , focus SchedulePopup.schedulePopupFirstFocusableDomId
             )
 
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
-                SchedulePopupOpened todoId ->
-                    ( { model | schedulePopup = SchedulePopupClosed }
+                SchedulePopup.SchedulePopupOpened todoId ->
+                    ( { model | schedulePopup = SchedulePopup.SchedulePopupClosed }
                     , patchTodoCmd
                         todoId
                         [ Todo.SetDueAt dueAt ]
                     )
 
-                SchedulePopupClosed ->
+                SchedulePopup.SchedulePopupClosed ->
                     ( model, Cmd.none )
 
         CloseSchedulePopup ->
-            ( { model | schedulePopup = SchedulePopupClosed }, Cmd.none )
+            ( { model | schedulePopup = SchedulePopup.SchedulePopupClosed }, Cmd.none )
 
         OpenTodoPopup todoId ->
             model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
@@ -808,8 +797,23 @@ viewTodoPopup todo model =
         model.todoPopup
 
 
+viewDialogWrapper : List (Html msg) -> Html msg
+viewDialogWrapper content =
+    div
+        [ class "z-1 fixed absolute--fill flex items-center justify-center"
+        , tabindex -1
+        ]
+        [ div
+            [ class "absolute absolute--fill bg-black-50"
+            ]
+            []
+        , div [ class "absolute" ] content
+        , H.node "style" [] [ text "body { overflow: hidden; }" ]
+        ]
+
+
 viewSignInDialog =
-    MoveDialog.view NoOp
+    viewDialogWrapper
         [ div
             [ class "vs3 pa4 lh-copy tc bg-white shadow-1"
             , class " ba br1 b--transparent "
@@ -962,7 +966,7 @@ viewTodoItemBase model todo =
         ]
 
 
-viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg
+viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup.SchedulePopupModel -> Html Msg
 viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
@@ -980,7 +984,7 @@ viewTodoItemDueDate todo here today schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (schedulePopup == SchedulePopupOpened todo.id)
+        , HX.viewIf (schedulePopup == SchedulePopup.SchedulePopupOpened todo.id)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )

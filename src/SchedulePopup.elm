@@ -1,4 +1,9 @@
-module SchedulePopup exposing (ViewConfig, schedulePopupFirstFocusableDomId, view)
+module SchedulePopup exposing
+    ( SchedulePopupModel(..)
+    , ViewConfig
+    , schedulePopupFirstFocusableDomId
+    , view
+    )
 
 import Calendar
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -8,8 +13,14 @@ import Json.Decode as JD exposing (Decoder)
 import Millis exposing (Millis)
 import Time exposing (Zone)
 import Todo exposing (DueAt)
+import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
+
+
+type SchedulePopupModel
+    = SchedulePopupOpened TodoId
+    | SchedulePopupClosed
 
 
 schedulePopupFirstFocusableDomId : String
