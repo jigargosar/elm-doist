@@ -212,8 +212,8 @@ schedulePopupConfig =
     }
 
 
-view : (Msg -> msg) -> TodoId -> (SubPopup -> Html Msg) -> Model -> Html msg
-view toMsg todoId viewSubPopup model =
+view : (Msg -> msg) -> (SubPopup -> Html Msg) -> Model -> Html msg
+view toMsg viewSubPopup model =
     (case model of
         PopupClosed ->
             HX.none
@@ -221,19 +221,15 @@ view toMsg todoId viewSubPopup model =
         PopupOpening _ ->
             HX.none
 
-        PopupOpened todoId_ subPopup_ triggerEl ->
-            if todoId /= todoId_ then
-                HX.none
+        PopupOpened _ subPopup_ triggerEl ->
+            viewHelp triggerEl
+                (\subPopup ->
+                    if subPopup /= subPopup_ then
+                        HX.none
 
-            else
-                viewHelp triggerEl
-                    (\subPopup ->
-                        if subPopup /= subPopup_ then
-                            HX.none
-
-                        else
-                            viewSubPopup subPopup
-                    )
+                    else
+                        viewSubPopup subPopup
+                )
     )
         |> H.map toMsg
 

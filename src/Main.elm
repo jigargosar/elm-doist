@@ -960,7 +960,6 @@ viewTodoPopup todo model =
     in
     model.todoPopup
         |> TodoPopup.view OnTodoPopupMsg
-            todoId
             (\subPopup ->
                 case subPopup of
                     TodoPopup.NoSubPopup ->
