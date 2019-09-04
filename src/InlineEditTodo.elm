@@ -8,7 +8,6 @@ module InlineEditTodo exposing
     , startEditing
     , update
     , view
-    , viewEditingForTodoId
     )
 
 import Calendar
@@ -27,7 +26,6 @@ import HtmlExtra as HX
 import Json.Decode as JD
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
-import Maybe exposing (Maybe)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Return
@@ -328,29 +326,6 @@ view toMsg todoId zone today model =
 
         Closed ->
             HX.none
-
-
-viewEditingForTodoId :
-    (Msg -> msg)
-    -> TodoId
-    -> Zone
-    -> Calendar.Date
-    -> Model
-    -> Maybe (Html msg)
-viewEditingForTodoId toMsg todoId zone today model =
-    case model of
-        Editing editModel ->
-            if editModel.todoId == todoId then
-                Just
-                    (H.map (OnEditingMsg >> toMsg)
-                        (viewEditing viewConfig zone today editModel)
-                    )
-
-            else
-                Nothing
-
-        Closed ->
-            Nothing
 
 
 viewEditing :
