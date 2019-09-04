@@ -15,6 +15,8 @@ module TodoPopup exposing
     )
 
 import Browser.Dom as Dom
+import Browser.Events
+import BrowserSize
 import Css exposing (absolute, fixed, left, position, px, right, sticky, top, width, zero)
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
@@ -60,6 +62,7 @@ firstFocusable =
 
 type Msg
     = SetSubPopup SubPopup
+    | BrowserResized BrowserSize.BrowserSize
     | OpenPopup TodoId
     | GotTriggerElement (Result Dom.Error Dom.Element)
     | ClosePopup ClosedBy
@@ -96,6 +99,19 @@ getTodoId model =
             Nothing
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model of
+        PopupOpening _ ->
+            Sub.batch [ BrowserSize.onBrowserResize BrowserResized ]
+
+        PopupOpened _ _ _ ->
+            Sub.batch []
+
+        PopupClosed ->
+            Sub.batch []
+
+
 update :
     { a
         | focus : String -> Cmd msg
@@ -113,6 +129,18 @@ update { focus, closedBy, toMsg } msg model =
                 |> Task.attempt GotTriggerElement
                 |> Cmd.map toMsg
             )
+
+        BrowserResized _ ->
+            case getTodoId model of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just todoId ->
+                    ( model
+                    , Dom.getElement (triggerContainerDomId todoId)
+                        |> Task.attempt GotTriggerElement
+                        |> Cmd.map toMsg
+                    )
 
         GotTriggerElement triggerElResult ->
             let
