@@ -11,6 +11,11 @@ import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
 
+function mergePartial<T>(partial: Partial<T>, full: T): T {
+  return { ...full, ...partial }
+}
+
+
 type Todo = {
   id: string
   title: string
@@ -41,9 +46,6 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
-function mergePartial<T>(partial: Partial<T>, full: T): T {
-  return { ...full, ...partial }
-}
 
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
