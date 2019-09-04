@@ -184,7 +184,7 @@ view toMsg todoId viewSubPopup model =
                 HX.none
 
             else
-                viewHelp
+                viewHelp triggerEl
                     (\subPopup ->
                         if subPopup /= subPopup_ then
                             HX.none
@@ -209,7 +209,8 @@ menuItems =
     ]
 
 
-viewHelp viewSubPopup =
+viewHelp : Dom.Element -> (SubPopup -> Html Msg) -> Html Msg
+viewHelp triggerEl viewSubPopup =
     H.node "track-focus-outside"
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
