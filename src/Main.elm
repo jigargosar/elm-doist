@@ -954,10 +954,6 @@ viewTodoItemBase model todo =
 
 viewTodoPopup : Todo -> Model -> Html Msg
 viewTodoPopup todo model =
-    let
-        todoId =
-            todo.id
-    in
     model.todoPopup
         |> TodoPopup.view OnTodoPopupMsg
             (\subPopup ->
