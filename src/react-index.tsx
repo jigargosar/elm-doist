@@ -2,6 +2,8 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react'
 import { render } from 'react-dom'
@@ -123,14 +125,23 @@ function TodoItem({ todo }: { todo: Todo }) {
 
 function TodoMenu({ todoId }: { todoId: string }) {
   const model = useContext(ModelContext)
-  if (
-    model.todoPopup.tag === 'Open' &&
-    model.todoPopup.todoId === todoId
-  ) {
+  const isOpen =
+    model.todoPopup.tag === 'Open' && model.todoPopup.todoId === todoId
+  const firstFocusableRef: React.Ref<HTMLDivElement> = useRef(null)
+
+  useEffect(() => {
+    if (isOpen && firstFocusableRef.current) {
+      firstFocusableRef.current.focus()
+    }
+  }, [isOpen, firstFocusableRef.current])
+
+  if (isOpen) {
     return (
       <div
+        ref={firstFocusableRef}
         className="absolute right-0 top-2 bg-white pa3 shadow-1 z-1"
-        style={{width:200}}
+        style={{ width: 200 }}
+        tabIndex={-1}
       >
         TODO MENU
       </div>
