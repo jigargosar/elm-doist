@@ -13,17 +13,17 @@ import times from 'ramda/es/times'
 import produce from "immer"
 
 type Todo = {
-  readonly id: string
+  id: string
   title: string
   isDone: boolean
 }
 
 type Model = {
-  readonly todoPopup: { tag: 'Closed' } | { tag: 'Open'; todoId: string }
-  readonly todoList: ReadonlyArray <Todo>
+  todoPopup: { tag: 'Closed' } | { tag: 'Open'; todoId: string }
+  todoList: ReadonlyArray <Todo>
 }
 
-type WritableModel = {-readonly [K in keyof  Model]: Model[K]}
+
 
 function createFakeTodo(): Todo {
   return { id: nanoid(), title: faker.hacker.phrase(), isDone: false }
@@ -45,7 +45,7 @@ type Msg =
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
 
-function update(msg: Msg, model: WritableModel): Model {
+function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
     model.todoPopup = { tag: 'Open', todoId: msg.todoId }
     return model
