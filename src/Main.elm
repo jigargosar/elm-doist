@@ -919,7 +919,7 @@ viewTodoItem model todo =
         viewTodoItemWithTodoPopup model todo
 
     else
-        viewTodoItemBase model.here todo
+        HL.lazy2 viewTodoItemBase model.here todo
 
 
 schedulePopupConfig : SchedulePopup.ViewConfig Msg
