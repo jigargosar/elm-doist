@@ -401,6 +401,7 @@ update message model =
             TodoPopup.update
                 { focus = focus
                 , closedBy = TodoPopupClosedBy >> Task.succeed >> Task.perform identity
+                , toMsg = OnTodoPopupMsg
                 }
                 msg
                 model.todoPopup

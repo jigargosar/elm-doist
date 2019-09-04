@@ -13,6 +13,7 @@ module TodoPopup exposing
     , view
     )
 
+import Browser.Dom as Dom
 import Html.Styled as H exposing (Attribute, Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events exposing (on)
@@ -21,6 +22,7 @@ import Json.Decode as JD exposing (Decoder)
 import MovePopup
 import ProjectId exposing (ProjectId)
 import SchedulePopup
+import Task
 import Todo
 import TodoId exposing (TodoId)
 import UI.Key as Key
@@ -61,6 +63,7 @@ firstFocusable =
 type Msg
     = SetSubPopup SubPopup
     | OpenPopup TodoId
+    | GotTriggerElement (Result Dom.Error Dom.Element)
     | ClosePopup ClosedBy
 
 
@@ -86,14 +89,22 @@ update :
     { a
         | focus : String -> Cmd msg
         , closedBy : { todoId : TodoId, closedBy : ClosedBy } -> Cmd msg
+        , toMsg : Msg -> msg
     }
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update { focus, closedBy } msg model =
+update { focus, closedBy, toMsg } msg model =
     case msg of
         OpenPopup todoId ->
-            ( opened todoId, focus firstFocusable )
+            ( opened todoId
+            , Dom.getElement (triggerContainerDomId todoId)
+                |> Task.attempt GotTriggerElement
+                |> Cmd.map toMsg
+            )
+
+        GotTriggerElement elRes ->
+            ( model, focus firstFocusable )
 
         SetSubPopup subPopup ->
             case model of
