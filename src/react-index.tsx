@@ -32,15 +32,24 @@ function exhaustiveCheck(never: never) {
 }
 
 type Msg =
-  | { tag: 'OpenTodoPopup'; payload: [] }
-  | { tag: 'Check'; payload: [string, boolean] }
+  | { tag: 'OpenTodoPopup'; todoId: string }
+  | { tag: 'Check'; todoId: string; isChecked: boolean }
 
-function update(msg: Msg, model: Model) {
+function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return model
+    return {
+      ...model,
+      ...{ todoPopup: { tag: 'Open', todoId: msg.todoId } },
+    }
   } else if (msg.tag === 'Check') {
-    const [todoId, isChecked] = msg.payload
-    return model
+    return {
+      ...model,
+      ...{
+        todoList: model.todoList.map(todo => {
+          return todo.id === msg.todoId ? todo : todo
+        }),
+      },
+    }
   }
   return exhaustiveCheck(msg)
 }
