@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 // https://webpack.js.org/configuration/
 module.exports = {
   mode: 'development',
-  entry: { index: './src/react-index.tsx' },
+  entry: { index: './src/index.js' },
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, 'build'),
