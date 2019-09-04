@@ -1,4 +1,9 @@
-import React, { createContext, useCallback, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
@@ -6,7 +11,6 @@ import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
 import assoc from 'ramda/es/assoc'
-import { identity } from 'fp-ts'
 
 type Todo = {
   id: string
@@ -62,8 +66,7 @@ function update(msg: Msg, model: Model): Model {
   return exhaustiveCheck(msg)
 }
 
-
-const DispatcherContext = createContext((_:Msg)=>{})
+const DispatcherContext = createContext((_: Msg) => {})
 
 function App() {
   const [state, setState] = useState(initialModel)
@@ -81,20 +84,15 @@ function App() {
       <div className="lh-copy" style={{ maxWidth: 500 }}>
         <div className="f4 pv1">TodoList</div>
         {state.todoList.map(todo => (
-          <TodoItem key={todo.id} todo={todo} dispatch={dispatch} />
+          <TodoItem key={todo.id} todo={todo} />
         ))}
       </div>
     </DispatcherContext.Provider>
   )
 }
 
-function TodoItem({
-  todo,
-  dispatch,
-}: {
-  todo: Todo
-  dispatch: (msg: Msg) => void
-}) {
+function TodoItem({ todo }: { todo: Todo }) {
+  const dispatch = useContext(DispatcherContext)
   return (
     <div className="flex">
       <div className="ph1 pv2">
