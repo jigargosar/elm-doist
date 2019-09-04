@@ -908,6 +908,9 @@ viewTodoItem model todo =
             model.today
             model.iet
 
+    else if model.schedulePopup == SchedulePopupOpened todo.id then
+        viewTodoItemWithSchedulePopup model.here model.today model.schedulePopup todo
+
     else
         viewTodoItemBase model todo
 
@@ -917,6 +920,28 @@ schedulePopupConfig =
     { close = CloseSchedulePopup
     , schedule = SchedulePopupDueAtSelected
     }
+
+
+viewTodoItemWithSchedulePopup :
+    Zone
+    -> Calendar.Date
+    -> SchedulePopup
+    -> Todo
+    -> Html Msg
+viewTodoItemWithSchedulePopup zone today schedulePopup todo =
+    div
+        [ class "flex hide-child"
+        ]
+        [ viewCheck todo.isDone (OnChecked todo.id)
+        , viewTodoItemTitle todo
+        , viewTodoItemDueDate todo zone today schedulePopup
+        , div [ class "relative flex" ]
+            [ IconButton.view (OpenTodoPopup todo.id)
+                [ class "pa2 tc child" ]
+                FAS.ellipsisH
+                []
+            ]
+        ]
 
 
 viewTodoItemBase :
