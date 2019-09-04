@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
+import assoc from 'ramda/es/assoc'
 
 type Todo = {
   id: string
   title: string
+  isDone: boolean
 }
 
 type Model = {
@@ -16,8 +18,8 @@ type Model = {
   todoList: Todo[]
 }
 
-function createFakeTodo() {
-  return { id: nanoid(), title: faker.hacker.phrase() }
+function createFakeTodo(): Todo {
+  return { id: nanoid(), title: faker.hacker.phrase() , isDone:false}
 }
 
 const initialTodos: Todo[] = times(createFakeTodo, 10)
@@ -36,7 +38,7 @@ type Msg =
   | { tag: 'Check'; todoId: string; isChecked: boolean }
 
 function setDone(isDone:boolean, todo:Todo): Todo {
-  return { ...todo, ...{ isDone } }
+  return assoc("isDone", isDone, todo)
 }
 
 function update(msg: Msg, model: Model): Model {
@@ -60,25 +62,34 @@ function update(msg: Msg, model: Model): Model {
 }
 
 function App() {
-  const [state] = useState(initialModel)
-
+  const [state, setState] = useState(initialModel)
+  const dispatch = useCallback((msg:Msg)=>{
+    setState(model => {
+      return update(msg, model)
+    })
+  },[setState])
+  
   return (
     <div className="lh-copy" style={{ maxWidth: 500 }}>
       <div className="f4 pv1">TodoList</div>
       {state.todoList.map(todo => (
-        <TodoItem key={todo.id} todo={todo} />
+        <TodoItem key={todo.id} todo={todo} dispatch={dispatch}/>
       ))}
     </div>
   )
 }
 
-function TodoItem({ todo }: { todo: Todo }) {
+function TodoItem({ todo , dispatch}: { todo: Todo, dispatch:(msg :Msg)=>void }) {
   return (
     <div className="flex">
       <div className="ph1 pv2">
         <input
           type="checkbox"
           className=""
+          checked={todo.isDone}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>)=> {
+            dispatch({tag:"Check", todoId:todo.id, isChecked: e.target.checked})
+          }}
           style={{ width: 24, height: 24 }}
         />
       </div>
