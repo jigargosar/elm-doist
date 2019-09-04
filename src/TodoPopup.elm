@@ -139,10 +139,6 @@ update { focus, closedBy, toMsg } msg model =
                     )
 
         GotTriggerElement triggerElResult ->
-            let
-                _ =
-                    Debug.log "TodoPopup: Trigger Element" triggerElResult
-            in
             case model of
                 PopupOpening todoId ->
                     case triggerElResult of
