@@ -1,4 +1,9 @@
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
@@ -36,28 +41,28 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
-
 function mergePartial<T>(partial: Partial<T>, full: T): T {
   return { ...full, ...partial }
 }
 
-
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return mergePartial({
-      todoPopup: { tag: 'Open', todoId: msg.todoId },
-    }, model)
+    return mergePartial(
+      { todoPopup: { tag: 'Open', todoId: msg.todoId } },
+      model,
+    )
   } else if (msg.tag === 'SetDone') {
-    const todoList = model.todoList.map((todo) => {
-      return todo.id === msg.todoId ? mergePartial({ isDone:msg.isChecked }, todo) : todo
+    const todoList = model.todoList.map(todo => {
+      return todo.id === msg.todoId
+        ? mergePartial({ isDone: msg.isChecked }, todo)
+        : todo
     })
     return mergePartial({ todoList }, model)
   }
   return exhaustiveCheck(msg)
 }
 
-const DispatcherContext = createContext((_: Msg) => {
-})
+const DispatcherContext = createContext((_: Msg) => {})
 
 function App() {
   const [state, setState] = useState(initialModel)
@@ -75,7 +80,7 @@ function App() {
       <div className="lh-copy" style={{ maxWidth: 500 }}>
         <div className="f4 pv1">TodoList</div>
         {state.todoList.map(todo => (
-          <TodoItem key={todo.id} todo={todo}/>
+          <TodoItem key={todo.id} todo={todo} />
         ))}
       </div>
     </DispatcherContext.Provider>
@@ -107,4 +112,4 @@ function TodoItem({ todo }: { todo: Todo }) {
   )
 }
 
-render(<App/>, document.getElementById('root'))
+render(<App />, document.getElementById('root'))
