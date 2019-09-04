@@ -103,7 +103,11 @@ update { focus, closedBy, toMsg } msg model =
                 |> Cmd.map toMsg
             )
 
-        GotTriggerElement elRes ->
+        GotTriggerElement triggerElResult ->
+            let
+                _ =
+                    Debug.log "TodoPopup: Trigger Element" triggerElResult
+            in
             ( model, focus firstFocusable )
 
         SetSubPopup subPopup ->
