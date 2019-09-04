@@ -899,15 +899,15 @@ viewKeyedTodoItems model =
 
 viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
-    case
-        model.iet
-            |> IET.viewEditingForTodoId OnIETMsg todo.id model.here model.today
-    of
-        Just view_ ->
-            view_
+    if IET.isOpenForTodoId todo.id model.iet then
+        IET.view OnIETMsg
+            todo.id
+            model.here
+            model.today
+            model.iet
 
-        Nothing ->
-            viewTodoItemBase model todo
+    else
+        viewTodoItemBase model todo
 
 
 schedulePopupConfig : SchedulePopup.ViewConfig Msg

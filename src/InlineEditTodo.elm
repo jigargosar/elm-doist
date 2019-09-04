@@ -4,8 +4,10 @@ module InlineEditTodo exposing
     , Msg
     , decoder
     , initial
+    , isOpenForTodoId
     , startEditing
     , update
+    , view
     , viewEditingForTodoId
     )
 
@@ -295,6 +297,37 @@ viewConfig =
             else
                 HX.none
     }
+
+
+isOpenForTodoId : TodoId -> Model -> Bool
+isOpenForTodoId todoId model =
+    case model of
+        Editing editModel ->
+            editModel.todoId == todoId
+
+        Closed ->
+            False
+
+
+view :
+    (Msg -> msg)
+    -> TodoId
+    -> Zone
+    -> Calendar.Date
+    -> Model
+    -> Html msg
+view toMsg todoId zone today model =
+    case model of
+        Editing editModel ->
+            if editModel.todoId == todoId then
+                H.map (OnEditingMsg >> toMsg)
+                    (viewEditing viewConfig zone today editModel)
+
+            else
+                HX.none
+
+        Closed ->
+            HX.none
 
 
 viewEditingForTodoId :
