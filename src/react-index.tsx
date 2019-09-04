@@ -13,7 +13,7 @@ import times from 'ramda/es/times'
 import produce from "immer"
 
 type Todo = {
-  id: string
+  readonly id: string
   title: string
   isDone: boolean
 }
