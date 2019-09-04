@@ -1,11 +1,17 @@
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
-import mergeLeft from 'ramda/es/mergeLeft';
+import mergeLeft from 'ramda/es/mergeLeft'
+import assoc from 'ramda/es/assoc'
 
 type Todo = {
   id: string
@@ -41,6 +47,11 @@ function setDone(isDone: boolean, todo: Todo): Todo {
   return mergeLeft({ isDone }, todo)
 }
 
+function merge<T>(partial: Partial<T>, full: T): T {
+  return { ...full, ...partial }
+}
+
+
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
     return Object.assign({}, model, {
@@ -55,7 +66,8 @@ function update(msg: Msg, model: Model): Model {
   return exhaustiveCheck(msg)
 }
 
-const DispatcherContext = createContext((_: Msg) => {})
+const DispatcherContext = createContext((_: Msg) => {
+})
 
 function App() {
   const [state, setState] = useState(initialModel)
@@ -73,7 +85,7 @@ function App() {
       <div className="lh-copy" style={{ maxWidth: 500 }}>
         <div className="f4 pv1">TodoList</div>
         {state.todoList.map(todo => (
-          <TodoItem key={todo.id} todo={todo} />
+          <TodoItem key={todo.id} todo={todo}/>
         ))}
       </div>
     </DispatcherContext.Provider>
@@ -105,4 +117,4 @@ function TodoItem({ todo }: { todo: Todo }) {
   )
 }
 
-render(<App />, document.getElementById('root'))
+render(<App/>, document.getElementById('root'))
