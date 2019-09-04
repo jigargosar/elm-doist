@@ -104,7 +104,17 @@ function TodoItem({ todo }: { todo: Todo }) {
       </div>
       <div className="ph1 pv1 flex-grow-1 lh-title ">{todo.title}</div>
       <div className="relative">
-        <div className="ph1 b pointer">...</div>
+        <div
+          className="ph1 b pointer"
+          onClick={() => {
+            dispatch({
+              tag: 'OpenTodoPopup',
+              todoId: todo.id,
+            })
+          }}
+        >
+          ...
+        </div>
         <TodoMenu todoId={todo.id} />
       </div>
     </div>
@@ -113,8 +123,11 @@ function TodoItem({ todo }: { todo: Todo }) {
 
 function TodoMenu({ todoId }: { todoId: string }) {
   const model = useContext(ModelContext)
-  if(model.todoPopup.tag === 'Open' && model.todoPopup.todoId === todoId){
-    return <div>TODO MENU</div>
+  if (
+    model.todoPopup.tag === 'Open' &&
+    model.todoPopup.todoId === todoId
+  ) {
+    return <div className="absolute right-0 top-1">TODO MENU</div>
   }
   return null
 }
