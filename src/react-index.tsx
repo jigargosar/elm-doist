@@ -1,17 +1,10 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-} from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
-import mergeLeft from 'ramda/es/mergeLeft'
-import assoc from 'ramda/es/assoc'
 
 type Todo = {
   id: string
@@ -43,9 +36,6 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
-function setDone(isDone: boolean, todo: Todo): Todo {
-  return mergeLeft({ isDone }, todo)
-}
 
 function merge<T>(partial: Partial<T>, full: T): T {
   return { ...full, ...partial }
@@ -54,14 +44,14 @@ function merge<T>(partial: Partial<T>, full: T): T {
 
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return Object.assign({}, model, {
+    return merge({
       todoPopup: { tag: 'Open', todoId: msg.todoId },
-    })
+    }, model)
   } else if (msg.tag === 'SetDone') {
-    const todoList: Todo[] = model.todoList.map(todo => {
-      return todo.id === msg.todoId ? setDone(msg.isChecked, todo) : todo
+    const todoList = model.todoList.map((todo) => {
+      return todo.id === msg.todoId ? merge({ isDone:msg.isChecked }, todo) : todo
     })
-    return Object.assign({}, model, { todoList })
+    return merge({ todoList }, model)
   }
   return exhaustiveCheck(msg)
 }
