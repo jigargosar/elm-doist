@@ -4,17 +4,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 // https://webpack.js.org/configuration/
 module.exports = {
   mode: 'development',
-  entry: { index: './src/index.js' },
+  entry: { index: './src/react-index.tsx' },
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, 'build'),
   },
   resolve: {
-    extensions: ['.js', '.elm'],
+    extensions: ['.js', '.elm', '.ts', '.tsx'],
   },
   module: {
     rules: [
       { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
+      { test: /\.tsx?$/, loader: ['ts-loader'] },
       {
         test: /\.elm$/,
         use: [
