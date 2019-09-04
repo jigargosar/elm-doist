@@ -128,8 +128,13 @@ update { focus, closedBy, toMsg } msg model =
                         Ok triggerEl ->
                             ( PopupOpened todoId NoSubPopup triggerEl, focus firstFocusable )
 
-                PopupOpened todoId subPopup element ->
-                    ( model, Cmd.none )
+                PopupOpened todoId subPopup _ ->
+                    case triggerElResult of
+                        Err _ ->
+                            ( model, Cmd.none )
+
+                        Ok triggerEl ->
+                            ( PopupOpened todoId subPopup triggerEl, Cmd.none )
 
                 PopupClosed ->
                     ( model, Cmd.none )
