@@ -87,7 +87,7 @@ flagsDecoder =
 
 
 
--- POPUP MODEL
+-- SchedulePopup
 
 
 type SchedulePopup
@@ -95,13 +95,7 @@ type SchedulePopup
     | SchedulePopupClosed
 
 
-closePopup : ( SchedulePopup, Cmd msg )
-closePopup =
-    ( SchedulePopupClosed, Cmd.none )
 
-
-
--- SchedulePopupModel
 -- MODEL
 
 
@@ -378,8 +372,7 @@ update message model =
                     ( model, Cmd.none )
 
         CloseSchedulePopup ->
-            closePopup
-                |> Tuple.mapFirst (flip setSchedulePopup model)
+            ( { model | schedulePopup = SchedulePopupClosed }, Cmd.none )
 
         OpenTodoPopup todoId ->
             model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
@@ -480,10 +473,6 @@ updateIET msg model =
 
 
 -- SCHEDULE POPUP
-
-
-setSchedulePopup schedulePopup model =
-    { model | schedulePopup = schedulePopup }
 
 
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
