@@ -783,7 +783,19 @@ viewFooter model =
         viewSignInDialog
 
     else
-        HX.none
+        TodoPopup.getTodoId model.todoPopup
+            |> Maybe.andThen (flip findTodoById model)
+            |> viewMaybeTodoPopup model
+
+
+viewMaybeTodoPopup : Model -> Maybe Todo -> Html Msg
+viewMaybeTodoPopup model maybeTodo =
+    case maybeTodo of
+        Nothing ->
+            HX.none
+
+        Just todo ->
+            viewTodoPopup todo model
 
 
 viewSignInDialog =
@@ -936,7 +948,6 @@ viewTodoItemBase model todo =
                 ]
                 FAS.ellipsisH
                 []
-            , viewTodoPopup todo model
             ]
         ]
 

@@ -4,6 +4,7 @@ module TodoPopup exposing
     , Msg
     , SubPopup(..)
     , firstFocusable
+    , getTodoId
     , init
     , movePopupConfig
     , open
@@ -14,8 +15,9 @@ module TodoPopup exposing
     )
 
 import Browser.Dom as Dom
+import Css exposing (fixed, left, position, sticky, top, zero)
 import Html.Styled as H exposing (Attribute, Html, div)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
@@ -79,6 +81,19 @@ open =
 triggerContainerDomId : TodoId -> String
 triggerContainerDomId todoId =
     "todo-popup__trigger-container__" ++ TodoId.toString todoId
+
+
+getTodoId : Model -> Maybe TodoId
+getTodoId model =
+    case model of
+        PopupOpening todoId ->
+            Just todoId
+
+        PopupOpened todoId subPopup element ->
+            Just todoId
+
+        PopupClosed ->
+            Nothing
 
 
 update :
@@ -212,7 +227,10 @@ menuItems =
 viewHelp : Dom.Element -> (SubPopup -> Html Msg) -> Html Msg
 viewHelp triggerEl viewSubPopup =
     H.node "track-focus-outside"
-        [ class "absolute right-0 top-1"
+        [ {- class "absolute right-0 top-1"
+             ,
+          -}
+          css [ position sticky, top zero, left zero ]
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , on "focusOutside" (JD.succeed (ClosePopup Cancel))
