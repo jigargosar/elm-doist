@@ -90,40 +90,33 @@ flagsDecoder =
 -- POPUP MODEL
 
 
-type Popup a
-    = PopupOpened a
+type SchedulePopup
+    = PopupOpened TodoId
     | PopupClosed
 
 
-initPopup : Popup a
+initPopup : SchedulePopup
 initPopup =
     PopupClosed
 
 
-openPopup : String -> a -> ( Popup a, Cmd Msg )
-openPopup firstFocusableDomId a =
-    ( PopupOpened a, focus firstFocusableDomId )
+openPopup : String -> TodoId -> ( SchedulePopup, Cmd Msg )
+openPopup firstFocusableDomId todoId =
+    ( PopupOpened todoId, focus firstFocusableDomId )
 
 
-closePopup : ( Popup a, Cmd msg )
+closePopup : ( SchedulePopup, Cmd msg )
 closePopup =
     ( PopupClosed, Cmd.none )
 
 
-isPopupOpenFor : a -> Popup a -> Bool
-isPopupOpenFor a popup =
-    popup == PopupOpened a
+isPopupOpenFor : TodoId -> SchedulePopup -> Bool
+isPopupOpenFor todoId popup =
+    popup == PopupOpened todoId
 
 
 
 -- SchedulePopupModel
-
-
-type alias SchedulePopupModel =
-    Popup TodoId
-
-
-
 -- MODEL
 
 
@@ -132,7 +125,7 @@ type alias Model =
     , projectList : ProjectList
     , iet : IET.Model
     , todoPopup : TodoPopup.Model
-    , schedulePopup : SchedulePopupModel
+    , schedulePopup : SchedulePopup
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -994,7 +987,7 @@ viewTodoPopup todo model =
             )
 
 
-viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopupModel -> Html Msg
+viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg
 viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
