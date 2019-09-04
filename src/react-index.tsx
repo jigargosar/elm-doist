@@ -24,7 +24,7 @@ const initialTodos: Todo[] = times(createFakeTodo, 10)
 const initialState: State = { todoList: initialTodos }
 
 function App() {
-  const [state, setState] = useState(initialState)
+  const [state] = useState(initialState)
 
   return (
     <div>
