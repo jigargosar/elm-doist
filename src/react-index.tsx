@@ -127,7 +127,14 @@ function TodoMenu({ todoId }: { todoId: string }) {
     model.todoPopup.tag === 'Open' &&
     model.todoPopup.todoId === todoId
   ) {
-    return <div className="absolute right-0 top-1">TODO MENU</div>
+    return (
+      <div
+        className="absolute right-0 top-2 bg-white pa3 shadow-1 z-1"
+        style={{width:200}}
+      >
+        TODO MENU
+      </div>
+    )
   }
   return null
 }
