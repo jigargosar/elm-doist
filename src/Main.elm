@@ -91,28 +91,13 @@ flagsDecoder =
 
 
 type SchedulePopup
-    = PopupOpened TodoId
-    | PopupClosed
-
-
-initPopup : SchedulePopup
-initPopup =
-    PopupClosed
-
-
-openPopup : String -> TodoId -> ( SchedulePopup, Cmd Msg )
-openPopup firstFocusableDomId todoId =
-    ( PopupOpened todoId, focus firstFocusableDomId )
+    = SchedulePopupOpened TodoId
+    | SchedulePopupClosed
 
 
 closePopup : ( SchedulePopup, Cmd msg )
 closePopup =
-    ( PopupClosed, Cmd.none )
-
-
-isPopupOpenFor : TodoId -> SchedulePopup -> Bool
-isPopupOpenFor todoId popup =
-    popup == PopupOpened todoId
+    ( SchedulePopupClosed, Cmd.none )
 
 
 
@@ -170,7 +155,7 @@ init encodedFlags url key =
             , projectList = []
             , iet = IET.initial
             , todoPopup = TodoPopup.init
-            , schedulePopup = initPopup
+            , schedulePopup = SchedulePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -376,12 +361,13 @@ update message model =
             updateIET msg model
 
         OpenSchedulePopup todoId ->
-            openPopup SchedulePopup.schedulePopupFirstFocusableDomId todoId
-                |> Tuple.mapFirst (flip setSchedulePopup model)
+            ( { model | schedulePopup = SchedulePopupOpened todoId }
+            , focus SchedulePopup.schedulePopupFirstFocusableDomId
+            )
 
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
-                PopupOpened todoId ->
+                SchedulePopupOpened todoId ->
                     closePopup
                         |> Tuple.mapFirst (flip setSchedulePopup model)
                         |> Return.command
@@ -390,7 +376,7 @@ update message model =
                                 [ Todo.SetDueAt dueAt ]
                             )
 
-                PopupClosed ->
+                SchedulePopupClosed ->
                     Return.singleton model
 
         CloseSchedulePopup ->
@@ -1005,7 +991,7 @@ viewTodoItemDueDate todo here today schedulePopup =
                 TextButton.view action
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (isPopupOpenFor todo.id schedulePopup)
+        , HX.viewIf (schedulePopup == SchedulePopupOpened todo.id)
             (\_ ->
                 SchedulePopup.view schedulePopupConfig here today
             )
