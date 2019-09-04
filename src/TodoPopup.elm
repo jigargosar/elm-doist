@@ -8,6 +8,7 @@ module TodoPopup exposing
     , movePopupConfig
     , open
     , schedulePopupConfig
+    , triggerContainerDomId
     , update
     , view
     )
@@ -74,6 +75,11 @@ type ClosedBy
 open : TodoId -> Msg
 open =
     OpenPopup
+
+
+triggerContainerDomId : TodoId -> String
+triggerContainerDomId todoId =
+    "todo-popup__trigger-container__" ++ TodoId.toString todoId
 
 
 update :
