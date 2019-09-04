@@ -19,7 +19,7 @@ type Model = {
 }
 
 function createFakeTodo(): Todo {
-  return { id: nanoid(), title: faker.hacker.phrase() , isDone:false}
+  return { id: nanoid(), title: faker.hacker.phrase(), isDone: false }
 }
 
 const initialTodos: Todo[] = times(createFakeTodo, 10)
@@ -37,8 +37,8 @@ type Msg =
   | { tag: 'OpenTodoPopup'; todoId: string }
   | { tag: 'Check'; todoId: string; isChecked: boolean }
 
-function setDone(isDone:boolean, todo:Todo): Todo {
-  return assoc("isDone", isDone, todo)
+function setDone(isDone: boolean, todo: Todo): Todo {
+  return assoc('isDone', isDone, todo)
 }
 
 function update(msg: Msg, model: Model): Model {
@@ -63,23 +63,32 @@ function update(msg: Msg, model: Model): Model {
 
 function App() {
   const [state, setState] = useState(initialModel)
-  const dispatch = useCallback((msg:Msg)=>{
-    setState(model => {
-      return update(msg, model)
-    })
-  },[setState])
-  
+  const dispatch = useCallback(
+    (msg: Msg) => {
+      setState(model => {
+        return update(msg, model)
+      })
+    },
+    [setState],
+  )
+
   return (
     <div className="lh-copy" style={{ maxWidth: 500 }}>
       <div className="f4 pv1">TodoList</div>
       {state.todoList.map(todo => (
-        <TodoItem key={todo.id} todo={todo} dispatch={dispatch}/>
+        <TodoItem key={todo.id} todo={todo} dispatch={dispatch} />
       ))}
     </div>
   )
 }
 
-function TodoItem({ todo , dispatch}: { todo: Todo, dispatch:(msg :Msg)=>void }) {
+function TodoItem({
+  todo,
+  dispatch,
+}: {
+  todo: Todo
+  dispatch: (msg: Msg) => void
+}) {
   return (
     <div className="flex">
       <div className="ph1 pv2">
@@ -87,8 +96,12 @@ function TodoItem({ todo , dispatch}: { todo: Todo, dispatch:(msg :Msg)=>void })
           type="checkbox"
           className=""
           checked={todo.isDone}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>)=> {
-            dispatch({tag:"Check", todoId:todo.id, isChecked: e.target.checked})
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            dispatch({
+              tag: 'Check',
+              todoId: todo.id,
+              isChecked: e.target.checked,
+            })
           }}
           style={{ width: 24, height: 24 }}
         />
