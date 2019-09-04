@@ -27,8 +27,8 @@ function App() {
   const [state] = useState(initialState)
 
   return (
-    <div>
-      <div>TodoList</div>
+    <div className="lh-copy">
+      <div className="f4 pv1">TodoList</div>
       {state.todoList.map(todo => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
@@ -37,7 +37,14 @@ function App() {
 }
 
 function TodoItem({ todo }: { todo: Todo }) {
-  return <div className="flex">{todo.title}</div>
+  return (
+    <div className="pa1 flex">
+      <div className="ph1 pv1">
+        <input type="checkbox" className="w1 h1" />
+      </div>
+      <div className="lh-title ph1">{todo.title}</div>
+    </div>
+  )
 }
 
 render(<App />, document.getElementById('root'))
