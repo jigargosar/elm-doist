@@ -812,6 +812,7 @@ viewDialogWrapper content =
         ]
 
 
+viewSignInDialog : Html Msg
 viewSignInDialog =
     viewDialogWrapper
         [ div
