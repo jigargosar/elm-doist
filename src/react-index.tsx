@@ -10,6 +10,7 @@ import './index.css'
 import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
+import produce from "immer"
 
 function mergePartial<T>(partial: Partial<T>, full: T): T {
   return { ...full, ...partial }
@@ -49,17 +50,14 @@ type Msg =
 
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return mergePartial(
-      { todoPopup: { tag: 'Open', todoId: msg.todoId } },
-      model,
-    )
+    model.todoPopup = { tag: 'Open', todoId: msg.todoId }
+    return model
   } else if (msg.tag === 'SetDone') {
-    const todoList = model.todoList.map(todo => {
-      return todo.id === msg.todoId
-        ? mergePartial({ isDone: msg.isChecked }, todo)
-        : todo
-    })
-    return mergePartial({ todoList }, model)
+    const maybeTodo = model.todoList.find(todo=>todo.id===msg.todoId)
+    if(maybeTodo){
+      maybeTodo.isDone = msg.isChecked
+    }
+    return model
   }
   return exhaustiveCheck(msg)
 }
@@ -71,7 +69,7 @@ function App() {
   const dispatch = useCallback(
     (msg: Msg) => {
       setState(model => {
-        return update(msg, model)
+        return produce(model, draft => update(msg, draft))
       })
     },
     [setState],
