@@ -41,12 +41,17 @@ function exhaustiveCheck(never: never) {
 }
 
 type Msg =
-  | { tag: 'OpenTodoPopup'; todoId: string }
+  | { tag: 'OpenTodoMenu'; todoId: string }
+  | { tag: 'CloseTodoMenu' }
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
 function update(msg: Msg, model: Model): Model {
-  if (msg.tag === 'OpenTodoPopup') {
+  if (msg.tag === 'OpenTodoMenu') {
     model.todoPopup = { tag: 'Open', todoId: msg.todoId }
+    return model
+  }
+  if (msg.tag === 'CloseTodoMenu') {
+    model.todoPopup = { tag: 'Closed' }
     return model
   } else if (msg.tag === 'SetDone') {
     const maybeTodo = model.todoList.find(todo => todo.id === msg.todoId)
@@ -110,7 +115,7 @@ function TodoItem({ todo }: { todo: Todo }) {
           className="ph1 b pointer"
           onClick={() => {
             dispatch({
-              tag: 'OpenTodoPopup',
+              tag: 'OpenTodoMenu',
               todoId: todo.id,
             })
           }}
@@ -125,6 +130,7 @@ function TodoItem({ todo }: { todo: Todo }) {
 
 function TodoMenu({ todoId }: { todoId: string }) {
   const model = useContext(ModelContext)
+  const dispatch = useContext(DispatcherContext)
   const isOpen =
     model.todoPopup.tag === 'Open' && model.todoPopup.todoId === todoId
   const firstFocusableRef: React.Ref<HTMLDivElement> = useRef(null)
@@ -142,6 +148,7 @@ function TodoMenu({ todoId }: { todoId: string }) {
         className="absolute right-0 top-2 bg-white pa3 shadow-1 z-1"
         style={{ width: 200 }}
         tabIndex={-1}
+        onBlur={() => dispatch({ tag: 'CloseTodoMenu' })}
       >
         TODO MENU
       </div>
