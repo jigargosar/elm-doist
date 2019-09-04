@@ -13,6 +13,7 @@ import nanoid from 'nanoid'
 import faker from 'faker'
 import times from 'ramda/es/times'
 import produce from 'immer'
+import isHK from 'is-hotkey'
 
 type Todo = {
   id: string
@@ -92,6 +93,12 @@ function App() {
 
 function TodoItem({ todo }: { todo: Todo }) {
   const dispatch = useContext(DispatcherContext)
+  const openTodoMenuCallback = useCallback(() => {
+    dispatch({
+      tag: 'OpenTodoMenu',
+      todoId: todo.id,
+    })
+  }, [todo.id])
   return (
     <div className="flex">
       <div className="ph1 pv2">
@@ -113,13 +120,13 @@ function TodoItem({ todo }: { todo: Todo }) {
       <div className="relative">
         <div
           className="ph1 b pointer"
-          onClick={() => {
-            dispatch({
-              tag: 'OpenTodoMenu',
-              todoId: todo.id,
-            })
-          }}
+          onClick={openTodoMenuCallback}
           tabIndex={0}
+          onKeyDown={e => {
+            if (isHK(['enter', 'space'], e.nativeEvent)) {
+              openTodoMenuCallback()
+            }
+          }}
         >
           ...
         </div>
