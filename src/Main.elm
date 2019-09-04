@@ -368,16 +368,14 @@ update message model =
         SchedulePopupDueAtSelected dueAt ->
             case model.schedulePopup of
                 SchedulePopupOpened todoId ->
-                    closePopup
-                        |> Tuple.mapFirst (flip setSchedulePopup model)
-                        |> Return.command
-                            (patchTodoCmd
-                                todoId
-                                [ Todo.SetDueAt dueAt ]
-                            )
+                    ( { model | schedulePopup = SchedulePopupClosed }
+                    , patchTodoCmd
+                        todoId
+                        [ Todo.SetDueAt dueAt ]
+                    )
 
                 SchedulePopupClosed ->
-                    Return.singleton model
+                    ( model, Cmd.none )
 
         CloseSchedulePopup ->
             closePopup
