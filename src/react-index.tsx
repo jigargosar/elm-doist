@@ -119,6 +119,7 @@ function TodoItem({ todo }: { todo: Todo }) {
               todoId: todo.id,
             })
           }}
+          tabIndex={0}
         >
           ...
         </div>
@@ -146,7 +147,7 @@ function TodoMenu({ todoId }: { todoId: string }) {
     return (
       <div
         ref={rootRef}
-        className="absolute right-0 top-2 bg-white pa3 shadow-1 z-1"
+        className="absolute right-0 top-2 bg-white shadow-1 z-1"
         style={{ width: 200 }}
         onBlur={() => {
           setTimeout(() => {
