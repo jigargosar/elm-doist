@@ -5,6 +5,7 @@ module TodoPopup exposing
     , SubPopup(..)
     , firstFocusable
     , init
+    , isOpenFor
     , movePopupConfig
     , open
     , schedulePopupConfig
@@ -132,6 +133,16 @@ schedulePopupConfig =
     { close = SetSubPopup NoSubPopup
     , schedule = ClosePopup << Schedule
     }
+
+
+isOpenFor : TodoId -> Model -> Bool
+isOpenFor todoId model =
+    case model of
+        PopupClosed ->
+            False
+
+        PopupOpen todoId_ _ ->
+            todoId == todoId_
 
 
 view : (Msg -> msg) -> TodoId -> (SubPopup -> Html Msg) -> Model -> Html msg
