@@ -43,25 +43,19 @@ type Msg =
   | { tag: 'SetDone'; todoId: string; isChecked: boolean }
 
 function setDone(isDone: boolean, todo: Todo): Todo {
-  return assoc('isDone', isDone, todo)
+  return Object.assign({}, todo, { isDone })
 }
 
 function update(msg: Msg, model: Model): Model {
   if (msg.tag === 'OpenTodoPopup') {
-    return {
-      ...model,
-      ...{ todoPopup: { tag: 'Open', todoId: msg.todoId } },
-    }
+    return Object.assign({}, model, {
+      todoPopup: { tag: 'Open', todoId: msg.todoId },
+    })
   } else if (msg.tag === 'SetDone') {
     const todoList: Todo[] = model.todoList.map(todo => {
       return todo.id === msg.todoId ? setDone(msg.isChecked, todo) : todo
     })
-    return {
-      ...model,
-      ...{
-        todoList,
-      },
-    }
+    return Object.assign({}, model, { todoList })
   }
   return exhaustiveCheck(msg)
 }
