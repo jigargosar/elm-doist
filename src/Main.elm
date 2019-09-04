@@ -943,7 +943,7 @@ viewTodoItemBase model todo =
         , viewTodoItemDueDate todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopup todo.id)
-                [ A.id <| TodoPopup.triggerContainerDomId todo.id
+                [ A.id <| TodoPopup.triggerElDomId todo.id
                 , class "pa2 tc child"
                 ]
                 FAS.ellipsisH

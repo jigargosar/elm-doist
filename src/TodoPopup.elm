@@ -10,7 +10,7 @@ module TodoPopup exposing
     , open
     , schedulePopupConfig
     , subscriptions
-    , triggerContainerDomId
+    , triggerElDomId
     , update
     , view
     )
@@ -82,8 +82,8 @@ open =
     OpenPopup
 
 
-triggerContainerDomId : TodoId -> String
-triggerContainerDomId todoId =
+triggerElDomId : TodoId -> String
+triggerElDomId todoId =
     "todo-popup__trigger-container__" ++ TodoId.toString todoId
 
 
@@ -119,7 +119,7 @@ update { focus, closedBy, toMsg } msg model =
     case msg of
         OpenPopup todoId ->
             ( PopupOpening todoId
-            , Dom.getElement (triggerContainerDomId todoId)
+            , Dom.getElement (triggerElDomId todoId)
                 |> Task.attempt GotTriggerElement
                 |> Cmd.map toMsg
             )
@@ -131,7 +131,7 @@ update { focus, closedBy, toMsg } msg model =
 
                 Just todoId ->
                     ( model
-                    , Dom.getElement (triggerContainerDomId todoId)
+                    , Dom.getElement (triggerElDomId todoId)
                         |> Task.attempt GotTriggerElement
                         |> Cmd.map toMsg
                     )
