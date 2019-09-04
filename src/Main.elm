@@ -909,7 +909,11 @@ viewTodoItem model todo =
             model.iet
 
     else if model.schedulePopup == SchedulePopupOpened todo.id then
-        viewTodoItemWithSchedulePopup model.here model.today model.schedulePopup todo
+        HL.lazy4 viewTodoItemWithSchedulePopup
+            model.here
+            model.today
+            model.schedulePopup
+            todo
 
     else
         viewTodoItemBase model todo
