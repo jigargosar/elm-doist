@@ -22,6 +22,7 @@ import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href)
 import Html.Styled.Events exposing (onClick)
+import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
@@ -878,7 +879,7 @@ pendingForProjectContent pid title model displayTodoList =
             [ div [ class "b flex-grow-1" ] [ text title ]
             , TextButton.primary (OnAddTodoStart pid) "add task" []
             ]
-        , div [ class "" ] (viewTodoItems model displayTodoList)
+        , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
         ]
 
 
@@ -888,20 +889,25 @@ pendingForProjectContent pid title model displayTodoList =
 
 viewTodoItems : Model -> List Todo -> List (Html Msg)
 viewTodoItems model =
-    let
-        viewTodoItem : Todo -> Html Msg
-        viewTodoItem todo =
-            case
-                model.iet
-                    |> IET.viewEditingForTodoId OnIETMsg todo.id model.here model.today
-            of
-                Just view_ ->
-                    view_
+    List.map (viewTodoItem model)
 
-                Nothing ->
-                    viewTodoItemBase model todo
-    in
-    List.map viewTodoItem
+
+viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
+viewKeyedTodoItems model =
+    List.map (\todo -> ( TodoId.toString todo.id, viewTodoItem model todo ))
+
+
+viewTodoItem : Model -> Todo -> Html Msg
+viewTodoItem model todo =
+    case
+        model.iet
+            |> IET.viewEditingForTodoId OnIETMsg todo.id model.here model.today
+    of
+        Just view_ ->
+            view_
+
+        Nothing ->
+            viewTodoItemBase model todo
 
 
 schedulePopupConfig : SchedulePopup.ViewConfig Msg
