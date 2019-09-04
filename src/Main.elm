@@ -23,7 +23,6 @@ import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
-import Html.Styled.Lazy as HL
 import HtmlExtra as HX
 import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
@@ -901,25 +900,14 @@ viewKeyedTodoItems model =
 viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
     if IET.isOpenForTodoId todo.id model.iet then
-        HL.lazy5 IET.view
-            OnIETMsg
+        IET.view OnIETMsg
             todo.id
             model.here
             model.today
             model.iet
 
-    else if model.schedulePopup == SchedulePopupOpened todo.id then
-        HL.lazy4 viewTodoItemWithSchedulePopup
-            model.here
-            model.today
-            model.schedulePopup
-            todo
-
-    else if TodoPopup.isOpenFor todo.id model.todoPopup then
-        viewTodoItemWithTodoPopup model todo
-
     else
-        HL.lazy2 viewTodoItemBase model.here todo
+        viewTodoItemBase model todo
 
 
 schedulePopupConfig : SchedulePopup.ViewConfig Msg
@@ -929,65 +917,23 @@ schedulePopupConfig =
     }
 
 
-viewTodoItemWithSchedulePopup :
-    Zone
-    -> Calendar.Date
-    -> SchedulePopup
-    -> Todo
-    -> Html Msg
-viewTodoItemWithSchedulePopup zone today schedulePopup todo =
-    div
-        [ class "flex hide-child"
-        ]
-        [ viewCheck todo.isDone (OnChecked todo.id)
-        , viewTodoItemTitle todo
-        , viewTodoItemDueDateWithSchedulePopup todo zone today schedulePopup
-        , div [ class "relative flex" ]
-            [ IconButton.view (OpenTodoPopup todo.id)
-                [ class "pa2 tc child" ]
-                FAS.ellipsisH
-                []
-            ]
-        ]
-
-
-viewTodoItemWithTodoPopup :
+viewTodoItemBase :
     Model
     -> Todo
     -> Html Msg
-viewTodoItemWithTodoPopup model todo =
+viewTodoItemBase model todo =
     div
         [ class "flex hide-child"
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo model.here
+        , viewTodoItemDueDate todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
             [ IconButton.view (OpenTodoPopup todo.id)
                 [ class "pa2 tc child" ]
                 FAS.ellipsisH
                 []
             , viewTodoPopup todo model
-            ]
-        ]
-
-
-viewTodoItemBase :
-    Zone
-    -> Todo
-    -> Html Msg
-viewTodoItemBase zone todo =
-    div
-        [ class "flex hide-child"
-        ]
-        [ viewCheck todo.isDone (OnChecked todo.id)
-        , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo zone
-        , div [ class "relative flex" ]
-            [ IconButton.view (OpenTodoPopup todo.id)
-                [ class "pa2 tc child" ]
-                FAS.ellipsisH
-                []
             ]
         ]
 
@@ -1020,29 +966,8 @@ viewTodoPopup todo model =
             )
 
 
-viewTodoItemDueDate : Todo -> Zone -> Html Msg
-viewTodoItemDueDate todo here =
-    let
-        action =
-            OpenSchedulePopup todo.id
-    in
-    div [ class "flex-shrink-0 relative flex" ]
-        [ case Todo.dueMilli todo of
-            Nothing ->
-                IconButton.view action
-                    [ class "pa2 child" ]
-                    FAR.calendarPlus
-                    []
-
-            Just dueMillis ->
-                TextButton.view action
-                    (Millis.formatDate "MMM dd" here dueMillis)
-                    [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        ]
-
-
-viewTodoItemDueDateWithSchedulePopup : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg
-viewTodoItemDueDateWithSchedulePopup todo here today schedulePopup =
+viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopup -> Html Msg
+viewTodoItemDueDate todo here today schedulePopup =
     let
         action =
             OpenSchedulePopup todo.id

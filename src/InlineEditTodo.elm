@@ -317,10 +317,6 @@ view :
     -> Model
     -> Html msg
 view toMsg todoId zone today model =
-    let
-        _ =
-            Debug.log "Rendering IET" model
-    in
     case model of
         Editing editModel ->
             if editModel.todoId == todoId then
