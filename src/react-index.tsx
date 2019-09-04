@@ -134,6 +134,7 @@ function TodoMenu({ todoId }: { todoId: string }) {
   const isOpen =
     model.todoPopup.tag === 'Open' && model.todoPopup.todoId === todoId
   const firstFocusableRef: React.Ref<HTMLDivElement> = useRef(null)
+  const rootRef: React.Ref<HTMLDivElement> = useRef(null)
 
   useEffect(() => {
     if (isOpen && firstFocusableRef.current) {
@@ -144,13 +145,26 @@ function TodoMenu({ todoId }: { todoId: string }) {
   if (isOpen) {
     return (
       <div
-        ref={firstFocusableRef}
+        ref={rootRef}
         className="absolute right-0 top-2 bg-white pa3 shadow-1 z-1"
         style={{ width: 200 }}
-        tabIndex={-1}
-        onBlur={() => dispatch({ tag: 'CloseTodoMenu' })}
+        onBlur={() => {
+          setTimeout(() => {
+            if (
+              rootRef.current &&
+              !rootRef.current.contains(document.activeElement)
+            ) {
+              dispatch({ tag: 'CloseTodoMenu' })
+            }
+          }, 0)
+        }}
       >
-        TODO MENU
+        <div className="ph2 pv1" tabIndex={0} ref={firstFocusableRef}>
+          MI1
+        </div>
+        <div className="ph2 pv1" tabIndex={0}>
+          MI2
+        </div>
       </div>
     )
   }
