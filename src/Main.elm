@@ -41,7 +41,6 @@ import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
-import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -100,7 +99,6 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , iet : IET.Model
-    , todoPopup : TodoPopup.Model
     , schedulePopup : SchedulePopupModel
     , authState : AuthState
     , errors : Errors
@@ -145,7 +143,6 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , iet = IET.initial
-            , todoPopup = TodoPopup.init
             , schedulePopup = SchedulePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -185,9 +182,7 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | OpenTodoPopup TodoId
     | TodoPopupClosedBy { todoId : TodoId, closedBy : TodoPopup.ClosedBy }
-    | OnTodoPopupMsg TodoPopup.Msg
     | OpenSchedulePopup TodoId
     | CloseSchedulePopup
     | SchedulePopupDueAtSelected Todo.DueAt
@@ -205,12 +200,11 @@ type Msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged OnAuthStateChanged
         , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
         , BrowserSize.onBrowserResize OnBrowserResize
-        , TodoPopup.subscriptions OnTodoPopupMsg model.todoPopup
         ]
 
 
@@ -372,9 +366,6 @@ update message model =
         CloseSchedulePopup ->
             ( { model | schedulePopup = SchedulePopupClosed }, Cmd.none )
 
-        OpenTodoPopup todoId ->
-            model |> update (OnTodoPopupMsg <| TodoPopup.open todoId)
-
         TodoPopupClosedBy { todoId, closedBy } ->
             model
                 |> (case closedBy of
@@ -393,16 +384,6 @@ update message model =
                         TodoPopup.Delete ->
                             update (OnDelete todoId)
                    )
-
-        OnTodoPopupMsg msg ->
-            TodoPopup.update
-                { focus = focus
-                , closedBy = TodoPopupClosedBy >> Task.succeed >> Task.perform identity
-                , toMsg = OnTodoPopupMsg
-                }
-                msg
-                model.todoPopup
-                |> Tuple.mapFirst (\ntp -> { model | todoPopup = ntp })
 
 
 handleFirestoreQueryResponse :
@@ -767,29 +748,7 @@ viewFooter model =
         viewSignInDialog
 
     else
-        TodoPopup.getTodoId model.todoPopup
-            |> Maybe.andThen (flip findTodoById model)
-            |> viewMaybeTodoPopup model
-
-
-viewMaybeTodoPopup : Model -> Maybe Todo -> Html Msg
-viewMaybeTodoPopup model maybeTodo =
-    case maybeTodo of
-        Nothing ->
-            HX.none
-
-        Just todo ->
-            viewTodoPopup todo model
-
-
-viewTodoPopup : Todo -> Model -> Html Msg
-viewTodoPopup todo model =
-    TodoPopup.view OnTodoPopupMsg
-        todo.projectId
-        model.projectList
-        model.here
-        model.today
-        model.todoPopup
+        HX.none
 
 
 viewDialogWrapper : List (Html msg) -> Html msg
@@ -952,7 +911,7 @@ viewTodoItemBase model todo =
         , viewTodoItemTitle todo
         , viewTodoItemDueDate todo model.here model.today model.schedulePopup
         , div [ class "relative flex" ]
-            [ IconButton.view (OpenTodoPopup todo.id)
+            [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
                 , class "pa2 tc child"
                 ]
