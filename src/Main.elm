@@ -77,6 +77,28 @@ flagsDecoder =
 
 
 
+-- TODO_ FORM
+
+
+type alias TodoFormFields =
+    { title : String, dueAt : Todo.DueAt }
+
+
+type alias TodoForm =
+    { todoId : TodoId, initialFields : TodoFormFields, currentFields : TodoFormFields }
+
+
+initTodoForm : Todo -> TodoForm
+initTodoForm todo =
+    let
+        formFields : TodoFormFields
+        formFields =
+            { title = todo.title, dueAt = todo.dueAt }
+    in
+    { todoId = todo.id, initialFields = formFields, currentFields = formFields }
+
+
+
 -- MODEL
 
 
