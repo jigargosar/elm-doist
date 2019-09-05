@@ -88,8 +88,8 @@ type alias EditTodoForm =
     { initialFields : TodoFormFields, currentFields : TodoFormFields }
 
 
-initTodoForm : Todo -> EditTodoForm
-initTodoForm todo =
+initEditTodoForm : Todo -> EditTodoForm
+initEditTodoForm todo =
     let
         formFields : TodoFormFields
         formFields =
