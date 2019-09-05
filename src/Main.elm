@@ -84,11 +84,11 @@ type alias TodoFormFields =
     { title : String, dueAt : Todo.DueAt }
 
 
-type alias TodoForm =
+type alias EditTodoForm =
     { initialFields : TodoFormFields, currentFields : TodoFormFields }
 
 
-initTodoForm : Todo -> TodoForm
+initTodoForm : Todo -> EditTodoForm
 initTodoForm todo =
     let
         formFields : TodoFormFields
@@ -105,7 +105,7 @@ initTodoForm todo =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeTodoForm : Maybe ( TodoId, TodoForm )
+    , maybeEditTodo : Maybe ( TodoId, EditTodoForm )
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -176,7 +176,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , maybeTodoForm = Nothing
+            , maybeEditTodo = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
