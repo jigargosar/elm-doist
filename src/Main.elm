@@ -84,18 +84,15 @@ type alias TodoFormFields =
     { title : String, dueAt : Todo.DueAt }
 
 
-type alias EditTodoForm =
-    { initialFields : TodoFormFields, currentFields : TodoFormFields }
+type AddAt
+    = Start
+    | End
+    | After TodoId
 
 
-initEditTodoForm : Todo -> EditTodoForm
-initEditTodoForm todo =
-    let
-        formFields : TodoFormFields
-        formFields =
-            { title = todo.title, dueAt = todo.dueAt }
-    in
-    { initialFields = formFields, currentFields = formFields }
+type TodoForm
+    = Edit TodoId TodoFormFields TodoFormFields
+    | Add AddAt TodoFormFields
 
 
 
@@ -105,7 +102,7 @@ initEditTodoForm todo =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeEditTodo : Maybe ( TodoId, EditTodoForm )
+    , maybeTodoForm : Maybe TodoForm
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -176,7 +173,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , maybeEditTodo = Nothing
+            , maybeTodoForm = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
