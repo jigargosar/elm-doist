@@ -217,11 +217,7 @@ update message model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            let
-                route =
-                    Route.fromUrl url
-            in
-            ( { model | route = route }, Cmd.none )
+            ( { model | route = Route.fromUrl url }, Cmd.none )
 
         OnHere here ->
             Return.singleton { model | here = here }
