@@ -368,7 +368,11 @@ update message model =
 
                         Just (Add _ fields) ->
                             ( { model | maybeTodoForm = newTodoForm }
-                            , getNow (AddTodo fields.title fields.dueAt fields.projectId)
+                            , if SX.isBlank fields.title then
+                                Cmd.none
+
+                              else
+                                getNow (AddTodo fields.title fields.dueAt fields.projectId)
                             )
 
                         Just (Edit _ _ _) ->
