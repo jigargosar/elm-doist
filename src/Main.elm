@@ -502,40 +502,14 @@ viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
         Route.Inbox ->
-            let
-                displayTodoList =
-                    sortedInProject ProjectId.default model.todoList
-
-                title =
-                    "Inbox"
-            in
-            masterLayout title
-                (pendingForProjectContent ProjectId.default
-                    title
-                    model
-                    displayTodoList
-                )
-                model
+            viewProjectTodoListPage ProjectId.default "Inbox" model
 
         Route.Project pid ->
             case
                 findActiveProjectById pid model
             of
                 Just project ->
-                    let
-                        displayTodoList =
-                            sortedInProject project.id model.todoList
-
-                        title =
-                            project.title
-                    in
-                    masterLayout title
-                        (pendingForProjectContent project.id
-                            title
-                            model
-                            displayTodoList
-                        )
-                        model
+                    viewProjectTodoListPage project.id project.title model
 
                 Nothing ->
                     viewRoute Route.Inbox model
@@ -748,16 +722,33 @@ todayContent model =
 
 
 
--- TodoListPageContent
+-- ProjectTodoList
 
 
-pendingForProjectContent :
+viewProjectTodoListPage projectId projectName model =
+    let
+        displayTodoList =
+            sortedInProject projectId model.todoList
+
+        title =
+            projectName
+    in
+    masterLayout title
+        (viewProjectTodoList projectId
+            title
+            model
+            displayTodoList
+        )
+        model
+
+
+viewProjectTodoList :
     ProjectId
     -> String
     -> Model
     -> TodoList
     -> Html Msg
-pendingForProjectContent pid title model displayTodoList =
+viewProjectTodoList pid title model displayTodoList =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
