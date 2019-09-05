@@ -530,17 +530,15 @@ viewSidebar model =
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , IconButton.view AddProjectClicked [] FAS.plus []
             ]
-        , viewNavProjects (Project.filterActive model.projectList)
+        , div [ class "b" ]
+            (Project.filterActive model.projectList
+                |> List.map viewNavProject
+            )
         ]
 
 
 viewNavLink link title =
     a [ class "pv2 no-underline db b", href link ] [ text title ]
-
-
-viewNavProjects : ProjectList -> Html Msg
-viewNavProjects projectList =
-    div [ class "b " ] (List.map viewNavProject projectList)
 
 
 viewNavProject : Project -> Html Msg
