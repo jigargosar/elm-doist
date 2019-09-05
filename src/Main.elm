@@ -760,13 +760,15 @@ pendingForProjectContent pid title model displayTodoList =
 
 viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
 viewKeyedTodoItems model todoList =
+    let
+        viewTodoItemBaseWithKey : Todo -> ( String, Html Msg )
+        viewTodoItemBaseWithKey todo =
+            ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+    in
     case model.maybeTodoForm of
         Nothing ->
             todoList
-                |> List.map
-                    (\todo ->
-                        viewTodoItemBaseWithKey model.here todo
-                    )
+                |> List.map viewTodoItemBaseWithKey
 
         Just (Edit todoId _ currentFields) ->
             todoList
@@ -778,26 +780,18 @@ viewKeyedTodoItems model todoList =
                             )
 
                         else
-                            viewTodoItemBaseWithKey model.here todo
+                            viewTodoItemBaseWithKey todo
                     )
 
         Just (Add at _) ->
             case at of
                 Start ->
                     ( "add-todo-form__start", viewAddTodoItem )
-                        :: (todoList
-                                |> List.map
-                                    (\todo ->
-                                        ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
-                                    )
-                           )
+                        :: (todoList |> List.map viewTodoItemBaseWithKey)
 
                 End ->
                     (todoList
-                        |> List.map
-                            (\todo ->
-                                ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
-                            )
+                        |> List.map viewTodoItemBaseWithKey
                     )
                         ++ [ ( "add-todo-form__end", viewAddTodoItem ) ]
 
@@ -819,11 +813,6 @@ viewAddTodoItem =
         [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
         , TextButton.primary CancelTodoFormClicked "Cancel" []
         ]
-
-
-viewTodoItemBaseWithKey : Zone -> Todo -> ( String, Html Msg )
-viewTodoItemBaseWithKey zone todo =
-    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
