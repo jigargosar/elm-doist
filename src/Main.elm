@@ -84,6 +84,11 @@ type alias TodoFormFields =
     { title : String, dueAt : Todo.DueAt }
 
 
+initTodoFormFields : Todo -> TodoFormFields
+initTodoFormFields todo =
+    { title = todo.title, dueAt = todo.dueAt }
+
+
 type AddAt
     = Start
     | End
@@ -195,6 +200,12 @@ init encodedFlags url key =
             HasErrors.addDecodeError err model
     , Millis.hereCmd GotHere
     )
+
+
+findById : a -> List { b | id : a } -> Maybe { b | id : a }
+findById todoId =
+    List.filter (.id >> eq_ todoId)
+        >> List.head
 
 
 
@@ -322,15 +333,28 @@ update message model =
             )
 
         EditTodoClicked todoId ->
-            case model.maybeTodoForm of
+            case
+                findById todoId model.todoList
+            of
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just (Add _ _) ->
-                    ( model, Cmd.none )
+                Just todo ->
+                    case model.maybeTodoForm of
+                        Nothing ->
+                            ( { model
+                                | maybeTodoForm =
+                                    Edit todoId (initTodoFormFields todo) (initTodoFormFields todo)
+                                        |> Just
+                              }
+                            , Cmd.none
+                            )
 
-                Just (Edit _ _ _) ->
-                    ( model, Cmd.none )
+                        Just (Add _ _) ->
+                            ( model, Cmd.none )
+
+                        Just (Edit _ _ _) ->
+                            ( model, Cmd.none )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
