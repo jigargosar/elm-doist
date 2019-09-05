@@ -161,9 +161,9 @@ type Msg
     | OnSignInClicked
     | OnSignOutClicked
       -- NewTodoOperations
-    | OnAddTodoStart ProjectId
+    | AddTodoClickedForProjectId ProjectId
     | AddTodo DueAt ProjectId Time.Posix
-    | OnAddTodoTodayStart
+    | AddTodoClickedForToday
       -- ExistingTodoOperations
     | OnChecked TodoId Bool
     | OnDelete TodoId
@@ -276,10 +276,10 @@ update message model =
         AddTodo dueAt projectId now ->
             ( model, Fire.addTodo (Todo.new now dueAt projectId) )
 
-        OnAddTodoStart projectId ->
+        AddTodoClickedForProjectId projectId ->
             ( model, getNow (AddTodo Todo.notDue projectId) )
 
-        OnAddTodoTodayStart ->
+        AddTodoClickedForToday ->
             ( model
             , Time.now
                 |> Task.map (\now -> AddTodo (Todo.dueAtPosix now) ProjectId.default now)
@@ -710,7 +710,7 @@ todayContent model =
         , div [ class "vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                , TextButton.primary OnAddTodoTodayStart "add task" []
+                , TextButton.primary AddTodoClickedForToday "add task" []
                 ]
             , div [ class "" ]
                 (viewTodoItems model
@@ -734,7 +734,7 @@ pendingForProjectContent pid title model displayTodoList =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , TextButton.primary (OnAddTodoStart pid) "add task" []
+            , TextButton.primary (AddTodoClickedForProjectId pid) "add task" []
             ]
         , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
         ]
