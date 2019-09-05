@@ -734,29 +734,16 @@ viewProjectTodoListPage projectId projectName model =
             projectName
     in
     masterLayout title
-        (viewProjectTodoList projectId
-            title
-            model
-            displayTodoList
+        (div [ class "pv2 vs3" ]
+            [ div [ class "pv2 flex items-center hs3" ]
+                [ div [ class "b flex-grow-1" ] [ text title ]
+                , TextButton.primary (AddTodoClicked Start Todo.notDue projectId) "add task" []
+                ]
+            , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
+            , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End Todo.notDue projectId) "add task" [] ]
+            ]
         )
         model
-
-
-viewProjectTodoList :
-    ProjectId
-    -> String
-    -> Model
-    -> TodoList
-    -> Html Msg
-viewProjectTodoList pid title model displayTodoList =
-    div [ class "pv2 vs3" ]
-        [ div [ class "pv2 flex items-center hs3" ]
-            [ div [ class "b flex-grow-1" ] [ text title ]
-            , TextButton.primary (AddTodoClicked Start Todo.notDue pid) "add task" []
-            ]
-        , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-        , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End Todo.notDue pid) "add task" [] ]
-        ]
 
 
 
