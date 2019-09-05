@@ -362,11 +362,6 @@ onFirestoreQueryResponse qs model =
                 |> Return.singleton
 
 
-focus : String -> Cmd Msg
-focus =
-    Focus.attempt Focused
-
-
 onAuthStateChanged : AuthState -> Model -> Return
 onAuthStateChanged authState model =
     ( setAuthState authState model
