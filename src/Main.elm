@@ -662,10 +662,7 @@ todayContent model =
                             [ div [ class "lh-copy b flex-grow-1" ]
                                 [ text "Overdue" ]
                             ]
-                        , div [ class "" ]
-                            (viewTodoItems model
-                                overDueList
-                            )
+                        , HK.node "div" [ class "" ] (viewKeyedTodoItems model overDueList)
                         ]
                 )
         , div [ class "vs3" ]
@@ -673,10 +670,7 @@ todayContent model =
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                 , TextButton.primary AddTodoClickedForToday "add task" []
                 ]
-            , div [ class "" ]
-                (viewTodoItems model
-                    displayTodoList
-                )
+            , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
             ]
         ]
 
@@ -703,11 +697,6 @@ pendingForProjectContent pid title model displayTodoList =
 
 
 -- TodoItem
-
-
-viewTodoItems : Model -> List Todo -> List (Html Msg)
-viewTodoItems model =
-    List.map (viewTodoItem model)
 
 
 viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
