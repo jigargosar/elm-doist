@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
-import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom
@@ -24,7 +23,6 @@ import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
-import InlineEditTodo as IET
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -37,7 +35,6 @@ import ProjectId exposing (ProjectId)
 import Result.Extra as RX
 import Return
 import Route exposing (Route)
-import SchedulePopup
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
@@ -83,23 +80,12 @@ flagsDecoder =
 
 
 
--- SP
-
-
-type SchedulePopupModel
-    = SchedulePopupOpened TodoId
-    | SchedulePopupClosed
-
-
-
 -- MODEL
 
 
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , iet : IET.Model
-    , schedulePopup : SchedulePopupModel
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -108,11 +94,6 @@ type alias Model =
     , here : Time.Zone
     , browserSize : BrowserSize
     }
-
-
-findTodoById todoId model =
-    model.todoList
-        |> List.Extra.find (.id >> (==) todoId)
 
 
 findActiveProjectById pid model =
@@ -142,8 +123,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , iet = IET.initial
-            , schedulePopup = SchedulePopupClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -182,13 +161,6 @@ type Msg
     | OnChecked TodoId Bool
     | OnDelete TodoId
     | PatchTodo TodoId (List Todo.Msg) Millis
-    | TodoPopupClosedBy { todoId : TodoId, closedBy : TodoPopup.ClosedBy }
-    | OpenSchedulePopup TodoId
-    | CloseSchedulePopup
-    | SchedulePopupDueAtSelected Todo.DueAt
-      -- InlineTodoEditing
-    | OnEditClicked TodoId
-    | OnIETMsg IET.Msg
       -- Project
     | OnDeleteProject ProjectId
     | OnAddProjectStart
@@ -318,62 +290,6 @@ update message model =
             , Fire.addProject (Project.new now)
             )
 
-        OnEditClicked todoId ->
-            case findTodoById todoId model of
-                Nothing ->
-                    Return.singleton model
-
-                Just todo ->
-                    updateIET
-                        (IET.startEditing todoId
-                            { title = todo.title
-                            , dueAt = todo.dueAt
-                            }
-                        )
-                        model
-
-        OnIETMsg msg ->
-            updateIET msg model
-
-        OpenSchedulePopup todoId ->
-            ( { model | schedulePopup = SchedulePopupOpened todoId }
-            , focus SchedulePopup.schedulePopupFirstFocusableDomId
-            )
-
-        SchedulePopupDueAtSelected dueAt ->
-            case model.schedulePopup of
-                SchedulePopupOpened todoId ->
-                    ( { model | schedulePopup = SchedulePopupClosed }
-                    , patchTodoCmd
-                        todoId
-                        [ Todo.SetDueAt dueAt ]
-                    )
-
-                SchedulePopupClosed ->
-                    ( model, Cmd.none )
-
-        CloseSchedulePopup ->
-            ( { model | schedulePopup = SchedulePopupClosed }, Cmd.none )
-
-        TodoPopupClosedBy { todoId, closedBy } ->
-            model
-                |> (case closedBy of
-                        TodoPopup.Edit ->
-                            update (OnEditClicked todoId)
-
-                        TodoPopup.Cancel ->
-                            flip Tuple.pair Cmd.none
-
-                        TodoPopup.Schedule dueAt ->
-                            flip Tuple.pair (patchTodoCmd todoId [ Todo.SetDueAt dueAt ])
-
-                        TodoPopup.Move projectId ->
-                            flip Tuple.pair (patchTodoCmd todoId [ Todo.SetProjectId projectId ])
-
-                        TodoPopup.Delete ->
-                            update (OnDelete todoId)
-                   )
-
 
 handleFirestoreQueryResponse :
     FirestoreQueryResponse
@@ -413,25 +329,6 @@ handleFirestoreQueryResponse qs model =
 focus : String -> Cmd Msg
 focus =
     Focus.attempt Focused
-
-
-
--- InlineEditTodo
-
-
-ietConfig : IET.Config Msg
-ietConfig =
-    { onSaveOrOverwrite =
-        \todoId { title, dueAt } ->
-            patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
-    , focus = focus
-    }
-
-
-updateIET : IET.Msg -> Model -> Return
-updateIET msg model =
-    IET.update ietConfig msg model.iet
-        |> Tuple.mapFirst (\iet -> { model | iet = iet })
 
 
 
@@ -864,22 +761,7 @@ viewKeyedTodoItems model =
 
 viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
-    if IET.isOpenForTodoId todo.id model.iet then
-        IET.view OnIETMsg
-            todo.id
-            model.here
-            model.today
-            model.iet
-
-    else
-        viewTodoItemBase model todo
-
-
-schedulePopupConfig : SchedulePopup.ViewConfig Msg
-schedulePopupConfig =
-    { close = CloseSchedulePopup
-    , schedule = SchedulePopupDueAtSelected
-    }
+    viewTodoItemBase model todo
 
 
 viewTodoItemBase :
@@ -892,7 +774,7 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo model.here model.today model.schedulePopup
+        , viewTodoItemDueDate todo model.here
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
@@ -904,28 +786,20 @@ viewTodoItemBase model todo =
         ]
 
 
-viewTodoItemDueDate : Todo -> Zone -> Calendar.Date -> SchedulePopupModel -> Html Msg
-viewTodoItemDueDate todo here today schedulePopup =
-    let
-        action =
-            OpenSchedulePopup todo.id
-    in
+viewTodoItemDueDate : Todo -> Zone -> Html Msg
+viewTodoItemDueDate todo here =
     div [ class "flex-shrink-0 relative flex" ]
         [ case Todo.dueMilli todo of
             Nothing ->
-                IconButton.view action
+                IconButton.view NoOp
                     [ class "pa2 child" ]
                     FAR.calendarPlus
                     []
 
             Just dueMillis ->
-                TextButton.view action
+                TextButton.view NoOp
                     (Millis.formatDate "MMM dd" here dueMillis)
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        , HX.viewIf (schedulePopup == SchedulePopupOpened todo.id)
-            (\_ ->
-                SchedulePopup.view schedulePopupConfig here today
-            )
         ]
 
 
@@ -952,7 +826,7 @@ viewTodoItemTitle todo =
                 ( todo.title, "" )
 
         viewTitle =
-            div [ class "", onClick (OnEditClicked todo.id) ]
+            div [ class "", onClick NoOp ]
                 [ text title ]
     in
     div
