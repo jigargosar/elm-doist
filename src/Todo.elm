@@ -20,8 +20,8 @@ module Todo exposing
     , listDecoder
     , listEncoder
     , matchesFilter
-    , newForProject
-    , newToday
+    , newWithDueAtMillis
+    , newWithProjectId
     , patch
     , sortWith
     )
@@ -130,13 +130,13 @@ type Msg
     | SetDueAt DueAt
 
 
-newForProject : Millis -> ProjectId -> Value
-newForProject now projectId =
+newWithProjectId : Millis -> ProjectId -> Value
+newWithProjectId now projectId =
     new now NoDue projectId
 
 
-newToday : Millis -> Millis -> Value
-newToday now dueAtMillis =
+newWithDueAtMillis : Millis -> Millis -> Value
+newWithDueAtMillis now dueAtMillis =
     new now (DueAt dueAtMillis) ProjectId.default
 
 

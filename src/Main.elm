@@ -278,7 +278,7 @@ update message model =
 
         AddTodo pid now ->
             ( model
-            , Fire.addTodo (Todo.newForProject now pid)
+            , Fire.addTodo (Todo.newWithProjectId now pid)
             )
 
         OnAddTodoTodayStart ->
@@ -286,7 +286,7 @@ update message model =
 
         AddTodoToday now ->
             ( model
-            , Fire.addTodo (Todo.newToday now now)
+            , Fire.addTodo (Todo.newWithDueAtMillis now now)
             )
 
         OnAddProjectStart ->
