@@ -765,9 +765,7 @@ viewKeyedTodoItems model todoList =
             todoList
                 |> List.map
                     (\todo ->
-                        ( TodoId.toString todo.id
-                        , viewTodoItemBase model.here todo
-                        )
+                        viewTodoItemBaseWithKey model.here todo
                     )
 
         Just (Edit todoId _ currentFields) ->
@@ -780,9 +778,7 @@ viewKeyedTodoItems model todoList =
                             )
 
                         else
-                            ( TodoId.toString todo.id
-                            , viewTodoItemBase model.here todo
-                            )
+                            viewTodoItemBaseWithKey model.here todo
                     )
 
         Just (Add at _) ->
@@ -823,6 +819,11 @@ viewAddTodoItem =
         [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
         , TextButton.primary CancelTodoFormClicked "Cancel" []
         ]
+
+
+viewTodoItemBaseWithKey : Zone -> Todo -> ( String, Html Msg )
+viewTodoItemBaseWithKey zone todo =
+    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
