@@ -89,7 +89,7 @@ type alias Model =
     , key : Nav.Key
     , route : Route
     , today : Calendar.Date
-    , here : Time.Zone
+    , zone : Time.Zone
     , browserSize : BrowserSize
     }
 
@@ -126,7 +126,7 @@ init encodedFlags url key =
             , key = key
             , route = route
             , today = dateFromMillis now
-            , here = Time.utc
+            , zone = Time.utc
             , browserSize = BrowserSize.initial
             }
     in
@@ -210,7 +210,7 @@ update message model =
             ( { model | route = route }, Cmd.none )
 
         OnHere here ->
-            Return.singleton { model | here = here }
+            Return.singleton { model | zone = here }
 
         OnBrowserResize size ->
             setBrowserSize size model |> Return.singleton
@@ -772,7 +772,7 @@ viewTodoItemBase model todo =
         ]
         [ viewCheck todo.isDone (OnChecked todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo model.here
+        , viewTodoItemDueDate todo model.zone
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
