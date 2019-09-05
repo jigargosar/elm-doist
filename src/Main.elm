@@ -717,20 +717,17 @@ viewKeyedTodoItems model =
 
 viewTodoItem : Model -> Todo -> Html Msg
 viewTodoItem model todo =
-    viewTodoItemBase model todo
+    viewTodoItemBase model.here todo
 
 
-viewTodoItemBase :
-    Model
-    -> Todo
-    -> Html Msg
-viewTodoItemBase model todo =
+viewTodoItemBase : Zone -> Todo -> Html Msg
+viewTodoItemBase zone todo =
     div
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox todo.isDone (todoDoneCheckedMsg todo.id)
         , viewTodoItemTitle todo
-        , viewTodoItemDueDate todo model.here
+        , viewTodoItemDueDate todo zone
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
