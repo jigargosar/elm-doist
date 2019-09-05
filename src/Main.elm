@@ -95,10 +95,43 @@ type alias Model =
     }
 
 
+
+-- MODEL QUERIES
+
+
 findActiveProjectById pid model =
     model.projectList
         |> Project.filterActive
         |> List.Extra.find (.id >> (==) pid)
+
+
+
+-- MODEL SETTERS
+
+
+setTodoList : TodoList -> Model -> Model
+setTodoList todoList model =
+    { model | todoList = todoList }
+
+
+setProjectList : ProjectList -> Model -> Model
+setProjectList projectList model =
+    { model | projectList = projectList }
+
+
+setAuthState : AuthState -> Model -> Model
+setAuthState authState model =
+    { model | authState = authState }
+
+
+setBrowserSize : BrowserSize -> Model -> Model
+setBrowserSize browserSize model =
+    { model | browserSize = browserSize }
+
+
+setTodayFromMillis : Int -> Model -> Model
+setTodayFromMillis millis model =
+    { model | today = dateFromMillis millis }
 
 
 
@@ -351,30 +384,6 @@ queryProjectListCmd =
         , userCollectionName = "projects"
         , whereClause = []
         }
-
-
-setTodoList : TodoList -> Model -> Model
-setTodoList todoList model =
-    { model | todoList = todoList }
-
-
-setProjectList : ProjectList -> Model -> Model
-setProjectList projectList model =
-    { model | projectList = projectList }
-
-
-setAuthState : AuthState -> Model -> Model
-setAuthState authState model =
-    { model | authState = authState }
-
-
-setBrowserSize browserSize model =
-    { model | browserSize = browserSize }
-
-
-setTodayFromMillis : Int -> Model -> Model
-setTodayFromMillis millis model =
-    { model | today = dateFromMillis millis }
 
 
 onAuthStateChanged : AuthState -> Model -> Return
