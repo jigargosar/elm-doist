@@ -225,7 +225,6 @@ type Msg
     | SignOutClicked
       -- NewTodoOperations
     | AddTodoClicked AddAt ProjectId
-    | AddTodoWithProjectIdClicked ProjectId
     | AddTodo String DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
@@ -424,9 +423,6 @@ update message model =
 
         DeleteTodoClicked todoId ->
             ( model, Fire.deleteTodo todoId )
-
-        AddTodoWithProjectIdClicked projectId ->
-            ( model, getNow (AddTodo "" Todo.notDue projectId) )
 
         AddTodoWithDueTodayClicked ->
             ( model
