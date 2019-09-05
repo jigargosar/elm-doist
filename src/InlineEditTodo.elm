@@ -11,6 +11,7 @@ module InlineEditTodo exposing
 
 import Calendar
 import Css exposing (minWidth, none, px, resize)
+import Editable
 import Html.Styled as H exposing (Attribute, Html, div, textarea)
 import Html.Styled.Attributes as A
     exposing
@@ -32,40 +33,17 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-type Editable a
-    = Editable a a
-
-
-getCurrent : Editable a -> a
-getCurrent (Editable _ a) =
-    a
-
-
-initEditable : a -> Editable a
-initEditable new =
-    Editable new new
-
-
-changeEditable : a -> Editable a -> Editable a
-changeEditable new (Editable old _) =
-    Editable old new
-
-
-isDirty (Editable old new) =
-    old /= new
-
-
 type alias Edit =
     { todoId : TodoId
-    , title : Editable String
-    , dueAt : Editable Todo.DueAt
+    , title : Editable.Editable String
+    , dueAt : Editable.Editable Todo.DueAt
     , schedulePopupOpened : Bool
     }
 
 
 initEdit : TodoId -> { title : String, dueAt : DueAt } -> Edit
 initEdit todoId { title, dueAt } =
-    Edit todoId (initEditable title) (initEditable dueAt) False
+    Edit todoId (Editable.initEditable title) (Editable.initEditable dueAt) False
 
 
 type Model
@@ -158,14 +136,14 @@ updateEditingModel config msg edit =
             )
 
         TitleChanged newTitle ->
-            ( Editing { edit | title = changeEditable newTitle edit.title }
+            ( Editing { edit | title = Editable.changeEditable newTitle edit.title }
             , Cmd.none
             )
 
         DueAtChanged newDueAt ->
             ( Editing
                 { edit
-                    | dueAt = changeEditable newDueAt edit.dueAt
+                    | dueAt = Editable.changeEditable newDueAt edit.dueAt
                     , schedulePopupOpened = False
                 }
             , Cmd.none
@@ -174,15 +152,15 @@ updateEditingModel config msg edit =
 
 hasChanges : Edit -> Bool
 hasChanges edit =
-    isDirty edit.dueAt || isDirty edit.title
+    Editable.isDirty edit.dueAt || Editable.isDirty edit.title
 
 
 saveIfDirty : Config msg -> Edit -> Cmd msg
 saveIfDirty config edit =
     if hasChanges edit then
         config.onSaveOrOverwrite edit.todoId
-            { title = getCurrent edit.title
-            , dueAt = getCurrent edit.dueAt
+            { title = Editable.getCurrent edit.title
+            , dueAt = Editable.getCurrent edit.dueAt
             }
 
     else
@@ -289,7 +267,7 @@ viewTitleInput conf editModel =
         [ textarea
             [ A.id firstFocusableDomId
             , class "pa1 flex-grow-1 lh-copy bn"
-            , value <| getCurrent editModel.title
+            , value <| Editable.getCurrent editModel.title
             , onInput conf.titleChanged
             , Key.onEnter conf.save
             , rows 1
@@ -309,7 +287,7 @@ viewDueAt :
 viewDueAt conf here today edit =
     let
         ( dueAtLabel, dueAtCls ) =
-            getCurrent edit.dueAt
+            Editable.getCurrent edit.dueAt
                 |> Todo.dueAtToMillis
                 |> MX.unpack
                     (\_ -> ( "Schedule", "gray" ))
