@@ -229,13 +229,13 @@ update message model =
         OnBrowserResize size ->
             setBrowserSize size model |> Return.singleton
 
-        Focused res ->
-            res
-                |> RX.unpack
-                    HasErrors.addDomFocusError
-                    (always identity)
-                |> callWith model
-                |> Return.singleton
+        Focused domResult ->
+            case domResult of
+                Ok () ->
+                    ( model, Cmd.none )
+
+                Err error ->
+                    ( HasErrors.addDomFocusError error model, Cmd.none )
 
         GotAuthStateChange encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
@@ -272,14 +272,10 @@ update message model =
             )
 
         AddProject now ->
-            ( model
-            , Fire.addProject (Project.new now)
-            )
+            ( model, Fire.addProject (Project.new now) )
 
         DeleteTodoClicked todoId ->
-            ( model
-            , Fire.deleteTodo todoId
-            )
+            ( model, Fire.deleteTodo todoId )
 
         AddTodoClickedForProjectId projectId ->
             ( model, getNow (AddTodo Todo.notDue projectId) )
