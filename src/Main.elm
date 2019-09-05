@@ -233,6 +233,7 @@ type Msg
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoListItem Messages
     | EditTodoClicked TodoId
+    | CancelTodoFormClicked
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -355,6 +356,9 @@ update message model =
 
                         Just (Edit _ _ _) ->
                             ( model, Cmd.none )
+
+        CancelTodoFormClicked ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
