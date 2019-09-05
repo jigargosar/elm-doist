@@ -137,7 +137,7 @@ init encodedFlags url key =
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
                 |> setBrowserSize flags.browserSize
-                |> setTodayFromNow flags.now
+                |> setTodayFromMillis flags.now
 
         Err err ->
             HasErrors.addDecodeError err model
@@ -372,11 +372,11 @@ setBrowserSize browserSize model =
     { model | browserSize = browserSize }
 
 
-setTodayFromNow :
+setTodayFromMillis :
     Int
     -> { b | today : Calendar.Date }
     -> { b | today : Calendar.Date }
-setTodayFromNow millis model =
+setTodayFromMillis millis model =
     { model | today = dateFromMillis millis }
 
 
