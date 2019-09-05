@@ -768,7 +768,11 @@ viewKeyedTodoItems model todoList =
                     )
 
         Just (Add _ _) ->
-            todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItemBase model.here todo ))
+            todoList
+                |> List.map
+                    (\todo ->
+                        ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+                    )
 
 
 viewEditTodoItem : TodoFormFields -> Html Msg
