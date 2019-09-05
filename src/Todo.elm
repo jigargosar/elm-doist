@@ -140,6 +140,7 @@ newToday now dueAtMillis =
     new now (DueAt dueAtMillis) ProjectId.default
 
 
+new : Millis -> DueAt -> ProjectId -> Value
 new now dueAt projectId =
     { id = TodoId.new
     , title = ""
