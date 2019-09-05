@@ -218,6 +218,7 @@ type Msg
     | GotHere Time.Zone
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
+    | ScrolledToTop ()
     | AuthStateChanged Value
     | GotFirestoreQueryResponse FirestoreQueryResponse
     | SignInClicked
@@ -283,7 +284,20 @@ update message model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            ( { model | route = Route.fromUrl url }, Cmd.none )
+            let
+                newRoute =
+                    Route.fromUrl url
+            in
+            if model.route /= newRoute then
+                ( { model | route = newRoute, maybeTodoForm = Nothing }
+                , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
+                )
+
+            else
+                ( model, Cmd.none )
+
+        ScrolledToTop _ ->
+            ( model, Cmd.none )
 
         GotHere here ->
             ( { model | here = here }, Cmd.none )
