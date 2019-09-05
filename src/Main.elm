@@ -224,7 +224,7 @@ type Msg
     | SignInClicked
     | SignOutClicked
       -- NewTodoOperations
-    | AddTodoClicked AddAt DueAt ProjectId
+    | AddTodoClicked AddAt ProjectId
     | AddTodoWithProjectIdClicked ProjectId
     | AddTodo String DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
@@ -378,10 +378,10 @@ update message model =
                         Just (Edit _ _ _) ->
                             ( model, Cmd.none )
 
-        AddTodoClicked addAt dueAt projectId ->
+        AddTodoClicked addAt projectId ->
             let
                 newTodoForm =
-                    Add addAt { title = "", dueAt = dueAt, projectId = projectId }
+                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
                         |> Just
             in
             case model.maybeTodoForm of
@@ -745,10 +745,10 @@ viewProjectTodoListPage projectId projectName model =
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (AddTodoClicked Start Todo.notDue projectId) "add task" []
+                , TextButton.primary (AddTodoClicked Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End Todo.notDue projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End projectId) "add task" [] ]
             ]
         )
         model
