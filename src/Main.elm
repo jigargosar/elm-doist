@@ -337,15 +337,6 @@ focus =
     Focus.attempt Focused
 
 
-
--- SCHEDULE POPUP
-
-
-patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
-patchTodoCmd todoId todoMsgList =
-    PatchTodoWithNow todoId todoMsgList |> getNow
-
-
 queryTodoListCmd =
     Ports.queryFirestore
         { id = "todoList"
