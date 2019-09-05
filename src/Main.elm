@@ -538,14 +538,14 @@ viewSidebar model =
 
 
 viewNavLink link title =
-    a [ class "pv1 no-underline db b", href link ] [ text title ]
+    a [ class "pv1 b db no-underline truncate flex-grow-1", href link ] [ text title ]
 
 
 viewNavProject : Project -> Html Msg
 viewNavProject project =
     div [ class "pv1 flex hs3" ]
         [ a
-            [ class "b no-underline truncate flex-grow-1"
+            [ class "b db no-underline truncate flex-grow-1"
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
