@@ -355,18 +355,21 @@ update message model =
                     ( model, Cmd.none )
 
                 Just todo ->
+                    let
+                        newTodoForm =
+                            Edit todoId (initTodoFormFields todo) (initTodoFormFields todo)
+                                |> Just
+                    in
                     case model.maybeTodoForm of
                         Nothing ->
-                            ( { model
-                                | maybeTodoForm =
-                                    Edit todoId (initTodoFormFields todo) (initTodoFormFields todo)
-                                        |> Just
-                              }
+                            ( { model | maybeTodoForm = newTodoForm }
                             , Cmd.none
                             )
 
-                        Just (Add _ _) ->
-                            ( model, Cmd.none )
+                        Just (Add _ fields) ->
+                            ( { model | maybeTodoForm = newTodoForm }
+                            , getNow (AddTodo fields.title fields.dueAt fields.projectId)
+                            )
 
                         Just (Edit _ _ _) ->
                             ( model, Cmd.none )
@@ -384,7 +387,7 @@ update message model =
                     )
 
                 Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = newTodoForm }, getNow (AddTodo fields.title fields.dueAt fields.projectId) )
+                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
 
                 Just (Edit _ _ _) ->
                     ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
