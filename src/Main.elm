@@ -405,8 +405,10 @@ update message model =
                 Nothing ->
                     ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
-                Just (Edit _ _ _) ->
-                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+                Just (Edit editingTodoId initialFields currentFields) ->
+                    ( { model | maybeTodoForm = Nothing }
+                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    )
 
                 Just (Add _ _) ->
                     ( { model | maybeTodoForm = Nothing }, Cmd.none )
