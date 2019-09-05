@@ -748,7 +748,7 @@ pendingForProjectContent pid title model displayTodoList =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , TextButton.primary (AddTodoWithProjectIdClicked pid) "add task" []
+            , TextButton.primary (AddTodoClicked Start Todo.notDue pid) "add task" []
             ]
         , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
         ]
