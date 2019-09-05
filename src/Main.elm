@@ -381,10 +381,10 @@ update message model =
                                 , persistEditingTodoCmd editingTodoId initialFields currentFields
                                 )
 
-        AddTodoClicked addAt projectId ->
+        AddTodoClicked newAddAt projectId ->
             let
                 newTodoForm =
-                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+                    Add newAddAt { title = "", dueAt = Todo.notDue, projectId = projectId }
                         |> Just
             in
             case model.maybeTodoForm of
@@ -392,7 +392,7 @@ update message model =
                     ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
 
                 Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
+                    ( { model | maybeTodoForm = Add newAddAt fields |> Just }, Cmd.none )
 
                 Just (Edit _ _ _) ->
                     ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
