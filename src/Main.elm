@@ -85,7 +85,7 @@ type alias TodoFormFields =
 
 
 type alias TodoForm =
-    { todoId : TodoId, initialFields : TodoFormFields, currentFields : TodoFormFields }
+    { initialFields : TodoFormFields, currentFields : TodoFormFields }
 
 
 initTodoForm : Todo -> TodoForm
@@ -95,7 +95,16 @@ initTodoForm todo =
         formFields =
             { title = todo.title, dueAt = todo.dueAt }
     in
-    { todoId = todo.id, initialFields = formFields, currentFields = formFields }
+    { initialFields = formFields, currentFields = formFields }
+
+
+type TodoFormState
+    = TodoFormOpen TodoId TodoForm
+    | TodoFormClosed
+
+
+openTodoFormFor todo =
+    TodoFormOpen todo.id (initTodoForm todo)
 
 
 
