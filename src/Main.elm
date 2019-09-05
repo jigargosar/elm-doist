@@ -700,8 +700,16 @@ pendingForProjectContent pid title model displayTodoList =
 
 
 viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
-viewKeyedTodoItems model =
-    List.map (\todo -> ( TodoId.toString todo.id, viewTodoItem model todo ))
+viewKeyedTodoItems model todoList =
+    case model.maybeTodoForm of
+        Nothing ->
+            todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItem model todo ))
+
+        Just (Edit _ _ _) ->
+            todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItem model todo ))
+
+        Just (Add _ _) ->
+            todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItem model todo ))
 
 
 viewTodoItem : Model -> Todo -> Html Msg
