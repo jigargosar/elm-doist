@@ -369,11 +369,7 @@ update message model =
 
                         Just (Add _ fields) ->
                             ( { model | maybeTodoForm = newTodoForm }
-                            , if SX.isBlank fields.title then
-                                Cmd.none
-
-                              else
-                                getNow (AddTodo fields.title fields.dueAt fields.projectId)
+                            , persistNewTodoCmd fields
                             )
 
                         Just (Edit _ _ _) ->
@@ -432,6 +428,15 @@ update message model =
             ( model
             , Fire.deleteProject projectId
             )
+
+
+persistNewTodoCmd : TodoFormFields -> Cmd Msg
+persistNewTodoCmd fields =
+    if SX.isBlank fields.title then
+        Cmd.none
+
+    else
+        getNow (AddTodo fields.title fields.dueAt fields.projectId)
 
 
 getNow : (Time.Posix -> msg) -> Cmd msg
