@@ -387,9 +387,7 @@ update message model =
             in
             case model.maybeTodoForm of
                 Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , Cmd.none
-                    )
+                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
 
                 Just (Add _ fields) ->
                     ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
