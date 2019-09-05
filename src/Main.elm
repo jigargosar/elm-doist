@@ -98,15 +98,6 @@ initTodoForm todo =
     { initialFields = formFields, currentFields = formFields }
 
 
-type TodoFormState
-    = TodoFormOpen TodoId TodoForm
-    | TodoFormClosed
-
-
-openTodoFormFor todo =
-    TodoFormOpen todo.id (initTodoForm todo)
-
-
 
 -- MODEL
 
@@ -114,6 +105,7 @@ openTodoFormFor todo =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
+    , maybeTodoForm : Maybe ( TodoId, TodoForm )
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -184,6 +176,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
+            , maybeTodoForm = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
