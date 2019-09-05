@@ -170,7 +170,7 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg) Millis
       -- Project
     | OnDeleteProject ProjectId
-    | OnAddProjectStart
+    | AddProjectClicked
     | AddProject Time.Posix
 
 
@@ -286,7 +286,7 @@ update message model =
                 |> Task.perform identity
             )
 
-        OnAddProjectStart ->
+        AddProjectClicked ->
             ( model, getNow AddProject )
 
         AddProject now ->
@@ -577,7 +577,7 @@ viewSidebar model =
         , viewNavLink Route.todayUrl "Today"
         , div [ class "pv2 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
-            , IconButton.view OnAddProjectStart [] FAS.plus []
+            , IconButton.view AddProjectClicked [] FAS.plus []
             ]
         , viewNavProjects (Project.filterActive model.projectList)
         ]
