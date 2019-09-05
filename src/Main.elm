@@ -276,10 +276,10 @@ update message model =
             )
 
         AddTodo dueAt projectId now ->
-            ( model, Cmd.none )
+            ( model, Fire.addTodo (Todo.new now dueAt projectId) )
 
-        OnAddTodoStart pid ->
-            ( model, getNow (AddTodoWithPid pid) )
+        OnAddTodoStart projectId ->
+            ( model, getNow (AddTodo Todo.notDue projectId) )
 
         AddTodoWithPid pid now ->
             ( model

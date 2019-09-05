@@ -21,6 +21,7 @@ module Todo exposing
     , listDecoder
     , listEncoder
     , matchesFilter
+    , new
     , newWithDueAtMillis
     , newWithProjectId
     , notDue
