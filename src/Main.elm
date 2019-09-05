@@ -703,17 +703,27 @@ viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
 viewKeyedTodoItems model todoList =
     case model.maybeTodoForm of
         Nothing ->
-            todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItemBase model.here todo ))
+            todoList
+                |> List.map
+                    (\todo ->
+                        ( TodoId.toString todo.id
+                        , viewTodoItemBase model.here todo
+                        )
+                    )
 
         Just (Edit todoId _ _) ->
             todoList
                 |> List.map
                     (\todo ->
                         if todo.id == todoId then
-                            ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+                            ( TodoId.toString todo.id
+                            , viewTodoItemBase model.here todo
+                            )
 
                         else
-                            ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+                            ( TodoId.toString todo.id
+                            , viewTodoItemBase model.here todo
+                            )
                     )
 
         Just (Add _ _) ->
