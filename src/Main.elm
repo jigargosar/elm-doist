@@ -513,10 +513,8 @@ viewHeader model =
 
 
 viewHeaderBtn : msg -> String -> List (Attribute msg) -> Html msg
-viewHeaderBtn action label =
+viewHeaderBtn =
     TextButton.styled [ FCss.underline, FCss.white ]
-        action
-        label
 
 
 
