@@ -761,37 +761,38 @@ viewProjectTodoListPage projectId projectName model =
 viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
 viewKeyedTodoItems model todoList =
     let
-        viewTodoItemBaseWithKey : Todo -> ( String, Html Msg )
-        viewTodoItemBaseWithKey todo =
+        viewBaseKeyed : Todo -> ( String, Html Msg )
+        viewBaseKeyed todo =
             ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+
+        viewEditKeyed : TodoFormFields -> ( String, Html Msg )
+        viewEditKeyed fields =
+            ( "edit-todo-form-key", viewEditTodoItem fields )
     in
     case model.maybeTodoForm of
         Nothing ->
-            todoList
-                |> List.map viewTodoItemBaseWithKey
+            todoList |> List.map viewBaseKeyed
 
         Just (Edit todoId _ currentFields) ->
             todoList
                 |> List.map
                     (\todo ->
                         if todo.id == todoId then
-                            ( TodoId.toString todo.id
-                            , viewEditTodoItem currentFields
-                            )
+                            viewEditKeyed currentFields
 
                         else
-                            viewTodoItemBaseWithKey todo
+                            viewBaseKeyed todo
                     )
 
         Just (Add at _) ->
             case at of
                 Start ->
                     ( "add-todo-form__start", viewAddTodoItem )
-                        :: (todoList |> List.map viewTodoItemBaseWithKey)
+                        :: (todoList |> List.map viewBaseKeyed)
 
                 End ->
                     (todoList
-                        |> List.map viewTodoItemBaseWithKey
+                        |> List.map viewBaseKeyed
                     )
                         ++ [ ( "add-todo-form__end", viewAddTodoItem ) ]
 
