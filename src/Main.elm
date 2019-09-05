@@ -10,7 +10,6 @@ import Calendar
 import Css exposing (none, outline)
 import Errors exposing (Errors)
 import Fire
-import Focus
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
 import FontAwesome.Regular as FAR
@@ -19,7 +18,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (checked, class, css, disabled, href, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
@@ -32,7 +31,6 @@ import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
-import Result.Extra as RX
 import Return
 import Route exposing (Route)
 import Skeleton
@@ -481,20 +479,9 @@ masterLayout title content model =
         { title = title
         , header = viewHeader model
         , sidebar = viewSidebar model
-        , content = [ viewDebugContent model, content ]
+        , content = [ HasErrors.detailView model, content ]
         , footer = viewFooter model
         }
-
-
-viewDebugContent model =
-    --    div [ class "pa3 vs3" ]
-    --        [ HasErrors.detailView model
-    --        , div [ class " flex hs3" ]
-    --            [ div [ class "ttu tracked" ] [ text "AuthState:" ]
-    --            , AuthState.view model.authState
-    --            ]
-    --        ]
-    HasErrors.detailView model
 
 
 
