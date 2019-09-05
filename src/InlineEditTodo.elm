@@ -2,7 +2,6 @@ module InlineEditTodo exposing
     ( Config
     , Model
     , Msg
-    , decoder
     , initial
     , isOpenForTodoId
     , startEditing
@@ -23,12 +22,8 @@ import Html.Styled.Attributes as A
         )
 import Html.Styled.Events exposing (onInput)
 import HtmlExtra as HX
-import Json.Decode as JD
-import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
 import Maybe.Extra as MX
 import Millis exposing (Millis)
-import Return
 import SchedulePopup
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
@@ -39,21 +34,6 @@ import UI.TextButton as TextButton
 
 type Editable a
     = Editable a a
-
-
-editableEncoder : (a -> Value) -> Editable a -> Value
-editableEncoder valEncoder (Editable old new) =
-    JE.object
-        [ ( "old", valEncoder old )
-        , ( "new", valEncoder new )
-        ]
-
-
-editableDecoder : JD.Decoder a -> JD.Decoder (Editable a)
-editableDecoder valueDecoder =
-    JD.succeed Editable
-        |> JDP.required "old" valueDecoder
-        |> JDP.required "new" valueDecoder
 
 
 getCurrent : Editable a -> a
@@ -93,46 +73,6 @@ type Model
     | Closed
 
 
-encoder : Model -> Value
-encoder model =
-    case model of
-        Editing edit ->
-            JE.object
-                [ ( "tag", JE.string "Editing" )
-                , ( "todoId", TodoId.encoder edit.todoId )
-                , ( "title", editableEncoder JE.string edit.title )
-                , ( "dueAt", editableEncoder Todo.dueAtEncoder edit.dueAt )
-                , ( "schedulePopupOpened", JE.bool edit.schedulePopupOpened )
-                ]
-
-        Closed ->
-            JE.object
-                [ ( "tag", JE.string "Closed" )
-                ]
-
-
-decoder : JD.Decoder Model
-decoder =
-    JD.field "tag" JD.string |> JD.andThen taggedDecoder
-
-
-taggedDecoder tag =
-    case tag of
-        "Editing" ->
-            JD.succeed Edit
-                |> JDP.required "todoId" TodoId.decoder
-                |> JDP.required "title" (editableDecoder JD.string)
-                |> JDP.required "dueAt" (editableDecoder Todo.dueAtDecoder)
-                |> JDP.required "schedulePopupOpened" JD.bool
-                |> JD.map Editing
-
-        "Closed" ->
-            JD.succeed Closed
-
-        _ ->
-            JD.fail ("InlineEditTodo: unknown tag: " ++ tag)
-
-
 initial : Model
 initial =
     Closed
@@ -164,7 +104,6 @@ startEditing =
 type alias Config msg =
     { onSaveOrOverwrite : TodoId -> { title : String, dueAt : Todo.DueAt } -> Cmd msg
     , focus : String -> Cmd msg
-    , onChanged : Value -> Cmd msg
     }
 
 
@@ -174,7 +113,7 @@ update :
     -> Model
     -> ( Model, Cmd msg )
 update config message model =
-    (case message of
+    case message of
         StartEditing todoId fields ->
             case model of
                 Closed ->
@@ -197,17 +136,6 @@ update config message model =
 
                 Editing edit ->
                     updateEditingModel config msg edit
-    )
-        |> Return.effect_ (cacheIfChanged config model)
-
-
-cacheIfChanged : Config msg -> Model -> Model -> Cmd msg
-cacheIfChanged config oldModel newModel =
-    if oldModel /= newModel then
-        config.onChanged (encoder newModel)
-
-    else
-        Cmd.none
 
 
 updateEditingModel : Config msg -> EditingMsg -> Edit -> ( Model, Cmd msg )

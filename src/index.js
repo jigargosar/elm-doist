@@ -55,14 +55,14 @@ function getCached(key) {
 const cachedProjectList = getCached('cachedProjectList')
 const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
-const cachedInlineEditTodo = getCached('cachedInlineEditTodo')
+
 
 const app = Elm.Main.init({
   flags: {
     cachedTodoList,
     cachedProjectList,
     cachedAuthState,
-    cachedInlineEditTodo,
+
     browserSize: { width: window.innerWidth, height: window.innerHeight },
     now: Date.now(),
   },

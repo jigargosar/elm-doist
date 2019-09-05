@@ -61,7 +61,6 @@ type alias Flags =
     { cachedTodoList : TodoList
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
-    , cachedInlineEditTodo : IET.Model
     , browserSize : BrowserSize
     , now : Millis
     }
@@ -80,7 +79,6 @@ flagsDecoder =
         |> cachedField "cachedAuthState"
             AuthState.decoder
             AuthState.initial
-        |> cachedField "cachedInlineEditTodo" IET.decoder IET.initial
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
@@ -457,12 +455,6 @@ ietConfig =
         \todoId { title, dueAt } ->
             patchTodoCmd todoId [ Todo.SetTitle title, Todo.SetDueAt dueAt ]
     , focus = focus
-    , onChanged =
-        \encoded ->
-            Ports.localStorageSetJsonItem
-                ( "cachedInlineEditTodo"
-                , encoded
-                )
     }
 
 
@@ -504,17 +496,11 @@ updateFromEncodedFlags encodedFlags model =
             setTodoList flags.cachedTodoList model
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
-                |> setIET flags.cachedInlineEditTodo
                 |> setBrowserSize flags.browserSize
                 |> setTodayFromNow flags.now
 
         Err err ->
             HasErrors.addDecodeError err model
-
-
-setIET : a -> { b | iet : a } -> { b | iet : a }
-setIET iet model =
-    { model | iet = iet }
 
 
 setTodoList : TodoList -> Model -> Model
