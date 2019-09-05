@@ -162,10 +162,8 @@ type Msg
     | OnSignOutClicked
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
-    | AddTodoWithPid ProjectId Time.Posix
     | AddTodo DueAt ProjectId Time.Posix
     | OnAddTodoTodayStart
-    | AddTodoToday Time.Posix
       -- ExistingTodoOperations
     | OnChecked TodoId Bool
     | OnDelete TodoId
@@ -281,17 +279,11 @@ update message model =
         OnAddTodoStart projectId ->
             ( model, getNow (AddTodo Todo.notDue projectId) )
 
-        AddTodoWithPid pid now ->
-            ( model
-            , Fire.addTodo (Todo.newWithProjectId now pid)
-            )
-
         OnAddTodoTodayStart ->
-            ( model, getNow AddTodoToday )
-
-        AddTodoToday now ->
             ( model
-            , Fire.addTodo (Todo.newWithDueAtMillis now now)
+            , Time.now
+                |> Task.map (\now -> AddTodo (Todo.dueAtPosix now) ProjectId.default now)
+                |> Task.perform identity
             )
 
         OnAddProjectStart ->
