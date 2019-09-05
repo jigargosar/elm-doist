@@ -287,7 +287,7 @@ update message model =
             )
 
         GotFirestoreQueryResponse qs ->
-            handleFirestoreQueryResponse qs model
+            onFirestoreQueryResponse qs model
 
         AddTodo dueAt projectId now ->
             ( model, Fire.addTodo (Todo.new now dueAt projectId) )
@@ -330,11 +330,8 @@ getNow msg =
     Task.perform msg Time.now
 
 
-handleFirestoreQueryResponse :
-    FirestoreQueryResponse
-    -> Model
-    -> Return
-handleFirestoreQueryResponse qs model =
+onFirestoreQueryResponse : FirestoreQueryResponse -> Model -> Return
+onFirestoreQueryResponse qs model =
     case qs.id of
         "todoList" ->
             case JD.decodeValue Todo.listDecoder qs.docDataList of
