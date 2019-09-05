@@ -785,18 +785,42 @@ viewKeyedTodoItems model todoList =
                             )
                     )
 
-        Just (Add _ _) ->
-            todoList
-                |> List.map
-                    (\todo ->
-                        ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+        Just (Add at _) ->
+            case at of
+                Start ->
+                    ( "add-todo-form__start", viewAddTodoItem )
+                        :: (todoList
+                                |> List.map
+                                    (\todo ->
+                                        ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+                                    )
+                           )
+
+                End ->
+                    (todoList
+                        |> List.map
+                            (\todo ->
+                                ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+                            )
                     )
+                        ++ [ ( "add-todo-form__end", viewAddTodoItem ) ]
+
+                After todoId ->
+                    [ ( "add-todo-form__after", viewAddTodoItem ) ]
 
 
 viewEditTodoItem : TodoFormFields -> Html Msg
 viewEditTodoItem fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ EDIT FORM" ]
+        , TextButton.primary CancelTodoFormClicked "Cancel" []
+        ]
+
+
+viewAddTodoItem : Html Msg
+viewAddTodoItem =
+    div [ class "flex pa3" ]
+        [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
         , TextButton.primary CancelTodoFormClicked "Cancel" []
         ]
 
