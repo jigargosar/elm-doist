@@ -160,6 +160,20 @@ newToday now dueAt =
         |> encoder
 
 
+new now dueAt projectId =
+    { id = TodoId.new
+    , title = ""
+    , sortIdx = 0
+    , projectId = projectId
+    , projectIdModifiedAt = now
+    , isDone = False
+    , dueAt = dueAt
+    , createdAt = now
+    , modifiedAt = now
+    }
+        |> encoder
+
+
 patch : List Msg -> Millis -> List ( String, Value )
 patch msgList now =
     ( "modifiedAt", JE.int now )
