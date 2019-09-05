@@ -410,8 +410,8 @@ update message model =
                     , persistEditingTodoCmd editingTodoId initialFields currentFields
                     )
 
-                Just (Add _ _) ->
-                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+                Just (Add _ fields) ->
+                    ( { model | maybeTodoForm = Nothing }, persistNewTodoCmd fields )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
