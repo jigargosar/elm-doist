@@ -372,8 +372,20 @@ update message model =
                             , persistNewTodoCmd fields
                             )
 
-                        Just (Edit _ _ _) ->
-                            ( model, Cmd.none )
+                        Just (Edit editingTodoId initialFields currentFields) ->
+                            ( model
+                            , if editingTodoId /= todo.id && initialFields /= currentFields then
+                                getNow
+                                    (PatchTodoWithNow editingTodoId
+                                        [ Todo.SetTitle currentFields.title
+                                        , Todo.SetDueAt currentFields.dueAt
+                                        , Todo.SetProjectId currentFields.projectId
+                                        ]
+                                    )
+
+                              else
+                                Cmd.none
+                            )
 
         AddTodoClicked addAt projectId ->
             let
