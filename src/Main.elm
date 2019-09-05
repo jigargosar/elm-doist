@@ -388,25 +388,21 @@ queryProjectListCmd =
 
 onAuthStateChanged : AuthState -> Model -> Return
 onAuthStateChanged authState model =
-    let
-        cmd =
-            case authState of
-                AuthState.Unknown ->
-                    Cmd.none
+    ( setAuthState authState model
+    , Cmd.batch
+        [ case authState of
+            AuthState.Unknown ->
+                Cmd.none
 
-                AuthState.SignedIn _ ->
-                    Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
+            AuthState.SignedIn _ ->
+                Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
 
-                AuthState.NotSignedIn ->
-                    Nav.replaceUrl model.key Route.topUrl
-    in
-    setAuthState authState model
-        |> Return.singleton
-        |> Return.command cmd
-        |> Return.command
-            (Ports.localStorageSetJsonItem
-                ( "cachedAuthState", AuthState.encoder authState )
-            )
+            AuthState.NotSignedIn ->
+                Nav.replaceUrl model.key Route.topUrl
+        , Ports.localStorageSetJsonItem
+            ( "cachedAuthState", AuthState.encoder authState )
+        ]
+    )
 
 
 
