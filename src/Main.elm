@@ -72,9 +72,7 @@ flagsDecoder =
     JD.succeed Flags
         |> cachedField "cachedTodoList" Todo.listDecoder []
         |> cachedField "cachedProjectList" Project.listDecoder []
-        |> cachedField "cachedAuthState"
-            AuthState.decoder
-            AuthState.initial
+        |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
         |> JDP.required "browserSize" BrowserSize.decoder
         |> JDP.required "now" JD.int
 
