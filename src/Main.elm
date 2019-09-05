@@ -194,7 +194,7 @@ subscriptions _ =
 
 todoDoneCheckedMsg : TodoId -> Bool -> Msg
 todoDoneCheckedMsg todoId isChecked =
-    TodoDoneCheckboxClicked todoId isChecked
+    PatchTodo todoId [ Todo.SetCompleted isChecked ]
 
 
 update : Msg -> Model -> Return
