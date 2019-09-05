@@ -401,17 +401,21 @@ update message model =
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
         SaveTodoFormClicked ->
+            let
+                newModel =
+                    { model | maybeTodoForm = Nothing }
+            in
             case model.maybeTodoForm of
                 Nothing ->
-                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+                    ( newModel, Cmd.none )
 
                 Just (Edit editingTodoId initialFields currentFields) ->
-                    ( { model | maybeTodoForm = Nothing }
+                    ( newModel
                     , persistEditingTodoCmd editingTodoId initialFields currentFields
                     )
 
                 Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = Nothing }, persistNewTodoCmd fields )
+                    ( newModel, persistNewTodoCmd fields )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
