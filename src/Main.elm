@@ -235,6 +235,7 @@ type Msg
       -- TodoListItem Messages
     | EditTodoClicked TodoId
     | CancelTodoFormClicked
+    | SaveTodoFormClicked
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -398,6 +399,17 @@ update message model =
 
         CancelTodoFormClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+        SaveTodoFormClicked ->
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+                Just (Edit _ _ _) ->
+                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+                Just (Add _ _) ->
+                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
@@ -801,6 +813,7 @@ viewEditTodoItem : TodoFormFields -> Html Msg
 viewEditTodoItem fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ EDIT FORM" ]
+        , TextButton.primary SaveTodoFormClicked "Save" []
         , TextButton.primary CancelTodoFormClicked "Cancel" []
         ]
 
@@ -809,6 +822,7 @@ viewAddTodoItem : TodoFormFields -> Html Msg
 viewAddTodoItem fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
+        , TextButton.primary SaveTodoFormClicked "Save" []
         , TextButton.primary CancelTodoFormClicked "Cancel" []
         ]
 
