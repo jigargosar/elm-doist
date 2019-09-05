@@ -187,7 +187,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | OnHere Time.Zone
-    | OnBrowserResize BrowserSize
+    | GotBrowserSizeChange BrowserSize
     | Focused (Result Dom.Error ())
     | GotAuthStateChange Value
     | GotFirestoreQueryResponse FirestoreQueryResponse
@@ -216,7 +216,7 @@ subscriptions _ =
     Sub.batch
         [ Ports.onAuthStateChanged GotAuthStateChange
         , Ports.onFirestoreQueryResponse GotFirestoreQueryResponse
-        , BrowserSize.onBrowserResize OnBrowserResize
+        , BrowserSize.onBrowserResize GotBrowserSizeChange
         ]
 
 
@@ -255,7 +255,7 @@ update message model =
         OnHere here ->
             Return.singleton { model | here = here }
 
-        OnBrowserResize size ->
+        GotBrowserSizeChange size ->
             setBrowserSize size model |> Return.singleton
 
         Focused domResult ->
