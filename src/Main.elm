@@ -374,14 +374,8 @@ update message model =
 
                         Just (Edit editingTodoId initialFields currentFields) ->
                             ( model
-                            , if editingTodoId /= todo.id && initialFields /= currentFields then
-                                getNow
-                                    (PatchTodoWithNow editingTodoId
-                                        [ Todo.SetTitle currentFields.title
-                                        , Todo.SetDueAt currentFields.dueAt
-                                        , Todo.SetProjectId currentFields.projectId
-                                        ]
-                                    )
+                            , if editingTodoId /= todo.id then
+                                persistEditingTodoCmd editingTodoId initialFields currentFields
 
                               else
                                 Cmd.none
@@ -449,6 +443,21 @@ persistNewTodoCmd fields =
 
     else
         getNow (AddTodo fields.title fields.dueAt fields.projectId)
+
+
+persistEditingTodoCmd : TodoId -> TodoFormFields -> TodoFormFields -> Cmd Msg
+persistEditingTodoCmd editingTodoId initialFields currentFields =
+    if initialFields /= currentFields then
+        getNow
+            (PatchTodoWithNow editingTodoId
+                [ Todo.SetTitle currentFields.title
+                , Todo.SetDueAt currentFields.dueAt
+                , Todo.SetProjectId currentFields.projectId
+                ]
+            )
+
+    else
+        Cmd.none
 
 
 getNow : (Time.Posix -> msg) -> Cmd msg
