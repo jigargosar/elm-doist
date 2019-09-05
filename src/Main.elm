@@ -777,7 +777,10 @@ viewKeyedTodoItems model todoList =
 
 viewEditTodoItem : TodoFormFields -> Html Msg
 viewEditTodoItem fields =
-    div [ class "flex pa3" ] [ text "TODO_ EDIT FORM" ]
+    div [ class "flex pa3" ]
+        [ div [ class "flex-grow-1" ] [ text "TODO_ EDIT FORM" ]
+        , TextButton.primary CancelTodoFormClicked "Cancel" []
+        ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
