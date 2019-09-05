@@ -174,7 +174,7 @@ init encodedFlags url key =
 
         Err err ->
             HasErrors.addDecodeError err model
-    , Millis.hereCmd OnHere
+    , Millis.hereCmd GotHere
     )
 
 
@@ -186,10 +186,10 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
-    | OnHere Time.Zone
-    | GotBrowserSizeChange BrowserSize
+    | GotHere Time.Zone
+    | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
-    | GotAuthStateChange Value
+    | AuthStateChanged Value
     | GotFirestoreQueryResponse FirestoreQueryResponse
     | SignInClicked
     | SignOutClicked
@@ -214,9 +214,9 @@ type Msg
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.onAuthStateChanged GotAuthStateChange
+        [ Ports.onAuthStateChanged AuthStateChanged
         , Ports.onFirestoreQueryResponse GotFirestoreQueryResponse
-        , BrowserSize.onBrowserResize GotBrowserSizeChange
+        , BrowserSize.onBrowserResize BrowserSizeChanged
         ]
 
 
@@ -252,10 +252,10 @@ update message model =
         UrlChanged url ->
             ( { model | route = Route.fromUrl url }, Cmd.none )
 
-        OnHere here ->
+        GotHere here ->
             Return.singleton { model | here = here }
 
-        GotBrowserSizeChange size ->
+        BrowserSizeChanged size ->
             setBrowserSize size model |> Return.singleton
 
         Focused domResult ->
@@ -266,7 +266,7 @@ update message model =
                 Err error ->
                     ( HasErrors.addDomFocusError error model, Cmd.none )
 
-        GotAuthStateChange encodedValue ->
+        AuthStateChanged encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
                 Ok authState ->
                     onAuthStateChanged authState model
