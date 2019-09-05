@@ -769,9 +769,9 @@ viewKeyedTodoItems model todoList =
         viewEditKeyed fields =
             ( "edit-todo-form-key", viewEditTodoItem fields )
 
-        viewAddKeyed : ( String, Html Msg )
-        viewAddKeyed =
-            ( "add-todo-form-key", viewAddTodoItem )
+        viewAddKeyed : TodoFormFields -> ( String, Html Msg )
+        viewAddKeyed fields =
+            ( "add-todo-form-key", viewAddTodoItem fields )
     in
     case model.maybeTodoForm of
         Nothing ->
@@ -788,13 +788,13 @@ viewKeyedTodoItems model todoList =
                             viewBaseKeyed todo
                     )
 
-        Just (Add at _) ->
+        Just (Add at fields) ->
             case at of
                 Start ->
-                    viewAddKeyed :: (todoList |> List.map viewBaseKeyed)
+                    viewAddKeyed fields :: (todoList |> List.map viewBaseKeyed)
 
                 End ->
-                    (todoList |> List.map viewBaseKeyed) ++ [ viewAddKeyed ]
+                    (todoList |> List.map viewBaseKeyed) ++ [ viewAddKeyed fields ]
 
 
 viewEditTodoItem : TodoFormFields -> Html Msg
@@ -805,8 +805,8 @@ viewEditTodoItem fields =
         ]
 
 
-viewAddTodoItem : Html Msg
-viewAddTodoItem =
+viewAddTodoItem : TodoFormFields -> Html Msg
+viewAddTodoItem fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
         , TextButton.primary CancelTodoFormClicked "Cancel" []
