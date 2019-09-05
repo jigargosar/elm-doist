@@ -11,6 +11,7 @@ module Todo exposing
     , decoder
     , dueAtDecoder
     , dueAtEncoder
+    , dueAtPosix
     , dueAtToMillis
     , dueDateEq
     , dueMilli
@@ -22,6 +23,7 @@ module Todo exposing
     , matchesFilter
     , newWithDueAtMillis
     , newWithProjectId
+    , notDue
     , patch
     , sortWith
     )
@@ -41,6 +43,16 @@ import TodoId exposing (TodoId)
 type DueAt
     = DueAt Millis
     | NoDue
+
+
+dueAtPosix : Time.Posix -> DueAt
+dueAtPosix now =
+    DueAt (Time.posixToMillis now)
+
+
+notDue : DueAt
+notDue =
+    NoDue
 
 
 dueAtDecoder : Decoder DueAt
@@ -130,27 +142,31 @@ type Msg
     | SetDueAt DueAt
 
 
-newWithProjectId : Millis -> ProjectId -> Value
+newWithProjectId : Time.Posix -> ProjectId -> Value
 newWithProjectId now projectId =
     new now NoDue projectId
 
 
-newWithDueAtMillis : Millis -> Millis -> Value
-newWithDueAtMillis now dueAtMillis =
-    new now (DueAt dueAtMillis) ProjectId.default
+newWithDueAtMillis : Time.Posix -> Time.Posix -> Value
+newWithDueAtMillis now due =
+    new now (dueAtPosix due) ProjectId.default
 
 
-new : Millis -> DueAt -> ProjectId -> Value
+new : Time.Posix -> DueAt -> ProjectId -> Value
 new now dueAt projectId =
+    let
+        nowMillis =
+            Time.posixToMillis now
+    in
     { id = TodoId.new
     , title = ""
     , sortIdx = 0
     , projectId = projectId
-    , projectIdModifiedAt = now
+    , projectIdModifiedAt = nowMillis
     , isDone = False
     , dueAt = dueAt
-    , createdAt = now
-    , modifiedAt = now
+    , createdAt = nowMillis
+    , modifiedAt = nowMillis
     }
         |> encoder
 

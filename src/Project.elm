@@ -14,6 +14,7 @@ import Json.Decode.Pipeline as JD
 import Json.Encode as JE exposing (Value)
 import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
+import Time
 
 
 type alias Project =
@@ -58,14 +59,18 @@ encoder { id, title, sortIdx, deleted, createdAt, modifiedAt } =
         ]
 
 
-new : Millis -> Value
+new : Time.Posix -> Value
 new now =
+    let
+        nowMilli =
+            Time.posixToMillis now
+    in
     { id = ProjectId.default
     , title = ""
     , sortIdx = 0
     , deleted = False
-    , createdAt = now
-    , modifiedAt = now
+    , createdAt = nowMilli
+    , modifiedAt = nowMilli
     }
         |> encoder
 

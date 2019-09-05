@@ -38,6 +38,7 @@ import Route exposing (Route)
 import Skeleton
 import String.Extra as SX
 import Svg.Attributes as SA
+import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -161,9 +162,10 @@ type Msg
     | OnSignOutClicked
       -- NewTodoOperations
     | OnAddTodoStart ProjectId
-    | AddTodo ProjectId Millis
+    | AddTodoWithPid ProjectId Time.Posix
+    | AddTodo DueAt ProjectId Time.Posix
     | OnAddTodoTodayStart
-    | AddTodoToday Millis
+    | AddTodoToday Time.Posix
       -- ExistingTodoOperations
     | OnChecked TodoId Bool
     | OnDelete TodoId
@@ -171,7 +173,7 @@ type Msg
       -- Project
     | OnDeleteProject ProjectId
     | OnAddProjectStart
-    | AddProject Millis
+    | AddProject Time.Posix
 
 
 
@@ -273,16 +275,19 @@ update message model =
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
 
-        OnAddTodoStart pid ->
-            ( model, Millis.nowCmd (AddTodo pid) )
+        AddTodo dueAt projectId now ->
+            ( model, Cmd.none )
 
-        AddTodo pid now ->
+        OnAddTodoStart pid ->
+            ( model, getNow (AddTodoWithPid pid) )
+
+        AddTodoWithPid pid now ->
             ( model
             , Fire.addTodo (Todo.newWithProjectId now pid)
             )
 
         OnAddTodoTodayStart ->
-            ( model, Millis.nowCmd AddTodoToday )
+            ( model, getNow AddTodoToday )
 
         AddTodoToday now ->
             ( model
@@ -290,12 +295,17 @@ update message model =
             )
 
         OnAddProjectStart ->
-            ( model, Millis.nowCmd AddProject )
+            ( model, getNow AddProject )
 
         AddProject now ->
             ( model
             , Fire.addProject (Project.new now)
             )
+
+
+getNow : (Time.Posix -> msg) -> Cmd msg
+getNow msg =
+    Task.perform msg Time.now
 
 
 handleFirestoreQueryResponse :
