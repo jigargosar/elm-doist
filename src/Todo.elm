@@ -68,10 +68,10 @@ dueAtDecoder =
 dueAtEncoder : DueAt -> Value
 dueAtEncoder due =
     case due of
-        DueAt mi ->
+        DueAt millis ->
             JE.object
                 [ ( "tag", JE.string "DueAt" )
-                , ( "millis", JE.int mi )
+                , ( "millis", JE.int millis )
                 ]
 
         NoDue ->
