@@ -172,10 +172,14 @@ new now dueAt projectId =
         |> encoder
 
 
-patch : List Msg -> Millis -> List ( String, Value )
+patch : List Msg -> Time.Posix -> List ( String, Value )
 patch msgList now =
-    ( "modifiedAt", JE.int now )
-        :: List.concatMap (patchHelp now) msgList
+    let
+        nowMillis =
+            Time.posixToMillis now
+    in
+    ( "modifiedAt", JE.int nowMillis )
+        :: List.concatMap (patchHelp nowMillis) msgList
 
 
 patchHelp : Int -> Msg -> List ( String, Value )
