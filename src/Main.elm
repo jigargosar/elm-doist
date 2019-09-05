@@ -165,7 +165,6 @@ type Msg
     | AddTodo DueAt ProjectId Time.Posix
     | AddTodoClickedForToday
       -- ExistingTodoOperations
-    | TodoDoneCheckboxClicked TodoId Bool
     | DeleteTodoClicked TodoId
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
@@ -276,9 +275,6 @@ update message model =
             ( model
             , Fire.addProject (Project.new now)
             )
-
-        TodoDoneCheckboxClicked todoId checked ->
-            ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
 
         DeleteTodoClicked todoId ->
             ( model
