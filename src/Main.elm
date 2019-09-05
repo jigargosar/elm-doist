@@ -212,16 +212,6 @@ subscriptions _ =
 -- UPDATE
 
 
-decodeValueAndUnpack :
-    ( Decoder a, a -> b, JD.Error -> b )
-    -> JD.Value
-    -> b
-decodeValueAndUnpack ( decoder, onOk, onErr ) enc =
-    enc
-        |> JD.decodeValue decoder
-        |> RX.unpack onErr onOk
-
-
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -264,13 +254,12 @@ update message model =
                 |> Return.singleton
 
         OnAuthStateChanged encodedValue ->
-            model
-                |> decodeValueAndUnpack
-                    ( AuthState.decoder
-                    , onAuthStateChanged
-                    , onDecodeError
-                    )
-                    encodedValue
+            case JD.decodeValue AuthState.decoder encodedValue of
+                Ok authState ->
+                    onAuthStateChanged authState model
+
+                Err error ->
+                    ( HasErrors.addDecodeError error model, Cmd.none )
 
         OnSignInClicked ->
             ( model, Ports.signIn () )
@@ -532,12 +521,6 @@ onAuthStateChanged authState model =
             (Ports.localStorageSetJsonItem
                 ( "cachedAuthState", AuthState.encoder authState )
             )
-
-
-onDecodeError : JD.Error -> Model -> Return
-onDecodeError error model =
-    HasErrors.addDecodeError error model
-        |> Return.singleton
 
 
 
