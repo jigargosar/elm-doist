@@ -130,7 +130,16 @@ init encodedFlags url key =
             , browserSize = BrowserSize.initial
             }
     in
-    ( updateFromEncodedFlags encodedFlags model
+    ( case JD.decodeValue flagsDecoder encodedFlags of
+        Ok flags ->
+            setTodoList flags.cachedTodoList model
+                |> setProjectList flags.cachedProjectList
+                |> setAuthState flags.cachedAuthState
+                |> setBrowserSize flags.browserSize
+                |> setTodayFromNow flags.now
+
+        Err err ->
+            HasErrors.addDecodeError err model
     , Millis.hereCmd OnHere
     )
 
@@ -352,20 +361,6 @@ queryProjectListCmd =
         , userCollectionName = "projects"
         , whereClause = []
         }
-
-
-updateFromEncodedFlags : Value -> Model -> Model
-updateFromEncodedFlags encodedFlags model =
-    case JD.decodeValue flagsDecoder encodedFlags of
-        Ok flags ->
-            setTodoList flags.cachedTodoList model
-                |> setProjectList flags.cachedProjectList
-                |> setAuthState flags.cachedAuthState
-                |> setBrowserSize flags.browserSize
-                |> setTodayFromNow flags.now
-
-        Err err ->
-            HasErrors.addDecodeError err model
 
 
 setTodoList : TodoList -> Model -> Model
