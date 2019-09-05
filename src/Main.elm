@@ -167,7 +167,7 @@ type Msg
       -- ExistingTodoOperations
     | TodoDoneCheckboxClicked TodoId Bool
     | DeleteTodoClicked TodoId
-    | UpdateTodo TodoId (List Todo.Msg) Millis
+    | UpdateTodoWithNow TodoId (List Todo.Msg) Millis
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -258,7 +258,7 @@ update message model =
         AddTodo dueAt projectId now ->
             ( model, Fire.addTodo (Todo.new now dueAt projectId) )
 
-        UpdateTodo todoId todoMsgList now ->
+        UpdateTodoWithNow todoId todoMsgList now ->
             ( model
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
@@ -346,7 +346,7 @@ focus =
 
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsgList =
-    UpdateTodo todoId todoMsgList |> Millis.nowCmd
+    UpdateTodoWithNow todoId todoMsgList |> Millis.nowCmd
 
 
 queryTodoListCmd =
