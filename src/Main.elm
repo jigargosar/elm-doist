@@ -92,7 +92,6 @@ initTodoFormFields todo =
 type AddAt
     = Start
     | End
-    | After TodoId
 
 
 type TodoForm
@@ -794,9 +793,6 @@ viewKeyedTodoItems model todoList =
                         |> List.map viewTodoItemBaseWithKey
                     )
                         ++ [ ( "add-todo-form__end", viewAddTodoItem ) ]
-
-                After todoId ->
-                    [ ( "add-todo-form__after", viewAddTodoItem ) ]
 
 
 viewEditTodoItem : TodoFormFields -> Html Msg
