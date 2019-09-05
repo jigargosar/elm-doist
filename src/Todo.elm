@@ -22,8 +22,6 @@ module Todo exposing
     , listEncoder
     , matchesFilter
     , new
-    , newWithDueAtMillis
-    , newWithProjectId
     , notDue
     , patch
     , sortWith
@@ -143,24 +141,14 @@ type Msg
     | SetDueAt DueAt
 
 
-newWithProjectId : Time.Posix -> ProjectId -> Value
-newWithProjectId now projectId =
-    new now NoDue projectId
-
-
-newWithDueAtMillis : Time.Posix -> Time.Posix -> Value
-newWithDueAtMillis now due =
-    new now (dueAtPosix due) ProjectId.default
-
-
-new : Time.Posix -> DueAt -> ProjectId -> Value
-new now dueAt projectId =
+new : Time.Posix -> String -> DueAt -> ProjectId -> Value
+new now title dueAt projectId =
     let
         nowMillis =
             Time.posixToMillis now
     in
     { id = TodoId.new
-    , title = ""
+    , title = title
     , sortIdx = 0
     , projectId = projectId
     , projectIdModifiedAt = nowMillis

@@ -226,7 +226,7 @@ type Msg
       -- NewTodoOperations
     | AddTodoClicked AddAt DueAt ProjectId
     | AddTodoWithProjectIdClicked ProjectId
-    | AddTodo DueAt ProjectId Time.Posix
+    | AddTodo String DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
     | DeleteTodoClicked TodoId
@@ -336,8 +336,8 @@ update message model =
         GotFirestoreQueryResponse qs ->
             onFirestoreQueryResponse qs model
 
-        AddTodo dueAt projectId now ->
-            ( model, Fire.addTodo (Todo.new now dueAt projectId) )
+        AddTodo title dueAt projectId now ->
+            ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
         PatchTodo todoId todoMsgList ->
             ( model, getNow (PatchTodoWithNow todoId todoMsgList) )
@@ -372,21 +372,22 @@ update message model =
                             ( model, Cmd.none )
 
         AddTodoClicked addAt dueAt projectId ->
+            let
+                newTodoForm =
+                    Add addAt { title = "", dueAt = dueAt, projectId = projectId }
+                        |> Just
+            in
             case model.maybeTodoForm of
                 Nothing ->
-                    ( { model
-                        | maybeTodoForm =
-                            Add addAt { title = "", dueAt = dueAt, projectId = projectId }
-                                |> Just
-                      }
+                    ( { model | maybeTodoForm = newTodoForm }
                     , Cmd.none
                     )
 
-                Just (Add _ _) ->
-                    ( model, Cmd.none )
+                Just (Add _ fields) ->
+                    ( { model | maybeTodoForm = newTodoForm }, getNow (AddTodo fields.title fields.dueAt fields.projectId) )
 
                 Just (Edit _ _ _) ->
-                    ( model, Cmd.none )
+                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
 
         CancelTodoFormClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
@@ -398,12 +399,12 @@ update message model =
             ( model, Fire.deleteTodo todoId )
 
         AddTodoWithProjectIdClicked projectId ->
-            ( model, getNow (AddTodo Todo.notDue projectId) )
+            ( model, getNow (AddTodo "" Todo.notDue projectId) )
 
         AddTodoWithDueTodayClicked ->
             ( model
             , Time.now
-                |> Task.map (\now -> AddTodo (Todo.dueAtPosix now) ProjectId.default now)
+                |> Task.map (\now -> AddTodo "" (Todo.dueAtPosix now) ProjectId.default now)
                 |> Task.perform identity
             )
 
