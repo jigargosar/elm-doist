@@ -768,6 +768,10 @@ viewKeyedTodoItems model todoList =
         viewEditKeyed : TodoFormFields -> ( String, Html Msg )
         viewEditKeyed fields =
             ( "edit-todo-form-key", viewEditTodoItem fields )
+
+        viewAddKeyed : ( String, Html Msg )
+        viewAddKeyed =
+            ( "add-todo-form-key", viewAddTodoItem )
     in
     case model.maybeTodoForm of
         Nothing ->
@@ -787,14 +791,10 @@ viewKeyedTodoItems model todoList =
         Just (Add at _) ->
             case at of
                 Start ->
-                    ( "add-todo-form__start", viewAddTodoItem )
-                        :: (todoList |> List.map viewBaseKeyed)
+                    viewAddKeyed :: (todoList |> List.map viewBaseKeyed)
 
                 End ->
-                    (todoList
-                        |> List.map viewBaseKeyed
-                    )
-                        ++ [ ( "add-todo-form__end", viewAddTodoItem ) ]
+                    (todoList |> List.map viewBaseKeyed) ++ [ viewAddKeyed ]
 
 
 viewEditTodoItem : TodoFormFields -> Html Msg
