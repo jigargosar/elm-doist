@@ -1,4 +1,13 @@
-module Fire exposing (addProject, addTodo, cleanupTodoList, deleteProject, deleteTodo, updateTodo)
+module Fire exposing
+    ( addProject
+    , addTodo
+    , cleanupTodoList
+    , deleteProject
+    , deleteTodo
+    , queryProjectList
+    , queryTodoList
+    , updateTodo
+    )
 
 import Dict exposing (Dict)
 import Dict.Extra
@@ -9,6 +18,24 @@ import Project exposing (Project)
 import ProjectId
 import Todo exposing (Todo)
 import TodoId exposing (TodoId)
+
+
+queryTodoList : Cmd msg
+queryTodoList =
+    Ports.queryFirestore
+        { id = "todoList"
+        , userCollectionName = "todos"
+        , whereClause = []
+        }
+
+
+queryProjectList : Cmd msg
+queryProjectList =
+    Ports.queryFirestore
+        { id = "projectList"
+        , userCollectionName = "projects"
+        , whereClause = []
+        }
 
 
 deleteTodo : TodoId -> Cmd msg

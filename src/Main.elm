@@ -367,22 +367,6 @@ focus =
     Focus.attempt Focused
 
 
-queryTodoListCmd =
-    Ports.queryFirestore
-        { id = "todoList"
-        , userCollectionName = "todos"
-        , whereClause = []
-        }
-
-
-queryProjectListCmd =
-    Ports.queryFirestore
-        { id = "projectList"
-        , userCollectionName = "projects"
-        , whereClause = []
-        }
-
-
 onAuthStateChanged : AuthState -> Model -> Return
 onAuthStateChanged authState model =
     ( setAuthState authState model
@@ -392,7 +376,7 @@ onAuthStateChanged authState model =
                 Cmd.none
 
             AuthState.SignedIn _ ->
-                Cmd.batch [ queryTodoListCmd, queryProjectListCmd ]
+                Cmd.batch [ Fire.queryTodoList, Fire.queryProjectList ]
 
             AuthState.NotSignedIn ->
                 Nav.replaceUrl model.key Route.topUrl
