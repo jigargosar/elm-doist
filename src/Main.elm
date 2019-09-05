@@ -535,8 +535,7 @@ viewSidebar model =
 
 
 viewNavLink link title =
-    a [ class "pv2 no-underline db b", href link ]
-        [ text title ]
+    a [ class "pv2 no-underline db b", href link ] [ text title ]
 
 
 viewNavProjects : ProjectList -> Html Msg
