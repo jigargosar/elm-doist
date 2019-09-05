@@ -213,13 +213,15 @@ type Msg
     | SignInClicked
     | SignOutClicked
       -- NewTodoOperations
-    | AddTodoClickedForProjectId ProjectId
+    | AddTodoWithProjectIdClicked ProjectId
     | AddTodo DueAt ProjectId Time.Posix
-    | AddTodoClickedForToday
+    | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
     | DeleteTodoClicked TodoId
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
+      -- TodoListItem Messages
+    | EditTodoClicked TodoId
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -319,16 +321,27 @@ update message model =
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
 
+        EditTodoClicked todoId ->
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just (Add _ _) ->
+                    ( model, Cmd.none )
+
+                Just (Edit _ _ _) ->
+                    ( model, Cmd.none )
+
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
 
         DeleteTodoClicked todoId ->
             ( model, Fire.deleteTodo todoId )
 
-        AddTodoClickedForProjectId projectId ->
+        AddTodoWithProjectIdClicked projectId ->
             ( model, getNow (AddTodo Todo.notDue projectId) )
 
-        AddTodoClickedForToday ->
+        AddTodoWithDueTodayClicked ->
             ( model
             , Time.now
                 |> Task.map (\now -> AddTodo (Todo.dueAtPosix now) ProjectId.default now)
@@ -668,7 +681,7 @@ todayContent model =
         , div [ class "vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                , TextButton.primary AddTodoClickedForToday "add task" []
+                , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
             ]
@@ -689,7 +702,7 @@ pendingForProjectContent pid title model displayTodoList =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
             [ div [ class "b flex-grow-1" ] [ text title ]
-            , TextButton.primary (AddTodoClickedForProjectId pid) "add task" []
+            , TextButton.primary (AddTodoWithProjectIdClicked pid) "add task" []
             ]
         , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
         ]
@@ -741,7 +754,7 @@ viewTodoItemBase zone todo =
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox todo.isDone (todoDoneCheckedMsg todo.id)
-        , viewTodoItemTitle todo
+        , viewTodoItemTitle (EditTodoClicked todo.id) todo.title
         , viewTodoItemDueDate todo zone
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
@@ -785,13 +798,13 @@ viewTodoItemDoneCheckbox isChecked setCheckedMsg =
         (faCheckBtn (setCheckedMsg True) FAR.circle)
 
 
-viewTodoItemTitle : Todo -> Html Msg
-viewTodoItemTitle todo =
+viewTodoItemTitle : Msg -> String -> Html Msg
+viewTodoItemTitle clickMsg title_ =
     let
         ( title, titleClass ) =
-            ifElse (SX.isBlank todo.title)
+            ifElse (SX.isBlank title_)
                 ( "<no title>", "i black-70" )
-                ( todo.title, "" )
+                ( title_, "" )
 
         viewTitle =
             div [ class "", onClick NoOp ]
@@ -801,6 +814,7 @@ viewTodoItemTitle todo =
         [ class titleClass
         , class "pa2 flex-grow-1 hover-bg-light-yellow"
         , class " lh-title"
+        , onClick clickMsg
         ]
         [ viewTitle ]
 
