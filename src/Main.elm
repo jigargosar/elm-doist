@@ -535,16 +535,11 @@ viewSidebar model =
 
 
 viewNavLink link title =
-    div [ class "pv2 " ]
-        [ div [ class "flex hs3" ]
-            [ a
-                [ class "no-underline"
-                , href link
-                , class "b"
-                ]
-                [ text title ]
-            ]
+    a
+        [ class "pv2 no-underline db b"
+        , href link
         ]
+        [ text title ]
 
 
 viewNavProjects : ProjectList -> Html Msg
