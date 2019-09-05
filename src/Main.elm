@@ -535,10 +535,7 @@ viewSidebar model =
 
 
 viewNavLink link title =
-    a
-        [ class "pv2 no-underline db b"
-        , href link
-        ]
+    a [ class "pv2 no-underline db b", href link ]
         [ text title ]
 
 
