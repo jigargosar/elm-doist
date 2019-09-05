@@ -253,7 +253,7 @@ update message model =
             ( { model | route = Route.fromUrl url }, Cmd.none )
 
         GotHere here ->
-            Return.singleton { model | here = here }
+            ( { model | here = here }, Cmd.none )
 
         BrowserSizeChanged size ->
             setBrowserSize size model |> Return.singleton
