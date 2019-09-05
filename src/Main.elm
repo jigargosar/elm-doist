@@ -523,14 +523,14 @@ viewHeaderBtn =
 
 viewSidebar : Model -> Html Msg
 viewSidebar model =
-    div [ class "lh-title" ]
+    div [ class "lh-copy" ]
         [ viewNavLink Route.inboxUrl "Inbox"
         , viewNavLink Route.todayUrl "Today"
-        , div [ class "pv2 flex hs3" ]
+        , div [ class "pv1 flex hs3" ]
             [ div [ class "ttu tracked flex-grow-1" ] [ text "Projects:" ]
             , IconButton.view AddProjectClicked [] FAS.plus []
             ]
-        , div [ class "b" ]
+        , div []
             (Project.filterActive model.projectList
                 |> List.map viewNavProject
             )
@@ -538,14 +538,14 @@ viewSidebar model =
 
 
 viewNavLink link title =
-    a [ class "pv2 no-underline db b", href link ] [ text title ]
+    a [ class "pv1 no-underline db b", href link ] [ text title ]
 
 
 viewNavProject : Project -> Html Msg
 viewNavProject project =
-    div [ class "pv2 flex hs3" ]
+    div [ class "pv1 flex hs3" ]
         [ a
-            [ class "no-underline truncate flex-grow-1"
+            [ class "b no-underline truncate flex-grow-1"
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
