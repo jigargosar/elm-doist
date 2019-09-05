@@ -81,12 +81,12 @@ flagsDecoder =
 
 
 type alias TodoFormFields =
-    { title : String, dueAt : Todo.DueAt }
+    { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
 
 
 initTodoFormFields : Todo -> TodoFormFields
 initTodoFormFields todo =
-    { title = todo.title, dueAt = todo.dueAt }
+    { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
 
 
 type AddAt
@@ -224,6 +224,7 @@ type Msg
     | SignInClicked
     | SignOutClicked
       -- NewTodoOperations
+    | AddTodoClicked AddAt DueAt ProjectId
     | AddTodoWithProjectIdClicked ProjectId
     | AddTodo DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
@@ -356,6 +357,23 @@ update message model =
 
                         Just (Edit _ _ _) ->
                             ( model, Cmd.none )
+
+        AddTodoClicked addAt dueAt projectId ->
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( { model
+                        | maybeTodoForm =
+                            Add addAt { title = "", dueAt = dueAt, projectId = projectId }
+                                |> Just
+                      }
+                    , Cmd.none
+                    )
+
+                Just (Add _ _) ->
+                    ( model, Cmd.none )
+
+                Just (Edit _ _ _) ->
+                    ( model, Cmd.none )
 
         CancelTodoFormClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
