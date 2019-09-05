@@ -156,20 +156,20 @@ type Msg
     | OnHere Time.Zone
     | OnBrowserResize BrowserSize
     | Focused (Result Dom.Error ())
-    | OnAuthStateChanged Value
-    | OnFirestoreQueryResponse FirestoreQueryResponse
-    | OnSignInClicked
-    | OnSignOutClicked
+    | GotAuthStateChange Value
+    | GotFirestoreQueryResponse FirestoreQueryResponse
+    | SignInClicked
+    | SignOutClicked
       -- NewTodoOperations
     | AddTodoClickedForProjectId ProjectId
     | AddTodo DueAt ProjectId Time.Posix
     | AddTodoClickedForToday
       -- ExistingTodoOperations
-    | OnChecked TodoId Bool
-    | OnDelete TodoId
-    | PatchTodo TodoId (List Todo.Msg) Millis
+    | TodoDoneCheckboxClicked TodoId Bool
+    | DeleteTodoClicked TodoId
+    | UpdateTodo TodoId (List Todo.Msg) Millis
       -- Project
-    | OnDeleteProject ProjectId
+    | DeleteProjectClicked ProjectId
     | AddProjectClicked
     | AddProject Time.Posix
 
@@ -181,8 +181,8 @@ type Msg
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.onAuthStateChanged OnAuthStateChanged
-        , Ports.onFirestoreQueryResponse OnFirestoreQueryResponse
+        [ Ports.onAuthStateChanged GotAuthStateChange
+        , Ports.onFirestoreQueryResponse GotFirestoreQueryResponse
         , BrowserSize.onBrowserResize OnBrowserResize
         ]
 
@@ -232,7 +232,7 @@ update message model =
                 |> callWith model
                 |> Return.singleton
 
-        OnAuthStateChanged encodedValue ->
+        GotAuthStateChange encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
                 Ok authState ->
                     onAuthStateChanged authState model
@@ -240,10 +240,10 @@ update message model =
                 Err error ->
                     ( HasErrors.addDecodeError error model, Cmd.none )
 
-        OnSignInClicked ->
+        SignInClicked ->
             ( model, Ports.signIn () )
 
-        OnSignOutClicked ->
+        SignOutClicked ->
             ( model
             , Cmd.batch
                 [ Ports.signOut ()
@@ -252,29 +252,29 @@ update message model =
                 ]
             )
 
-        OnFirestoreQueryResponse qs ->
+        GotFirestoreQueryResponse qs ->
             handleFirestoreQueryResponse qs model
 
-        OnChecked todoId checked ->
-            ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
+        AddTodo dueAt projectId now ->
+            ( model, Fire.addTodo (Todo.new now dueAt projectId) )
 
-        OnDelete todoId ->
-            ( model
-            , Fire.deleteTodo todoId
-            )
-
-        OnDeleteProject projectId ->
-            ( model
-            , Fire.deleteProject projectId
-            )
-
-        PatchTodo todoId todoMsgList now ->
+        UpdateTodo todoId todoMsgList now ->
             ( model
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
 
-        AddTodo dueAt projectId now ->
-            ( model, Fire.addTodo (Todo.new now dueAt projectId) )
+        AddProject now ->
+            ( model
+            , Fire.addProject (Project.new now)
+            )
+
+        TodoDoneCheckboxClicked todoId checked ->
+            ( model, patchTodoCmd todoId [ Todo.SetCompleted checked ] )
+
+        DeleteTodoClicked todoId ->
+            ( model
+            , Fire.deleteTodo todoId
+            )
 
         AddTodoClickedForProjectId projectId ->
             ( model, getNow (AddTodo Todo.notDue projectId) )
@@ -289,9 +289,9 @@ update message model =
         AddProjectClicked ->
             ( model, getNow AddProject )
 
-        AddProject now ->
+        DeleteProjectClicked projectId ->
             ( model
-            , Fire.addProject (Project.new now)
+            , Fire.deleteProject projectId
             )
 
 
@@ -346,7 +346,7 @@ focus =
 
 patchTodoCmd : TodoId -> List Todo.Msg -> Cmd Msg
 patchTodoCmd todoId todoMsgList =
-    PatchTodo todoId todoMsgList |> Millis.nowCmd
+    UpdateTodo todoId todoMsgList |> Millis.nowCmd
 
 
 queryTodoListCmd =
@@ -543,18 +543,18 @@ viewHeader model =
             , case model.authState of
                 AuthState.Unknown ->
                     viewHeaderBtn
-                        OnSignInClicked
+                        SignInClicked
                         "SignIn"
                         [ disabled True ]
 
                 AuthState.SignedIn user ->
                     div [ class "flex items-center hs3 " ]
                         [ div [] [ text user.displayName ]
-                        , viewHeaderBtn OnSignOutClicked "SignOut" []
+                        , viewHeaderBtn SignOutClicked "SignOut" []
                         ]
 
                 AuthState.NotSignedIn ->
-                    viewHeaderBtn OnSignInClicked "SignIn" []
+                    viewHeaderBtn SignInClicked "SignIn" []
             ]
         ]
 
@@ -609,7 +609,7 @@ viewNavProject project =
             , href (Route.projectUrl project.id)
             ]
             [ text project.title ]
-        , IconButton.view (OnDeleteProject project.id) [] FAS.trash []
+        , IconButton.view (DeleteProjectClicked project.id) [] FAS.trash []
         ]
 
 
@@ -650,7 +650,7 @@ viewSignInDialog =
             ]
             [ div [ class "b" ] [ text "SignIn/SignUp using" ]
             , Button.styled []
-                OnSignInClicked
+                SignInClicked
                 [ class "ph2 pv1"
                 , class "flex inline-flex items-center justify-center"
                 , class "ba br2 white bg-blue shadow-1"
@@ -767,7 +767,7 @@ viewTodoItemBase model todo =
     div
         [ class "flex hide-child"
         ]
-        [ viewCheck todo.isDone (OnChecked todo.id)
+        [ viewCheck todo.isDone (TodoDoneCheckboxClicked todo.id)
         , viewTodoItemTitle todo
         , viewTodoItemDueDate todo model.here
         , div [ class "relative flex" ]
