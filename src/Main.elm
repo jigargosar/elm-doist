@@ -711,13 +711,13 @@ viewKeyedTodoItems model todoList =
                         )
                     )
 
-        Just (Edit todoId _ _) ->
+        Just (Edit todoId _ currentFields) ->
             todoList
                 |> List.map
                     (\todo ->
                         if todo.id == todoId then
                             ( TodoId.toString todo.id
-                            , viewTodoItemBase model.here todo
+                            , viewEditTodoItem currentFields
                             )
 
                         else
@@ -728,6 +728,11 @@ viewKeyedTodoItems model todoList =
 
         Just (Add _ _) ->
             todoList |> List.map (\todo -> ( TodoId.toString todo.id, viewTodoItemBase model.here todo ))
+
+
+viewEditTodoItem : TodoFormFields -> Html Msg
+viewEditTodoItem fields =
+    div [ class "flex pa3" ] [ text "TODO_ EDIT FORM" ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
