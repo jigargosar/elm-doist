@@ -131,33 +131,13 @@ type Msg
 
 
 newForProject : Millis -> ProjectId -> Value
-newForProject now pid =
-    { id = TodoId.new
-    , title = ""
-    , sortIdx = 0
-    , projectId = pid
-    , projectIdModifiedAt = now
-    , isDone = False
-    , dueAt = NoDue
-    , createdAt = now
-    , modifiedAt = now
-    }
-        |> encoder
+newForProject now projectId =
+    new now NoDue projectId
 
 
 newToday : Millis -> Millis -> Value
-newToday now dueAt =
-    { id = TodoId.new
-    , title = ""
-    , sortIdx = 0
-    , projectId = ProjectId.default
-    , projectIdModifiedAt = now
-    , isDone = False
-    , dueAt = DueAt dueAt
-    , createdAt = now
-    , modifiedAt = now
-    }
-        |> encoder
+newToday now dueAtMillis =
+    new now (DueAt dueAtMillis) ProjectId.default
 
 
 new now dueAt projectId =
