@@ -372,10 +372,7 @@ setBrowserSize browserSize model =
     { model | browserSize = browserSize }
 
 
-setTodayFromMillis :
-    Int
-    -> { b | today : Calendar.Date }
-    -> { b | today : Calendar.Date }
+setTodayFromMillis : Int -> Model -> Model
 setTodayFromMillis millis model =
     { model | today = dateFromMillis millis }
 
