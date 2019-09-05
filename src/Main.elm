@@ -191,6 +191,11 @@ subscriptions _ =
 -- UPDATE
 
 
+todoDoneCheckedMsg : TodoId -> Bool -> Msg
+todoDoneCheckedMsg todoId isChecked =
+    TodoDoneCheckboxClicked todoId isChecked
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -767,7 +772,7 @@ viewTodoItemBase model todo =
     div
         [ class "flex hide-child"
         ]
-        [ viewCheck todo.isDone (TodoDoneCheckboxClicked todo.id)
+        [ viewTodoItemDoneCheckbox todo.isDone (todoDoneCheckedMsg todo.id)
         , viewTodoItemTitle todo
         , viewTodoItemDueDate todo model.here
         , div [ class "relative flex" ]
@@ -798,8 +803,8 @@ viewTodoItemDueDate todo here =
         ]
 
 
-viewCheck : Bool -> (Bool -> msg) -> Html msg
-viewCheck isChecked setCheckedMsg =
+viewTodoItemDoneCheckbox : Bool -> (Bool -> msg) -> Html msg
+viewTodoItemDoneCheckbox isChecked setCheckedMsg =
     let
         faCheckBtn action icon =
             IconButton.view action
