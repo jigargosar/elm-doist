@@ -750,6 +750,7 @@ pendingForProjectContent pid title model displayTodoList =
             , TextButton.primary (AddTodoClicked Start Todo.notDue pid) "add task" []
             ]
         , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
+        , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End Todo.notDue pid) "add task" [] ]
         ]
 
 
