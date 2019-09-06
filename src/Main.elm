@@ -20,12 +20,12 @@ import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex, value)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Events exposing (onClick, onInput)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode exposing (Value)
+import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -234,6 +234,8 @@ type Msg
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoListItem Messages
     | EditTodoClicked TodoId
+      -- TodoForm Messages
+    | SetTodoForm TodoForm
     | CancelTodoFormClicked
     | SaveTodoFormClicked
       -- Project
@@ -398,6 +400,9 @@ update message model =
                     ( { model | maybeTodoForm = newTodoForm }
                     , persistEditingTodoCmd editingTodoId initialFields currentFields
                     )
+
+        SetTodoForm todoForm ->
+            ( { model | maybeTodoForm = Just todoForm }, Cmd.none )
 
         CancelTodoFormClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
@@ -837,12 +842,20 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                 viewHelp :: viewBaseListHelp todoList
 
         Just (Add at fields) ->
+            let
+                viewHelp =
+                    ( "add-todo-form-key"
+                    , viewTodoItemAddForm
+                        (\title -> SetTodoForm (Add at { fields | title = title }))
+                        fields
+                    )
+            in
             case at of
                 Start ->
-                    viewTodoItemAddFormKeyed fields :: viewBaseListHelp todoList
+                    viewHelp :: viewBaseListHelp todoList
 
                 End ->
-                    viewBaseListHelp todoList ++ [ viewTodoItemAddFormKeyed fields ]
+                    viewBaseListHelp todoList ++ [ viewHelp ]
 
 
 viewTodoItemBaseKeyed : Time.Zone -> Todo -> ( String, Html Msg )
@@ -852,12 +865,7 @@ viewTodoItemBaseKeyed zone todo =
 
 viewTodoItemEditFormKeyed : TodoId -> TodoFormFields -> ( String, Html Msg )
 viewTodoItemEditFormKeyed todoId fields =
-    ( TodoId.toString todoId, viewTodoItemEditForm fields )
-
-
-viewTodoItemAddFormKeyed : TodoFormFields -> ( String, Html Msg )
-viewTodoItemAddFormKeyed fields =
-    ( "add-todo-form-key", viewTodoItemAddForm fields )
+    ( "edit-todo-form-key" {- TodoId.toString todoId -}, viewTodoItemEditForm fields )
 
 
 viewTodoItemEditForm : TodoFormFields -> Html Msg
@@ -866,7 +874,7 @@ viewTodoItemEditForm fields =
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
                 [ H.node "auto-resize-textarea"
-                    []
+                    [{- A.property "textContent" (JE.string fields.title) -}]
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
@@ -884,12 +892,28 @@ viewTodoItemEditForm fields =
         ]
 
 
-viewTodoItemAddForm : TodoFormFields -> Html Msg
-viewTodoItemAddForm fields =
-    div [ class "flex pa3" ]
-        [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
-        , TextButton.primary SaveTodoFormClicked "Save" []
-        , TextButton.primary CancelTodoFormClicked "Cancel" []
+viewTodoItemAddForm : (String -> Msg) -> TodoFormFields -> Html Msg
+viewTodoItemAddForm titleChangedMsg fields =
+    div [ class "pa3" ]
+        [ div [ class "flex" ]
+            [ div [ class "flex-grow-1" ]
+                [ H.node "auto-resize-textarea"
+                    [{- A.property "textContent" (JE.string fields.title) -}]
+                    [ textarea
+                        [ class "pa0 lh-copy overflow-hidden w-100"
+                        , rows 1
+                        , value fields.title
+                        , onInput titleChangedMsg
+                        ]
+                        []
+                    ]
+                ]
+            , div [] [ text "schedule" ]
+            ]
+        , div [ class "flex hs3 lh-copy" ]
+            [ TextButton.primary SaveTodoFormClicked "Save" []
+            , TextButton.primary CancelTodoFormClicked "Cancel" []
+            ]
         ]
 
 

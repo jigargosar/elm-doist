@@ -5,6 +5,7 @@ import { Elm } from './Main.elm'
 import { Fire } from './fire'
 
 import {
+  forEach,
   forEachObjIndexed,
   identity,
   isNil,
@@ -24,6 +25,22 @@ customElements.define(
     }
   },
 )
+
+document.addEventListener('input', e => {
+  console.log(e.target, e.target.tagName)
+})
+
+new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+    if (mutation.addedNodes) {
+      mutation.addedNodes.forEach(node => {
+        if (node['getElementsByTagName']) {
+          forEach(resizeTextArea, node['getElementsByTagName']('TEXTAREA'))
+        }
+      })
+    }
+  })
+}).observe(document.body, { childList: true, subtree: true })
 
 customElements.define(
   'track-focus-outside',
@@ -55,7 +72,6 @@ function getCached(key) {
 const cachedProjectList = getCached('cachedProjectList')
 const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
-
 
 const app = Elm.Main.init({
   flags: {
