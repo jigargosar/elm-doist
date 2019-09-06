@@ -457,17 +457,32 @@ persistNewTodoCmd fields =
 
 persistEditingTodoCmd : TodoId -> TodoFormFields -> TodoFormFields -> Cmd Msg
 persistEditingTodoCmd editingTodoId initialFields currentFields =
-    if initialFields /= currentFields then
-        getNow
-            (PatchTodoWithNow editingTodoId
-                [ Todo.SetTitle currentFields.title
-                , Todo.SetDueAt currentFields.dueAt
-                , Todo.SetProjectId currentFields.projectId
-                ]
-            )
+    let
+        msgList : List Todo.Msg
+        msgList =
+            [ if initialFields.title /= currentFields.title then
+                Just <| Todo.SetTitle currentFields.title
+
+              else
+                Nothing
+            , if initialFields.dueAt /= currentFields.dueAt then
+                Just <| Todo.SetDueAt currentFields.dueAt
+
+              else
+                Nothing
+            , if initialFields.projectId /= currentFields.projectId then
+                Just <| Todo.SetProjectId currentFields.projectId
+
+              else
+                Nothing
+            ]
+                |> List.filterMap identity
+    in
+    if List.isEmpty msgList then
+        Cmd.none
 
     else
-        Cmd.none
+        getNow <| PatchTodoWithNow editingTodoId msgList
 
 
 getNow : (Time.Posix -> msg) -> Cmd msg
