@@ -203,8 +203,8 @@ init encodedFlags url key =
 
 
 findById : a -> List { b | id : a } -> Maybe { b | id : a }
-findById todoId =
-    List.filter (.id >> eq_ todoId)
+findById id =
+    List.filter (.id >> eq_ id)
         >> List.head
 
 
