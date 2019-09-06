@@ -18,29 +18,33 @@ import {
 customElements.define(
   'auto-resize-textarea',
   class extends HTMLElement {
+    constructor() {
+      super()
+      this._textAreaValue = ''
+    }
+    get textAreaValue() {
+      // noinspection JSUnresolvedVariable
+      return this._textAreaValue || ''
+    }
+    set textAreaValue(value) {
+      this._textAreaValue = value
+      const textAreaEl = this.textAreaEl
+      if (textAreaEl) {
+        textAreaEl.value = value
+        resizeTextArea(textAreaEl)
+      }
+    }
+    get textAreaEl() {
+      return this.querySelector('textarea')
+    }
+
     connectedCallback() {
-      const ta = this.firstChild
+      const ta = this.textAreaEl
       resizeTextArea(ta)
-      ta.addEventListener('input', resizeTextAreaOnInputListener)
+      // ta.addEventListener('input', resizeTextAreaOnInputListener)
     }
   },
 )
-
-document.addEventListener('input', e => {
-  console.log(e.target, e.target.tagName)
-})
-
-new MutationObserver(mutations => {
-  mutations.forEach(mutation => {
-    if (mutation.addedNodes) {
-      mutation.addedNodes.forEach(node => {
-        if (node['getElementsByTagName']) {
-          forEach(resizeTextArea, node['getElementsByTagName']('TEXTAREA'))
-        }
-      })
-    }
-  })
-}).observe(document.body, { childList: true, subtree: true })
 
 customElements.define(
   'track-focus-outside',

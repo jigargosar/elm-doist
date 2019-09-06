@@ -822,10 +822,14 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Nothing ->
             viewBaseListHelp todoList
 
-        Just (Edit todoId _ currentFields) ->
+        Just (Edit todoId initialFields fields) ->
             let
                 viewHelp =
-                    viewTodoItemEditFormKeyed todoId currentFields
+                    ( "edit-todo-form-key" {- TodoId.toString todoId -}
+                    , viewTodoItemEditForm
+                        (\title -> SetTodoForm (Edit todoId initialFields { fields | title = title }))
+                        fields
+                    )
             in
             if List.any (.id >> eq_ todoId) todoList then
                 todoList
@@ -863,22 +867,18 @@ viewTodoItemBaseKeyed zone todo =
     ( TodoId.toString todo.id, viewTodoItemBase zone todo )
 
 
-viewTodoItemEditFormKeyed : TodoId -> TodoFormFields -> ( String, Html Msg )
-viewTodoItemEditFormKeyed todoId fields =
-    ( "edit-todo-form-key" {- TodoId.toString todoId -}, viewTodoItemEditForm fields )
-
-
-viewTodoItemEditForm : TodoFormFields -> Html Msg
-viewTodoItemEditForm fields =
+viewTodoItemEditForm : (String -> Msg) -> TodoFormFields -> Html Msg
+viewTodoItemEditForm titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
                 [ H.node "auto-resize-textarea"
-                    [{- A.property "textContent" (JE.string fields.title) -}]
+                    [ A.property "textAreaValue" (JE.string fields.title) ]
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
                         , value fields.title
+                        , onInput titleChangedMsg
                         ]
                         []
                     ]
@@ -898,7 +898,7 @@ viewTodoItemAddForm titleChangedMsg fields =
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
                 [ H.node "auto-resize-textarea"
-                    [{- A.property "textContent" (JE.string fields.title) -}]
+                    [ A.property "textAreaValue" (JE.string fields.title) ]
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
