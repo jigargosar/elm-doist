@@ -805,21 +805,13 @@ viewKeyedTodoItems :
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
-        viewTodoItemBaseKeyed : Todo -> ( String, Html Msg )
-        viewTodoItemBaseKeyed todo =
-            ( TodoId.toString todo.id, viewTodoItemBase here todo )
-
-        viewTodoItemEditFormKeyed : TodoFormFields -> ( String, Html Msg )
-        viewTodoItemEditFormKeyed fields =
-            ( "edit-todo-form-key", viewTodoItemEditForm fields )
-
-        viewTodoItemAddFormKeyed : TodoFormFields -> ( String, Html Msg )
-        viewTodoItemAddFormKeyed fields =
-            ( "add-todo-form-key", viewTodoItemAddForm fields )
+        viewBaseHelp : Todo -> ( String, Html Msg )
+        viewBaseHelp =
+            viewTodoItemBaseKeyed here
     in
     case maybeTodoForm of
         Nothing ->
-            todoList |> List.map viewTodoItemBaseKeyed
+            todoList |> List.map viewBaseHelp
 
         Just (Edit todoId _ currentFields) ->
             todoList
@@ -829,16 +821,31 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                             viewTodoItemEditFormKeyed currentFields
 
                         else
-                            viewTodoItemBaseKeyed todo
+                            viewBaseHelp todo
                     )
 
         Just (Add at fields) ->
             case at of
                 Start ->
-                    viewTodoItemAddFormKeyed fields :: (todoList |> List.map viewTodoItemBaseKeyed)
+                    viewTodoItemAddFormKeyed fields :: (todoList |> List.map viewBaseHelp)
 
                 End ->
-                    (todoList |> List.map viewTodoItemBaseKeyed) ++ [ viewTodoItemAddFormKeyed fields ]
+                    (todoList |> List.map viewBaseHelp) ++ [ viewTodoItemAddFormKeyed fields ]
+
+
+viewTodoItemBaseKeyed : Time.Zone -> Todo -> ( String, Html Msg )
+viewTodoItemBaseKeyed zone todo =
+    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
+
+
+viewTodoItemEditFormKeyed : TodoFormFields -> ( String, Html Msg )
+viewTodoItemEditFormKeyed fields =
+    ( "edit-todo-form-key", viewTodoItemEditForm fields )
+
+
+viewTodoItemAddFormKeyed : TodoFormFields -> ( String, Html Msg )
+viewTodoItemAddFormKeyed fields =
+    ( "add-todo-form-key", viewTodoItemAddForm fields )
 
 
 viewTodoItemEditForm : TodoFormFields -> Html Msg
