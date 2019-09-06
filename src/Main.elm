@@ -833,7 +833,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Just (Edit todoId initialFields fields) ->
             let
                 viewHelp =
-                    ( "edit-todo-form-key" {- TodoId.toString todoId -}
+                    ( "edit-todo-form-key"
                     , viewTodoItemEditForm
                         (\title -> SetTodoForm (Edit todoId initialFields { fields | title = title }))
                         fields
