@@ -39,9 +39,11 @@ customElements.define(
     }
 
     connectedCallback() {
-      const ta = this.textAreaEl
-      resizeTextArea(ta)
-      // ta.addEventListener('input', resizeTextAreaOnInputListener)
+      const textAreaEl = this.textAreaEl
+      if (textAreaEl) {
+        textAreaEl.value = this.textAreaValue
+        resizeTextArea(textAreaEl)
+      }
     }
   },
 )

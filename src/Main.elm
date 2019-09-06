@@ -877,7 +877,6 @@ viewTodoItemEditForm titleChangedMsg fields =
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
-                        , value fields.title
                         , onInput titleChangedMsg
                         ]
                         []
