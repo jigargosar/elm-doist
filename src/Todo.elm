@@ -11,12 +11,13 @@ module Todo exposing
     , decoder
     , dueAtDecoder
     , dueAtEncoder
-    , dueAtPosix
+    , dueAtFromPosix
     , dueAtToMillis
     , dueDateEq
     , encoder
     , filter
     , filterSort
+    , formatDueAt
     , listDecoder
     , listEncoder
     , matchesFilter
@@ -28,6 +29,7 @@ module Todo exposing
 
 import Calendar
 import Compare exposing (Comparator)
+import Date
 import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -43,8 +45,8 @@ type DueAt
     | NoDue
 
 
-dueAtPosix : Time.Posix -> DueAt
-dueAtPosix now =
+dueAtFromPosix : Time.Posix -> DueAt
+dueAtFromPosix now =
     DueAt (Time.posixToMillis now)
 
 
@@ -198,6 +200,21 @@ dueAtToMillis dueAt =
 
         DueAt mi ->
             mi |> Just
+
+
+dueAtToPosix : DueAt -> Maybe Time.Posix
+dueAtToPosix dueAt =
+    case dueAt of
+        NoDue ->
+            Nothing
+
+        DueAt mi ->
+            Just (Time.millisToPosix mi)
+
+
+formatDueAt : String -> Time.Zone -> DueAt -> Maybe String
+formatDueAt formatStr zone =
+    dueAtToPosix >> Maybe.map (Date.fromPosix zone >> Date.format formatStr)
 
 
 dueDateEq : Calendar.Date -> Todo -> Bool

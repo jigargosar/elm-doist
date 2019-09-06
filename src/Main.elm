@@ -8,6 +8,7 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
+import Date
 import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
@@ -427,7 +428,7 @@ update message model =
         AddTodoWithDueTodayClicked ->
             ( model
             , Time.now
-                |> Task.map (\now -> AddTodo "" (Todo.dueAtPosix now) ProjectId.default now)
+                |> Task.map (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default now)
                 |> Task.perform identity
             )
 
@@ -877,16 +878,16 @@ viewTodoItemBase zone todo =
 viewTodoItemDueDate : Zone -> DueAt -> Html Msg
 viewTodoItemDueDate here dueAt =
     div [ class "flex-shrink-0 relative flex" ]
-        [ case Todo.dueAtToMillis dueAt of
+        [ case Todo.formatDueAt "MMM dd" here dueAt of
             Nothing ->
                 IconButton.view NoOp
                     [ class "pa2 child" ]
                     FAR.calendarPlus
                     []
 
-            Just dueMillis ->
+            Just formattedDueAt ->
                 TextButton.view NoOp
-                    (Millis.formatDate "MMM dd" here dueMillis)
+                    formattedDueAt
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
         ]
 
