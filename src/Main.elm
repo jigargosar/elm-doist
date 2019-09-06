@@ -241,9 +241,6 @@ type Msg
       -- TodoListItem Messages
     | EditTodoClicked Todo
       -- TodoForm Messages
-    | SetTodoForm TodoForm
-    | CancelTodoFormClicked
-    | SaveTodoFormClicked
     | TodoFormMsg TodoFormMsg
       -- Project
     | DeleteProjectClicked ProjectId
@@ -396,10 +393,10 @@ update message model =
                         , persistEditingTodoCmd editingTodoId initialFields fields
                         )
 
-        AddTodoClicked newAddAt projectId ->
+        AddTodoClicked addAt projectId ->
             let
                 newTodoForm =
-                    Add newAddAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
                         |> Just
             in
             case model.maybeTodoForm of
@@ -407,7 +404,7 @@ update message model =
                     ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
 
                 Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = Add newAddAt fields |> Just }, Cmd.none )
+                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
 
                 Just (Edit editingTodoId initialFields currentFields) ->
                     ( { model | maybeTodoForm = newTodoForm }
@@ -416,29 +413,6 @@ update message model =
 
         TodoFormMsg msg ->
             onTodoFormMsg msg model
-
-        SetTodoForm todoForm ->
-            ( { model | maybeTodoForm = Just todoForm }, Cmd.none )
-
-        CancelTodoFormClicked ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
-
-        SaveTodoFormClicked ->
-            let
-                newModel =
-                    { model | maybeTodoForm = Nothing }
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( newModel, Cmd.none )
-
-                Just (Edit editingTodoId initialFields currentFields) ->
-                    ( newModel
-                    , persistEditingTodoCmd editingTodoId initialFields currentFields
-                    )
-
-                Just (Add _ fields) ->
-                    ( newModel, persistNewTodoCmd fields )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
