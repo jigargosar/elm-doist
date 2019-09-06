@@ -467,43 +467,12 @@ onAuthStateChanged authState model =
 -- Update: TodoForm Helpers
 
 
-onTodoFormMsg : TodoFormMsg -> Model -> ( Model, Cmd Msg )
+onTodoFormMsg :
+    TodoFormMsg
+    -> { b | maybeTodoForm : Maybe TodoForm }
+    -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd Msg )
 onTodoFormMsg message model =
     case message of
-        Set form ->
-            ( { model | maybeTodoForm = Just form }, Cmd.none )
-
-        Save ->
-            let
-                newModel =
-                    { model | maybeTodoForm = Nothing }
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( newModel, Cmd.none )
-
-                Just (Edit editingTodoId initialFields currentFields) ->
-                    ( newModel
-                    , persistEditingTodoCmd editingTodoId initialFields currentFields
-                    )
-
-                Just (Add _ fields) ->
-                    ( newModel, persistNewTodoCmd fields )
-
-        Delete ->
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just (Edit editingTodoId _ _) ->
-                    ( model, Fire.deleteTodo editingTodoId )
-
-                Just (Add _ fields) ->
-                    ( model, Cmd.none )
-
-        Cancel ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
-
         OpenAdd addAt projectId ->
             let
                 newTodoForm =
@@ -547,6 +516,40 @@ onTodoFormMsg message model =
                         ( { model | maybeTodoForm = newTodoForm }
                         , persistEditingTodoCmd editingTodoId initialFields fields
                         )
+
+        Set form ->
+            ( { model | maybeTodoForm = Just form }, Cmd.none )
+
+        Save ->
+            let
+                newModel =
+                    { model | maybeTodoForm = Nothing }
+            in
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( newModel, Cmd.none )
+
+                Just (Edit editingTodoId initialFields currentFields) ->
+                    ( newModel
+                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    )
+
+                Just (Add _ fields) ->
+                    ( newModel, persistNewTodoCmd fields )
+
+        Delete ->
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just (Edit editingTodoId _ _) ->
+                    ( model, Fire.deleteTodo editingTodoId )
+
+                Just (Add _ fields) ->
+                    ( model, Cmd.none )
+
+        Cancel ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
 persistNewTodoCmd : TodoFormFields -> Cmd Msg
