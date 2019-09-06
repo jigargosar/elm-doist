@@ -1,4 +1,12 @@
-module TodoForm exposing (..)
+module TodoForm exposing
+    ( AddAt(..)
+    , TodoForm(..)
+    , TodoFormFields
+    , TodoFormMsg(..)
+    , TodoFormViewConfig
+    , onTodoFormMsg
+    , viewTodoItemForm
+    )
 
 -- TODO_ FORM
 
@@ -40,16 +48,6 @@ type TodoFormMsg
     | Cancel
     | OpenAdd AddAt ProjectId
     | OpenEdit Todo
-
-
-type alias TodoFormConfig msg =
-    { set : TodoForm -> msg
-    , save : msg
-    , cancel : msg
-    , delete : msg
-    , openAdd : AddAt -> ProjectId -> msg
-    , openEdit : Todo -> msg
-    }
 
 
 
@@ -190,7 +188,21 @@ patchEditingTodoCmd config editingTodoId initialFields currentFields =
         config.patchTodoCmd editingTodoId msgList
 
 
-viewTodoItemForm : TodoFormConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
+
+-- VIEW
+
+
+type alias TodoFormViewConfig msg =
+    { set : TodoForm -> msg
+    , save : msg
+    , cancel : msg
+    , delete : msg
+    , openAdd : AddAt -> ProjectId -> msg
+    , openEdit : Todo -> msg
+    }
+
+
+viewTodoItemForm : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
 viewTodoItemForm config titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]

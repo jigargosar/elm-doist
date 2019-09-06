@@ -179,13 +179,13 @@ init encodedFlags url key =
     )
 
 
-findById : a -> List { b | id : a } -> Maybe { b | id : a }
-findById id =
-    List.filter (.id >> eq_ id)
-        >> List.head
 
-
-
+--
+--findById : a -> List { b | id : a } -> Maybe { b | id : a }
+--findById id =
+--    List.filter (.id >> eq_ id)
+--        >> List.head
+--
 -- MSG
 
 
@@ -216,8 +216,8 @@ type Msg
     | AddProject Time.Posix
 
 
-todoFormMsg : TodoForm.TodoFormConfig Msg
-todoFormMsg =
+todoFormViewConfig : TodoForm.TodoFormViewConfig Msg
+todoFormViewConfig =
     { set = TodoFormMsg << TodoForm.Set
     , save = TodoFormMsg TodoForm.Save
     , cancel = TodoFormMsg TodoForm.Cancel
@@ -691,7 +691,7 @@ viewProjectTodoListPage projectId projectName model =
             projectName
 
         config =
-            todoFormMsg
+            todoFormViewConfig
     in
     masterLayout title
         (div [ class "pv2 vs3" ]
@@ -717,7 +717,7 @@ viewKeyedTodoItems :
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
         config =
-            todoFormMsg
+            todoFormViewConfig
 
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp todo =
@@ -777,7 +777,7 @@ viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase zone todo =
     let
         config =
-            todoFormMsg
+            todoFormViewConfig
     in
     div
         [ class "flex hide-child"
