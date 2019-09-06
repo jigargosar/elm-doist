@@ -18,8 +18,8 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
+import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex, value)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
@@ -818,19 +818,23 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             viewBaseListHelp todoList
 
         Just (Edit todoId _ currentFields) ->
+            let
+                viewHelp =
+                    viewTodoItemEditFormKeyed todoId currentFields
+            in
             if List.any (.id >> eq_ todoId) todoList then
                 todoList
                     |> List.map
                         (\todo ->
                             if todo.id == todoId then
-                                viewTodoItemEditFormKeyed currentFields
+                                viewHelp
 
                             else
                                 viewBaseHelp todo
                         )
 
             else
-                viewTodoItemEditFormKeyed currentFields :: viewBaseListHelp todoList
+                viewHelp :: viewBaseListHelp todoList
 
         Just (Add at fields) ->
             case at of
@@ -846,9 +850,9 @@ viewTodoItemBaseKeyed zone todo =
     ( TodoId.toString todo.id, viewTodoItemBase zone todo )
 
 
-viewTodoItemEditFormKeyed : TodoFormFields -> ( String, Html Msg )
-viewTodoItemEditFormKeyed fields =
-    ( "edit-todo-form-key", viewTodoItemEditForm fields )
+viewTodoItemEditFormKeyed : TodoId -> TodoFormFields -> ( String, Html Msg )
+viewTodoItemEditFormKeyed todoId fields =
+    ( TodoId.toString todoId, viewTodoItemEditForm fields )
 
 
 viewTodoItemAddFormKeyed : TodoFormFields -> ( String, Html Msg )
@@ -858,10 +862,25 @@ viewTodoItemAddFormKeyed fields =
 
 viewTodoItemEditForm : TodoFormFields -> Html Msg
 viewTodoItemEditForm fields =
-    div [ class "flex pa3" ]
-        [ div [ class "flex-grow-1" ] [ text "TODO_ EDIT FORM" ]
-        , TextButton.primary SaveTodoFormClicked "Save" []
-        , TextButton.primary CancelTodoFormClicked "Cancel" []
+    div [ class "pa3" ]
+        [ div [ class "flex" ]
+            [ div [ class "flex-grow-1" ]
+                [ H.node "auto-resize-textarea"
+                    []
+                    [ textarea
+                        [ class "pa0 lh-copy overflow-hidden w-100"
+                        , rows 1
+                        , value fields.title
+                        ]
+                        []
+                    ]
+                ]
+            , div [] [ text "schedule" ]
+            ]
+        , div [ class "flex hs3 lh-copy" ]
+            [ TextButton.primary SaveTodoFormClicked "Save" []
+            , TextButton.primary CancelTodoFormClicked "Cancel" []
+            ]
         ]
 
 
