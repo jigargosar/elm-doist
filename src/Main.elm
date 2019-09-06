@@ -375,7 +375,14 @@ update message model =
             )
 
         TodoFormMsg msg ->
-            onTodoFormMsg msg model
+            onTodoFormMsg
+                { patchTodoCmd =
+                    \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
+                , addNewTodoCmd =
+                    \fields -> getNow (AddTodo fields.title fields.dueAt fields.projectId)
+                }
+                msg
+                model
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
@@ -468,10 +475,22 @@ onAuthStateChanged authState model =
 
 
 onTodoFormMsg :
-    TodoFormMsg
+    { patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg
+    , addNewTodoCmd : TodoFormFields -> Cmd msg
+    }
+    -> TodoFormMsg
     -> { b | maybeTodoForm : Maybe TodoForm }
-    -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd Msg )
-onTodoFormMsg message model =
+    -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
+onTodoFormMsg config message model =
+    let
+        persistEditing : TodoId -> TodoFormFields -> TodoFormFields -> Cmd msg
+        persistEditing =
+            patchEditingTodoCmd config
+
+        persistNew : TodoFormFields -> Cmd msg
+        persistNew =
+            persistNewTodoCmd config
+    in
     case message of
         OpenAdd addAt projectId ->
             let
@@ -488,7 +507,7 @@ onTodoFormMsg message model =
 
                 Just (Edit editingTodoId initialFields currentFields) ->
                     ( { model | maybeTodoForm = newTodoForm }
-                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    , persistEditing editingTodoId initialFields currentFields
                     )
 
         OpenEdit todo ->
@@ -505,7 +524,7 @@ onTodoFormMsg message model =
 
                 Just (Add _ fields) ->
                     ( { model | maybeTodoForm = newTodoForm }
-                    , persistNewTodoCmd fields
+                    , persistNew fields
                     )
 
                 Just (Edit editingTodoId initialFields fields) ->
@@ -514,7 +533,7 @@ onTodoFormMsg message model =
 
                     else
                         ( { model | maybeTodoForm = newTodoForm }
-                        , persistEditingTodoCmd editingTodoId initialFields fields
+                        , persistEditing editingTodoId initialFields fields
                         )
 
         Set form ->
@@ -531,11 +550,11 @@ onTodoFormMsg message model =
 
                 Just (Edit editingTodoId initialFields currentFields) ->
                     ( newModel
-                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    , persistEditing editingTodoId initialFields currentFields
                     )
 
                 Just (Add _ fields) ->
-                    ( newModel, persistNewTodoCmd fields )
+                    ( newModel, persistNew fields )
 
         Delete ->
             case model.maybeTodoForm of
@@ -552,17 +571,15 @@ onTodoFormMsg message model =
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
-persistNewTodoCmd : TodoFormFields -> Cmd Msg
-persistNewTodoCmd fields =
+persistNewTodoCmd config fields =
     if SX.isBlank fields.title then
         Cmd.none
 
     else
-        getNow (AddTodo fields.title fields.dueAt fields.projectId)
+        config.addNewTodoCmd fields
 
 
-persistEditingTodoCmd : TodoId -> TodoFormFields -> TodoFormFields -> Cmd Msg
-persistEditingTodoCmd editingTodoId initialFields currentFields =
+patchEditingTodoCmd config editingTodoId initialFields currentFields =
     let
         msgList : List Todo.Msg
         msgList =
@@ -588,7 +605,7 @@ persistEditingTodoCmd editingTodoId initialFields currentFields =
         Cmd.none
 
     else
-        getNow <| PatchTodoWithNow editingTodoId msgList
+        config.patchTodoCmd editingTodoId msgList
 
 
 
