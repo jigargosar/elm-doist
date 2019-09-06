@@ -17,14 +17,14 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled as H exposing (Attribute, Html, a, div, text)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
+import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -39,6 +39,7 @@ import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
+import TodoForm
 import TodoId exposing (TodoId)
 import TodoPopup
 import UI.Button as Button
@@ -77,36 +78,13 @@ flagsDecoder =
 
 
 
--- TODO_ FORM
-
-
-type alias TodoFormFields =
-    { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
-
-
-initTodoFormFields : Todo -> TodoFormFields
-initTodoFormFields todo =
-    { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
-
-
-type AddAt
-    = Start
-    | End
-
-
-type TodoForm
-    = Edit TodoId TodoFormFields TodoFormFields
-    | Add AddAt TodoFormFields
-
-
-
 -- MODEL
 
 
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeTodoForm : Maybe TodoForm
+    , maybeTodoForm : Maybe TodoForm.TodoForm
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -211,15 +189,6 @@ findById id =
 -- MSG
 
 
-type TodoFormMsg
-    = Save
-    | Set TodoForm
-    | Delete
-    | Cancel
-    | OpenAdd AddAt ProjectId
-    | OpenEdit Todo
-
-
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -240,31 +209,21 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoForm Messages
-    | TodoFormMsg TodoFormMsg
+    | TodoFormMsg TodoForm.TodoFormMsg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
     | AddProject Time.Posix
 
 
-type alias TodoFormConfig msg =
-    { set : TodoForm -> msg
-    , save : msg
-    , cancel : msg
-    , delete : msg
-    , add : AddAt -> ProjectId -> msg
-    , edit : Todo -> msg
-    }
-
-
-todoFormConfig : TodoFormConfig Msg
-todoFormConfig =
-    { set = TodoFormMsg << Set
-    , save = TodoFormMsg Save
-    , cancel = TodoFormMsg Cancel
-    , delete = TodoFormMsg Delete
-    , add = \addAt projectId -> TodoFormMsg <| OpenAdd addAt projectId
-    , edit = TodoFormMsg << OpenEdit
+todoFormMsg : TodoForm.TodoFormConfig Msg
+todoFormMsg =
+    { set = TodoFormMsg << TodoForm.Set
+    , save = TodoFormMsg TodoForm.Save
+    , cancel = TodoFormMsg TodoForm.Cancel
+    , delete = TodoFormMsg TodoForm.Delete
+    , openAdd = \addAt projectId -> TodoFormMsg <| TodoForm.OpenAdd addAt projectId
+    , openEdit = TodoFormMsg << TodoForm.OpenEdit
     }
 
 
@@ -375,7 +334,7 @@ update message model =
             )
 
         TodoFormMsg msg ->
-            onTodoFormMsg
+            TodoForm.onTodoFormMsg
                 { patchTodoCmd =
                     \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
                 , addNewTodoCmd =
@@ -468,144 +427,6 @@ onAuthStateChanged authState model =
             ( "cachedAuthState", AuthState.encoder authState )
         ]
     )
-
-
-
--- Update: TodoForm Helpers
-
-
-onTodoFormMsg :
-    { patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg
-    , addNewTodoCmd : TodoFormFields -> Cmd msg
-    }
-    -> TodoFormMsg
-    -> { b | maybeTodoForm : Maybe TodoForm }
-    -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
-onTodoFormMsg config message model =
-    let
-        persistEditing : TodoId -> TodoFormFields -> TodoFormFields -> Cmd msg
-        persistEditing =
-            patchEditingTodoCmd config
-
-        persistNew : TodoFormFields -> Cmd msg
-        persistNew =
-            persistNewTodoCmd config
-    in
-    case message of
-        OpenAdd addAt projectId ->
-            let
-                newTodoForm =
-                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
-                        |> Just
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
-
-                Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
-
-                Just (Edit editingTodoId initialFields currentFields) ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , persistEditing editingTodoId initialFields currentFields
-                    )
-
-        OpenEdit todo ->
-            let
-                newTodoForm =
-                    Edit todo.id (initTodoFormFields todo) (initTodoFormFields todo)
-                        |> Just
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , Cmd.none
-                    )
-
-                Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , persistNew fields
-                    )
-
-                Just (Edit editingTodoId initialFields fields) ->
-                    if editingTodoId == todo.id then
-                        ( model, Cmd.none )
-
-                    else
-                        ( { model | maybeTodoForm = newTodoForm }
-                        , persistEditing editingTodoId initialFields fields
-                        )
-
-        Set form ->
-            ( { model | maybeTodoForm = Just form }, Cmd.none )
-
-        Save ->
-            let
-                newModel =
-                    { model | maybeTodoForm = Nothing }
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( newModel, Cmd.none )
-
-                Just (Edit editingTodoId initialFields currentFields) ->
-                    ( newModel
-                    , persistEditing editingTodoId initialFields currentFields
-                    )
-
-                Just (Add _ fields) ->
-                    ( newModel, persistNew fields )
-
-        Delete ->
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just (Edit editingTodoId _ _) ->
-                    ( model, Fire.deleteTodo editingTodoId )
-
-                Just (Add _ fields) ->
-                    ( model, Cmd.none )
-
-        Cancel ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
-
-
-persistNewTodoCmd config fields =
-    if SX.isBlank fields.title then
-        Cmd.none
-
-    else
-        config.addNewTodoCmd fields
-
-
-patchEditingTodoCmd config editingTodoId initialFields currentFields =
-    let
-        msgList : List Todo.Msg
-        msgList =
-            [ if initialFields.title /= currentFields.title then
-                Just <| Todo.SetTitle currentFields.title
-
-              else
-                Nothing
-            , if initialFields.dueAt /= currentFields.dueAt then
-                Just <| Todo.SetDueAt currentFields.dueAt
-
-              else
-                Nothing
-            , if initialFields.projectId /= currentFields.projectId then
-                Just <| Todo.SetProjectId currentFields.projectId
-
-              else
-                Nothing
-            ]
-                |> List.filterMap identity
-    in
-    if List.isEmpty msgList then
-        Cmd.none
-
-    else
-        config.patchTodoCmd editingTodoId msgList
 
 
 
@@ -870,16 +691,16 @@ viewProjectTodoListPage projectId projectName model =
             projectName
 
         config =
-            todoFormConfig
+            todoFormMsg
     in
     masterLayout title
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (config.add Start projectId) "add task" []
+                , TextButton.primary (config.openAdd TodoForm.Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (config.add End projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (config.openAdd TodoForm.End projectId) "add task" [] ]
             ]
         )
         model
@@ -890,13 +711,13 @@ viewProjectTodoListPage projectId projectName model =
 
 
 viewKeyedTodoItems :
-    { a | here : Zone, maybeTodoForm : Maybe TodoForm }
+    { a | here : Zone, maybeTodoForm : Maybe TodoForm.TodoForm }
     -> List Todo
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
         config =
-            todoFormConfig
+            todoFormMsg
 
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp todo =
@@ -910,13 +731,13 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Nothing ->
             viewBaseListHelp todoList
 
-        Just (Edit todoId initialFields fields) ->
+        Just (TodoForm.Edit todoId initialFields fields) ->
             let
                 viewHelp =
                     ( "edit-todo-form-key"
-                    , viewTodoItemForm
+                    , TodoForm.viewTodoItemForm
                         config
-                        (\title -> config.set (Edit todoId initialFields { fields | title = title }))
+                        (\title -> config.set (TodoForm.Edit todoId initialFields { fields | title = title }))
                         fields
                     )
             in
@@ -934,60 +755,35 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             else
                 viewHelp :: viewBaseListHelp todoList
 
-        Just (Add at fields) ->
+        Just (TodoForm.Add at fields) ->
             let
                 viewHelp =
                     ( "add-todo-form-key"
-                    , viewTodoItemForm
+                    , TodoForm.viewTodoItemForm
                         config
-                        (\title -> config.set (Add at { fields | title = title }))
+                        (\title -> config.set (TodoForm.Add at { fields | title = title }))
                         fields
                     )
             in
             case at of
-                Start ->
+                TodoForm.Start ->
                     viewHelp :: viewBaseListHelp todoList
 
-                End ->
+                TodoForm.End ->
                     viewBaseListHelp todoList ++ [ viewHelp ]
-
-
-viewTodoItemForm : TodoFormConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
-viewTodoItemForm config titleChangedMsg fields =
-    div [ class "pa3" ]
-        [ div [ class "flex" ]
-            [ div [ class "flex-grow-1" ]
-                [ H.node "auto-resize-textarea"
-                    [ A.property "textAreaValue" (JE.string fields.title) ]
-                    [ textarea
-                        [ class "pa0 lh-copy overflow-hidden w-100"
-                        , rows 1
-                        , onInput titleChangedMsg
-                        ]
-                        []
-                    ]
-                ]
-            , div [] [ text "schedule" ]
-            ]
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary config.save "Save" []
-            , TextButton.primary config.cancel "Cancel" []
-            , TextButton.primary config.delete "Delete" []
-            ]
-        ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase zone todo =
     let
         config =
-            todoFormConfig
+            todoFormMsg
     in
     div
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
-        , viewTodoItemTitle (config.edit todo) todo.title
+        , viewTodoItemTitle (config.openEdit todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
