@@ -439,9 +439,17 @@ update message model =
             )
 
 
+
+-- Update Helpers
+
+
 getNow : (Time.Posix -> msg) -> Cmd msg
 getNow msg =
     Task.perform msg Time.now
+
+
+
+-- Update Fire Helpers
 
 
 onFirestoreQueryResponse : FirestoreQueryResponse -> Model -> Return
@@ -496,7 +504,7 @@ onAuthStateChanged authState model =
 
 
 
--- TodoForm Update
+-- Update TodoForm Helpers
 
 
 persistNewTodoCmd : TodoFormFields -> Cmd Msg
@@ -823,8 +831,8 @@ viewKeyedTodoItems :
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
         viewBaseHelp : Todo -> ( String, Html Msg )
-        viewBaseHelp =
-            viewTodoItemBaseKeyed here
+        viewBaseHelp todo =
+            ( TodoId.toString todo.id, viewTodoItemBase here todo )
 
         viewBaseListHelp : List Todo -> List ( String, Html Msg )
         viewBaseListHelp =
@@ -838,7 +846,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             let
                 viewHelp =
                     ( "edit-todo-form-key"
-                    , viewTodoItemEditForm
+                    , viewTodoItemForm
                         (\title -> SetTodoForm (Edit todoId initialFields { fields | title = title }))
                         fields
                     )
@@ -861,7 +869,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             let
                 viewHelp =
                     ( "add-todo-form-key"
-                    , viewTodoItemAddForm
+                    , viewTodoItemForm
                         (\title -> SetTodoForm (Add at { fields | title = title }))
                         fields
                     )
@@ -874,13 +882,8 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     viewBaseListHelp todoList ++ [ viewHelp ]
 
 
-viewTodoItemBaseKeyed : Time.Zone -> Todo -> ( String, Html Msg )
-viewTodoItemBaseKeyed zone todo =
-    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
-
-
-viewTodoItemEditForm : (String -> Msg) -> TodoFormFields -> Html Msg
-viewTodoItemEditForm titleChangedMsg fields =
+viewTodoItemForm : (String -> Msg) -> TodoFormFields -> Html Msg
+viewTodoItemForm titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
@@ -889,31 +892,6 @@ viewTodoItemEditForm titleChangedMsg fields =
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
-                        , onInput titleChangedMsg
-                        ]
-                        []
-                    ]
-                ]
-            , div [] [ text "schedule" ]
-            ]
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary SaveTodoFormClicked "Save" []
-            , TextButton.primary CancelTodoFormClicked "Cancel" []
-            ]
-        ]
-
-
-viewTodoItemAddForm : (String -> Msg) -> TodoFormFields -> Html Msg
-viewTodoItemAddForm titleChangedMsg fields =
-    div [ class "pa3" ]
-        [ div [ class "flex" ]
-            [ div [ class "flex-grow-1" ]
-                [ H.node "auto-resize-textarea"
-                    [ A.property "textAreaValue" (JE.string fields.title) ]
-                    [ textarea
-                        [ class "pa0 lh-copy overflow-hidden w-100"
-                        , rows 1
-                        , value fields.title
                         , onInput titleChangedMsg
                         ]
                         []
