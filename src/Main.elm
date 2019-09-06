@@ -216,6 +216,8 @@ type TodoFormMsg
     | Set TodoForm
     | Delete
     | Cancel
+    | OpenAdd AddAt ProjectId
+    | OpenEdit Todo
 
 
 type Msg
@@ -532,6 +534,50 @@ onTodoFormMsg message model =
 
         Cancel ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+        OpenAdd addAt projectId ->
+            let
+                newTodoForm =
+                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+                        |> Just
+            in
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
+
+                Just (Add _ fields) ->
+                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
+
+                Just (Edit editingTodoId initialFields currentFields) ->
+                    ( { model | maybeTodoForm = newTodoForm }
+                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    )
+
+        OpenEdit todo ->
+            let
+                newTodoForm =
+                    Edit todo.id (initTodoFormFields todo) (initTodoFormFields todo)
+                        |> Just
+            in
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( { model | maybeTodoForm = newTodoForm }
+                    , Cmd.none
+                    )
+
+                Just (Add _ fields) ->
+                    ( { model | maybeTodoForm = newTodoForm }
+                    , persistNewTodoCmd fields
+                    )
+
+                Just (Edit editingTodoId initialFields fields) ->
+                    if editingTodoId == todo.id then
+                        ( model, Cmd.none )
+
+                    else
+                        ( { model | maybeTodoForm = newTodoForm }
+                        , persistEditingTodoCmd editingTodoId initialFields fields
+                        )
 
 
 persistNewTodoCmd : TodoFormFields -> Cmd Msg
