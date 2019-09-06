@@ -8,7 +8,6 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
-import Date
 import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
@@ -19,7 +18,7 @@ import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex, value)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex)
 import Html.Styled.Events exposing (onClick, onInput)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
@@ -210,6 +209,13 @@ findById id =
 
 
 -- MSG
+
+
+type TodoFormMsg
+    = Save
+    | Set
+    | Delete
+    | Cancel
 
 
 type Msg
