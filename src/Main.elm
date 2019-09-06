@@ -491,7 +491,15 @@ onTodoFormMsg message model =
                     ( newModel, persistNewTodoCmd fields )
 
         Delete ->
-            ( model, Cmd.none )
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just (Edit editingTodoId _ _) ->
+                    ( model, Fire.deleteTodo editingTodoId )
+
+                Just (Add _ fields) ->
+                    ( model, Cmd.none )
 
         Cancel ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
@@ -944,6 +952,7 @@ viewTodoItemForm config titleChangedMsg fields =
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary config.save "Save" []
             , TextButton.primary config.cancel "Cancel" []
+            , TextButton.primary config.delete "Delete" []
             ]
         ]
 
