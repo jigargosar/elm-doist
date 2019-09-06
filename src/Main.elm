@@ -799,12 +799,15 @@ viewProjectTodoListPage projectId projectName model =
 -- TodoItem
 
 
-viewKeyedTodoItems : Model -> List Todo -> List ( String, Html Msg )
-viewKeyedTodoItems model todoList =
+viewKeyedTodoItems :
+    { a | here : Zone, maybeTodoForm : Maybe TodoForm }
+    -> List Todo
+    -> List ( String, Html Msg )
+viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
         viewBaseKeyed : Todo -> ( String, Html Msg )
         viewBaseKeyed todo =
-            ( TodoId.toString todo.id, viewTodoItemBase model.here todo )
+            ( TodoId.toString todo.id, viewTodoItemBase here todo )
 
         viewEditKeyed : TodoFormFields -> ( String, Html Msg )
         viewEditKeyed fields =
@@ -814,7 +817,7 @@ viewKeyedTodoItems model todoList =
         viewAddKeyed fields =
             ( "add-todo-form-key", viewTodoItemAddForm fields )
     in
-    case model.maybeTodoForm of
+    case maybeTodoForm of
         Nothing ->
             todoList |> List.map viewBaseKeyed
 
