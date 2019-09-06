@@ -808,10 +808,14 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp =
             viewTodoItemBaseKeyed here
+
+        viewBaseListHelp : List Todo -> List ( String, Html Msg )
+        viewBaseListHelp =
+            List.map viewBaseHelp
     in
     case maybeTodoForm of
         Nothing ->
-            todoList |> List.map viewBaseHelp
+            viewBaseListHelp todoList
 
         Just (Edit todoId _ currentFields) ->
             todoList
@@ -827,10 +831,10 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Just (Add at fields) ->
             case at of
                 Start ->
-                    viewTodoItemAddFormKeyed fields :: (todoList |> List.map viewBaseHelp)
+                    viewTodoItemAddFormKeyed fields :: viewBaseListHelp todoList
 
                 End ->
-                    (todoList |> List.map viewBaseHelp) ++ [ viewTodoItemAddFormKeyed fields ]
+                    viewBaseListHelp todoList ++ [ viewTodoItemAddFormKeyed fields ]
 
 
 viewTodoItemBaseKeyed : Time.Zone -> Todo -> ( String, Html Msg )
