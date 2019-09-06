@@ -233,7 +233,7 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoListItem Messages
-    | EditTodoClicked TodoId
+    | EditTodoClicked Todo
       -- TodoForm Messages
     | SetTodoForm TodoForm
     | CancelTodoFormClicked
@@ -350,38 +350,31 @@ update message model =
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
 
-        EditTodoClicked todoId ->
-            case
-                findById todoId model.todoList
-            of
+        EditTodoClicked todo ->
+            let
+                newTodoForm =
+                    Edit todo.id (initTodoFormFields todo) (initTodoFormFields todo)
+                        |> Just
+            in
+            case model.maybeTodoForm of
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( { model | maybeTodoForm = newTodoForm }
+                    , Cmd.none
+                    )
 
-                Just todo ->
-                    let
-                        newTodoForm =
-                            Edit todoId (initTodoFormFields todo) (initTodoFormFields todo)
-                                |> Just
-                    in
-                    case model.maybeTodoForm of
-                        Nothing ->
-                            ( { model | maybeTodoForm = newTodoForm }
-                            , Cmd.none
-                            )
+                Just (Add _ fields) ->
+                    ( { model | maybeTodoForm = newTodoForm }
+                    , persistNewTodoCmd fields
+                    )
 
-                        Just (Add _ fields) ->
-                            ( { model | maybeTodoForm = newTodoForm }
-                            , persistNewTodoCmd fields
-                            )
+                Just (Edit editingTodoId initialFields currentFields) ->
+                    if editingTodoId == todo.id then
+                        ( model, Cmd.none )
 
-                        Just (Edit editingTodoId initialFields currentFields) ->
-                            if editingTodoId == todo.id then
-                                ( model, Cmd.none )
-
-                            else
-                                ( { model | maybeTodoForm = newTodoForm }
-                                , persistEditingTodoCmd editingTodoId initialFields currentFields
-                                )
+                    else
+                        ( { model | maybeTodoForm = newTodoForm }
+                        , persistEditingTodoCmd editingTodoId initialFields currentFields
+                        )
 
         AddTodoClicked newAddAt projectId ->
             let
@@ -937,7 +930,7 @@ viewTodoItemBase zone todo =
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
-        , viewTodoItemTitle (EditTodoClicked todo.id) todo.title
+        , viewTodoItemTitle (EditTodoClicked todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
