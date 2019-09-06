@@ -734,7 +734,7 @@ todayContent model =
         nowDate =
             model.today
 
-        displayTodoList =
+        todayList =
             List.filter (Todo.dueDateEq nowDate)
                 model.todoList
                 |> List.filter (.isDone >> not)
@@ -764,7 +764,7 @@ todayContent model =
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                 , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                 ]
-            , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
+            , HK.node "div" [ class "" ] (viewKeyedTodoItems model todayList)
             ]
         ]
 
