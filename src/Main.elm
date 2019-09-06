@@ -439,45 +439,6 @@ update message model =
             )
 
 
-persistNewTodoCmd : TodoFormFields -> Cmd Msg
-persistNewTodoCmd fields =
-    if SX.isBlank fields.title then
-        Cmd.none
-
-    else
-        getNow (AddTodo fields.title fields.dueAt fields.projectId)
-
-
-persistEditingTodoCmd : TodoId -> TodoFormFields -> TodoFormFields -> Cmd Msg
-persistEditingTodoCmd editingTodoId initialFields currentFields =
-    let
-        msgList : List Todo.Msg
-        msgList =
-            [ if initialFields.title /= currentFields.title then
-                Just <| Todo.SetTitle currentFields.title
-
-              else
-                Nothing
-            , if initialFields.dueAt /= currentFields.dueAt then
-                Just <| Todo.SetDueAt currentFields.dueAt
-
-              else
-                Nothing
-            , if initialFields.projectId /= currentFields.projectId then
-                Just <| Todo.SetProjectId currentFields.projectId
-
-              else
-                Nothing
-            ]
-                |> List.filterMap identity
-    in
-    if List.isEmpty msgList then
-        Cmd.none
-
-    else
-        getNow <| PatchTodoWithNow editingTodoId msgList
-
-
 getNow : (Time.Posix -> msg) -> Cmd msg
 getNow msg =
     Task.perform msg Time.now
@@ -532,6 +493,49 @@ onAuthStateChanged authState model =
             ( "cachedAuthState", AuthState.encoder authState )
         ]
     )
+
+
+
+-- TodoForm Update
+
+
+persistNewTodoCmd : TodoFormFields -> Cmd Msg
+persistNewTodoCmd fields =
+    if SX.isBlank fields.title then
+        Cmd.none
+
+    else
+        getNow (AddTodo fields.title fields.dueAt fields.projectId)
+
+
+persistEditingTodoCmd : TodoId -> TodoFormFields -> TodoFormFields -> Cmd Msg
+persistEditingTodoCmd editingTodoId initialFields currentFields =
+    let
+        msgList : List Todo.Msg
+        msgList =
+            [ if initialFields.title /= currentFields.title then
+                Just <| Todo.SetTitle currentFields.title
+
+              else
+                Nothing
+            , if initialFields.dueAt /= currentFields.dueAt then
+                Just <| Todo.SetDueAt currentFields.dueAt
+
+              else
+                Nothing
+            , if initialFields.projectId /= currentFields.projectId then
+                Just <| Todo.SetProjectId currentFields.projectId
+
+              else
+                Nothing
+            ]
+                |> List.filterMap identity
+    in
+    if List.isEmpty msgList then
+        Cmd.none
+
+    else
+        getNow <| PatchTodoWithNow editingTodoId msgList
 
 
 
