@@ -367,13 +367,13 @@ update message model =
                     , persistNewTodoCmd fields
                     )
 
-                Just (Edit editingTodoId initialFields currentFields) ->
+                Just (Edit editingTodoId initialFields fields) ->
                     if editingTodoId == todo.id then
                         ( model, Cmd.none )
 
                     else
                         ( { model | maybeTodoForm = newTodoForm }
-                        , persistEditingTodoCmd editingTodoId initialFields currentFields
+                        , persistEditingTodoCmd editingTodoId initialFields fields
                         )
 
         AddTodoClicked newAddAt projectId ->
