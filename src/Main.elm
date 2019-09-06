@@ -233,15 +233,12 @@ type Msg
     | SignInClicked
     | SignOutClicked
       -- NewTodoOperations
-    | AddTodoClicked AddAt ProjectId
     | AddTodo String DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
     | DeleteTodoClicked TodoId
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
-      -- TodoListItem Messages
-    | EditTodoClicked Todo
       -- TodoForm Messages
     | TodoFormMsg TodoFormMsg
       -- Project
@@ -251,7 +248,13 @@ type Msg
 
 
 type alias TodoFormConfig msg =
-    { set : TodoForm -> msg, save : msg, cancel : msg, delete : msg }
+    { set : TodoForm -> msg
+    , save : msg
+    , cancel : msg
+    , delete : msg
+    , add : AddAt -> ProjectId -> msg
+    , edit : Todo -> msg
+    }
 
 
 todoFormConfig : TodoFormConfig Msg
@@ -260,6 +263,8 @@ todoFormConfig =
     , save = TodoFormMsg Save
     , cancel = TodoFormMsg Cancel
     , delete = TodoFormMsg Delete
+    , add = \addAt projectId -> TodoFormMsg <| OpenAdd addAt projectId
+    , edit = TodoFormMsg << OpenEdit
     }
 
 
@@ -368,50 +373,6 @@ update message model =
             ( model
             , Fire.updateTodo todoId (Todo.patch todoMsgList now)
             )
-
-        EditTodoClicked todo ->
-            let
-                newTodoForm =
-                    Edit todo.id (initTodoFormFields todo) (initTodoFormFields todo)
-                        |> Just
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , Cmd.none
-                    )
-
-                Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , persistNewTodoCmd fields
-                    )
-
-                Just (Edit editingTodoId initialFields fields) ->
-                    if editingTodoId == todo.id then
-                        ( model, Cmd.none )
-
-                    else
-                        ( { model | maybeTodoForm = newTodoForm }
-                        , persistEditingTodoCmd editingTodoId initialFields fields
-                        )
-
-        AddTodoClicked addAt projectId ->
-            let
-                newTodoForm =
-                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
-                        |> Just
-            in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
-
-                Just (Add _ fields) ->
-                    ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
-
-                Just (Edit editingTodoId initialFields currentFields) ->
-                    ( { model | maybeTodoForm = newTodoForm }
-                    , persistEditingTodoCmd editingTodoId initialFields currentFields
-                    )
 
         TodoFormMsg msg ->
             onTodoFormMsg msg model
@@ -879,15 +840,18 @@ viewProjectTodoListPage projectId projectName model =
 
         title =
             projectName
+
+        config =
+            todoFormConfig
     in
     masterLayout title
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (AddTodoClicked Start projectId) "add task" []
+                , TextButton.primary (config.add Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (AddTodoClicked End projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (config.add End projectId) "add task" [] ]
             ]
         )
         model
@@ -986,11 +950,15 @@ viewTodoItemForm config titleChangedMsg fields =
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase zone todo =
+    let
+        config =
+            todoFormConfig
+    in
     div
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
-        , viewTodoItemTitle (EditTodoClicked todo) todo.title
+        , viewTodoItemTitle (config.edit todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
