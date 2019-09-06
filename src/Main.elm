@@ -861,9 +861,9 @@ viewTodoItemBase zone todo =
     div
         [ class "flex hide-child"
         ]
-        [ viewTodoItemDoneCheckbox todo.isDone (todoDoneCheckedMsg todo.id)
+        [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
         , viewTodoItemTitle (EditTodoClicked todo.id) todo.title
-        , viewTodoItemDueDate zone todo.dueAt
+        , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
@@ -875,25 +875,25 @@ viewTodoItemBase zone todo =
         ]
 
 
-viewTodoItemDueDate : Zone -> DueAt -> Html Msg
-viewTodoItemDueDate here dueAt =
+viewTodoItemDueDate : msg -> Zone -> DueAt -> Html msg
+viewTodoItemDueDate clickMsg here dueAt =
     div [ class "flex-shrink-0 relative flex" ]
         [ case Todo.formatDueAt "MMM dd" here dueAt of
             Nothing ->
-                IconButton.view NoOp
+                IconButton.view clickMsg
                     [ class "pa2 child" ]
                     FAR.calendarPlus
                     []
 
             Just formattedDueAt ->
-                TextButton.view NoOp
+                TextButton.view clickMsg
                     formattedDueAt
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
         ]
 
 
-viewTodoItemDoneCheckbox : Bool -> (Bool -> msg) -> Html msg
-viewTodoItemDoneCheckbox isChecked setCheckedMsg =
+viewTodoItemDoneCheckbox : (Bool -> msg) -> Bool -> Html msg
+viewTodoItemDoneCheckbox checkedMsg isChecked =
     let
         faCheckBtn action icon =
             IconButton.view action
@@ -902,8 +902,8 @@ viewTodoItemDoneCheckbox isChecked setCheckedMsg =
                 [ FAA.lg ]
     in
     ifElse isChecked
-        (faCheckBtn (setCheckedMsg False) FAR.checkCircle)
-        (faCheckBtn (setCheckedMsg True) FAR.circle)
+        (faCheckBtn (checkedMsg False) FAR.checkCircle)
+        (faCheckBtn (checkedMsg True) FAR.circle)
 
 
 viewTodoItemTitle : Msg -> String -> Html Msg
