@@ -63,6 +63,4 @@ type alias FirestoreQueryResponse =
     { id : String, docDataList : Value }
 
 
-port onFirestoreQueryResponse :
-    (FirestoreQueryResponse -> msg)
-    -> Sub msg
+port onFirestoreQueryResponse : (FirestoreQueryResponse -> msg) -> Sub msg

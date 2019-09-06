@@ -129,6 +129,9 @@ initSubs({
     fire.addDisposerWithId(
       options.id,
       query.onSnapshot(qs => {
+        if(qs.docChanges().length === 0){
+            return
+        }
         const docDataList = qs.docs.map(ds => ds.data())
         const response = { id: options.id, docDataList }
         pubs.onFirestoreQueryResponse(response)
