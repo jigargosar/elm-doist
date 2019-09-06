@@ -808,11 +808,11 @@ viewKeyedTodoItems model todoList =
 
         viewEditKeyed : TodoFormFields -> ( String, Html Msg )
         viewEditKeyed fields =
-            ( "edit-todo-form-key", viewEditTodoItem fields )
+            ( "edit-todo-form-key", viewTodoItemEditForm fields )
 
         viewAddKeyed : TodoFormFields -> ( String, Html Msg )
         viewAddKeyed fields =
-            ( "add-todo-form-key", viewAddTodoItem fields )
+            ( "add-todo-form-key", viewTodoItemAddForm fields )
     in
     case model.maybeTodoForm of
         Nothing ->
@@ -838,8 +838,8 @@ viewKeyedTodoItems model todoList =
                     (todoList |> List.map viewBaseKeyed) ++ [ viewAddKeyed fields ]
 
 
-viewEditTodoItem : TodoFormFields -> Html Msg
-viewEditTodoItem fields =
+viewTodoItemEditForm : TodoFormFields -> Html Msg
+viewTodoItemEditForm fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ EDIT FORM" ]
         , TextButton.primary SaveTodoFormClicked "Save" []
@@ -847,8 +847,8 @@ viewEditTodoItem fields =
         ]
 
 
-viewAddTodoItem : TodoFormFields -> Html Msg
-viewAddTodoItem fields =
+viewTodoItemAddForm : TodoFormFields -> Html Msg
+viewTodoItemAddForm fields =
     div [ class "flex pa3" ]
         [ div [ class "flex-grow-1" ] [ text "TODO_ ADD FORM" ]
         , TextButton.primary SaveTodoFormClicked "Save" []
