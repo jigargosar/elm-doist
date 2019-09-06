@@ -213,7 +213,7 @@ findById id =
 
 type TodoFormMsg
     = Save
-    | Set
+    | Set TodoForm
     | Delete
     | Cancel
 
@@ -244,10 +244,24 @@ type Msg
     | SetTodoForm TodoForm
     | CancelTodoFormClicked
     | SaveTodoFormClicked
+    | TodoFormMsg TodoFormMsg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
     | AddProject Time.Posix
+
+
+type alias TodoFormConfig msg =
+    { set : TodoForm -> msg, save : msg, cancel : msg, delete : msg }
+
+
+todoFormConfig : TodoFormConfig Msg
+todoFormConfig =
+    { set = TodoFormMsg << Set
+    , save = TodoFormMsg Save
+    , cancel = TodoFormMsg Cancel
+    , delete = TodoFormMsg Delete
+    }
 
 
 
@@ -400,6 +414,9 @@ update message model =
                     , persistEditingTodoCmd editingTodoId initialFields currentFields
                     )
 
+        TodoFormMsg msg ->
+            onTodoFormMsg msg model
+
         SetTodoForm todoForm ->
             ( { model | maybeTodoForm = Just todoForm }, Cmd.none )
 
@@ -510,7 +527,37 @@ onAuthStateChanged authState model =
 
 
 
--- Update TodoForm Helpers
+-- Update: TodoForm Helpers
+
+
+onTodoFormMsg : TodoFormMsg -> Model -> Return
+onTodoFormMsg message model =
+    case message of
+        Set form ->
+            ( { model | maybeTodoForm = Just form }, Cmd.none )
+
+        Save ->
+            let
+                newModel =
+                    { model | maybeTodoForm = Nothing }
+            in
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( newModel, Cmd.none )
+
+                Just (Edit editingTodoId initialFields currentFields) ->
+                    ( newModel
+                    , persistEditingTodoCmd editingTodoId initialFields currentFields
+                    )
+
+                Just (Add _ fields) ->
+                    ( newModel, persistNewTodoCmd fields )
+
+        Delete ->
+            ( model, Cmd.none )
+
+        Cancel ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
 persistNewTodoCmd : TodoFormFields -> Cmd Msg
@@ -836,6 +883,9 @@ viewKeyedTodoItems :
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
+        config =
+            todoFormConfig
+
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp todo =
             ( TodoId.toString todo.id, viewTodoItemBase here todo )
@@ -853,7 +903,8 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                 viewHelp =
                     ( "edit-todo-form-key"
                     , viewTodoItemForm
-                        (\title -> SetTodoForm (Edit todoId initialFields { fields | title = title }))
+                        config
+                        (\title -> config.set (Edit todoId initialFields { fields | title = title }))
                         fields
                     )
             in
@@ -876,7 +927,8 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                 viewHelp =
                     ( "add-todo-form-key"
                     , viewTodoItemForm
-                        (\title -> SetTodoForm (Add at { fields | title = title }))
+                        config
+                        (\title -> config.set (Add at { fields | title = title }))
                         fields
                     )
             in
@@ -888,8 +940,8 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     viewBaseListHelp todoList ++ [ viewHelp ]
 
 
-viewTodoItemForm : (String -> Msg) -> TodoFormFields -> Html Msg
-viewTodoItemForm titleChangedMsg fields =
+viewTodoItemForm : TodoFormConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
+viewTodoItemForm config titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
@@ -906,8 +958,8 @@ viewTodoItemForm titleChangedMsg fields =
             , div [] [ text "schedule" ]
             ]
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary SaveTodoFormClicked "Save" []
-            , TextButton.primary CancelTodoFormClicked "Cancel" []
+            [ TextButton.primary config.save "Save" []
+            , TextButton.primary config.cancel "Cancel" []
             ]
         ]
 
