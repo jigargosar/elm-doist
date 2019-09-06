@@ -862,7 +862,7 @@ viewTodoItemBase zone todo =
         ]
         [ viewTodoItemDoneCheckbox todo.isDone (todoDoneCheckedMsg todo.id)
         , viewTodoItemTitle (EditTodoClicked todo.id) todo.title
-        , viewTodoItemDueDate todo zone
+        , viewTodoItemDueDate zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
                 [ A.id <| TodoPopup.triggerElDomId todo.id
@@ -874,10 +874,10 @@ viewTodoItemBase zone todo =
         ]
 
 
-viewTodoItemDueDate : Todo -> Zone -> Html Msg
-viewTodoItemDueDate todo here =
+viewTodoItemDueDate : Zone -> DueAt -> Html Msg
+viewTodoItemDueDate here dueAt =
     div [ class "flex-shrink-0 relative flex" ]
-        [ case Todo.dueMilli todo of
+        [ case Todo.dueAtToMillis dueAt of
             Nothing ->
                 IconButton.view NoOp
                     [ class "pa2 child" ]

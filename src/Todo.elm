@@ -14,7 +14,6 @@ module Todo exposing
     , dueAtPosix
     , dueAtToMillis
     , dueDateEq
-    , dueMilli
     , encoder
     , filter
     , filterSort
@@ -199,11 +198,6 @@ dueAtToMillis dueAt =
 
         DueAt mi ->
             mi |> Just
-
-
-dueMilli : Todo -> Maybe Millis
-dueMilli model =
-    dueAtToMillis model.dueAt
 
 
 dueDateEq : Calendar.Date -> Todo -> Bool
