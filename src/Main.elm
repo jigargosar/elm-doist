@@ -467,7 +467,7 @@ onAuthStateChanged authState model =
 -- Update: TodoForm Helpers
 
 
-onTodoFormMsg : TodoFormMsg -> Model -> Return
+onTodoFormMsg : TodoFormMsg -> Model -> ( Model, Cmd Msg )
 onTodoFormMsg message model =
     case message of
         Set form ->
