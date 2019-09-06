@@ -818,15 +818,19 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             viewBaseListHelp todoList
 
         Just (Edit todoId _ currentFields) ->
-            todoList
-                |> List.map
-                    (\todo ->
-                        if todo.id == todoId then
-                            viewTodoItemEditFormKeyed currentFields
+            if List.any (.id >> eq_ todoId) todoList then
+                todoList
+                    |> List.map
+                        (\todo ->
+                            if todo.id == todoId then
+                                viewTodoItemEditFormKeyed currentFields
 
-                        else
-                            viewBaseHelp todo
-                    )
+                            else
+                                viewBaseHelp todo
+                        )
+
+            else
+                viewTodoItemEditFormKeyed currentFields :: viewBaseListHelp todoList
 
         Just (Add at fields) ->
             case at of
