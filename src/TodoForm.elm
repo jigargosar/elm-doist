@@ -227,7 +227,6 @@ type alias TodoFormViewConfig msg =
     { save : msg
     , cancel : msg
     , delete : msg
-    , openAdd : AddAt -> ProjectId -> msg
     , openEdit : Todo -> msg
     , toMsg : TodoFormMsg -> msg
     }

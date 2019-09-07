@@ -221,10 +221,13 @@ todoFormViewConfig =
     { save = TodoFormMsg TodoForm.Save
     , cancel = TodoFormMsg TodoForm.Cancel
     , delete = TodoFormMsg TodoForm.Delete
-    , openAdd = \addAt projectId -> TodoFormMsg <| TodoForm.OpenAdd addAt projectId
     , openEdit = TodoFormMsg << TodoForm.OpenEdit
     , toMsg = TodoFormMsg
     }
+
+
+addTodoClicked addAt projectId =
+    TodoFormMsg <| TodoForm.OpenAdd addAt projectId
 
 
 
@@ -689,18 +692,15 @@ viewProjectTodoListPage projectId projectName model =
 
         title =
             projectName
-
-        config =
-            todoFormViewConfig
     in
     masterLayout title
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (config.openAdd TodoForm.Start projectId) "add task" []
+                , TextButton.primary (addTodoClicked TodoForm.Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (config.openAdd TodoForm.End projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked TodoForm.End projectId) "add task" [] ]
             ]
         )
         model
