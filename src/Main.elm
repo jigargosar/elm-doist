@@ -87,10 +87,6 @@ initEditTodoForm todo =
         }
 
 
-
--- Update: TodoForm Helpers
-
-
 viewTodoForm : TodoForm -> Html Msg
 viewTodoForm model =
     case model of
