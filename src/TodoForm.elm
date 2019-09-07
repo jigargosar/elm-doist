@@ -39,7 +39,13 @@ type AddAt
 type alias EditTodoFormInfo =
     { todoId : TodoId
     , initial : TodoFormFields
-    , current : TodoFormFields
+    , fields : TodoFormFields
+    }
+
+
+type alias AddTodoFormInfo =
+    { addAt : AddAt
+    , fields : TodoFormFields
     }
 
 
@@ -163,6 +169,10 @@ onTodoFormMsg config message model =
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
+persistNewTodoCmd :
+    { a | addNewTodoCmd : TodoFormFields -> Cmd msg }
+    -> TodoFormFields
+    -> Cmd msg
 persistNewTodoCmd config fields =
     if SX.isBlank fields.title then
         Cmd.none
@@ -171,25 +181,29 @@ persistNewTodoCmd config fields =
         config.addNewTodoCmd fields
 
 
+patchEditingTodoCmd :
+    { a | patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg }
+    -> EditTodoFormInfo
+    -> Cmd msg
 patchEditingTodoCmd config editInfo =
     let
-        { todoId, initial, current } =
+        { todoId, initial, fields } =
             editInfo
 
         msgList : List Todo.Msg
         msgList =
-            [ if initial.title /= current.title then
-                Just <| Todo.SetTitle current.title
+            [ if initial.title /= fields.title then
+                Just <| Todo.SetTitle fields.title
 
               else
                 Nothing
-            , if initial.dueAt /= current.dueAt then
-                Just <| Todo.SetDueAt current.dueAt
+            , if initial.dueAt /= fields.dueAt then
+                Just <| Todo.SetDueAt fields.dueAt
 
               else
                 Nothing
-            , if initial.projectId /= current.projectId then
-                Just <| Todo.SetProjectId current.projectId
+            , if initial.projectId /= fields.projectId then
+                Just <| Todo.SetProjectId fields.projectId
 
               else
                 Nothing
@@ -227,12 +241,12 @@ viewTodoForm toMsg model =
         EditTodoForm editInfo ->
             let
                 current =
-                    editInfo.current
+                    editInfo.fields
             in
             viewTodoItemFormFields
                 config
-                (\title -> toMsg <| TodoFormChanged (EditTodoForm { editInfo | current = { current | title = title } }))
-                editInfo.current
+                (\title -> toMsg <| TodoFormChanged (EditTodoForm { editInfo | fields = { current | title = title } }))
+                editInfo.fields
 
         AddTodoForm addAt current ->
             viewTodoItemFormFields
