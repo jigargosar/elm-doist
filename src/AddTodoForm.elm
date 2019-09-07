@@ -1,4 +1,4 @@
-module AddTodoForm exposing (Model, getValid, initAtStart, updateFields)
+module AddTodoForm exposing (Model, getValid, initAtEnd, initAtStart, updateFields)
 
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
