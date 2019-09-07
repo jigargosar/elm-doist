@@ -18,7 +18,8 @@ import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra as MX
 import ProjectId exposing (ProjectId)
-import String.Extra as SX
+import Task
+import Time
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
@@ -74,6 +75,7 @@ type TodoFormMsg
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
     | AddTodoFormChanged AddTodoForm.Model
+    | PersistAddTodoForm AddTodoForm.Model Time.Posix
 
 
 
@@ -83,6 +85,7 @@ type TodoFormMsg
 onTodoFormMsg :
     { patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg
     , addNewTodoCmd : TodoFormFields -> Cmd msg
+    , toMsg : TodoFormMsg -> msg
     }
     -> TodoFormMsg
     -> { b | maybeTodoForm : Maybe TodoForm }
@@ -94,8 +97,8 @@ onTodoFormMsg config message model =
             patchEditingTodoCmd config
 
         persistNew : AddTodoFormInfo -> Cmd msg
-        persistNew =
-            persistNewTodoCmd config
+        persistNew info =
+            Time.now |> Task.map (PersistAddTodoForm info.fields) |> Task.perform config.toMsg
     in
     case message of
         AddNewTodoClicked addAt projectId ->
@@ -173,14 +176,8 @@ onTodoFormMsg config message model =
                 _ ->
                     ( model, Cmd.none )
 
-
-persistNewTodoCmd :
-    { a | addNewTodoCmd : TodoFormFields -> Cmd msg }
-    -> AddTodoFormInfo
-    -> Cmd msg
-persistNewTodoCmd config addInfo =
-    AddTodoForm.getValid addInfo.fields
-        |> MX.unwrap Cmd.none config.addNewTodoCmd
+        PersistAddTodoForm atf now ->
+            ( model, AddTodoForm.persistIfValid now atf )
 
 
 patchEditingTodoCmd :

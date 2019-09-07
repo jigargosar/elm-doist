@@ -1,16 +1,18 @@
-module AddTodoForm exposing (Model, getValid, init, view)
+module AddTodoForm exposing (Model, getValid, init, persistIfValid, view)
 
+import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
 import String.Extra as SX
+import Time
 import Todo exposing (DueAt, Todo, TodoList)
 import UI.TextButton as TextButton
 
 
-type alias AddTodoFormInfo =
+type alias Internals =
     { title : String
     , dueAt : Todo.DueAt
     , projectId : ProjectId
@@ -18,7 +20,7 @@ type alias AddTodoFormInfo =
 
 
 type Model
-    = Model AddTodoFormInfo
+    = Model Internals
 
 
 init : ProjectId -> Model
@@ -33,6 +35,11 @@ getValid ((Model info) as model) =
 
     else
         Just (toFields model)
+
+
+persistIfValid : Time.Posix -> Model -> Cmd msg
+persistIfValid now (Model { title, dueAt, projectId }) =
+    Fire.addTodo (Todo.new now title dueAt projectId)
 
 
 toFields : Model -> { title : String, dueAt : DueAt, projectId : ProjectId }

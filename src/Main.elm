@@ -338,6 +338,7 @@ update message model =
                     \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
                 , addNewTodoCmd =
                     \fields -> getNow (AddTodo fields.title fields.dueAt fields.projectId)
+                , toMsg = TodoFormMsg
                 }
                 msg
                 model
