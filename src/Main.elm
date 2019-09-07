@@ -31,6 +31,7 @@ import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
+import Process
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
@@ -329,6 +330,19 @@ update message model =
             ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
         PatchTodo todoId todoMsgList ->
+            let
+                _ =
+                    Process.spawn Time.now
+                        |> Task.map (Debug.log "now|map")
+                        |> Task.perform
+                            (\f ->
+                                let
+                                    _ =
+                                        Debug.log "id1" f
+                                in
+                                NoOp
+                            )
+            in
             ( model, getNow (PatchTodoWithNow todoId todoMsgList) )
 
         PatchTodoWithNow todoId todoMsgList now ->
@@ -347,10 +361,10 @@ update message model =
                 model
 
         PersistAddTodoForm atf now ->
-            ( model, AddTodoForm.persistIfValid now atf )
+            ( model, AddTodoForm.persist now atf )
 
         PersistEditTodoForm form now ->
-            ( model, EditTodoForm.persistIfValid now form )
+            ( model, EditTodoForm.persist now form )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )

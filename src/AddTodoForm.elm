@@ -1,4 +1,4 @@
-module AddTodoForm exposing (Model, init, persistIfValid, view)
+module AddTodoForm exposing (Model, init, persist, view)
 
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
@@ -27,8 +27,8 @@ init projectId =
     Model { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
-persistIfValid : Time.Posix -> Model -> Cmd msg
-persistIfValid now (Model { title, dueAt, projectId }) =
+persist : Time.Posix -> Model -> Cmd msg
+persist now (Model { title, dueAt, projectId }) =
     Fire.addTodo (Todo.new now title dueAt projectId)
 
 

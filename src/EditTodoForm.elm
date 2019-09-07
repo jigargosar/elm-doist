@@ -1,4 +1,4 @@
-module EditTodoForm exposing (Model, init, persistIfValid, view)
+module EditTodoForm exposing (Model, init, persist, view)
 
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
@@ -33,8 +33,8 @@ type alias ViewConfig msg =
     }
 
 
-persistIfValid : Time.Posix -> Model -> Cmd msg
-persistIfValid now ((Model { todo }) as model) =
+persist : Time.Posix -> Model -> Cmd msg
+persist now ((Model { todo }) as model) =
     Todo.patchTodo now todo.id (toTodoMsgList model)
 
 
