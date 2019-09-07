@@ -263,21 +263,21 @@ type Msg
     | GotFirestoreQueryResponse FirestoreQueryResponse
     | SignInClicked
     | SignOutClicked
-      -- NewTodoOperations
+      -- TodayPage Messages
     | AddTodo String DueAt ProjectId Time.Posix
-    | PersistAddTodoForm AddTodoForm.Model Time.Posix
-    | PersistEditTodoForm EditTodoForm.Model Time.Posix
     | AddTodoWithDueTodayClicked
-      -- ExistingTodoOperations
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
+      -- ProjectPage Messages
+    | AddNewTodoClicked AddAt ProjectId
+    | EditTodoClicked Todo
       -- TodoForm Messages
+    | PersistAddTodoForm AddTodoForm.Model Time.Posix
+    | PersistEditTodoForm EditTodoForm.Model Time.Posix
     | TodoFormSaveClicked
     | TodoFormCancelClicked
     | TodoFormChanged TodoForm
     | TodoFormDeleteClicked
-    | AddNewTodoClicked AddAt ProjectId
-    | EditTodoClicked Todo
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
