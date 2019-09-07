@@ -1,4 +1,4 @@
-module AddTodoForm exposing (Model, getValid, init, updateFields, view)
+module AddTodoForm exposing (Model, getValid, init, view)
 
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
@@ -26,11 +26,6 @@ init projectId =
     Model { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
-isValid : Model -> Bool
-isValid (Model { title }) =
-    SX.isBlank title |> not
-
-
 getValid : Model -> Maybe { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
 getValid ((Model info) as model) =
     if SX.isBlank info.title then
@@ -43,14 +38,6 @@ getValid ((Model info) as model) =
 toFields : Model -> { title : String, dueAt : DueAt, projectId : ProjectId }
 toFields (Model { title, dueAt, projectId }) =
     { title = title, dueAt = dueAt, projectId = projectId }
-
-
-updateFields :
-    { a | title : String, dueAt : Todo.DueAt, projectId : ProjectId }
-    -> Model
-    -> Model
-updateFields { title, dueAt, projectId } (Model info) =
-    Model { info | title = title, dueAt = dueAt, projectId = projectId }
 
 
 type alias ViewConfig msg =
