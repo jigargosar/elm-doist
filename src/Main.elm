@@ -358,7 +358,6 @@ type Msg
     | PersistEditTodoForm EditTodoForm.Model Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
-    | DeleteTodoClicked TodoId
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoForm Messages
@@ -519,9 +518,6 @@ update message model =
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
-
-        DeleteTodoClicked todoId ->
-            ( model, Fire.deleteTodo todoId )
 
         AddTodoWithDueTodayClicked ->
             ( model
