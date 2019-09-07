@@ -742,12 +742,12 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     )
             in
             case todoForm of
-                TodoForm.EditTodoForm editInfo ->
-                    if List.any (.id >> eq_ editInfo.todoId) todoList then
+                TodoForm.EditTodoForm { todoId } ->
+                    if List.any (.id >> eq_ todoId) todoList then
                         todoList
                             |> List.map
                                 (\todo ->
-                                    if todo.id == editInfo.todoId then
+                                    if todo.id == todoId then
                                         viewHelp
 
                                     else
