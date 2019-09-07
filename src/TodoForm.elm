@@ -48,9 +48,9 @@ initEditTodoForm todo =
 
 type TodoFormMsg
     = TodoFormSaveClicked
+    | TodoFormCancelClicked
     | TodoFormChanged TodoForm
     | TodoFormDeleteClicked
-    | TodoFormCancelClicked
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
 
