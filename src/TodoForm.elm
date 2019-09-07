@@ -45,7 +45,7 @@ type alias EditTodoFormInfo =
 
 type alias AddTodoFormInfo =
     { addAt : AddAt
-    , fields : AddTodoForm.Model
+    , form : AddTodoForm.Model
     }
 
 
@@ -93,7 +93,7 @@ onTodoFormMsg config message model =
 
         persistNew : AddTodoFormInfo -> Cmd msg
         persistNew info =
-            config.persistNew info.fields
+            config.persistNew info.form
     in
     case message of
         AddNewTodoClicked addAt projectId ->
@@ -166,7 +166,7 @@ onTodoFormMsg config message model =
         AddTodoFormChanged form ->
             case model.maybeTodoForm of
                 Just (AddTodoForm addInfo) ->
-                    ( { model | maybeTodoForm = Just (AddTodoForm { addInfo | fields = form }) }, Cmd.none )
+                    ( { model | maybeTodoForm = Just (AddTodoForm { addInfo | form = form }) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -234,7 +234,7 @@ viewTodoForm toMsg model =
         AddTodoForm addInfo ->
             AddTodoForm.view
                 { save = TodoFormSaveClicked, cancel = TodoFormSaveClicked, changed = AddTodoFormChanged }
-                addInfo.fields
+                addInfo.form
                 |> H.map toMsg
 
 
