@@ -1,6 +1,5 @@
-module AddTodoForm exposing (Model, getValid, initAtEnd, initAtStart, updateFields)
+module AddTodoForm exposing (Model, getValid, init, updateFields, view)
 
-import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
@@ -8,18 +7,11 @@ import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
 import String.Extra as SX
 import Todo exposing (DueAt, Todo, TodoList)
-import TodoId exposing (TodoId)
 import UI.TextButton as TextButton
 
 
-type AddAt
-    = Start
-    | End
-
-
 type alias AddTodoFormInfo =
-    { addAt : AddAt
-    , title : String
+    { title : String
     , dueAt : Todo.DueAt
     , projectId : ProjectId
     }
@@ -29,19 +21,9 @@ type Model
     = Model AddTodoFormInfo
 
 
-init : AddAt -> ProjectId -> Model
-init addAt projectId =
-    Model { addAt = addAt, title = "", dueAt = Todo.notDue, projectId = projectId }
-
-
-initAtStart : ProjectId -> Model
-initAtStart =
-    init Start
-
-
-initAtEnd : ProjectId -> Model
-initAtEnd =
-    init End
+init : ProjectId -> Model
+init projectId =
+    Model { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
 isValid : Model -> Bool
