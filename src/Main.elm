@@ -87,96 +87,12 @@ initEditTodoForm todo =
         }
 
 
-type TodoFormMsg
-    = TodoFormSaveClicked
-    | TodoFormCancelClicked
-    | TodoFormChanged TodoForm
-    | TodoFormDeleteClicked
-    | AddNewTodoClicked AddAt ProjectId
-    | EditTodoClicked Todo
-
-
 
 -- Update: TodoForm Helpers
 
 
-onTodoFormMsg :
-    TodoFormMsg
-    -> { b | todoForm : TodoForm }
-    -> ( { b | todoForm : TodoForm }, Cmd Msg )
-onTodoFormMsg message model =
-    case message of
-        AddNewTodoClicked addAt projectId ->
-            let
-                addTodoForm =
-                    initAddTodoForm addAt projectId
-            in
-            case model.todoForm of
-                NoTodoForm ->
-                    ( { model | todoForm = addTodoForm }, Cmd.none )
-
-                AddTodoForm info ->
-                    ( { model | todoForm = AddTodoForm { info | addAt = addAt } }
-                    , Cmd.none
-                    )
-
-                EditTodoForm info ->
-                    ( { model | todoForm = addTodoForm }
-                    , persistEditTodoForm info.form
-                    )
-
-        EditTodoClicked todo ->
-            ( { model | todoForm = initEditTodoForm todo }
-            , case model.todoForm of
-                NoTodoForm ->
-                    Cmd.none
-
-                AddTodoForm info ->
-                    persistAddTodoForm info.form
-
-                EditTodoForm info ->
-                    if info.todoId == todo.id then
-                        Cmd.none
-
-                    else
-                        persistEditTodoForm info.form
-            )
-
-        TodoFormChanged form ->
-            ( { model | todoForm = form }, Cmd.none )
-
-        TodoFormSaveClicked ->
-            ( { model | todoForm = NoTodoForm }
-            , case model.todoForm of
-                NoTodoForm ->
-                    Cmd.none
-
-                EditTodoForm info ->
-                    persistEditTodoForm info.form
-
-                AddTodoForm info ->
-                    persistAddTodoForm info.form
-            )
-
-        TodoFormDeleteClicked ->
-            ( { model | todoForm = NoTodoForm }
-            , case model.todoForm of
-                NoTodoForm ->
-                    Cmd.none
-
-                EditTodoForm editInfo ->
-                    Fire.deleteTodo editInfo.todoId
-
-                AddTodoForm _ ->
-                    Cmd.none
-            )
-
-        TodoFormCancelClicked ->
-            ( { model | todoForm = NoTodoForm }, Cmd.none )
-
-
-viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
-viewTodoForm toMsg model =
+viewTodoForm : TodoForm -> Html Msg
+viewTodoForm model =
     case model of
         EditTodoForm info ->
             EditTodoForm.view
@@ -186,7 +102,6 @@ viewTodoForm toMsg model =
                 , delete = TodoFormDeleteClicked
                 }
                 info.form
-                |> H.map toMsg
 
         AddTodoForm info ->
             AddTodoForm.view
@@ -195,7 +110,6 @@ viewTodoForm toMsg model =
                 , changed = \form -> TodoFormChanged <| AddTodoForm { info | form = form }
                 }
                 info.form
-                |> H.map toMsg
 
         NoTodoForm ->
             HX.none
@@ -362,7 +276,12 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoForm Messages
-    | TodoFormMsg TodoFormMsg
+    | TodoFormSaveClicked
+    | TodoFormCancelClicked
+    | TodoFormChanged TodoForm
+    | TodoFormDeleteClicked
+    | AddNewTodoClicked AddAt ProjectId
+    | EditTodoClicked Todo
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -371,12 +290,12 @@ type Msg
 
 addTodoClicked : AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
-    TodoFormMsg <| AddNewTodoClicked addAt projectId
+    AddNewTodoClicked addAt projectId
 
 
 editTodoClicked : Todo -> Msg
 editTodoClicked =
-    TodoFormMsg << EditTodoClicked
+    EditTodoClicked
 
 
 
@@ -495,8 +414,69 @@ update message model =
             , Todo.patchTodo now todoId todoMsgList
             )
 
-        TodoFormMsg msg ->
-            onTodoFormMsg msg model
+        AddNewTodoClicked addAt projectId ->
+            let
+                addTodoForm =
+                    initAddTodoForm addAt projectId
+            in
+            case model.todoForm of
+                NoTodoForm ->
+                    ( { model | todoForm = addTodoForm }, Cmd.none )
+
+                AddTodoForm info ->
+                    ( { model | todoForm = AddTodoForm { info | addAt = addAt } }
+                    , Cmd.none
+                    )
+
+                EditTodoForm info ->
+                    ( { model | todoForm = addTodoForm }
+                    , persistEditTodoForm info.form
+                    )
+
+        EditTodoClicked todo ->
+            ( { model | todoForm = initEditTodoForm todo }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                AddTodoForm info ->
+                    persistAddTodoForm info.form
+
+                EditTodoForm info ->
+                    persistEditTodoForm info.form
+            )
+
+        TodoFormChanged form ->
+            ( { model | todoForm = form }, Cmd.none )
+
+        TodoFormSaveClicked ->
+            ( { model | todoForm = NoTodoForm }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                EditTodoForm info ->
+                    persistEditTodoForm info.form
+
+                AddTodoForm info ->
+                    persistAddTodoForm info.form
+            )
+
+        TodoFormDeleteClicked ->
+            ( { model | todoForm = NoTodoForm }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                EditTodoForm editInfo ->
+                    Fire.deleteTodo editInfo.todoId
+
+                AddTodoForm _ ->
+                    Cmd.none
+            )
+
+        TodoFormCancelClicked ->
+            ( { model | todoForm = NoTodoForm }, Cmd.none )
 
         PersistAddTodoForm form now ->
             ( model, AddTodoForm.persist now form )
@@ -883,7 +863,7 @@ viewKeyedTodoItems { here, todoForm } todoList =
     let
         viewForm =
             ( "todo-form-key"
-            , viewTodoForm TodoFormMsg todoForm
+            , viewTodoForm todoForm
             )
     in
     case todoForm of
