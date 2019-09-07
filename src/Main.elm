@@ -221,13 +221,18 @@ todoFormViewConfig =
     { save = TodoFormMsg TodoForm.Save
     , cancel = TodoFormMsg TodoForm.Cancel
     , delete = TodoFormMsg TodoForm.Delete
-    , openEdit = TodoFormMsg << TodoForm.OpenEdit
     , toMsg = TodoFormMsg
     }
 
 
+addTodoClicked : TodoForm.AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
     TodoFormMsg <| TodoForm.OpenAdd addAt projectId
+
+
+editTodoClicked : Todo -> Msg
+editTodoClicked =
+    TodoFormMsg << TodoForm.OpenEdit
 
 
 
@@ -765,15 +770,11 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
 viewTodoItemBase zone todo =
-    let
-        config =
-            todoFormViewConfig
-    in
     div
         [ class "flex hide-child"
         ]
         [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
-        , viewTodoItemTitle (config.openEdit todo) todo.title
+        , viewTodoItemTitle (editTodoClicked todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
             [ IconButton.view NoOp
