@@ -731,21 +731,24 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Nothing ->
             viewBaseListHelp todoList
 
-        Just (TodoForm.Edit todoId initialFields fields) ->
+        Just (TodoForm.Edit editInfo) ->
             let
+                current =
+                    editInfo.current
+
                 viewHelp =
                     ( "edit-todo-form-key"
                     , TodoForm.viewTodoItemForm
                         config
-                        (\title -> config.set (TodoForm.Edit todoId initialFields { fields | title = title }))
-                        fields
+                        (\title -> config.set (TodoForm.Edit { editInfo | current = { current | title = title } }))
+                        editInfo.current
                     )
             in
-            if List.any (.id >> eq_ todoId) todoList then
+            if List.any (.id >> eq_ editInfo.todoId) todoList then
                 todoList
                     |> List.map
                         (\todo ->
-                            if todo.id == todoId then
+                            if todo.id == editInfo.todoId then
                                 viewHelp
 
                             else

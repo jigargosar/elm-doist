@@ -36,8 +36,15 @@ type AddAt
     | End
 
 
+type alias EditInternals =
+    { todoId : TodoId
+    , initial : TodoFormFields
+    , current : TodoFormFields
+    }
+
+
 type TodoForm
-    = Edit TodoId TodoFormFields TodoFormFields
+    = Edit EditInternals
     | Add AddAt TodoFormFields
 
 
@@ -63,7 +70,7 @@ onTodoFormMsg :
     -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
 onTodoFormMsg config message model =
     let
-        persistEditing : TodoId -> TodoFormFields -> TodoFormFields -> Cmd msg
+        persistEditing : EditInternals -> Cmd msg
         persistEditing =
             patchEditingTodoCmd config
 
@@ -85,15 +92,15 @@ onTodoFormMsg config message model =
                 Just (Add _ fields) ->
                     ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
 
-                Just (Edit editingTodoId initialFields currentFields) ->
+                Just (Edit editInfo) ->
                     ( { model | maybeTodoForm = newTodoForm }
-                    , persistEditing editingTodoId initialFields currentFields
+                    , persistEditing editInfo
                     )
 
         OpenEdit todo ->
             let
                 newTodoForm =
-                    Edit todo.id (initTodoFormFields todo) (initTodoFormFields todo)
+                    Edit (EditInternals todo.id (initTodoFormFields todo) (initTodoFormFields todo))
                         |> Just
             in
             case model.maybeTodoForm of
@@ -107,13 +114,13 @@ onTodoFormMsg config message model =
                     , persistNew fields
                     )
 
-                Just (Edit editingTodoId initialFields fields) ->
-                    if editingTodoId == todo.id then
+                Just (Edit editInfo) ->
+                    if editInfo.todoId == todo.id then
                         ( model, Cmd.none )
 
                     else
                         ( { model | maybeTodoForm = newTodoForm }
-                        , persistEditing editingTodoId initialFields fields
+                        , persistEditing editInfo
                         )
 
         Set form ->
@@ -128,9 +135,9 @@ onTodoFormMsg config message model =
                 Nothing ->
                     ( newModel, Cmd.none )
 
-                Just (Edit editingTodoId initialFields currentFields) ->
+                Just (Edit editInfo) ->
                     ( newModel
-                    , persistEditing editingTodoId initialFields currentFields
+                    , persistEditing editInfo
                     )
 
                 Just (Add _ fields) ->
@@ -141,8 +148,8 @@ onTodoFormMsg config message model =
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just (Edit editingTodoId _ _) ->
-                    ( model, Fire.deleteTodo editingTodoId )
+                Just (Edit editInfo) ->
+                    ( model, Fire.deleteTodo editInfo.todoId )
 
                 Just (Add _ _) ->
                     ( model, Cmd.none )
@@ -159,22 +166,25 @@ persistNewTodoCmd config fields =
         config.addNewTodoCmd fields
 
 
-patchEditingTodoCmd config editingTodoId initialFields currentFields =
+patchEditingTodoCmd config editInfo =
     let
+        { todoId, initial, current } =
+            editInfo
+
         msgList : List Todo.Msg
         msgList =
-            [ if initialFields.title /= currentFields.title then
-                Just <| Todo.SetTitle currentFields.title
+            [ if initial.title /= current.title then
+                Just <| Todo.SetTitle current.title
 
               else
                 Nothing
-            , if initialFields.dueAt /= currentFields.dueAt then
-                Just <| Todo.SetDueAt currentFields.dueAt
+            , if initial.dueAt /= current.dueAt then
+                Just <| Todo.SetDueAt current.dueAt
 
               else
                 Nothing
-            , if initialFields.projectId /= currentFields.projectId then
-                Just <| Todo.SetProjectId currentFields.projectId
+            , if initial.projectId /= current.projectId then
+                Just <| Todo.SetProjectId current.projectId
 
               else
                 Nothing
@@ -185,7 +195,7 @@ patchEditingTodoCmd config editingTodoId initialFields currentFields =
         Cmd.none
 
     else
-        config.patchTodoCmd editingTodoId msgList
+        config.patchTodoCmd todoId msgList
 
 
 
