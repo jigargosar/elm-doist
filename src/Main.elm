@@ -31,7 +31,6 @@ import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
-import Process
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
