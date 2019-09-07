@@ -42,7 +42,6 @@ import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
-import TodoForm
 import TodoId exposing (TodoId)
 import TodoPopup
 import UI.Button as Button
@@ -50,6 +49,152 @@ import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
 import Url exposing (Url)
+
+
+
+-- TodoForm MODULE
+
+
+type AddAt
+    = Start
+    | End
+
+
+type TodoForm
+    = EditTodoForm
+        { todoId : TodoId
+        , form : EditTodoForm.Model
+        }
+    | AddTodoForm
+        { addAt : AddAt
+        , form : AddTodoForm.Model
+        }
+    | NoTodoForm
+
+
+initAddTodoForm : AddAt -> ProjectId -> TodoForm
+initAddTodoForm addAt projectId =
+    AddTodoForm <|
+        { addAt = addAt
+        , form = AddTodoForm.init projectId
+        }
+
+
+initEditTodoForm : Todo -> TodoForm
+initEditTodoForm todo =
+    EditTodoForm { todoId = todo.id, form = EditTodoForm.init todo }
+
+
+type TodoFormMsg
+    = TodoFormSaveClicked
+    | TodoFormCancelClicked
+    | TodoFormChanged TodoForm
+    | TodoFormDeleteClicked
+    | AddNewTodoClicked AddAt ProjectId
+    | EditTodoClicked Todo
+
+
+
+-- Update: TodoForm Helpers
+
+
+onTodoFormMsg :
+    TodoFormMsg
+    -> { b | todoForm : TodoForm }
+    -> ( { b | todoForm : TodoForm }, Cmd Msg )
+onTodoFormMsg message model =
+    case message of
+        AddNewTodoClicked addAt projectId ->
+            let
+                addTodoForm =
+                    initAddTodoForm addAt projectId
+            in
+            case model.todoForm of
+                NoTodoForm ->
+                    ( { model | todoForm = addTodoForm }, Cmd.none )
+
+                AddTodoForm _ ->
+                    ( model, Cmd.none )
+
+                EditTodoForm info ->
+                    ( { model | todoForm = addTodoForm }
+                    , persistEditTodoForm info.form
+                    )
+
+        EditTodoClicked todo ->
+            ( { model | todoForm = initEditTodoForm todo }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                AddTodoForm info ->
+                    persistAddTodoForm info.form
+
+                EditTodoForm info ->
+                    if info.todoId == todo.id then
+                        Cmd.none
+
+                    else
+                        persistEditTodoForm info.form
+            )
+
+        TodoFormChanged form ->
+            ( { model | todoForm = form }, Cmd.none )
+
+        TodoFormSaveClicked ->
+            ( { model | todoForm = NoTodoForm }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                EditTodoForm info ->
+                    persistEditTodoForm info.form
+
+                AddTodoForm info ->
+                    persistAddTodoForm info.form
+            )
+
+        TodoFormDeleteClicked ->
+            ( { model | todoForm = NoTodoForm }
+            , case model.todoForm of
+                NoTodoForm ->
+                    Cmd.none
+
+                EditTodoForm editInfo ->
+                    Fire.deleteTodo editInfo.todoId
+
+                AddTodoForm _ ->
+                    Cmd.none
+            )
+
+        TodoFormCancelClicked ->
+            ( { model | todoForm = NoTodoForm }, Cmd.none )
+
+
+viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
+viewTodoForm toMsg model =
+    case model of
+        EditTodoForm info ->
+            EditTodoForm.view
+                { save = TodoFormSaveClicked
+                , cancel = TodoFormSaveClicked
+                , changed = \form -> TodoFormChanged <| EditTodoForm { info | form = form }
+                , delete = TodoFormDeleteClicked
+                }
+                info.form
+                |> H.map toMsg
+
+        AddTodoForm info ->
+            AddTodoForm.view
+                { save = TodoFormSaveClicked
+                , cancel = TodoFormSaveClicked
+                , changed = \form -> TodoFormChanged <| AddTodoForm { info | form = form }
+                }
+                info.form
+                |> H.map toMsg
+
+        NoTodoForm ->
+            HX.none
 
 
 
@@ -87,7 +232,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , todoForm : TodoForm.Model
+    , todoForm : TodoForm
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -158,7 +303,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , todoForm = TodoForm.none
+            , todoForm = NoTodoForm
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -214,21 +359,21 @@ type Msg
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- TodoForm Messages
-    | TodoFormMsg TodoForm.TodoFormMsg
+    | TodoFormMsg TodoFormMsg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
     | AddProject Time.Posix
 
 
-addTodoClicked : TodoForm.AddAt -> ProjectId -> Msg
+addTodoClicked : AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
-    TodoFormMsg <| TodoForm.AddNewTodoClicked addAt projectId
+    TodoFormMsg <| AddNewTodoClicked addAt projectId
 
 
 editTodoClicked : Todo -> Msg
 editTodoClicked =
-    TodoFormMsg << TodoForm.EditTodoClicked
+    TodoFormMsg << EditTodoClicked
 
 
 
@@ -251,6 +396,16 @@ subscriptions _ =
 todoDoneCheckedMsg : TodoId -> Bool -> Msg
 todoDoneCheckedMsg todoId isChecked =
     PatchTodo todoId [ Todo.SetCompleted isChecked ]
+
+
+persistEditTodoForm : EditTodoForm.Model -> Cmd Msg
+persistEditTodoForm =
+    PersistEditTodoForm >> getNow
+
+
+persistAddTodoForm : AddTodoForm.Model -> Cmd Msg
+persistAddTodoForm =
+    PersistAddTodoForm >> getNow
 
 
 update : Msg -> Model -> Return
@@ -279,7 +434,7 @@ update message model =
                     Route.fromUrl url
             in
             if model.route /= newRoute then
-                ( { model | route = newRoute, todoForm = TodoForm.none }
+                ( { model | route = newRoute, todoForm = NoTodoForm }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
 
@@ -351,14 +506,7 @@ update message model =
             )
 
         TodoFormMsg msg ->
-            TodoForm.onTodoFormMsg
-                { persistEdit = PersistEditTodoForm >> getNow
-
-                --                    \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
-                , persistNew = PersistAddTodoForm >> getNow
-                }
-                msg
-                model
+            onTodoFormMsg msg model
 
         PersistAddTodoForm atf now ->
             ( model, AddTodoForm.persist now atf )
@@ -718,10 +866,10 @@ viewProjectTodoListPage projectId projectName model =
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (addTodoClicked TodoForm.Start projectId) "add task" []
+                , TextButton.primary (addTodoClicked Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked TodoForm.End projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked End projectId) "add task" [] ]
             ]
         )
         model
@@ -746,37 +894,37 @@ viewKeyedTodoItems { here, todoForm } todoList =
             List.map viewBaseHelp
     in
     let
-        viewHelp =
+        viewForm =
             ( "todo-form-key"
-            , TodoForm.viewTodoForm TodoFormMsg todoForm
+            , viewTodoForm TodoFormMsg todoForm
             )
     in
     case todoForm of
-        TodoForm.NoTodoForm ->
+        NoTodoForm ->
             viewBaseListHelp todoList
 
-        TodoForm.EditTodoForm { todoId } ->
+        EditTodoForm { todoId } ->
             if List.any (.id >> eq_ todoId) todoList then
                 todoList
                     |> List.map
                         (\todo ->
                             if todo.id == todoId then
-                                viewHelp
+                                viewForm
 
                             else
                                 viewBaseHelp todo
                         )
 
             else
-                viewHelp :: viewBaseListHelp todoList
+                viewForm :: viewBaseListHelp todoList
 
-        TodoForm.AddTodoForm { addAt } ->
+        AddTodoForm { addAt } ->
             case addAt of
-                TodoForm.Start ->
-                    viewHelp :: viewBaseListHelp todoList
+                Start ->
+                    viewForm :: viewBaseListHelp todoList
 
-                TodoForm.End ->
-                    viewBaseListHelp todoList ++ [ viewHelp ]
+                End ->
+                    viewBaseListHelp todoList ++ [ viewForm ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
