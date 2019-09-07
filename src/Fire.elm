@@ -71,7 +71,7 @@ patchTodo now todoId todoMsgList =
         Cmd.none
 
     else
-        updateTodo todoId (Todo.patch todoMsgList now)
+        updateTodo todoId (Todo.patch now todoMsgList)
 
 
 addTodo : JE.Value -> Cmd msg

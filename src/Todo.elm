@@ -161,8 +161,8 @@ new now title dueAt projectId =
         |> encoder
 
 
-patch : List Msg -> Time.Posix -> List ( String, Value )
-patch msgList now =
+patch : Time.Posix -> List Msg -> List ( String, Value )
+patch now msgList =
     let
         nowMillis =
             Time.posixToMillis now
