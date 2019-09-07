@@ -104,18 +104,18 @@ onTodoFormMsg config message model =
 
         EditTodoClicked todo ->
             let
-                newTodoForm =
+                editTodoForm =
                     EditTodoForm (EditTodoFormInfo todo.id (initTodoFormFields todo) (initTodoFormFields todo))
                         |> Just
             in
             case model.maybeTodoForm of
                 Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }
+                    ( { model | maybeTodoForm = editTodoForm }
                     , Cmd.none
                     )
 
                 Just (AddTodoForm _ fields) ->
-                    ( { model | maybeTodoForm = newTodoForm }
+                    ( { model | maybeTodoForm = editTodoForm }
                     , persistNew fields
                     )
 
@@ -124,7 +124,7 @@ onTodoFormMsg config message model =
                         ( model, Cmd.none )
 
                     else
-                        ( { model | maybeTodoForm = newTodoForm }
+                        ( { model | maybeTodoForm = editTodoForm }
                         , persistEditing editInfo
                         )
 
