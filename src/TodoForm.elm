@@ -58,8 +58,6 @@ type TodoFormMsg
     | TodoFormCancelClicked
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
-    | AddTodoFormChanged AddTodoForm.Model
-    | EditTodoFormChanged EditTodoForm.Model
 
 
 
@@ -132,7 +130,7 @@ onTodoFormMsg config message model =
             )
 
         TodoFormDeleteClicked ->
-            ( model
+            ( { model | maybeTodoForm = Nothing }
             , case model.maybeTodoForm of
                 Nothing ->
                     Cmd.none
@@ -147,22 +145,6 @@ onTodoFormMsg config message model =
         TodoFormCancelClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
-        AddTodoFormChanged form ->
-            case model.maybeTodoForm of
-                Just (AddTodoForm addInfo) ->
-                    ( { model | maybeTodoForm = Just (AddTodoForm { addInfo | form = form }) }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        EditTodoFormChanged form ->
-            case model.maybeTodoForm of
-                Just (EditTodoForm info) ->
-                    ( { model | maybeTodoForm = Just (EditTodoForm { info | form = form }) }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
 
 viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
 viewTodoForm toMsg model =
@@ -171,7 +153,7 @@ viewTodoForm toMsg model =
             EditTodoForm.view
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
-                , changed = EditTodoFormChanged
+                , changed = \form -> TodoFormChanged <| EditTodoForm { info | form = form }
                 , delete = TodoFormDeleteClicked
                 }
                 info.form
@@ -181,7 +163,7 @@ viewTodoForm toMsg model =
             AddTodoForm.view
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
-                , changed = AddTodoFormChanged
+                , changed = \form -> TodoFormChanged <| AddTodoForm { info | form = form }
                 }
                 info.form
                 |> H.map toMsg
