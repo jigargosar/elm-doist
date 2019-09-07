@@ -167,21 +167,21 @@ onTodoFormMsg config message model =
 viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
 viewTodoForm toMsg model =
     case model of
-        EditTodoForm editInfo ->
+        EditTodoForm info ->
             EditTodoForm.view
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
                 , changed = EditTodoFormChanged
                 , delete = TodoFormDeleteClicked
                 }
-                editInfo.form
+                info.form
                 |> H.map toMsg
 
-        AddTodoForm addInfo ->
+        AddTodoForm info ->
             AddTodoForm.view
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
                 , changed = AddTodoFormChanged
                 }
-                addInfo.form
+                info.form
                 |> H.map toMsg
