@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import AddTodoForm
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (..)
 import Browser
@@ -203,6 +204,7 @@ type Msg
     | SignOutClicked
       -- NewTodoOperations
     | AddTodo String DueAt ProjectId Time.Posix
+    | PersistAddTodoForm AddTodoForm.Model Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
     | DeleteTodoClicked TodoId
@@ -336,12 +338,13 @@ update message model =
             TodoForm.onTodoFormMsg
                 { patchTodoCmd =
                     \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
-                , addNewTodoCmd =
-                    \fields -> getNow (AddTodo fields.title fields.dueAt fields.projectId)
-                , toMsg = TodoFormMsg
+                , persistNew = PersistAddTodoForm >> getNow
                 }
                 msg
                 model
+
+        PersistAddTodoForm atf now ->
+            ( model, AddTodoForm.persistIfValid now atf )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
