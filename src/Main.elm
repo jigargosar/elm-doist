@@ -218,12 +218,12 @@ type Msg
 
 addTodoClicked : TodoForm.AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
-    TodoFormMsg <| TodoForm.OpenAdd addAt projectId
+    TodoFormMsg <| TodoForm.AddNewTodoClicked addAt projectId
 
 
 editTodoClicked : Todo -> Msg
 editTodoClicked =
-    TodoFormMsg << TodoForm.OpenEdit
+    TodoFormMsg << TodoForm.EditTodoClicked
 
 
 
@@ -728,11 +728,11 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             let
                 viewHelp =
                     ( "todo-form-key"
-                    , TodoForm.view TodoFormMsg todoForm
+                    , TodoForm.viewTodoForm TodoFormMsg todoForm
                     )
             in
             case todoForm of
-                TodoForm.Edit editInfo ->
+                TodoForm.EditTodoForm editInfo ->
                     if List.any (.id >> eq_ editInfo.todoId) todoList then
                         todoList
                             |> List.map
@@ -747,7 +747,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     else
                         viewHelp :: viewBaseListHelp todoList
 
-                TodoForm.Add at _ ->
+                TodoForm.AddTodoForm at _ ->
                     case at of
                         TodoForm.Start ->
                             viewHelp :: viewBaseListHelp todoList
