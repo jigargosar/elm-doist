@@ -211,17 +211,6 @@ patchEditingTodoCmd config editInfo =
         config.patchTodoCmd todoId msgList
 
 
-
--- VIEW
-
-
-type alias TodoFormViewConfig msg =
-    { save : msg
-    , cancel : msg
-    , delete : msg
-    }
-
-
 viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
 viewTodoForm toMsg model =
     let
@@ -253,7 +242,18 @@ viewTodoForm toMsg model =
                 fields
 
 
-viewTodoItemFormFields : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
+
+-- VIEW
+
+
+type alias TodoFormFieldsViewConfig msg =
+    { save : msg
+    , cancel : msg
+    , delete : msg
+    }
+
+
+viewTodoItemFormFields : TodoFormFieldsViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
 viewTodoItemFormFields config titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]
