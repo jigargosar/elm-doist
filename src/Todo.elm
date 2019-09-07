@@ -161,14 +161,20 @@ new now title dueAt projectId =
         |> encoder
 
 
-patch : Time.Posix -> List Msg -> List ( String, Value )
+patch : Time.Posix -> List Msg -> Maybe (List ( String, Value ))
 patch now msgList =
-    let
-        nowMillis =
-            Time.posixToMillis now
-    in
-    ( "modifiedAt", JE.int nowMillis )
-        :: List.concatMap (patchHelp nowMillis) msgList
+    if List.isEmpty msgList then
+        Nothing
+
+    else
+        let
+            nowMillis =
+                Time.posixToMillis now
+        in
+        (( "modifiedAt", JE.int nowMillis )
+            :: List.concatMap (patchHelp nowMillis) msgList
+        )
+            |> Just
 
 
 patchHelp : Int -> Msg -> List ( String, Value )

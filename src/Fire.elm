@@ -67,11 +67,8 @@ updateTodo todoId kvPairs =
 
 patchTodo : Time.Posix -> TodoId -> List Todo.Msg -> Cmd msg
 patchTodo now todoId todoMsgList =
-    if List.isEmpty todoMsgList then
-        Cmd.none
-
-    else
-        updateTodo todoId (Todo.patch now todoMsgList)
+    Todo.patch now todoMsgList
+        |> MX.unwrap Cmd.none (updateTodo todoId)
 
 
 addTodo : JE.Value -> Cmd msg
