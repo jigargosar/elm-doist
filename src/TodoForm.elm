@@ -5,7 +5,6 @@ module TodoForm exposing
     , TodoFormMsg(..)
     , onTodoFormMsg
     , viewTodoForm
-    , viewTodoItemFormFields
     )
 
 -- TODO_ FORM
@@ -13,34 +12,19 @@ module TodoForm exposing
 import AddTodoForm
 import EditTodoForm
 import Fire
-import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
-import Html.Styled.Attributes as A exposing (class, rows)
-import Html.Styled.Events exposing (onInput)
-import Json.Encode as JE exposing (Value)
+import Html.Styled as H exposing (Attribute, Html)
 import ProjectId exposing (ProjectId)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import UI.TextButton as TextButton
 
 
 type alias TodoFormFields =
     { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
 
 
-initTodoFormFields : Todo -> TodoFormFields
-initTodoFormFields todo =
-    { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
-
-
 type AddAt
     = Start
     | End
-
-
-type alias EditTodoFormInfo =
-    { todoId : TodoId
-    , form : EditTodoForm.Model
-    }
 
 
 type alias AddTodoFormInfo =
@@ -50,7 +34,10 @@ type alias AddTodoFormInfo =
 
 
 type TodoForm
-    = EditTodoForm EditTodoFormInfo
+    = EditTodoForm
+        { todoId : TodoId
+        , form : EditTodoForm.Model
+        }
     | AddTodoForm AddTodoFormInfo
 
 
@@ -61,7 +48,7 @@ initAddTodoForm addAt projectId =
 
 initEditTodoForm : Todo -> TodoForm
 initEditTodoForm todo =
-    EditTodoForm (EditTodoFormInfo todo.id (EditTodoForm.init todo))
+    EditTodoForm { todoId = todo.id, form = EditTodoForm.init todo }
 
 
 type TodoFormMsg
@@ -88,10 +75,6 @@ onTodoFormMsg :
     -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
 onTodoFormMsg config message model =
     let
-        persistEditing : EditTodoFormInfo -> Cmd msg
-        persistEditing info =
-            config.persistEdit info.form
-
         persistNew : AddTodoFormInfo -> Cmd msg
         persistNew info =
             config.persistNew info.form
@@ -110,9 +93,9 @@ onTodoFormMsg config message model =
                 Just (AddTodoForm _) ->
                     ( model, Cmd.none )
 
-                Just (EditTodoForm editInfo) ->
+                Just (EditTodoForm info) ->
                     ( { model | maybeTodoForm = addTodoForm }
-                    , persistEditing editInfo
+                    , config.persistEdit info.form
                     )
 
         EditTodoClicked todo ->
@@ -121,15 +104,15 @@ onTodoFormMsg config message model =
                 Nothing ->
                     Cmd.none
 
-                Just (AddTodoForm addInfo) ->
-                    persistNew addInfo
+                Just (AddTodoForm info) ->
+                    persistNew info
 
-                Just (EditTodoForm editInfo) ->
-                    if editInfo.todoId == todo.id then
+                Just (EditTodoForm info) ->
+                    if info.todoId == todo.id then
                         Cmd.none
 
                     else
-                        persistEditing editInfo
+                        config.persistEdit info.form
             )
 
         TodoFormChanged form ->
@@ -141,8 +124,8 @@ onTodoFormMsg config message model =
                 Nothing ->
                     Cmd.none
 
-                Just (EditTodoForm editInfo) ->
-                    persistEditing editInfo
+                Just (EditTodoForm info) ->
+                    config.persistEdit info.form
 
                 Just (AddTodoForm addInfo) ->
                     persistNew addInfo
@@ -202,39 +185,3 @@ viewTodoForm toMsg model =
                 }
                 addInfo.form
                 |> H.map toMsg
-
-
-
--- VIEW
-
-
-type alias TodoFormFieldsViewConfig msg =
-    { save : msg
-    , cancel : msg
-    , delete : msg
-    }
-
-
-viewTodoItemFormFields : TodoFormFieldsViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
-viewTodoItemFormFields config titleChangedMsg fields =
-    div [ class "pa3" ]
-        [ div [ class "flex" ]
-            [ div [ class "flex-grow-1" ]
-                [ H.node "auto-resize-textarea"
-                    [ A.property "textAreaValue" (JE.string fields.title) ]
-                    [ textarea
-                        [ class "pa0 lh-copy overflow-hidden w-100"
-                        , rows 1
-                        , onInput titleChangedMsg
-                        ]
-                        []
-                    ]
-                ]
-            , div [] [ text "schedule" ]
-            ]
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary config.save "Save" []
-            , TextButton.primary config.cancel "Cancel" []
-            , TextButton.primary config.delete "Delete" []
-            ]
-        ]
