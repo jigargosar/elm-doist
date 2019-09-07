@@ -1,4 +1,4 @@
-module AddTodoForm exposing (Model, getValid, init, persistIfValid, view)
+module AddTodoForm exposing (Model, init, persistIfValid, view)
 
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
@@ -28,23 +28,9 @@ init projectId =
     Model { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
-getValid : Model -> Maybe { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
-getValid ((Model info) as model) =
-    if SX.isBlank info.title then
-        Nothing
-
-    else
-        Just (toFields model)
-
-
 persistIfValid : Time.Posix -> Model -> Cmd msg
 persistIfValid now (Model { title, dueAt, projectId }) =
     Fire.addTodo (Todo.new now title dueAt projectId)
-
-
-toFields : Model -> { title : String, dueAt : DueAt, projectId : ProjectId }
-toFields (Model { title, dueAt, projectId }) =
-    { title = title, dueAt = dueAt, projectId = projectId }
 
 
 type alias ViewConfig msg =
