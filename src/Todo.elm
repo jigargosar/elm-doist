@@ -23,7 +23,7 @@ module Todo exposing
     , matchesFilter
     , new
     , notDue
-    , patch
+    , patchTodo
     , sortWith
     )
 
@@ -31,9 +31,11 @@ import Calendar
 import Compare exposing (Comparator)
 import Date
 import Dict exposing (Dict)
+import Fire
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra as MX
 import Millis exposing (Millis)
 import ProjectId exposing (ProjectId)
 import Time
@@ -161,8 +163,14 @@ new now title dueAt projectId =
         |> encoder
 
 
-patch : Time.Posix -> List Msg -> Maybe (List ( String, Value ))
-patch now msgList =
+patchTodo : Time.Posix -> TodoId -> List Msg -> Cmd msg
+patchTodo now todoId todoMsgList =
+    createPatches now todoMsgList
+        |> MX.unwrap Cmd.none (Fire.updateTodo todoId)
+
+
+createPatches : Time.Posix -> List Msg -> Maybe (List ( String, Value ))
+createPatches now msgList =
     if List.isEmpty msgList then
         Nothing
 
@@ -172,13 +180,13 @@ patch now msgList =
                 Time.posixToMillis now
         in
         (( "modifiedAt", JE.int nowMillis )
-            :: List.concatMap (patchHelp nowMillis) msgList
+            :: List.concatMap (createPatch nowMillis) msgList
         )
             |> Just
 
 
-patchHelp : Int -> Msg -> List ( String, Value )
-patchHelp now msg =
+createPatch : Int -> Msg -> List ( String, Value )
+createPatch now msg =
     case msg of
         SetCompleted bool ->
             [ ( "isDone", JE.bool bool ) ]

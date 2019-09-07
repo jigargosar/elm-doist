@@ -6,7 +6,6 @@ import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
 import ProjectId exposing (ProjectId)
-import String.Extra as SX
 import Time
 import Todo exposing (DueAt, Todo, TodoList)
 import UI.TextButton as TextButton

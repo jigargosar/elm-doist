@@ -35,15 +35,7 @@ type alias ViewConfig msg =
 
 persistIfValid : Time.Posix -> Model -> Cmd msg
 persistIfValid now ((Model { todo }) as model) =
-    let
-        todoMsgList =
-            toTodoMsgList model
-    in
-    if List.isEmpty todoMsgList then
-        Cmd.none
-
-    else
-        Fire.patchTodo now todo.id todoMsgList
+    Todo.patchTodo now todo.id (toTodoMsgList model)
 
 
 toTodoMsgList (Model { todo, title }) =
