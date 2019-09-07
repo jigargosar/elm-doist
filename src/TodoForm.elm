@@ -49,15 +49,6 @@ type alias AddTodoFormInfo =
     }
 
 
-type TodoFormKind
-    = AddKind AddAt
-    | EditKind TodoId TodoFormFields
-
-
-type alias TodoFormAlias =
-    { fields : TodoFormFields, kind : TodoFormKind }
-
-
 type TodoForm
     = EditTodoForm EditTodoFormInfo
     | AddTodoForm AddTodoFormInfo
