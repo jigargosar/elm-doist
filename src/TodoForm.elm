@@ -11,6 +11,7 @@ module TodoForm exposing
 -- TODO_ FORM
 
 import AddTodoForm
+import EditTodoForm
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
@@ -38,8 +39,7 @@ type AddAt
 
 type alias EditTodoFormInfo =
     { todoId : TodoId
-    , initial : TodoFormFields
-    , fields : TodoFormFields
+    , form : EditTodoForm.Model
     }
 
 
@@ -61,7 +61,7 @@ initAddTodoForm addAt projectId =
 
 initEditTodoForm : Todo -> TodoForm
 initEditTodoForm todo =
-    EditTodoForm (EditTodoFormInfo todo.id (initTodoFormFields todo) (initTodoFormFields todo))
+    EditTodoForm (EditTodoFormInfo todo.id (EditTodoForm.init todo))
 
 
 type TodoFormMsg
@@ -72,6 +72,7 @@ type TodoFormMsg
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
     | AddTodoFormChanged AddTodoForm.Model
+    | EditTodoFormChanged EditTodoForm.Model
 
 
 
@@ -79,7 +80,7 @@ type TodoFormMsg
 
 
 onTodoFormMsg :
-    { patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg
+    { persistEdit : EditTodoForm.Model -> Cmd msg
     , persistNew : AddTodoForm.Model -> Cmd msg
     }
     -> TodoFormMsg
@@ -88,8 +89,8 @@ onTodoFormMsg :
 onTodoFormMsg config message model =
     let
         persistEditing : EditTodoFormInfo -> Cmd msg
-        persistEditing =
-            patchEditingTodoCmd config
+        persistEditing info =
+            config.persistEdit info.form
 
         persistNew : AddTodoFormInfo -> Cmd msg
         persistNew info =
@@ -171,41 +172,13 @@ onTodoFormMsg config message model =
                 _ ->
                     ( model, Cmd.none )
 
+        EditTodoFormChanged form ->
+            case model.maybeTodoForm of
+                Just (EditTodoForm info) ->
+                    ( { model | maybeTodoForm = Just (EditTodoForm { info | form = form }) }, Cmd.none )
 
-patchEditingTodoCmd :
-    { a | patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg }
-    -> EditTodoFormInfo
-    -> Cmd msg
-patchEditingTodoCmd config editInfo =
-    let
-        { todoId, initial, fields } =
-            editInfo
-
-        msgList : List Todo.Msg
-        msgList =
-            [ if initial.title /= fields.title then
-                Just <| Todo.SetTitle fields.title
-
-              else
-                Nothing
-            , if initial.dueAt /= fields.dueAt then
-                Just <| Todo.SetDueAt fields.dueAt
-
-              else
-                Nothing
-            , if initial.projectId /= fields.projectId then
-                Just <| Todo.SetProjectId fields.projectId
-
-              else
-                Nothing
-            ]
-                |> List.filterMap identity
-    in
-    if List.isEmpty msgList then
-        Cmd.none
-
-    else
-        config.patchTodoCmd todoId msgList
+                _ ->
+                    ( model, Cmd.none )
 
 
 viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
@@ -219,17 +192,14 @@ viewTodoForm toMsg model =
     in
     case model of
         EditTodoForm editInfo ->
-            let
-                current =
-                    editInfo.fields
-            in
-            viewTodoItemFormFields
-                config
-                (\title ->
-                    toMsg <|
-                        TodoFormChanged (EditTodoForm { editInfo | fields = { current | title = title } })
-                )
-                editInfo.fields
+            EditTodoForm.view
+                { save = TodoFormSaveClicked
+                , cancel = TodoFormSaveClicked
+                , changed = EditTodoFormChanged
+                , delete = TodoFormDeleteClicked
+                }
+                editInfo.form
+                |> H.map toMsg
 
         AddTodoForm addInfo ->
             AddTodoForm.view

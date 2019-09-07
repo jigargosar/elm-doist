@@ -1,9 +1,11 @@
-module EditTodoForm exposing (Model, init, view)
+module EditTodoForm exposing (Model, init, persistIfValid, view)
 
+import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
+import Time
 import Todo exposing (DueAt, Todo, TodoList)
 import UI.TextButton as TextButton
 
@@ -29,6 +31,67 @@ type alias ViewConfig msg =
     , delete : msg
     , changed : Model -> msg
     }
+
+
+persistIfValid : Time.Posix -> Model -> Cmd msg
+persistIfValid now ((Model { todo }) as model) =
+    let
+        todoMsgList =
+            toTodoMsgList model
+    in
+    if List.isEmpty todoMsgList then
+        Cmd.none
+
+    else
+        Fire.updateTodo todo.id (Todo.patch todoMsgList now)
+
+
+toTodoMsgList (Model { todo, title }) =
+    [ if todo.title /= title then
+        Just <| Todo.SetTitle title
+
+      else
+        Nothing
+    ]
+        |> List.filterMap identity
+
+
+
+--patchEditingTodoCmd :
+--    { a | patchTodoCmd : TodoId -> List Todo.Msg -> Cmd msg }
+--    -> EditTodoFormInfo
+--    -> Cmd msg
+--patchEditingTodoCmd config editInfo =
+--    let
+--        { todoId, initial, fields } =
+--            editInfo
+--
+--        msgList : List Todo.Msg
+--        msgList =
+--            [ if initial.title /= fields.title then
+--                Just <| Todo.SetTitle fields.title
+--
+--              else
+--                Nothing
+--            , if initial.dueAt /= fields.dueAt then
+--                Just <| Todo.SetDueAt fields.dueAt
+--
+--              else
+--                Nothing
+--            , if initial.projectId /= fields.projectId then
+--                Just <| Todo.SetProjectId fields.projectId
+--
+--              else
+--                Nothing
+--            ]
+--                |> List.filterMap identity
+--    in
+--    if List.isEmpty msgList then
+--        Cmd.none
+--
+--    else
+--        config.patchTodoCmd todoId msgList
+--
 
 
 view : ViewConfig msg -> Model -> Html msg

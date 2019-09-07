@@ -9,6 +9,7 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
+import EditTodoForm
 import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
@@ -205,6 +206,7 @@ type Msg
       -- NewTodoOperations
     | AddTodo String DueAt ProjectId Time.Posix
     | PersistAddTodoForm AddTodoForm.Model Time.Posix
+    | PersistEditTodoForm EditTodoForm.Model Time.Posix
     | AddTodoWithDueTodayClicked
       -- ExistingTodoOperations
     | DeleteTodoClicked TodoId
@@ -336,8 +338,9 @@ update message model =
 
         TodoFormMsg msg ->
             TodoForm.onTodoFormMsg
-                { patchTodoCmd =
-                    \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
+                { persistEdit = PersistEditTodoForm >> getNow
+
+                --                    \todoId todoMsgList -> getNow <| PatchTodoWithNow todoId todoMsgList
                 , persistNew = PersistAddTodoForm >> getNow
                 }
                 msg
@@ -345,6 +348,9 @@ update message model =
 
         PersistAddTodoForm atf now ->
             ( model, AddTodoForm.persistIfValid now atf )
+
+        PersistEditTodoForm form now ->
+            ( model, EditTodoForm.persistIfValid now form )
 
         AddProject now ->
             ( model, Fire.addProject (Project.new now) )
