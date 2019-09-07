@@ -224,6 +224,7 @@ todoFormViewConfig =
     , delete = TodoFormMsg TodoForm.Delete
     , openAdd = \addAt projectId -> TodoFormMsg <| TodoForm.OpenAdd addAt projectId
     , openEdit = TodoFormMsg << TodoForm.OpenEdit
+    , toMsg = TodoFormMsg
     }
 
 
@@ -731,49 +732,36 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         Nothing ->
             viewBaseListHelp todoList
 
-        Just (TodoForm.Edit editInfo) ->
-            let
-                current =
-                    editInfo.current
-
-                viewHelp =
-                    ( "edit-todo-form-key"
-                    , TodoForm.viewTodoItemForm
-                        config
-                        (\title -> config.set (TodoForm.Edit { editInfo | current = { current | title = title } }))
-                        editInfo.current
-                    )
-            in
-            if List.any (.id >> eq_ editInfo.todoId) todoList then
-                todoList
-                    |> List.map
-                        (\todo ->
-                            if todo.id == editInfo.todoId then
-                                viewHelp
-
-                            else
-                                viewBaseHelp todo
-                        )
-
-            else
-                viewHelp :: viewBaseListHelp todoList
-
-        Just (TodoForm.Add at fields) ->
+        Just todoForm ->
             let
                 viewHelp =
-                    ( "add-todo-form-key"
-                    , TodoForm.viewTodoItemForm
-                        config
-                        (\title -> config.set (TodoForm.Add at { fields | title = title }))
-                        fields
+                    ( "todo-form-key"
+                    , TodoForm.view config todoForm
                     )
             in
-            case at of
-                TodoForm.Start ->
-                    viewHelp :: viewBaseListHelp todoList
+            case todoForm of
+                TodoForm.Edit editInfo ->
+                    if List.any (.id >> eq_ editInfo.todoId) todoList then
+                        todoList
+                            |> List.map
+                                (\todo ->
+                                    if todo.id == editInfo.todoId then
+                                        viewHelp
 
-                TodoForm.End ->
-                    viewBaseListHelp todoList ++ [ viewHelp ]
+                                    else
+                                        viewBaseHelp todo
+                                )
+
+                    else
+                        viewHelp :: viewBaseListHelp todoList
+
+                TodoForm.Add at fields ->
+                    case at of
+                        TodoForm.Start ->
+                            viewHelp :: viewBaseListHelp todoList
+
+                        TodoForm.End ->
+                            viewBaseListHelp todoList ++ [ viewHelp ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg

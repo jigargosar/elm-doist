@@ -5,6 +5,7 @@ module TodoForm exposing
     , TodoFormMsg(..)
     , TodoFormViewConfig
     , onTodoFormMsg
+    , view
     , viewTodoItemForm
     )
 
@@ -202,6 +203,26 @@ patchEditingTodoCmd config editInfo =
 -- VIEW
 
 
+view : TodoFormViewConfig msg -> TodoForm -> Html msg
+view config model =
+    case model of
+        Edit editInfo ->
+            let
+                current =
+                    editInfo.current
+            in
+            viewTodoItemForm
+                config
+                (\title -> config.toMsg <| Set (Edit { editInfo | current = { current | title = title } }))
+                editInfo.current
+
+        Add addAt current ->
+            viewTodoItemForm
+                config
+                (\title -> config.toMsg <| Set (Add addAt { current | title = title }))
+                current
+
+
 type alias TodoFormViewConfig msg =
     { set : TodoForm -> msg
     , save : msg
@@ -209,6 +230,7 @@ type alias TodoFormViewConfig msg =
     , delete : msg
     , openAdd : AddAt -> ProjectId -> msg
     , openEdit : Todo -> msg
+    , toMsg : TodoFormMsg -> msg
     }
 
 
