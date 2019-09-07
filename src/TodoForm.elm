@@ -147,15 +147,17 @@ onTodoFormMsg config message model =
             )
 
         TodoFormDeleteClicked ->
-            case model.maybeTodoForm of
+            ( model
+            , case model.maybeTodoForm of
                 Nothing ->
-                    ( model, Cmd.none )
+                    Cmd.none
 
                 Just (EditTodoForm editInfo) ->
-                    ( model, Fire.deleteTodo editInfo.todoId )
+                    Fire.deleteTodo editInfo.todoId
 
                 Just (AddTodoForm _) ->
-                    ( model, Cmd.none )
+                    Cmd.none
+            )
 
         TodoFormCancelClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
