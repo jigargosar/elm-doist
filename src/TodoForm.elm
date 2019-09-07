@@ -134,21 +134,17 @@ onTodoFormMsg config message model =
             ( { model | maybeTodoForm = Just form }, Cmd.none )
 
         TodoFormSaveClicked ->
-            let
-                newModel =
-                    { model | maybeTodoForm = Nothing }
-            in
-            case model.maybeTodoForm of
+            ( { model | maybeTodoForm = Nothing }
+            , case model.maybeTodoForm of
                 Nothing ->
-                    ( newModel, Cmd.none )
+                    Cmd.none
 
                 Just (EditTodoForm editInfo) ->
-                    ( newModel
-                    , persistEditing editInfo
-                    )
+                    persistEditing editInfo
 
                 Just (AddTodoForm addInfo) ->
-                    ( newModel, persistNew addInfo )
+                    persistNew addInfo
+            )
 
         TodoFormDeleteClicked ->
             case model.maybeTodoForm of
