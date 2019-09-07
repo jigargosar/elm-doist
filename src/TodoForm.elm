@@ -22,23 +22,23 @@ type AddAt
     | End
 
 
-type alias AddTodoFormInfo =
-    { addAt : AddAt
-    , form : AddTodoForm.Model
-    }
-
-
 type TodoForm
     = EditTodoForm
         { todoId : TodoId
         , form : EditTodoForm.Model
         }
-    | AddTodoForm AddTodoFormInfo
+    | AddTodoForm
+        { addAt : AddAt
+        , form : AddTodoForm.Model
+        }
 
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
-    AddTodoForm <| AddTodoFormInfo addAt (AddTodoForm.init projectId)
+    AddTodoForm <|
+        { addAt = addAt
+        , form = AddTodoForm.init projectId
+        }
 
 
 initEditTodoForm : Todo -> TodoForm
@@ -67,11 +67,6 @@ onTodoFormMsg :
     -> { b | maybeTodoForm : Maybe TodoForm }
     -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
 onTodoFormMsg config message model =
-    let
-        persistNew : AddTodoFormInfo -> Cmd msg
-        persistNew info =
-            config.persistNew info.form
-    in
     case message of
         AddNewTodoClicked addAt projectId ->
             let
@@ -98,7 +93,7 @@ onTodoFormMsg config message model =
                     Cmd.none
 
                 Just (AddTodoForm info) ->
-                    persistNew info
+                    config.persistNew info.form
 
                 Just (EditTodoForm info) ->
                     if info.todoId == todo.id then
@@ -120,8 +115,8 @@ onTodoFormMsg config message model =
                 Just (EditTodoForm info) ->
                     config.persistEdit info.form
 
-                Just (AddTodoForm addInfo) ->
-                    persistNew addInfo
+                Just (AddTodoForm info) ->
+                    config.persistNew info.form
             )
 
         TodoFormDeleteClicked ->
