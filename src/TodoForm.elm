@@ -49,6 +49,15 @@ type alias AddTodoFormInfo =
     }
 
 
+type TodoFormKind
+    = AddKind AddAt
+    | EditKind TodoId TodoFormFields
+
+
+type alias TodoFormAlias =
+    { fields : TodoFormFields, kind : TodoFormKind }
+
+
 type TodoForm
     = EditTodoForm EditTodoFormInfo
     | AddTodoForm AddTodoFormInfo
@@ -228,7 +237,10 @@ viewTodoForm toMsg model =
             in
             viewTodoItemFormFields
                 config
-                (\title -> toMsg <| TodoFormChanged (EditTodoForm { editInfo | fields = { current | title = title } }))
+                (\title ->
+                    toMsg <|
+                        TodoFormChanged (EditTodoForm { editInfo | fields = { current | title = title } })
+                )
                 editInfo.fields
 
         AddTodoForm addInfo ->
@@ -238,7 +250,10 @@ viewTodoForm toMsg model =
             in
             viewTodoItemFormFields
                 config
-                (\title -> toMsg <| TodoFormChanged (AddTodoForm <| { addInfo | fields = { fields | title = title } }))
+                (\title ->
+                    toMsg <|
+                        TodoFormChanged (AddTodoForm <| { addInfo | fields = { fields | title = title } })
+                )
                 fields
 
 
