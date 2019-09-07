@@ -848,15 +848,14 @@ viewKeyedTodoItems :
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, todoForm } todoList =
     let
-        viewBaseHelp : Todo -> ( String, Html Msg )
-        viewBaseHelp todo =
+        viewBase : Todo -> ( String, Html Msg )
+        viewBase todo =
             ( TodoId.toString todo.id, viewTodoItemBase here todo )
 
-        viewBaseListHelp : List Todo -> List ( String, Html Msg )
-        viewBaseListHelp =
-            List.map viewBaseHelp
-    in
-    let
+        viewBaseList : List Todo -> List ( String, Html Msg )
+        viewBaseList =
+            List.map viewBase
+
         viewForm =
             ( "todo-form-key"
             , viewTodoForm todoForm
@@ -864,7 +863,7 @@ viewKeyedTodoItems { here, todoForm } todoList =
     in
     case todoForm of
         NoTodoForm ->
-            viewBaseListHelp todoList
+            viewBaseList todoList
 
         EditTodoForm { todoId } ->
             if List.any (.id >> eq_ todoId) todoList then
@@ -875,19 +874,19 @@ viewKeyedTodoItems { here, todoForm } todoList =
                                 viewForm
 
                             else
-                                viewBaseHelp todo
+                                viewBase todo
                         )
 
             else
-                viewForm :: viewBaseListHelp todoList
+                viewForm :: viewBaseList todoList
 
         AddTodoForm { addAt } ->
             case addAt of
                 Start ->
-                    viewForm :: viewBaseListHelp todoList
+                    viewForm :: viewBaseList todoList
 
                 End ->
-                    viewBaseListHelp todoList ++ [ viewForm ]
+                    viewBaseList todoList ++ [ viewForm ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
