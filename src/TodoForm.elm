@@ -51,12 +51,12 @@ type alias AddTodoFormInfo =
 
 type TodoForm
     = EditTodoForm EditTodoFormInfo
-    | AddTodoForm AddAt TodoFormFields
+    | AddTodoForm AddTodoFormInfo
 
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
-    AddTodoForm addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+    AddTodoForm <| AddTodoFormInfo addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
 type TodoFormMsg
@@ -85,7 +85,7 @@ onTodoFormMsg config message model =
         persistEditing =
             patchEditingTodoCmd config
 
-        persistNew : TodoFormFields -> Cmd msg
+        persistNew : AddTodoFormInfo -> Cmd msg
         persistNew =
             persistNewTodoCmd config
     in
@@ -100,8 +100,8 @@ onTodoFormMsg config message model =
                 Nothing ->
                     ( { model | maybeTodoForm = addTodoForm }, Cmd.none )
 
-                Just (AddTodoForm _ fields) ->
-                    ( { model | maybeTodoForm = AddTodoForm addAt fields |> Just }, Cmd.none )
+                Just (AddTodoForm _) ->
+                    ( model, Cmd.none )
 
                 Just (EditTodoForm editInfo) ->
                     ( { model | maybeTodoForm = addTodoForm }
@@ -120,9 +120,9 @@ onTodoFormMsg config message model =
                     , Cmd.none
                     )
 
-                Just (AddTodoForm _ fields) ->
+                Just (AddTodoForm addInfo) ->
                     ( { model | maybeTodoForm = editTodoForm }
-                    , persistNew fields
+                    , persistNew addInfo
                     )
 
                 Just (EditTodoForm editInfo) ->
@@ -151,8 +151,8 @@ onTodoFormMsg config message model =
                     , persistEditing editInfo
                     )
 
-                Just (AddTodoForm _ fields) ->
-                    ( newModel, persistNew fields )
+                Just (AddTodoForm addInfo) ->
+                    ( newModel, persistNew addInfo )
 
         TodoFormDeleteClicked ->
             case model.maybeTodoForm of
@@ -162,7 +162,7 @@ onTodoFormMsg config message model =
                 Just (EditTodoForm editInfo) ->
                     ( model, Fire.deleteTodo editInfo.todoId )
 
-                Just (AddTodoForm _ _) ->
+                Just (AddTodoForm _) ->
                     ( model, Cmd.none )
 
         TodoFormCancelClicked ->
@@ -171,9 +171,9 @@ onTodoFormMsg config message model =
 
 persistNewTodoCmd :
     { a | addNewTodoCmd : TodoFormFields -> Cmd msg }
-    -> TodoFormFields
+    -> AddTodoFormInfo
     -> Cmd msg
-persistNewTodoCmd config fields =
+persistNewTodoCmd config { fields } =
     if SX.isBlank fields.title then
         Cmd.none
 
@@ -248,11 +248,15 @@ viewTodoForm toMsg model =
                 (\title -> toMsg <| TodoFormChanged (EditTodoForm { editInfo | fields = { current | title = title } }))
                 editInfo.fields
 
-        AddTodoForm addAt current ->
+        AddTodoForm addInfo ->
+            let
+                { fields } =
+                    addInfo
+            in
             viewTodoItemFormFields
                 config
-                (\title -> toMsg <| TodoFormChanged (AddTodoForm addAt { current | title = title }))
-                current
+                (\title -> toMsg <| TodoFormChanged (AddTodoForm <| { addInfo | fields = { fields | title = title } }))
+                fields
 
 
 viewTodoItemFormFields : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg

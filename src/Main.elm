@@ -747,8 +747,8 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     else
                         viewHelp :: viewBaseListHelp todoList
 
-                TodoForm.AddTodoForm at _ ->
-                    case at of
+                TodoForm.AddTodoForm { addAt } ->
+                    case addAt of
                         TodoForm.Start ->
                             viewHelp :: viewBaseListHelp todoList
 
