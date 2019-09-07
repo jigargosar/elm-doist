@@ -333,7 +333,7 @@ update message model =
 
         PatchTodoWithNow todoId todoMsgList now ->
             ( model
-            , Fire.updateTodo todoId (Todo.patch todoMsgList now)
+            , Fire.patchTodo now todoId todoMsgList
             )
 
         TodoFormMsg msg ->

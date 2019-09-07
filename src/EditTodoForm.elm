@@ -43,7 +43,7 @@ persistIfValid now ((Model { todo }) as model) =
         Cmd.none
 
     else
-        Fire.updateTodo todo.id (Todo.patch todoMsgList now)
+        Fire.patchTodo now todo.id todoMsgList
 
 
 toTodoMsgList (Model { todo, title }) =

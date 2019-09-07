@@ -4,9 +4,9 @@ module Fire exposing
     , cleanupTodoList
     , deleteProject
     , deleteTodo
+    , patchTodo
     , queryProjectList
     , queryTodoList
-    , updateTodo
     )
 
 import Dict exposing (Dict)
@@ -16,6 +16,7 @@ import Maybe.Extra as MX
 import Ports
 import Project exposing (Project)
 import ProjectId
+import Time
 import Todo exposing (Todo)
 import TodoId exposing (TodoId)
 
@@ -62,6 +63,11 @@ updateTodo todoId kvPairs =
         { userDocPath = "todos/" ++ TodoId.toString todoId
         , data = JE.object kvPairs
         }
+
+
+patchTodo : Time.Posix -> TodoId -> List Todo.Msg -> Cmd msg
+patchTodo now todoId todoMsgList =
+    updateTodo todoId (Todo.patch todoMsgList now)
 
 
 addTodo : JE.Value -> Cmd msg
