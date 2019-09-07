@@ -87,7 +87,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeTodoForm : Maybe TodoForm.TodoForm
+    , maybeTodoForm : Maybe TodoForm.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -731,7 +731,7 @@ viewProjectTodoListPage projectId projectName model =
 
 
 viewKeyedTodoItems :
-    { a | here : Zone, maybeTodoForm : Maybe TodoForm.TodoForm }
+    { a | here : Zone, maybeTodoForm : Maybe TodoForm.Model }
     -> List Todo
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, maybeTodoForm } todoList =

@@ -1,6 +1,6 @@
 module TodoForm exposing
     ( AddAt(..)
-    , TodoForm(..)
+    , Model(..)
     , TodoFormMsg(..)
     , onTodoFormMsg
     , viewTodoForm
@@ -22,7 +22,7 @@ type AddAt
     | End
 
 
-type TodoForm
+type Model
     = EditTodoForm
         { todoId : TodoId
         , form : EditTodoForm.Model
@@ -33,7 +33,7 @@ type TodoForm
         }
 
 
-initAddTodoForm : AddAt -> ProjectId -> TodoForm
+initAddTodoForm : AddAt -> ProjectId -> Model
 initAddTodoForm addAt projectId =
     AddTodoForm <|
         { addAt = addAt
@@ -41,7 +41,7 @@ initAddTodoForm addAt projectId =
         }
 
 
-initEditTodoForm : Todo -> TodoForm
+initEditTodoForm : Todo -> Model
 initEditTodoForm todo =
     EditTodoForm { todoId = todo.id, form = EditTodoForm.init todo }
 
@@ -49,7 +49,7 @@ initEditTodoForm todo =
 type TodoFormMsg
     = TodoFormSaveClicked
     | TodoFormCancelClicked
-    | TodoFormChanged TodoForm
+    | TodoFormChanged Model
     | TodoFormDeleteClicked
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
@@ -64,8 +64,8 @@ onTodoFormMsg :
     , persistNew : AddTodoForm.Model -> Cmd msg
     }
     -> TodoFormMsg
-    -> { b | maybeTodoForm : Maybe TodoForm }
-    -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
+    -> { b | maybeTodoForm : Maybe Model }
+    -> ( { b | maybeTodoForm : Maybe Model }, Cmd msg )
 onTodoFormMsg config message model =
     case message of
         AddNewTodoClicked addAt projectId ->
@@ -136,7 +136,7 @@ onTodoFormMsg config message model =
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
-viewTodoForm : (TodoFormMsg -> msg) -> TodoForm -> Html msg
+viewTodoForm : (TodoFormMsg -> msg) -> Model -> Html msg
 viewTodoForm toMsg model =
     case model of
         EditTodoForm info ->
