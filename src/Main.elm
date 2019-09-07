@@ -74,7 +74,7 @@ type TodoForm
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
-    AddTodoForm <|
+    AddTodoForm
         { addAt = addAt
         , form = AddTodoForm.init projectId
         }
@@ -82,7 +82,10 @@ initAddTodoForm addAt projectId =
 
 initEditTodoForm : Todo -> TodoForm
 initEditTodoForm todo =
-    EditTodoForm { todoId = todo.id, form = EditTodoForm.init todo }
+    EditTodoForm
+        { todoId = todo.id
+        , form = EditTodoForm.init todo
+        }
 
 
 type TodoFormMsg
