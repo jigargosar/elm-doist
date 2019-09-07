@@ -216,15 +216,6 @@ type Msg
     | AddProject Time.Posix
 
 
-todoFormViewConfig : TodoForm.TodoFormViewConfig Msg
-todoFormViewConfig =
-    { save = TodoFormMsg TodoForm.Save
-    , cancel = TodoFormMsg TodoForm.Cancel
-    , delete = TodoFormMsg TodoForm.Delete
-    , toMsg = TodoFormMsg
-    }
-
-
 addTodoClicked : TodoForm.AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
     TodoFormMsg <| TodoForm.OpenAdd addAt projectId
@@ -721,9 +712,6 @@ viewKeyedTodoItems :
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, maybeTodoForm } todoList =
     let
-        config =
-            todoFormViewConfig
-
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp todo =
             ( TodoId.toString todo.id, viewTodoItemBase here todo )
@@ -740,7 +728,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
             let
                 viewHelp =
                     ( "todo-form-key"
-                    , TodoForm.view config todoForm
+                    , TodoForm.view TodoFormMsg todoForm
                     )
             in
             case todoForm of
@@ -759,7 +747,7 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
                     else
                         viewHelp :: viewBaseListHelp todoList
 
-                TodoForm.Add at fields ->
+                TodoForm.Add at _ ->
                     case at of
                         TodoForm.Start ->
                             viewHelp :: viewBaseListHelp todoList

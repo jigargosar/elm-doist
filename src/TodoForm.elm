@@ -3,7 +3,6 @@ module TodoForm exposing
     , TodoForm(..)
     , TodoFormFields
     , TodoFormMsg(..)
-    , TodoFormViewConfig
     , onTodoFormMsg
     , view
     , viewTodoItemFormFields
@@ -37,7 +36,7 @@ type AddAt
     | End
 
 
-type alias EditInternals =
+type alias EditInfo =
     { todoId : TodoId
     , initial : TodoFormFields
     , current : TodoFormFields
@@ -45,8 +44,12 @@ type alias EditInternals =
 
 
 type TodoForm
-    = Edit EditInternals
+    = Edit EditInfo
     | Add AddAt TodoFormFields
+
+
+initAddFormAt addAt projectId =
+    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
 type TodoFormMsg
@@ -71,7 +74,7 @@ onTodoFormMsg :
     -> ( { b | maybeTodoForm : Maybe TodoForm }, Cmd msg )
 onTodoFormMsg config message model =
     let
-        persistEditing : EditInternals -> Cmd msg
+        persistEditing : EditInfo -> Cmd msg
         persistEditing =
             patchEditingTodoCmd config
 
@@ -82,26 +85,26 @@ onTodoFormMsg config message model =
     case message of
         OpenAdd addAt projectId ->
             let
-                newTodoForm =
-                    Add addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+                addTodoForm =
+                    initAddFormAt addAt projectId
                         |> Just
             in
             case model.maybeTodoForm of
                 Nothing ->
-                    ( { model | maybeTodoForm = newTodoForm }, Cmd.none )
+                    ( { model | maybeTodoForm = addTodoForm }, Cmd.none )
 
                 Just (Add _ fields) ->
                     ( { model | maybeTodoForm = Add addAt fields |> Just }, Cmd.none )
 
                 Just (Edit editInfo) ->
-                    ( { model | maybeTodoForm = newTodoForm }
+                    ( { model | maybeTodoForm = addTodoForm }
                     , persistEditing editInfo
                     )
 
         OpenEdit todo ->
             let
                 newTodoForm =
-                    Edit (EditInternals todo.id (initTodoFormFields todo) (initTodoFormFields todo))
+                    Edit (EditInfo todo.id (initTodoFormFields todo) (initTodoFormFields todo))
                         |> Just
             in
             case model.maybeTodoForm of
@@ -203,8 +206,22 @@ patchEditingTodoCmd config editInfo =
 -- VIEW
 
 
-view : TodoFormViewConfig msg -> TodoForm -> Html msg
-view config model =
+type alias TodoFormViewConfig msg =
+    { save : msg
+    , cancel : msg
+    , delete : msg
+    }
+
+
+view : (TodoFormMsg -> msg) -> TodoForm -> Html msg
+view toMsg model =
+    let
+        config =
+            { save = toMsg Save
+            , cancel = toMsg Cancel
+            , delete = toMsg Delete
+            }
+    in
     case model of
         Edit editInfo ->
             let
@@ -213,22 +230,14 @@ view config model =
             in
             viewTodoItemFormFields
                 config
-                (\title -> config.toMsg <| Set (Edit { editInfo | current = { current | title = title } }))
+                (\title -> toMsg <| Set (Edit { editInfo | current = { current | title = title } }))
                 editInfo.current
 
         Add addAt current ->
             viewTodoItemFormFields
                 config
-                (\title -> config.toMsg <| Set (Add addAt { current | title = title }))
+                (\title -> toMsg <| Set (Add addAt { current | title = title }))
                 current
-
-
-type alias TodoFormViewConfig msg =
-    { save : msg
-    , cancel : msg
-    , delete : msg
-    , toMsg : TodoFormMsg -> msg
-    }
 
 
 viewTodoItemFormFields : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
