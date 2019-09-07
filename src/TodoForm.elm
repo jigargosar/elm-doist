@@ -224,8 +224,7 @@ view config model =
 
 
 type alias TodoFormViewConfig msg =
-    { set : TodoForm -> msg
-    , save : msg
+    { save : msg
     , cancel : msg
     , delete : msg
     , openAdd : AddAt -> ProjectId -> msg

@@ -218,8 +218,7 @@ type Msg
 
 todoFormViewConfig : TodoForm.TodoFormViewConfig Msg
 todoFormViewConfig =
-    { set = TodoFormMsg << TodoForm.Set
-    , save = TodoFormMsg TodoForm.Save
+    { save = TodoFormMsg TodoForm.Save
     , cancel = TodoFormMsg TodoForm.Cancel
     , delete = TodoFormMsg TodoForm.Delete
     , openAdd = \addAt projectId -> TodoFormMsg <| TodoForm.OpenAdd addAt projectId
