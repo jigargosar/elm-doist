@@ -1,7 +1,6 @@
 module TodoForm exposing
     ( AddAt(..)
     , TodoForm(..)
-    , TodoFormFields
     , TodoFormMsg(..)
     , onTodoFormMsg
     , viewTodoForm
@@ -16,10 +15,6 @@ import Html.Styled as H exposing (Attribute, Html)
 import ProjectId exposing (ProjectId)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-
-
-type alias TodoFormFields =
-    { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
 
 
 type AddAt
