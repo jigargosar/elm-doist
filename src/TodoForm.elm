@@ -6,7 +6,7 @@ module TodoForm exposing
     , TodoFormViewConfig
     , onTodoFormMsg
     , view
-    , viewTodoItemForm
+    , viewTodoItemFormFields
     )
 
 -- TODO_ FORM
@@ -211,13 +211,13 @@ view config model =
                 current =
                     editInfo.current
             in
-            viewTodoItemForm
+            viewTodoItemFormFields
                 config
                 (\title -> config.toMsg <| Set (Edit { editInfo | current = { current | title = title } }))
                 editInfo.current
 
         Add addAt current ->
-            viewTodoItemForm
+            viewTodoItemFormFields
                 config
                 (\title -> config.toMsg <| Set (Add addAt { current | title = title }))
                 current
@@ -234,8 +234,8 @@ type alias TodoFormViewConfig msg =
     }
 
 
-viewTodoItemForm : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
-viewTodoItemForm config titleChangedMsg fields =
+viewTodoItemFormFields : TodoFormViewConfig msg -> (String -> msg) -> TodoFormFields -> Html msg
+viewTodoItemFormFields config titleChangedMsg fields =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
