@@ -487,19 +487,6 @@ update message model =
             ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
         PatchTodo todoId todoMsgList ->
-            let
-                _ =
-                    Process.spawn Time.now
-                        |> Task.map (Debug.log "now|map")
-                        |> Task.perform
-                            (\f ->
-                                let
-                                    _ =
-                                        Debug.log "id1" f
-                                in
-                                NoOp
-                            )
-            in
             ( model, getNow (PatchTodoWithNow todoId todoMsgList) )
 
         PatchTodoWithNow todoId todoMsgList now ->
