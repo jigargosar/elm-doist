@@ -59,6 +59,11 @@ initAddTodoForm addAt projectId =
     AddTodoForm <| AddTodoFormInfo addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
+initEditTodoForm : Todo -> TodoForm
+initEditTodoForm todo =
+    EditTodoForm (EditTodoFormInfo todo.id (initTodoFormFields todo) (initTodoFormFields todo))
+
+
 type TodoFormMsg
     = TodoFormSaveClicked
     | TodoFormChanged TodoForm
@@ -109,30 +114,21 @@ onTodoFormMsg config message model =
                     )
 
         EditTodoClicked todo ->
-            let
-                editTodoForm =
-                    EditTodoForm (EditTodoFormInfo todo.id (initTodoFormFields todo) (initTodoFormFields todo))
-                        |> Just
-            in
-            case model.maybeTodoForm of
+            ( { model | maybeTodoForm = initEditTodoForm todo |> Just }
+            , case model.maybeTodoForm of
                 Nothing ->
-                    ( { model | maybeTodoForm = editTodoForm }
-                    , Cmd.none
-                    )
+                    Cmd.none
 
                 Just (AddTodoForm addInfo) ->
-                    ( { model | maybeTodoForm = editTodoForm }
-                    , persistNew addInfo
-                    )
+                    persistNew addInfo
 
                 Just (EditTodoForm editInfo) ->
                     if editInfo.todoId == todo.id then
-                        ( model, Cmd.none )
+                        Cmd.none
 
                     else
-                        ( { model | maybeTodoForm = editTodoForm }
-                        , persistEditing editInfo
-                        )
+                        persistEditing editInfo
+            )
 
         TodoFormChanged form ->
             ( { model | maybeTodoForm = Just form }, Cmd.none )
