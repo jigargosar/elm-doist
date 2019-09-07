@@ -116,8 +116,10 @@ onTodoFormMsg message model =
                 NoTodoForm ->
                     ( { model | todoForm = addTodoForm }, Cmd.none )
 
-                AddTodoForm _ ->
-                    ( model, Cmd.none )
+                AddTodoForm info ->
+                    ( { model | todoForm = AddTodoForm { info | addAt = addAt } }
+                    , Cmd.none
+                    )
 
                 EditTodoForm info ->
                     ( { model | todoForm = addTodoForm }
