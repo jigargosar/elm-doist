@@ -87,7 +87,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeTodoForm : Maybe TodoForm.Model
+    , todoForm : TodoForm.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -158,7 +158,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , maybeTodoForm = Nothing
+            , todoForm = TodoForm.none
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -279,7 +279,7 @@ update message model =
                     Route.fromUrl url
             in
             if model.route /= newRoute then
-                ( { model | route = newRoute, maybeTodoForm = Nothing }
+                ( { model | route = newRoute, todoForm = TodoForm.none }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
 
@@ -705,6 +705,7 @@ todayContent model =
 -- ProjectTodoList
 
 
+viewProjectTodoListPage : ProjectId -> String -> Model -> StyledDocument Msg
 viewProjectTodoListPage projectId projectName model =
     let
         displayTodoList =
@@ -731,10 +732,10 @@ viewProjectTodoListPage projectId projectName model =
 
 
 viewKeyedTodoItems :
-    { a | here : Zone, maybeTodoForm : Maybe TodoForm.Model }
+    Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, maybeTodoForm } todoList =
+viewKeyedTodoItems { here, todoForm } todoList =
     let
         viewBaseHelp : Todo -> ( String, Html Msg )
         viewBaseHelp todo =
@@ -744,40 +745,38 @@ viewKeyedTodoItems { here, maybeTodoForm } todoList =
         viewBaseListHelp =
             List.map viewBaseHelp
     in
-    case maybeTodoForm of
-        Nothing ->
+    let
+        viewHelp =
+            ( "todo-form-key"
+            , TodoForm.viewTodoForm TodoFormMsg todoForm
+            )
+    in
+    case todoForm of
+        TodoForm.NoTodoForm ->
             viewBaseListHelp todoList
 
-        Just todoForm ->
-            let
-                viewHelp =
-                    ( "todo-form-key"
-                    , TodoForm.viewTodoForm TodoFormMsg todoForm
-                    )
-            in
-            case todoForm of
-                TodoForm.EditTodoForm { todoId } ->
-                    if List.any (.id >> eq_ todoId) todoList then
-                        todoList
-                            |> List.map
-                                (\todo ->
-                                    if todo.id == todoId then
-                                        viewHelp
+        TodoForm.EditTodoForm { todoId } ->
+            if List.any (.id >> eq_ todoId) todoList then
+                todoList
+                    |> List.map
+                        (\todo ->
+                            if todo.id == todoId then
+                                viewHelp
 
-                                    else
-                                        viewBaseHelp todo
-                                )
+                            else
+                                viewBaseHelp todo
+                        )
 
-                    else
-                        viewHelp :: viewBaseListHelp todoList
+            else
+                viewHelp :: viewBaseListHelp todoList
 
-                TodoForm.AddTodoForm { addAt } ->
-                    case addAt of
-                        TodoForm.Start ->
-                            viewHelp :: viewBaseListHelp todoList
+        TodoForm.AddTodoForm { addAt } ->
+            case addAt of
+                TodoForm.Start ->
+                    viewHelp :: viewBaseListHelp todoList
 
-                        TodoForm.End ->
-                            viewBaseListHelp todoList ++ [ viewHelp ]
+                TodoForm.End ->
+                    viewBaseListHelp todoList ++ [ viewHelp ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg

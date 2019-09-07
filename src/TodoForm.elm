@@ -2,6 +2,7 @@ module TodoForm exposing
     ( AddAt(..)
     , Model(..)
     , TodoFormMsg(..)
+    , none
     , onTodoFormMsg
     , viewTodoForm
     )
@@ -12,6 +13,7 @@ import AddTodoForm
 import EditTodoForm
 import Fire
 import Html.Styled as H exposing (Attribute, Html)
+import HtmlExtra as HX
 import ProjectId exposing (ProjectId)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
@@ -31,6 +33,12 @@ type Model
         { addAt : AddAt
         , form : AddTodoForm.Model
         }
+    | NoTodoForm
+
+
+none : Model
+none =
+    NoTodoForm
 
 
 initAddTodoForm : AddAt -> ProjectId -> Model
@@ -64,38 +72,37 @@ onTodoFormMsg :
     , persistNew : AddTodoForm.Model -> Cmd msg
     }
     -> TodoFormMsg
-    -> { b | maybeTodoForm : Maybe Model }
-    -> ( { b | maybeTodoForm : Maybe Model }, Cmd msg )
+    -> { b | todoForm : Model }
+    -> ( { b | todoForm : Model }, Cmd msg )
 onTodoFormMsg config message model =
     case message of
         AddNewTodoClicked addAt projectId ->
             let
                 addTodoForm =
                     initAddTodoForm addAt projectId
-                        |> Just
             in
-            case model.maybeTodoForm of
-                Nothing ->
-                    ( { model | maybeTodoForm = addTodoForm }, Cmd.none )
+            case model.todoForm of
+                NoTodoForm ->
+                    ( { model | todoForm = addTodoForm }, Cmd.none )
 
-                Just (AddTodoForm _) ->
+                AddTodoForm _ ->
                     ( model, Cmd.none )
 
-                Just (EditTodoForm info) ->
-                    ( { model | maybeTodoForm = addTodoForm }
+                EditTodoForm info ->
+                    ( { model | todoForm = addTodoForm }
                     , config.persistEdit info.form
                     )
 
         EditTodoClicked todo ->
-            ( { model | maybeTodoForm = initEditTodoForm todo |> Just }
-            , case model.maybeTodoForm of
-                Nothing ->
+            ( { model | todoForm = initEditTodoForm todo }
+            , case model.todoForm of
+                NoTodoForm ->
                     Cmd.none
 
-                Just (AddTodoForm info) ->
+                AddTodoForm info ->
                     config.persistNew info.form
 
-                Just (EditTodoForm info) ->
+                EditTodoForm info ->
                     if info.todoId == todo.id then
                         Cmd.none
 
@@ -104,36 +111,36 @@ onTodoFormMsg config message model =
             )
 
         TodoFormChanged form ->
-            ( { model | maybeTodoForm = Just form }, Cmd.none )
+            ( { model | todoForm = form }, Cmd.none )
 
         TodoFormSaveClicked ->
-            ( { model | maybeTodoForm = Nothing }
-            , case model.maybeTodoForm of
-                Nothing ->
+            ( { model | todoForm = none }
+            , case model.todoForm of
+                NoTodoForm ->
                     Cmd.none
 
-                Just (EditTodoForm info) ->
+                EditTodoForm info ->
                     config.persistEdit info.form
 
-                Just (AddTodoForm info) ->
+                AddTodoForm info ->
                     config.persistNew info.form
             )
 
         TodoFormDeleteClicked ->
-            ( { model | maybeTodoForm = Nothing }
-            , case model.maybeTodoForm of
-                Nothing ->
+            ( { model | todoForm = none }
+            , case model.todoForm of
+                NoTodoForm ->
                     Cmd.none
 
-                Just (EditTodoForm editInfo) ->
+                EditTodoForm editInfo ->
                     Fire.deleteTodo editInfo.todoId
 
-                Just (AddTodoForm _) ->
+                AddTodoForm _ ->
                     Cmd.none
             )
 
         TodoFormCancelClicked ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
+            ( { model | todoForm = NoTodoForm }, Cmd.none )
 
 
 viewTodoForm : (TodoFormMsg -> msg) -> Model -> Html msg
@@ -157,3 +164,6 @@ viewTodoForm toMsg model =
                 }
                 info.form
                 |> H.map toMsg
+
+        NoTodoForm ->
+            HX.none
