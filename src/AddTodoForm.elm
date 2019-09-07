@@ -31,13 +31,18 @@ isValid (Model { title }) =
     SX.isBlank title |> not
 
 
-getValid : Model -> Maybe { a | title : String, dueAt : Todo.DueAt, projectId : ProjectId }
-getValid (Model info) =
+getValid : Model -> Maybe { title : String, dueAt : Todo.DueAt, projectId : ProjectId }
+getValid ((Model info) as model) =
     if SX.isBlank info.title then
         Nothing
 
     else
-        Just info
+        Just (toFields model)
+
+
+toFields : Model -> { title : String, dueAt : DueAt, projectId : ProjectId }
+toFields (Model { title, dueAt, projectId }) =
+    { title = title, dueAt = dueAt, projectId = projectId }
 
 
 updateFields :

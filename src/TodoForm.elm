@@ -10,11 +10,13 @@ module TodoForm exposing
 
 -- TODO_ FORM
 
+import AddTodoForm
 import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra as MX
 import ProjectId exposing (ProjectId)
 import String.Extra as SX
 import Todo exposing (DueAt, Todo, TodoList)
@@ -45,7 +47,7 @@ type alias EditTodoFormInfo =
 
 type alias AddTodoFormInfo =
     { addAt : AddAt
-    , fields : TodoFormFields
+    , fields : AddTodoForm.Model
     }
 
 
@@ -56,7 +58,7 @@ type TodoForm
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
-    AddTodoForm <| AddTodoFormInfo addAt { title = "", dueAt = Todo.notDue, projectId = projectId }
+    AddTodoForm <| AddTodoFormInfo addAt (AddTodoForm.init projectId)
 
 
 initEditTodoForm : Todo -> TodoForm
@@ -71,6 +73,7 @@ type TodoFormMsg
     | TodoFormCancelClicked
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
+    | AddTodoFormChanged AddTodoForm.Model
 
 
 
@@ -162,17 +165,17 @@ onTodoFormMsg config message model =
         TodoFormCancelClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
+        AddTodoFormChanged _ ->
+            ( model, Cmd.none )
+
 
 persistNewTodoCmd :
     { a | addNewTodoCmd : TodoFormFields -> Cmd msg }
     -> AddTodoFormInfo
     -> Cmd msg
-persistNewTodoCmd config { fields } =
-    if SX.isBlank fields.title then
-        Cmd.none
-
-    else
-        config.addNewTodoCmd fields
+persistNewTodoCmd config addInfo =
+    AddTodoForm.getValid addInfo.fields
+        |> MX.unwrap Cmd.none config.addNewTodoCmd
 
 
 patchEditingTodoCmd :
@@ -235,17 +238,10 @@ viewTodoForm toMsg model =
                 editInfo.fields
 
         AddTodoForm addInfo ->
-            let
-                { fields } =
-                    addInfo
-            in
-            viewTodoItemFormFields
-                config
-                (\title ->
-                    toMsg <|
-                        TodoFormChanged (AddTodoForm <| { addInfo | fields = { fields | title = title } })
-                )
-                fields
+            AddTodoForm.view
+                { save = TodoFormSaveClicked, cancel = TodoFormSaveClicked, changed = AddTodoFormChanged }
+                addInfo.fields
+                |> H.map toMsg
 
 
 
