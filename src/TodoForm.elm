@@ -165,8 +165,13 @@ onTodoFormMsg config message model =
         TodoFormCancelClicked ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
-        AddTodoFormChanged _ ->
-            ( model, Cmd.none )
+        AddTodoFormChanged form ->
+            case model.maybeTodoForm of
+                Just (AddTodoForm addInfo) ->
+                    ( { model | maybeTodoForm = Just (AddTodoForm { addInfo | fields = form }) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 persistNewTodoCmd :
