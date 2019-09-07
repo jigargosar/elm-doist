@@ -499,8 +499,8 @@ update message model =
         TodoFormMsg msg ->
             onTodoFormMsg msg model
 
-        PersistAddTodoForm atf now ->
-            ( model, AddTodoForm.persist now atf )
+        PersistAddTodoForm form now ->
+            ( model, AddTodoForm.persist now form )
 
         PersistEditTodoForm form now ->
             ( model, EditTodoForm.persist now form )
