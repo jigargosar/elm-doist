@@ -77,10 +77,16 @@ type alias EditTodoFormInfo =
     }
 
 
+
+--type TodoForm_ =
+--    AddTodoForm AddTodoFormInfo
+--        | EditTodoForm EditTodoFormInfo
+
+
 type TodoForm
     = AddTodoForm AddTodoFormInfo
     | EditTodoForm EditTodoFormInfo
-    | NoTodoForm
+    | TodoFormClosed
 
 
 defaultTodoFormFields : TodoFormFields
@@ -147,7 +153,7 @@ viewTodoForm model =
                 }
                 info.fields
 
-        NoTodoForm ->
+        TodoFormClosed ->
             HX.none
 
 
@@ -299,7 +305,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , todoForm = NoTodoForm
+            , todoForm = TodoFormClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -431,7 +437,7 @@ update message model =
                     Route.fromUrl url
             in
             if model.route /= newRoute then
-                ( { model | route = newRoute, todoForm = NoTodoForm }
+                ( { model | route = newRoute, todoForm = TodoFormClosed }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
 
@@ -507,7 +513,7 @@ update message model =
                     initAddTodoForm addAt projectId
             in
             case model.todoForm of
-                NoTodoForm ->
+                TodoFormClosed ->
                     ( { model | todoForm = addTodoForm }, Cmd.none )
 
                 AddTodoForm info ->
@@ -523,7 +529,7 @@ update message model =
         EditTodoClicked todo ->
             ( { model | todoForm = initEditTodoForm todo }
             , case model.todoForm of
-                NoTodoForm ->
+                TodoFormClosed ->
                     Cmd.none
 
                 AddTodoForm info ->
@@ -537,9 +543,9 @@ update message model =
             ( { model | todoForm = form }, Cmd.none )
 
         TodoFormSaveClicked ->
-            ( { model | todoForm = NoTodoForm }
+            ( { model | todoForm = TodoFormClosed }
             , case model.todoForm of
-                NoTodoForm ->
+                TodoFormClosed ->
                     Cmd.none
 
                 EditTodoForm info ->
@@ -550,9 +556,9 @@ update message model =
             )
 
         TodoFormDeleteClicked ->
-            ( { model | todoForm = NoTodoForm }
+            ( { model | todoForm = TodoFormClosed }
             , case model.todoForm of
-                NoTodoForm ->
+                TodoFormClosed ->
                     Cmd.none
 
                 EditTodoForm editInfo ->
@@ -563,7 +569,7 @@ update message model =
             )
 
         TodoFormCancelClicked ->
-            ( { model | todoForm = NoTodoForm }, Cmd.none )
+            ( { model | todoForm = TodoFormClosed }, Cmd.none )
 
         AddTodoWithDueTodayClicked ->
             ( model
@@ -947,7 +953,7 @@ viewKeyedTodoItems { here, todoForm } todoList =
             )
     in
     case todoForm of
-        NoTodoForm ->
+        TodoFormClosed ->
             viewBaseList todoList
 
         EditTodoForm { todoId } ->
