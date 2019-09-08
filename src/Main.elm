@@ -253,6 +253,10 @@ init encodedFlags url key =
 
 type NowMsg
     = AddTodo String DueAt ProjectId
+    | AddProject
+    | PersistAddTodoForm AddTodoForm.Model
+    | PersistEditTodoForm EditTodoForm.Model
+    | PatchTodoWithNow TodoId (List Todo.Msg)
 
 
 type Msg
@@ -270,13 +274,10 @@ type Msg
       -- TodayPage Messages
     | AddTodoWithDueTodayClicked
     | PatchTodo TodoId (List Todo.Msg)
-    | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
       -- ProjectPage Messages
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
       -- TodoForm Messages
-    | PersistAddTodoForm AddTodoForm.Model Time.Posix
-    | PersistEditTodoForm EditTodoForm.Model Time.Posix
     | TodoFormSaveClicked
     | TodoFormCancelClicked
     | TodoFormChanged TodoForm
@@ -284,7 +285,6 @@ type Msg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
-    | AddProject Time.Posix
       -- NowMsg
     | ContinueWithNow NowMsg Time.Posix
 
@@ -323,12 +323,12 @@ todoDoneCheckedMsg todoId isChecked =
 
 persistEditTodoForm : EditTodoForm.Model -> Cmd Msg
 persistEditTodoForm =
-    PersistEditTodoForm >> performWithNow
+    PersistEditTodoForm >> continueWithNow
 
 
 persistAddTodoForm : AddTodoForm.Model -> Cmd Msg
 persistAddTodoForm =
-    PersistAddTodoForm >> performWithNow
+    PersistAddTodoForm >> continueWithNow
 
 
 update : Msg -> Model -> Return
@@ -409,13 +409,22 @@ update message model =
                 AddTodo title dueAt projectId ->
                     ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
-        PatchTodo todoId todoMsgList ->
-            ( model, performWithNow (PatchTodoWithNow todoId todoMsgList) )
+                AddProject ->
+                    ( model, Fire.addProject (Project.new now) )
 
-        PatchTodoWithNow todoId todoMsgList now ->
-            ( model
-            , Todo.patchTodo now todoId todoMsgList
-            )
+                PersistAddTodoForm form ->
+                    ( model, AddTodoForm.persist now form )
+
+                PersistEditTodoForm form ->
+                    ( model, EditTodoForm.persist now form )
+
+                PatchTodoWithNow todoId todoMsgList ->
+                    ( model
+                    , Todo.patchTodo now todoId todoMsgList
+                    )
+
+        PatchTodo todoId todoMsgList ->
+            ( model, continueWithNow (PatchTodoWithNow todoId todoMsgList) )
 
         AddNewTodoClicked addAt projectId ->
             let
@@ -481,22 +490,13 @@ update message model =
         TodoFormCancelClicked ->
             ( { model | todoForm = NoTodoForm }, Cmd.none )
 
-        PersistAddTodoForm form now ->
-            ( model, AddTodoForm.persist now form )
-
-        PersistEditTodoForm form now ->
-            ( model, EditTodoForm.persist now form )
-
-        AddProject now ->
-            ( model, Fire.addProject (Project.new now) )
-
         AddTodoWithDueTodayClicked ->
             ( model
-            , continueWithNowMap (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
+            , mapContinueWithNow (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
             )
 
         AddProjectClicked ->
-            ( model, performWithNow AddProject )
+            ( model, continueWithNow AddProject )
 
         DeleteProjectClicked projectId ->
             ( model
@@ -508,15 +508,14 @@ update message model =
 -- Update Helpers
 
 
-continueWithNowMap fn =
+mapContinueWithNow fn =
     Time.now
         |> Task.map (\now -> ContinueWithNow (fn now) now)
         |> Task.perform identity
 
 
-performWithNow : (Time.Posix -> msg) -> Cmd msg
-performWithNow msg =
-    Task.perform msg Time.now
+continueWithNow msg =
+    Time.now |> Task.perform (ContinueWithNow msg)
 
 
 
