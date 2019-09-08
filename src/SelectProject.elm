@@ -1,4 +1,4 @@
-module SelectProject exposing (Model, init)
+module SelectProject exposing (Model, init, update, view)
 
 import Css
 import Html.Styled as H exposing (div, text)

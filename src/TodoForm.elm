@@ -1,7 +1,14 @@
-module TodoForm exposing (Model, init)
+module TodoForm exposing (Model, init, update)
 
+import Accessibility.Styled exposing (text)
+import Html.Styled as H exposing (div, textarea)
+import Html.Styled.Attributes as A exposing (class, rows)
+import Html.Styled.Events as E
+import HtmlExtra as HX
+import Json.Encode as JE
 import ProjectId exposing (ProjectId)
 import Todo
+import UI.TextButton as TextButton
 
 
 type Model
@@ -58,6 +65,8 @@ type Msg
     = FieldsChanged Fields
     | OpenEditor Editor
     | CloseEditor (Maybe Fields)
+    | Close (Maybe Fields)
+
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,3 +89,53 @@ update message model =
 
                 Nothing ->
                     ( model, Cmd.none )
+        Close maybeFields ->
+
+
+unwrap (Model internal) =
+    internal
+
+
+getFields =
+    unwrap >> .fields
+
+
+getTitle =
+    getFields >> .title
+
+getEditor =
+    unwrap >> .maybeEditor
+
+view config  projectList model =
+    div [ class "pa3" ]
+        [ div [ class "flex" ]
+            [ div [ class "flex-grow-1" ]
+                [ H.node "auto-resize-textarea"
+                    [ A.property "textAreaValue" (JE.string (getTitle model)) ]
+                    [ textarea
+                        [ class "pa0 lh-copy overflow-hidden w-100"
+                        , rows 1
+--                        , E.onInput titleChangedMsg
+                        ]
+                        []
+                    ]
+                ]
+            , div [] [ text "schedule" ]
+            ]
+        , case getEditor model of
+            Nothing ->
+                HX.none
+            Just editor ->
+                HX.none
+
+        , div [ class "flex hs3 lh-copy" ]
+            [ TextButton.primary (Close (Just <| getFields model) ) "Save" []
+            , TextButton.primary (Close Nothing) "Cancel" []
+            , case config.delete of
+                Nothing ->
+                    HX.none
+
+                Just del ->
+                    TextButton.primary del "Delete" []
+            ]
+        ]
