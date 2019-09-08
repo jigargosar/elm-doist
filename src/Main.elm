@@ -641,7 +641,9 @@ update message model =
                         ( newTodoForm, todoFormCmd ) =
                             TodoForm.update msg todoForm
                     in
-                    ( { model | maybeTodoForm = Just newTodoForm }, Cmd.map OnTFM todoFormCmd )
+                    ( { model | maybeTodoForm = Just newTodoForm }
+                    , Cmd.map OnTFM todoFormCmd
+                    )
 
 
 
