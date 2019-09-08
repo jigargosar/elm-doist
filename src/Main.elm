@@ -251,6 +251,10 @@ init encodedFlags url key =
 -- MSG
 
 
+type NowMsg
+    = AddTodo String DueAt ProjectId
+
+
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
@@ -264,7 +268,6 @@ type Msg
     | SignInClicked
     | SignOutClicked
       -- TodayPage Messages
-    | AddTodo String DueAt ProjectId Time.Posix
     | AddTodoWithDueTodayClicked
     | PatchTodo TodoId (List Todo.Msg)
     | PatchTodoWithNow TodoId (List Todo.Msg) Time.Posix
@@ -282,6 +285,8 @@ type Msg
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
     | AddProject Time.Posix
+      -- NowMsg
+    | ContinueWithNow NowMsg Time.Posix
 
 
 addTodoClicked : AddAt -> ProjectId -> Msg
@@ -399,8 +404,10 @@ update message model =
         GotFirestoreQueryResponse qs ->
             onFirestoreQueryResponse qs model
 
-        AddTodo title dueAt projectId now ->
-            ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
+        ContinueWithNow msg now ->
+            case msg of
+                AddTodo title dueAt projectId ->
+                    ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
         PatchTodo todoId todoMsgList ->
             ( model, performWithNow (PatchTodoWithNow todoId todoMsgList) )
@@ -485,9 +492,7 @@ update message model =
 
         AddTodoWithDueTodayClicked ->
             ( model
-            , Time.now
-                |> Task.map (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default now)
-                |> Task.perform identity
+            , continueWithNowMap (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
             )
 
         AddProjectClicked ->
@@ -501,6 +506,12 @@ update message model =
 
 
 -- Update Helpers
+
+
+continueWithNowMap fn =
+    Time.now
+        |> Task.map (\now -> ContinueWithNow (fn now) now)
+        |> Task.perform identity
 
 
 performWithNow : (Time.Posix -> msg) -> Cmd msg
