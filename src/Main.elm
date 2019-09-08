@@ -407,20 +407,15 @@ persistEditTodoForm info =
         |> continueWithNow
 
 
-persistAddTodoForm : AddTodoFormInfo -> Cmd Msg
-persistAddTodoForm { fields } =
-    AddTodo fields.title fields.dueAt fields.projectId
-        |> continueWithNow
-
-
 persistTodoForm : TodoForm -> Cmd Msg
 persistTodoForm tf =
     case tf of
         EditTodoForm info ->
             persistEditTodoForm info
 
-        AddTodoForm info ->
-            persistAddTodoForm info
+        AddTodoForm { fields } ->
+            AddTodo fields.title fields.dueAt fields.projectId
+                |> continueWithNow
 
 
 update : Msg -> Model -> Return
