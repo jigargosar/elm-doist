@@ -25,7 +25,7 @@ import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabinde
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
-import IO
+import IO exposing (IO)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -241,6 +241,50 @@ init encodedFlags url key =
             HasErrors.addDecodeError err model
     , Millis.hereCmd GotHere
     )
+
+
+initIO : JD.Value -> Url -> Nav.Key -> ( Model, IO Model Msg )
+initIO encodedFlags url key =
+    let
+        route =
+            Route.fromUrl url
+
+        now =
+            0
+
+        model : Model
+        model =
+            { todoList = []
+            , projectList = []
+            , todoForm = NoTodoForm
+            , authState = AuthState.initial
+            , errors = Errors.fromStrings []
+            , key = key
+            , route = route
+            , today = dateFromMillis now
+            , here = Time.utc
+            , browserSize = BrowserSize.initial
+            }
+    in
+    ( case JD.decodeValue flagsDecoder encodedFlags of
+        Ok flags ->
+            setTodoList flags.cachedTodoList model
+                |> setProjectList flags.cachedProjectList
+                |> setAuthState flags.cachedAuthState
+                |> setBrowserSize flags.browserSize
+                |> setTodayFromMillis flags.now
+
+        Err err ->
+            HasErrors.addDecodeError err model
+    , updateHere
+    )
+        |> Tuple.mapSecond (IO.map (\_ -> NoOp))
+
+
+updateHere : IO { a | here : Zone } ()
+updateHere =
+    IO.lift (Task.perform identity Time.here)
+        |> IO.andThen (\here -> IO.modify (\m -> { m | here = here }))
 
 
 
@@ -985,7 +1029,7 @@ main =
             IO.liftUpdate (update msg)
     in
     IO.application
-        { init = \f u k -> init f u k |> Tuple.mapSecond IO.lift
+        { init = initIO
         , view =
             view
                 >> (\{ title, body } ->
