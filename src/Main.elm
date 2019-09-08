@@ -97,13 +97,12 @@ todoFormFieldsFromTodo todo =
     { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
 
 
-initAddTodoForm : AddAt -> ProjectId -> TodoFormState
+initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
     AddTodoForm
         { addAt = addAt
         , fields = { defaultTodoFormFields | projectId = projectId }
         }
-        |> TodoFormOpen
 
 
 initEditTodoForm : Todo -> TodoFormState
@@ -518,22 +517,25 @@ update message model =
             let
                 addTodoForm =
                     initAddTodoForm addAt projectId
+
+                ( newTodoForm, cmd ) =
+                    case model.todoForm of
+                        TodoFormClosed ->
+                            ( addTodoForm, Cmd.none )
+
+                        TodoFormOpen todoFrom ->
+                            case todoFrom of
+                                AddTodoForm info ->
+                                    ( AddTodoForm { info | addAt = addAt }
+                                    , Cmd.none
+                                    )
+
+                                EditTodoForm info ->
+                                    ( addTodoForm
+                                    , persistEditTodoForm info
+                                    )
             in
-            case model.todoForm of
-                TodoFormClosed ->
-                    ( { model | todoForm = addTodoForm }, Cmd.none )
-
-                TodoFormOpen tf ->
-                    case tf of
-                        AddTodoForm info ->
-                            ( { model | todoForm = TodoFormOpen <| AddTodoForm { info | addAt = addAt } }
-                            , Cmd.none
-                            )
-
-                        EditTodoForm info ->
-                            ( { model | todoForm = addTodoForm }
-                            , persistEditTodoForm info
-                            )
+            ( { model | todoForm = TodoFormOpen newTodoForm }, cmd )
 
         EditTodoClicked todo ->
             ( { model | todoForm = initEditTodoForm todo }
