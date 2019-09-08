@@ -974,9 +974,7 @@ viewKeyedTodoItems { here, todoForm } todoList =
             List.map viewBase
 
         viewForm =
-            ( "todo-form-key"
-            , viewTodoForm todoForm
-            )
+            ( "todo-form-key", viewTodoForm todoForm )
     in
     case todoForm of
         TodoFormClosed ->
