@@ -3,9 +3,11 @@ module SelectProject exposing (Model, init)
 import Css
 import Html.Styled as H exposing (div, text)
 import Html.Styled.Attributes exposing (tabindex)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Events as E exposing (onClick)
+import Json.Decode as JD
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
+import UI.Key as Key
 
 
 type Model
@@ -62,7 +64,11 @@ view projectList model =
         viewInboxItem =
             viewListItem initialProjectId ProjectId.default "Inbox"
     in
-    div []
+    H.node "track-focus-outside"
+        [ E.on "focusOutside" (JD.succeed Cancel_)
+        , Key.onEscape Cancel_
+        , tabindex -1
+        ]
         (viewInboxItem :: List.map viewProjectItem projectList)
 
 
