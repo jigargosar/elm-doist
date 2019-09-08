@@ -130,19 +130,21 @@ toTodoMsgList { todo, fields } =
         |> List.filterMap identity
 
 
-viewTodoForm : TodoForm -> Html Msg
-viewTodoForm todoForm =
+viewTodoForm : ProjectList -> TodoForm -> Html Msg
+viewTodoForm projectList todoForm =
     case todoForm of
         EditTodoForm info ->
             viewTodoFormFields
                 { defaultTodoFormViewConfig
                     | delete = Just TodoFormDeleteClicked
                 }
+                projectList
                 info.fields
 
         AddTodoForm info ->
             viewTodoFormFields
                 defaultTodoFormViewConfig
+                projectList
                 info.fields
 
 
@@ -163,8 +165,12 @@ defaultTodoFormViewConfig =
     }
 
 
-viewTodoFormFields : TodoFormViewConfig msg -> TodoFormFields -> Html msg
-viewTodoFormFields config fields =
+viewTodoFormFields :
+    TodoFormViewConfig msg
+    -> ProjectList
+    -> TodoFormFields
+    -> Html msg
+viewTodoFormFields config projectList fields =
     let
         titleChangedMsg newTitle =
             config.changed { fields | title = newTitle }
@@ -184,7 +190,7 @@ viewTodoFormFields config fields =
                 ]
             , div [] [ text "schedule" ]
             ]
-        , viewSelectProject
+        , viewSelectProject projectList
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary config.save "Save" []
             , TextButton.primary config.cancel "Cancel" []
@@ -198,7 +204,8 @@ viewTodoFormFields config fields =
         ]
 
 
-viewSelectProject =
+viewSelectProject : ProjectList -> Html msg
+viewSelectProject projectList =
     div [] [ text "projectList" ]
 
 
@@ -968,7 +975,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, todoFormState } todoList =
+viewKeyedTodoItems { here, todoFormState, projectList } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -985,7 +992,7 @@ viewKeyedTodoItems { here, todoFormState } todoList =
         TodoFormOpened todoForm ->
             let
                 viewForm =
-                    ( "todo-form-key", viewTodoForm todoForm )
+                    ( "todo-form-key", viewTodoForm projectList todoForm )
             in
             case todoForm of
                 EditTodoForm { todoId } ->
