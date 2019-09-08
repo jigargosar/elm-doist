@@ -547,27 +547,24 @@ update message model =
             )
 
         TodoFormChanged fields ->
-            case model.todoForm of
+            ( case model.todoForm of
                 TodoFormClosed ->
-                    ( model, Cmd.none )
+                    model
 
-                TodoFormOpen tf ->
-                    case tf of
-                        AddTodoForm info ->
-                            ( { model
-                                | todoForm =
-                                    TodoFormOpen (AddTodoForm { info | fields = fields })
-                              }
-                            , Cmd.none
-                            )
+                TodoFormOpen todoForm ->
+                    { model
+                        | todoForm =
+                            TodoFormOpen
+                                (case todoForm of
+                                    AddTodoForm info ->
+                                        AddTodoForm { info | fields = fields }
 
-                        EditTodoForm info ->
-                            ( { model
-                                | todoForm =
-                                    TodoFormOpen (EditTodoForm { info | form = fields })
-                              }
-                            , Cmd.none
-                            )
+                                    EditTodoForm info ->
+                                        EditTodoForm { info | form = fields }
+                                )
+                    }
+            , Cmd.none
+            )
 
         TodoFormSaveClicked ->
             ( { model | todoForm = TodoFormClosed }
