@@ -19,7 +19,7 @@ type alias Internal =
     { projectId : ProjectId }
 
 
-init : ProjectId -> ( Model, Cmd Msg )
+init : ProjectId -> ( Model, Cmd msg )
 init projectId =
     ( Model (Internal projectId), Cmd.none )
 

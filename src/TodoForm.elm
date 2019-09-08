@@ -74,7 +74,6 @@ closeEditor =
 
 type Msg
     = FieldsChanged Fields
-    | OpenEditor Editor
     | OpenSelectProject
     | CloseEditor (Maybe Fields)
     | Close (Maybe Fields)
@@ -87,15 +86,12 @@ update message model =
         FieldsChanged fields ->
             ( setFields fields model, Cmd.none )
 
-        OpenEditor editor ->
-            ( setEditor editor model, Cmd.none )
-
         OpenSelectProject ->
             let
                 ( editor, cmd ) =
                     SelectProject.init (getProjectId model)
             in
-            ( setEditor (SelectProject editor) model, Cmd.none )
+            ( setEditor (SelectProject editor) model, cmd )
 
         CloseEditor maybeFields ->
             case maybeFields of
