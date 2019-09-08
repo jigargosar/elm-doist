@@ -987,22 +987,16 @@ main =
     IO.application
         { init = \f u k -> init f u k |> Tuple.mapSecond IO.lift
         , view =
-            \m ->
-                view m
-                    |> (\{ title, body } ->
-                            { title = title
-                            , body =
-                                List.map
-                                    (Html.map
-                                        (\ms -> IO.liftUpdate (update ms))
-                                    )
-                                    body
-                            }
-                       )
+            view
+                >> (\{ title, body } ->
+                        { title = title
+                        , body = List.map (Html.map ioUpdate) body
+                        }
+                   )
         , update = ioUpdate
-        , subscriptions = IO.dummySub
-        , onUrlRequest = \_ -> IO.none
-        , onUrlChange = \_ -> IO.none
+        , subscriptions = subscriptions >> Sub.map ioUpdate
+        , onUrlRequest = LinkClicked >> ioUpdate
+        , onUrlChange = UrlChanged >> ioUpdate
         }
 
 
