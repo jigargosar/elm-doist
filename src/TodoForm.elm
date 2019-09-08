@@ -1,10 +1,8 @@
 module TodoForm exposing (Model, init, update)
 
 import Accessibility.Styled exposing (text)
-import Basics.Extra exposing (flip)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
-import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Encode as JE
 import ProjectId exposing (ProjectId)
@@ -103,18 +101,22 @@ update message model =
 
         OnSelectProjectMsg msg ->
             case getEditor model of
-                Nothing ->
-                    ( model, Cmd.none )
-
                 Just (SelectProject spm) ->
                     let
                         ( newSP, newSPCmd, spMaybeExit ) =
                             SelectProject.update msg spm
                     in
-                    ( setEditor (SelectProject newSP) model, Cmd.map OnSelectProjectMsg newSPCmd )
-                        |> Return.andThen (handleSelectProjectExitMsg spMaybeExit)
+                    ( setEditor (SelectProject newSP) model
+                    , Cmd.map OnSelectProjectMsg newSPCmd
+                    )
+                        |> Return.andThen
+                            (handleSelectProjectExitMsg spMaybeExit)
+
+                _ ->
+                    ( model, Cmd.none )
 
 
+handleSelectProjectExitMsg : Maybe SelectProject.Exit -> Model -> ( Model, Cmd Msg )
 handleSelectProjectExitMsg maybeExit model =
     case maybeExit of
         Nothing ->
@@ -144,6 +146,7 @@ getTitle =
     getFields >> .title
 
 
+getEditor : Model -> Maybe Editor
 getEditor =
     unwrap >> .maybeEditor
 
@@ -167,6 +170,9 @@ view config projectList model =
             ]
         , case getEditor model of
             Nothing ->
+                HX.none
+
+            Just SelectDueDate ->
                 HX.none
 
             Just (SelectProject spm) ->

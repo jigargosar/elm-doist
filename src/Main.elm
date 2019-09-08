@@ -39,6 +39,7 @@ import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
+import TodoForm
 import TodoId exposing (TodoId)
 import TodoPopup
 import UI.Button as Button
@@ -245,6 +246,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , todoFormState : TodoFormState
+    , maybeTodoForm : Maybe TodoForm.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -316,6 +318,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , todoFormState = TodoFormClosed
+            , maybeTodoForm = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -552,13 +555,17 @@ update message model =
             ( { model | todoFormState = TodoFormOpened newTodoForm }, cmd )
 
         EditTodoClicked todo ->
-            ( { model | todoFormState = TodoFormOpened <| initEditTodoForm todo }
-            , case model.todoFormState of
-                TodoFormClosed ->
-                    Cmd.none
+            {- ( { model | todoFormState = TodoFormOpened <| initEditTodoForm todo }
+               , case model.todoFormState of
+                   TodoFormClosed ->
+                       Cmd.none
 
-                TodoFormOpened tf ->
-                    persistTodoForm tf
+                   TodoFormOpened tf ->
+                       persistTodoForm tf
+               )
+            -}
+            ( { model | maybeTodoForm = Just <| TodoForm.init todo.title todo.dueAt todo.projectId }
+            , Cmd.none
             )
 
         TodoFormChanged fields ->
