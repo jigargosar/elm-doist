@@ -1,12 +1,15 @@
 module TodoForm exposing (Model, init, update)
 
 import Accessibility.Styled exposing (text)
+import Basics.Extra exposing (flip)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Encode as JE
 import ProjectId exposing (ProjectId)
+import Return
+import SelectProject
 import Todo
 import UI.TextButton as TextButton
 
@@ -22,7 +25,7 @@ type alias Internal =
 
 
 type Editor
-    = SelectProject
+    = SelectProject SelectProject.Model
     | SelectDueDate
 
 
@@ -66,7 +69,7 @@ type Msg
     | OpenEditor Editor
     | CloseEditor (Maybe Fields)
     | Close (Maybe Fields)
-
+    | OnSelectProjectMsg SelectProject.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,7 +92,33 @@ update message model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
         Close maybeFields ->
+            ( model, Cmd.none )
+
+        OnSelectProjectMsg msg ->
+            case getEditor model of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just (SelectProject spm) ->
+                    let
+                        ( newSP, newSPCmd, spMaybeExit ) =
+                            SelectProject.update msg spm
+                    in
+                    ( setEditor (SelectProject newSP) model, Cmd.map OnSelectProjectMsg newSPCmd )
+                        |> Return.andThen (handleSelectProjectExitMsg spMaybeExit)
+
+
+handleSelectProjectExitMsg spMaybeExit model =
+    case spMaybeExit of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just spExitMsg ->
+            case spExitMsg of
+                _ ->
+                    ( model, Cmd.none )
 
 
 unwrap (Model internal) =
@@ -103,10 +132,12 @@ getFields =
 getTitle =
     getFields >> .title
 
+
 getEditor =
     unwrap >> .maybeEditor
 
-view config  projectList model =
+
+view config projectList model =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
@@ -115,7 +146,8 @@ view config  projectList model =
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
---                        , E.onInput titleChangedMsg
+
+                        --                        , E.onInput titleChangedMsg
                         ]
                         []
                     ]
@@ -125,11 +157,12 @@ view config  projectList model =
         , case getEditor model of
             Nothing ->
                 HX.none
-            Just editor ->
-                HX.none
 
+            Just (SelectProject spm) ->
+                SelectProject.view projectList spm
+                    |> H.map OnSelectProjectMsg
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary (Close (Just <| getFields model) ) "Save" []
+            [ TextButton.primary (Close (Just <| getFields model)) "Save" []
             , TextButton.primary (Close Nothing) "Cancel" []
             , case config.delete of
                 Nothing ->
