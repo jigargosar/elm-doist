@@ -241,59 +241,6 @@ init encodedFlags url key =
     )
 
 
-
---initIO : JD.Value -> Url -> Nav.Key -> ( Model, IO Model Msg )
---initIO encodedFlags url key =
---    let
---        route =
---            Route.fromUrl url
---
---        now =
---            0
---
---        model : Model
---        model =
---            { todoList = []
---            , projectList = []
---            , todoForm = NoTodoForm
---            , authState = AuthState.initial
---            , errors = Errors.fromStrings []
---            , key = key
---            , route = route
---            , today = dateFromMillis now
---            , here = Time.utc
---            , browserSize = BrowserSize.initial
---            }
---    in
---    ( case JD.decodeValue flagsDecoder encodedFlags of
---        Ok flags ->
---            setTodoList flags.cachedTodoList model
---                |> setProjectList flags.cachedProjectList
---                |> setAuthState flags.cachedAuthState
---                |> setBrowserSize flags.browserSize
---                |> setTodayFromMillis flags.now
---
---        Err err ->
---            HasErrors.addDecodeError err model
---    , updateHere
---    )
---        |> Tuple.mapSecond (IO.map (\_ -> NoOp))
---
---
---updateHere : IO { a | here : Zone } ()
---updateHere =
---    IO.lift (Task.perform identity Time.here)
---        |> IO.andThen (\here -> IO.modify (\m -> { m | here = here }))
---
---
---findById : a -> List { b | id : a } -> Maybe { b | id : a }
---findById id =
---    List.filter (.id >> eq_ id)
---        >> List.head
---
--- MSG
-
-
 type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
@@ -1016,29 +963,6 @@ viewTodoItemTitle clickMsg title_ =
 
 
 -- MAIN
-{-
-   main : IO.Program Value Model Msg
-   main =
-       let
-           ioUpdate : Msg -> IO.IO Model Msg
-           ioUpdate msg =
-               IO.liftUpdate (update msg)
-       in
-       IO.application
-           { init = initIO
-           , view =
-               view
-                   >> (\{ title, body } ->
-                           { title = title
-                           , body = List.map (Html.map ioUpdate) body
-                           }
-                      )
-           , update = ioUpdate
-           , subscriptions = subscriptions >> Sub.map ioUpdate
-           , onUrlRequest = LinkClicked >> ioUpdate
-           , onUrlChange = UrlChanged >> ioUpdate
-           }
--}
 
 
 main : Program Value Model Msg
