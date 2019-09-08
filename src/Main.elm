@@ -379,8 +379,8 @@ editTodoClicked =
     EditTodoClicked
 
 
-todoIsDoneChecked : TodoId -> Bool -> Msg
-todoIsDoneChecked todoId isChecked =
+todoDoneChecked : TodoId -> Bool -> Msg
+todoDoneChecked todoId isChecked =
     PatchTodo todoId [ Todo.SetCompleted isChecked ]
 
 
@@ -1012,7 +1012,7 @@ viewTodoItemBase zone todo =
     div
         [ class "flex hide-child"
         ]
-        [ viewTodoItemDoneCheckbox (todoIsDoneChecked todo.id) todo.isDone
+        [ viewTodoItemDoneCheckbox (todoDoneChecked todo.id) todo.isDone
         , viewTodoItemTitle (editTodoClicked todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
