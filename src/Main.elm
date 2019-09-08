@@ -379,6 +379,11 @@ editTodoClicked =
     EditTodoClicked
 
 
+todoIsDoneChecked : TodoId -> Bool -> Msg
+todoIsDoneChecked todoId isChecked =
+    PatchTodo todoId [ Todo.SetCompleted isChecked ]
+
+
 
 -- SUB
 
@@ -394,11 +399,6 @@ subscriptions _ =
 
 
 -- UPDATE
-
-
-todoDoneCheckedMsg : TodoId -> Bool -> Msg
-todoDoneCheckedMsg todoId isChecked =
-    PatchTodo todoId [ Todo.SetCompleted isChecked ]
 
 
 persistEditTodoForm : EditTodoFormInfo -> Cmd Msg
@@ -1012,7 +1012,7 @@ viewTodoItemBase zone todo =
     div
         [ class "flex hide-child"
         ]
-        [ viewTodoItemDoneCheckbox (todoDoneCheckedMsg todo.id) todo.isDone
+        [ viewTodoItemDoneCheckbox (todoIsDoneChecked todo.id) todo.isDone
         , viewTodoItemTitle (editTodoClicked todo) todo.title
         , viewTodoItemDueDate NoOp zone todo.dueAt
         , div [ class "relative flex" ]
