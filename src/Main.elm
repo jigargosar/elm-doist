@@ -318,12 +318,12 @@ todoDoneCheckedMsg todoId isChecked =
 
 persistEditTodoForm : EditTodoForm.Model -> Cmd Msg
 persistEditTodoForm =
-    PersistEditTodoForm >> getNow
+    PersistEditTodoForm >> performWithNow
 
 
 persistAddTodoForm : AddTodoForm.Model -> Cmd Msg
 persistAddTodoForm =
-    PersistAddTodoForm >> getNow
+    PersistAddTodoForm >> performWithNow
 
 
 update : Msg -> Model -> Return
@@ -403,7 +403,7 @@ update message model =
             ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
         PatchTodo todoId todoMsgList ->
-            ( model, getNow (PatchTodoWithNow todoId todoMsgList) )
+            ( model, performWithNow (PatchTodoWithNow todoId todoMsgList) )
 
         PatchTodoWithNow todoId todoMsgList now ->
             ( model
@@ -491,7 +491,7 @@ update message model =
             )
 
         AddProjectClicked ->
-            ( model, getNow AddProject )
+            ( model, performWithNow AddProject )
 
         DeleteProjectClicked projectId ->
             ( model
@@ -503,8 +503,8 @@ update message model =
 -- Update Helpers
 
 
-getNow : (Time.Posix -> msg) -> Cmd msg
-getNow msg =
+performWithNow : (Time.Posix -> msg) -> Cmd msg
+performWithNow msg =
     Task.perform msg Time.now
 
 
