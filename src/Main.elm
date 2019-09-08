@@ -65,30 +65,34 @@ type alias TodoFormFields =
     }
 
 
-initAddTodoFormFields projectId =
-    { title = "", dueAt = Todo.notDue, projectId = projectId }
-
-
 type alias AddTodoFormInfo =
     { addAt : AddAt
-    , form : TodoFormFields
+    , fields : TodoFormFields
+    }
+
+
+type alias EditTodoFormInfo =
+    { todoId : TodoId
+    , form : EditTodoForm.Model
     }
 
 
 type TodoForm
     = AddTodoForm AddTodoFormInfo
-    | EditTodoForm
-        { todoId : TodoId
-        , form : EditTodoForm.Model
-        }
+    | EditTodoForm EditTodoFormInfo
     | NoTodoForm
+
+
+initAddTodoFormFields : ProjectId -> TodoFormFields
+initAddTodoFormFields projectId =
+    { title = "", dueAt = Todo.notDue, projectId = projectId }
 
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
     AddTodoForm
         { addAt = addAt
-        , form = initAddTodoFormFields projectId
+        , fields = initAddTodoFormFields projectId
         }
 
 
@@ -116,9 +120,9 @@ viewTodoForm model =
             viewTodoFormFields
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
-                , changed = \form -> TodoFormChanged <| AddTodoForm { info | form = form }
+                , changed = \form -> TodoFormChanged <| AddTodoForm { info | fields = form }
                 }
-                info.form
+                info.fields
 
         NoTodoForm ->
             HX.none
@@ -431,7 +435,7 @@ update message model =
                 PersistAddTodoForm info ->
                     let
                         { title, dueAt, projectId } =
-                            info.form
+                            info.fields
                     in
                     ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
