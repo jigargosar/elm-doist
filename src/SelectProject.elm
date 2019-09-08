@@ -1,6 +1,8 @@
 module SelectProject exposing (Exit(..), Model, Msg, init, update, view)
 
+import Browser.Dom as Dom
 import Css
+import Focus
 import Html.Styled as H exposing (div, text)
 import Html.Styled.Attributes exposing (tabindex)
 import Html.Styled.Events as E exposing (onClick)
@@ -19,9 +21,9 @@ type alias Internal =
     { projectId : ProjectId }
 
 
-init : ProjectId -> ( Model, Cmd msg )
+init : ProjectId -> ( Model, Cmd Msg )
 init projectId =
-    ( Model (Internal projectId), Cmd.none )
+    ( Model (Internal projectId), Focus.attempt Focused "" )
 
 
 map : (Internal -> Internal) -> Model -> Model
@@ -30,22 +32,35 @@ map fn (Model internal) =
 
 
 type Msg
-    = Selected_ ProjectId
-    | Cancel_
+    = Selected ProjectId
+    | Cancel
+    | Focused Focus.FocusResult
 
 
 type Exit
     = Closed (Maybe ProjectId)
+    | DomError Dom.Error
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
 update message model =
     case message of
-        Selected_ projectId ->
+        Selected projectId ->
             ( model, Cmd.none, Just <| Closed <| Just projectId )
 
-        Cancel_ ->
+        Cancel ->
             ( model, Cmd.none, Just <| Closed Nothing )
+
+        Focused result ->
+            ( model
+            , Cmd.none
+            , case result of
+                Ok _ ->
+                    Nothing
+
+                Err domError ->
+                    Just (DomError domError)
+            )
 
 
 getProjectId (Model { projectId }) =
@@ -66,8 +81,8 @@ view projectList model =
     in
     H.styled (H.node "track-focus-outside")
         []
-        [ E.on "focusOutside" (JD.succeed Cancel_)
-        , Key.onEscape Cancel_
+        [ E.on "focusOutside" (JD.succeed Cancel)
+        , Key.onEscape Cancel
         , tabindex -1
         ]
         (viewInboxItem :: List.map viewProjectItem projectList)
@@ -85,6 +100,6 @@ viewListItem initialProjectId projectId projectTitle =
     in
     TextButton.styled
         [ Css.cursor Css.pointer, styles ]
-        (Selected_ projectId)
+        (Selected projectId)
         projectTitle
         []

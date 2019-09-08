@@ -91,7 +91,7 @@ update message model =
                 ( editor, cmd ) =
                     SelectProject.init (getProjectId model)
             in
-            ( setEditor (SelectProject editor) model, cmd )
+            ( setEditor (SelectProject editor) model, Cmd.map OnSelectProjectMsg cmd )
 
         CloseEditor maybeFields ->
             case maybeFields of
@@ -141,6 +141,9 @@ handleSelectProjectExitMsg maybeExit model =
             ( closeEditor model
             , Cmd.none
             )
+
+        Just (SelectProject.DomError error) ->
+            ( model, Cmd.none )
 
 
 unwrap (Model internal) =

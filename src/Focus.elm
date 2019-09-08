@@ -1,4 +1,4 @@
-module Focus exposing (attempt, onFocusOutsideDomId, outsideElIdDecoder)
+module Focus exposing (FocusResult, attempt, onFocusOutsideDomId, outsideElIdDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)
@@ -44,6 +44,10 @@ isOutsideElIdDecoder containerDomId =
         ]
 
 
-attempt : (Result Dom.Error () -> msg) -> String -> Cmd msg
+type alias FocusResult =
+    Result Dom.Error ()
+
+
+attempt : (FocusResult -> msg) -> String -> Cmd msg
 attempt focusedMsg domId =
     focus domId |> Task.attempt focusedMsg
