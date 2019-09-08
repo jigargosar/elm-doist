@@ -408,8 +408,8 @@ persistEditTodoForm info =
 
 
 persistTodoForm : TodoForm -> Cmd Msg
-persistTodoForm tf =
-    case tf of
+persistTodoForm todoForm =
+    case todoForm of
         EditTodoForm info ->
             persistEditTodoForm info
 
