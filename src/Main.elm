@@ -395,12 +395,14 @@ todoDoneCheckedMsg todoId isChecked =
 
 persistEditTodoForm : EditTodoFormInfo -> Cmd Msg
 persistEditTodoForm info =
-    continueWithNow (PatchTodo_ info.todoId (toTodoMsgList info))
+    PatchTodo_ info.todoId (toTodoMsgList info)
+        |> continueWithNow
 
 
 persistAddTodoForm : AddTodoFormInfo -> Cmd Msg
-persistAddTodoForm =
-    PersistAddTodoForm >> continueWithNow
+persistAddTodoForm { fields } =
+    AddTodo fields.title fields.dueAt fields.projectId
+        |> continueWithNow
 
 
 update : Msg -> Model -> Return
