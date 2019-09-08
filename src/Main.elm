@@ -73,7 +73,7 @@ type alias AddTodoFormInfo =
 type alias EditTodoFormInfo =
     { todoId : TodoId
     , todo : Todo
-    , form : TodoFormFields
+    , fields : TodoFormFields
     }
 
 
@@ -110,19 +110,19 @@ initEditTodoForm todo =
     EditTodoForm
         { todoId = todo.id
         , todo = todo
-        , form = todoFormFieldsFromTodo todo
+        , fields = todoFormFieldsFromTodo todo
         }
 
 
 toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
-toTodoMsgList { todo, form } =
-    [ if todo.title /= form.title then
-        Just <| Todo.SetTitle form.title
+toTodoMsgList { todo, fields } =
+    [ if todo.title /= fields.title then
+        Just <| Todo.SetTitle fields.title
 
       else
         Nothing
-    , if todo.projectId /= form.projectId then
-        Just <| Todo.SetProjectId form.projectId
+    , if todo.projectId /= fields.projectId then
+        Just <| Todo.SetProjectId fields.projectId
 
       else
         Nothing
@@ -142,7 +142,7 @@ viewTodoForm model =
                         , changed = TodoFormChanged
                         , delete = Just TodoFormDeleteClicked
                         }
-                        info.form
+                        info.fields
 
                 AddTodoForm info ->
                     viewTodoFormFields
@@ -560,7 +560,7 @@ update message model =
                                         AddTodoForm { info | fields = fields }
 
                                     EditTodoForm info ->
-                                        EditTodoForm { info | form = fields }
+                                        EditTodoForm { info | fields = fields }
                                 )
                     }
             , Cmd.none
