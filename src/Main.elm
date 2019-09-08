@@ -77,15 +77,13 @@ type alias EditTodoFormInfo =
     }
 
 
-
---type TodoForm_ =
---    AddTodoForm AddTodoFormInfo
---        | EditTodoForm EditTodoFormInfo
-
-
 type TodoForm
     = AddTodoForm AddTodoFormInfo
     | EditTodoForm EditTodoFormInfo
+
+
+type TodoFormState
+    = TodoFormOpen TodoForm
     | TodoFormClosed
 
 
@@ -99,21 +97,23 @@ todoFormFieldsFromTodo todo =
     { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
 
 
-initAddTodoForm : AddAt -> ProjectId -> TodoForm
+initAddTodoForm : AddAt -> ProjectId -> TodoFormState
 initAddTodoForm addAt projectId =
     AddTodoForm
         { addAt = addAt
         , fields = { defaultTodoFormFields | projectId = projectId }
         }
+        |> TodoFormOpen
 
 
-initEditTodoForm : Todo -> TodoForm
+initEditTodoForm : Todo -> TodoFormState
 initEditTodoForm todo =
     EditTodoForm
         { todoId = todo.id
         , todo = todo
         , form = todoFormFieldsFromTodo todo
         }
+        |> TodoFormOpen
 
 
 toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
@@ -132,26 +132,28 @@ toTodoMsgList { todo, form } =
         |> List.filterMap identity
 
 
-viewTodoForm : TodoForm -> Html Msg
+viewTodoForm : TodoFormState -> Html Msg
 viewTodoForm model =
     case model of
-        EditTodoForm info ->
-            viewTodoFormFields
-                { save = TodoFormSaveClicked
-                , cancel = TodoFormSaveClicked
-                , changed = \form -> TodoFormChanged <| EditTodoForm { info | form = form }
-                , delete = Just TodoFormDeleteClicked
-                }
-                info.form
+        TodoFormOpen todoForm ->
+            case todoForm of
+                EditTodoForm info ->
+                    viewTodoFormFields
+                        { save = TodoFormSaveClicked
+                        , cancel = TodoFormSaveClicked
+                        , changed = TodoFormChanged
+                        , delete = Just TodoFormDeleteClicked
+                        }
+                        info.form
 
-        AddTodoForm info ->
-            viewTodoFormFields
-                { save = TodoFormSaveClicked
-                , cancel = TodoFormSaveClicked
-                , changed = \form -> TodoFormChanged <| AddTodoForm { info | fields = form }
-                , delete = Nothing
-                }
-                info.fields
+                AddTodoForm info ->
+                    viewTodoFormFields
+                        { save = TodoFormSaveClicked
+                        , cancel = TodoFormSaveClicked
+                        , changed = TodoFormChanged
+                        , delete = Nothing
+                        }
+                        info.fields
 
         TodoFormClosed ->
             HX.none
@@ -234,7 +236,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , todoForm : TodoForm
+    , todoForm : TodoFormState
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -360,7 +362,7 @@ type Msg
       -- TodoForm Messages
     | TodoFormSaveClicked
     | TodoFormCancelClicked
-    | TodoFormChanged TodoForm
+    | TodoFormChanged TodoFormFields
     | TodoFormDeleteClicked
       -- Project
     | DeleteProjectClicked ProjectId
@@ -516,15 +518,17 @@ update message model =
                 TodoFormClosed ->
                     ( { model | todoForm = addTodoForm }, Cmd.none )
 
-                AddTodoForm info ->
-                    ( { model | todoForm = AddTodoForm { info | addAt = addAt } }
-                    , Cmd.none
-                    )
+                TodoFormOpen tf ->
+                    case tf of
+                        AddTodoForm info ->
+                            ( { model | todoForm = TodoFormOpen <| AddTodoForm { info | addAt = addAt } }
+                            , Cmd.none
+                            )
 
-                EditTodoForm info ->
-                    ( { model | todoForm = addTodoForm }
-                    , persistEditTodoForm info
-                    )
+                        EditTodoForm info ->
+                            ( { model | todoForm = addTodoForm }
+                            , persistEditTodoForm info
+                            )
 
         EditTodoClicked todo ->
             ( { model | todoForm = initEditTodoForm todo }
@@ -532,15 +536,37 @@ update message model =
                 TodoFormClosed ->
                     Cmd.none
 
-                AddTodoForm info ->
-                    persistAddTodoForm info
+                TodoFormOpen tf ->
+                    case tf of
+                        AddTodoForm info ->
+                            persistAddTodoForm info
 
-                EditTodoForm info ->
-                    persistEditTodoForm info
+                        EditTodoForm info ->
+                            persistEditTodoForm info
             )
 
-        TodoFormChanged form ->
-            ( { model | todoForm = form }, Cmd.none )
+        TodoFormChanged fields ->
+            case model.todoForm of
+                TodoFormClosed ->
+                    ( model, Cmd.none )
+
+                TodoFormOpen tf ->
+                    case tf of
+                        AddTodoForm info ->
+                            ( { model
+                                | todoForm =
+                                    TodoFormOpen (AddTodoForm { info | fields = fields })
+                              }
+                            , Cmd.none
+                            )
+
+                        EditTodoForm info ->
+                            ( { model
+                                | todoForm =
+                                    TodoFormOpen (EditTodoForm { info | form = fields })
+                              }
+                            , Cmd.none
+                            )
 
         TodoFormSaveClicked ->
             ( { model | todoForm = TodoFormClosed }
@@ -548,11 +574,13 @@ update message model =
                 TodoFormClosed ->
                     Cmd.none
 
-                EditTodoForm info ->
-                    persistEditTodoForm info
+                TodoFormOpen tf ->
+                    case tf of
+                        EditTodoForm info ->
+                            persistEditTodoForm info
 
-                AddTodoForm info ->
-                    persistAddTodoForm info
+                        AddTodoForm info ->
+                            persistAddTodoForm info
             )
 
         TodoFormDeleteClicked ->
@@ -561,11 +589,13 @@ update message model =
                 TodoFormClosed ->
                     Cmd.none
 
-                EditTodoForm editInfo ->
-                    Fire.deleteTodo editInfo.todoId
+                TodoFormOpen tf ->
+                    case tf of
+                        EditTodoForm editInfo ->
+                            Fire.deleteTodo editInfo.todoId
 
-                AddTodoForm _ ->
-                    Cmd.none
+                        AddTodoForm _ ->
+                            Cmd.none
             )
 
         TodoFormCancelClicked ->
