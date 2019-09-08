@@ -5,7 +5,6 @@ import BasicsExtra exposing (eq_)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
-import HtmlExtra as HX
 import Json.Encode as JE
 import List.Extra as LX
 import Maybe.Extra as MX
@@ -76,7 +75,8 @@ type Msg
     = FieldsChanged Fields
     | OpenSelectProject
     | CloseEditor (Maybe Fields)
-    | Close (Maybe Fields)
+    | Save
+    | Cancel
     | OnSelectProjectMsg SelectProject.Msg
 
 
@@ -105,7 +105,10 @@ update message model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        Close maybeFields ->
+        Save ->
+            ( model, Cmd.none )
+
+        Cancel ->
             ( model, Cmd.none )
 
         OnSelectProjectMsg msg ->
@@ -201,8 +204,8 @@ view projectList model =
                 div [ E.onClick OpenSelectProject ]
                     [ text "project: ", text (getSelectedProjectTitle projectList model) ]
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary (Close (Just <| getFields model)) "Save" []
-            , TextButton.primary (Close Nothing) "Cancel" []
+            [ TextButton.primary Save "Save" []
+            , TextButton.primary Cancel "Cancel" []
 
             --            , case config.delete of
             --                Nothing ->
