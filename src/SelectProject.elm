@@ -34,18 +34,17 @@ type Msg
 
 
 type Exit
-    = Selected ProjectId
-    | Cancel
+    = Closed (Maybe ProjectId)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
 update message model =
     case message of
         Selected_ projectId ->
-            ( model, Cmd.none, Just <| Selected projectId )
+            ( model, Cmd.none, Just <| Closed <| Just projectId )
 
         Cancel_ ->
-            ( model, Cmd.none, Just Cancel )
+            ( model, Cmd.none, Just <| Closed Nothing )
 
 
 getProjectId (Model { projectId }) =

@@ -115,21 +115,21 @@ update message model =
                         |> Return.andThen (handleSelectProjectExitMsg spMaybeExit)
 
 
-handleSelectProjectExitMsg spMaybeExit model =
-    case spMaybeExit of
+handleSelectProjectExitMsg maybeExit model =
+    case maybeExit of
         Nothing ->
             ( model, Cmd.none )
 
-        Just exit ->
-            case exit of
-                SelectProject.Cancel ->
-                    ( model, Cmd.none )
+        Just (SelectProject.Closed (Just projectId)) ->
+            ( closeEditor model
+                |> mapFields (\fields -> { fields | projectId = projectId })
+            , Cmd.none
+            )
 
-                SelectProject.Selected projectId ->
-                    ( closeEditor model
-                        |> mapFields (\fields -> { fields | projectId = projectId })
-                    , Cmd.none
-                    )
+        Just (SelectProject.Closed Nothing) ->
+            ( closeEditor model
+            , Cmd.none
+            )
 
 
 unwrap (Model internal) =
