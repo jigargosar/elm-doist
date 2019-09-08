@@ -64,7 +64,8 @@ view projectList model =
         viewInboxItem =
             viewListItem initialProjectId ProjectId.default "Inbox"
     in
-    H.node "track-focus-outside"
+    H.styled (H.node "track-focus-outside")
+        []
         [ E.on "focusOutside" (JD.succeed Cancel_)
         , Key.onEscape Cancel_
         , tabindex -1
