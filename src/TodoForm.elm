@@ -54,6 +54,11 @@ setFields fields =
     map (\internal -> { internal | fields = fields })
 
 
+mapFields : (Fields -> Fields) -> Model -> Model
+mapFields fn =
+    map (\internal -> { internal | fields = fn internal.fields })
+
+
 setEditor : Editor -> Model -> Model
 setEditor editor =
     map (\internal -> { internal | maybeEditor = Just editor })
@@ -115,10 +120,16 @@ handleSelectProjectExitMsg spMaybeExit model =
         Nothing ->
             ( model, Cmd.none )
 
-        Just spExitMsg ->
-            case spExitMsg of
-                _ ->
+        Just exit ->
+            case exit of
+                SelectProject.Cancel ->
                     ( model, Cmd.none )
+
+                SelectProject.Selected projectId ->
+                    ( closeEditor model
+                        |> mapFields (\fields -> { fields | projectId = projectId })
+                    , Cmd.none
+                    )
 
 
 unwrap (Model internal) =

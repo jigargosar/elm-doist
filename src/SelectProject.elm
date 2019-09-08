@@ -1,4 +1,4 @@
-module SelectProject exposing (Model, Msg, init, update, view)
+module SelectProject exposing (Exit(..), Model, Msg, init, update, view)
 
 import Css
 import Html.Styled as H exposing (div, text)
