@@ -1,10 +1,10 @@
 module EditTodoForm exposing (Model, init, persist, view)
 
-import Fire
 import Html.Styled as H exposing (Attribute, Html, div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events exposing (onInput)
 import Json.Encode as JE exposing (Value)
+import ProjectId exposing (ProjectId)
 import Time
 import Todo exposing (DueAt, Todo, TodoList)
 import UI.TextButton as TextButton
@@ -13,6 +13,7 @@ import UI.TextButton as TextButton
 type alias Internals =
     { todo : Todo
     , title : String
+    , projectId : ProjectId
     }
 
 
@@ -22,7 +23,7 @@ type Model
 
 init : Todo -> Model
 init todo =
-    Model { todo = todo, title = todo.title }
+    Model { todo = todo, title = todo.title, projectId = todo.projectId }
 
 
 type alias ViewConfig msg =
@@ -38,9 +39,14 @@ persist now ((Model { todo }) as model) =
     Todo.patchTodo now todo.id (toTodoMsgList model)
 
 
-toTodoMsgList (Model { todo, title }) =
+toTodoMsgList (Model { todo, title, projectId }) =
     [ if todo.title /= title then
         Just <| Todo.SetTitle title
+
+      else
+        Nothing
+    , if todo.projectId /= projectId then
+        Just <| Todo.SetProjectId projectId
 
       else
         Nothing
