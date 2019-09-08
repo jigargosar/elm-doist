@@ -83,16 +83,21 @@ type TodoForm
     | NoTodoForm
 
 
-initAddTodoFormFields : ProjectId -> TodoFormFields
-initAddTodoFormFields projectId =
-    { title = "", dueAt = Todo.notDue, projectId = projectId }
+defaultTodoFormFields : TodoFormFields
+defaultTodoFormFields =
+    { title = "", dueAt = Todo.notDue, projectId = ProjectId.default }
+
+
+todoFormFieldsFromTodo : Todo -> TodoFormFields
+todoFormFieldsFromTodo todo =
+    { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
 
 
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
     AddTodoForm
         { addAt = addAt
-        , fields = initAddTodoFormFields projectId
+        , fields = { defaultTodoFormFields | projectId = projectId }
         }
 
 
@@ -101,7 +106,7 @@ initEditTodoForm todo =
     EditTodoForm
         { todoId = todo.id
         , todo = todo
-        , form = { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
+        , form = todoFormFieldsFromTodo todo
         }
 
 
@@ -322,7 +327,6 @@ type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
     | PersistAddTodoForm AddTodoFormInfo
-    | PersistEditTodoForm EditTodoFormInfo
     | PatchTodo_ TodoId (List Todo.Msg)
 
 
@@ -390,8 +394,8 @@ todoDoneCheckedMsg todoId isChecked =
 
 
 persistEditTodoForm : EditTodoFormInfo -> Cmd Msg
-persistEditTodoForm =
-    PersistEditTodoForm >> continueWithNow
+persistEditTodoForm info =
+    continueWithNow (PatchTodo_ info.todoId (toTodoMsgList info))
 
 
 persistAddTodoForm : AddTodoFormInfo -> Cmd Msg
@@ -463,9 +467,6 @@ update message model =
                             info.fields
                     in
                     ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
-
-                PersistEditTodoForm info ->
-                    ( model, Todo.patchTodo now info.todo.id (toTodoMsgList info) )
 
                 PatchTodo_ todoId todoMsgList ->
                     ( model
