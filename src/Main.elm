@@ -83,7 +83,7 @@ type TodoForm
 
 
 type TodoFormState
-    = TodoFormOpen TodoForm
+    = TodoFormOpened TodoForm
     | TodoFormClosed
 
 
@@ -133,7 +133,7 @@ toTodoMsgList { todo, form } =
 viewTodoForm : TodoFormState -> Html Msg
 viewTodoForm model =
     case model of
-        TodoFormOpen todoForm ->
+        TodoFormOpened todoForm ->
             case todoForm of
                 EditTodoForm info ->
                     viewTodoFormFields
@@ -522,7 +522,7 @@ update message model =
                         TodoFormClosed ->
                             ( addTodoForm, Cmd.none )
 
-                        TodoFormOpen todoFrom ->
+                        TodoFormOpened todoFrom ->
                             case todoFrom of
                                 AddTodoForm info ->
                                     ( AddTodoForm { info | addAt = addAt }
@@ -534,15 +534,15 @@ update message model =
                                     , persistEditTodoForm info
                                     )
             in
-            ( { model | todoForm = TodoFormOpen newTodoForm }, cmd )
+            ( { model | todoForm = TodoFormOpened newTodoForm }, cmd )
 
         EditTodoClicked todo ->
-            ( { model | todoForm = TodoFormOpen <| initEditTodoForm todo }
+            ( { model | todoForm = TodoFormOpened <| initEditTodoForm todo }
             , case model.todoForm of
                 TodoFormClosed ->
                     Cmd.none
 
-                TodoFormOpen tf ->
+                TodoFormOpened tf ->
                     persistTodoForm tf
             )
 
@@ -551,10 +551,10 @@ update message model =
                 TodoFormClosed ->
                     model
 
-                TodoFormOpen todoForm ->
+                TodoFormOpened todoForm ->
                     { model
                         | todoForm =
-                            TodoFormOpen
+                            TodoFormOpened
                                 (case todoForm of
                                     AddTodoForm info ->
                                         AddTodoForm { info | fields = fields }
@@ -572,7 +572,7 @@ update message model =
                 TodoFormClosed ->
                     Cmd.none
 
-                TodoFormOpen tf ->
+                TodoFormOpened tf ->
                     persistTodoForm tf
             )
 
@@ -582,7 +582,7 @@ update message model =
                 TodoFormClosed ->
                     Cmd.none
 
-                TodoFormOpen tf ->
+                TodoFormOpened tf ->
                     case tf of
                         EditTodoForm editInfo ->
                             Fire.deleteTodo editInfo.todoId
@@ -979,7 +979,7 @@ viewKeyedTodoItems { here, todoForm } todoList =
         TodoFormClosed ->
             viewBaseList todoList
 
-        TodoFormOpen tf ->
+        TodoFormOpened tf ->
             case tf of
                 EditTodoForm { todoId } ->
                     if List.any (.id >> eq_ todoId) todoList then
