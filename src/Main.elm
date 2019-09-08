@@ -267,7 +267,7 @@ type Msg
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
     | ScrolledToTop ()
-      -- NowMsg
+      -- Time.now Continuation
     | ContinueWithNow NowContinuation Time.Posix
       -- Fire
     | AuthStateChanged Value
@@ -382,6 +382,25 @@ update message model =
                 Err error ->
                     ( HasErrors.addDomFocusError error model, Cmd.none )
 
+        ContinueWithNow msg now ->
+            case msg of
+                AddTodo title dueAt projectId ->
+                    ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
+
+                AddProject ->
+                    ( model, Fire.addProject (Project.new now) )
+
+                PersistAddTodoForm form ->
+                    ( model, AddTodoForm.persist now form )
+
+                PersistEditTodoForm form ->
+                    ( model, EditTodoForm.persist now form )
+
+                PatchTodo_ todoId todoMsgList ->
+                    ( model
+                    , Todo.patchTodo now todoId todoMsgList
+                    )
+
         AuthStateChanged encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
                 Ok authState ->
@@ -404,25 +423,6 @@ update message model =
 
         GotFirestoreQueryResponse qs ->
             onFirestoreQueryResponse qs model
-
-        ContinueWithNow msg now ->
-            case msg of
-                AddTodo title dueAt projectId ->
-                    ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
-
-                AddProject ->
-                    ( model, Fire.addProject (Project.new now) )
-
-                PersistAddTodoForm form ->
-                    ( model, AddTodoForm.persist now form )
-
-                PersistEditTodoForm form ->
-                    ( model, EditTodoForm.persist now form )
-
-                PatchTodo_ todoId todoMsgList ->
-                    ( model
-                    , Todo.patchTodo now todoId todoMsgList
-                    )
 
         PatchTodo todoId todoMsgList ->
             ( model, continueWithNow (PatchTodo_ todoId todoMsgList) )
