@@ -105,14 +105,13 @@ initAddTodoForm addAt projectId =
         }
 
 
-initEditTodoForm : Todo -> TodoFormState
+initEditTodoForm : Todo -> TodoForm
 initEditTodoForm todo =
     EditTodoForm
         { todoId = todo.id
         , todo = todo
         , form = todoFormFieldsFromTodo todo
         }
-        |> TodoFormOpen
 
 
 toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
@@ -538,7 +537,7 @@ update message model =
             ( { model | todoForm = TodoFormOpen newTodoForm }, cmd )
 
         EditTodoClicked todo ->
-            ( { model | todoForm = initEditTodoForm todo }
+            ( { model | todoForm = TodoFormOpen <| initEditTodoForm todo }
             , case model.todoForm of
                 TodoFormClosed ->
                     Cmd.none
