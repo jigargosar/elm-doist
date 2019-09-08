@@ -19,11 +19,13 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
+import Html
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
+import IO
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -975,13 +977,45 @@ viewTodoItemTitle clickMsg title_ =
 -- MAIN
 
 
-main : Program Value Model Msg
+main : IO.Program Value Model Msg
 main =
-    Browser.application
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        , onUrlRequest = LinkClicked
-        , onUrlChange = UrlChanged
+    let
+        ioUpdate : Msg -> IO.IO Model Msg
+        ioUpdate msg =
+            IO.liftUpdate (update msg)
+    in
+    IO.application
+        { init = \f u k -> init f u k |> Tuple.mapSecond IO.lift
+        , view =
+            \m ->
+                view m
+                    |> (\{ title, body } ->
+                            { title = title
+                            , body =
+                                List.map
+                                    (Html.map
+                                        (\ms -> IO.liftUpdate (update ms))
+                                    )
+                                    body
+                            }
+                       )
+        , update = ioUpdate
+        , subscriptions = IO.dummySub
+        , onUrlRequest = \_ -> IO.none
+        , onUrlChange = \_ -> IO.none
         }
+
+
+
+{-
+   main : Program Value Model Msg
+   main =
+       Browser.application
+           { init = init
+           , view = view
+           , update = update
+           , subscriptions = subscriptions
+           , onUrlRequest = LinkClicked
+           , onUrlChange = UrlChanged
+           }
+-}
