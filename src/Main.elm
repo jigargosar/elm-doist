@@ -130,25 +130,20 @@ toTodoMsgList { todo, fields } =
         |> List.filterMap identity
 
 
-viewTodoForm : TodoFormState -> Html Msg
-viewTodoForm todoFormState =
-    case todoFormState of
-        TodoFormOpened todoForm ->
-            case todoForm of
-                EditTodoForm info ->
-                    viewTodoFormFields
-                        { defaultTodoFormViewConfig
-                            | delete = Just TodoFormDeleteClicked
-                        }
-                        info.fields
+viewTodoForm : TodoForm -> Html Msg
+viewTodoForm todoForm =
+    case todoForm of
+        EditTodoForm info ->
+            viewTodoFormFields
+                { defaultTodoFormViewConfig
+                    | delete = Just TodoFormDeleteClicked
+                }
+                info.fields
 
-                AddTodoForm info ->
-                    viewTodoFormFields
-                        defaultTodoFormViewConfig
-                        info.fields
-
-        TodoFormClosed ->
-            HX.none
+        AddTodoForm info ->
+            viewTodoFormFields
+                defaultTodoFormViewConfig
+                info.fields
 
 
 type alias TodoFormViewConfig msg =
@@ -189,6 +184,7 @@ viewTodoFormFields config fields =
                 ]
             , div [] [ text "schedule" ]
             ]
+        , viewSelectProject
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary config.save "Save" []
             , TextButton.primary config.cancel "Cancel" []
@@ -200,6 +196,10 @@ viewTodoFormFields config fields =
                     TextButton.primary del "Delete" []
             ]
         ]
+
+
+viewSelectProject =
+    div [] [ text "projectList" ]
 
 
 
@@ -237,7 +237,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , todoForm : TodoFormState
+    , todoFormState : TodoFormState
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -308,7 +308,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , todoForm = TodoFormClosed
+            , todoFormState = TodoFormClosed
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -450,7 +450,7 @@ update message model =
                     Route.fromUrl url
             in
             if model.route /= newRoute then
-                ( { model | route = newRoute, todoForm = TodoFormClosed }
+                ( { model | route = newRoute, todoFormState = TodoFormClosed }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
 
@@ -526,7 +526,7 @@ update message model =
                     initAddTodoForm addAt projectId
 
                 ( newTodoForm, cmd ) =
-                    case model.todoForm of
+                    case model.todoFormState of
                         TodoFormClosed ->
                             ( addTodoForm, Cmd.none )
 
@@ -542,11 +542,11 @@ update message model =
                                     , persistEditTodoForm info
                                     )
             in
-            ( { model | todoForm = TodoFormOpened newTodoForm }, cmd )
+            ( { model | todoFormState = TodoFormOpened newTodoForm }, cmd )
 
         EditTodoClicked todo ->
-            ( { model | todoForm = TodoFormOpened <| initEditTodoForm todo }
-            , case model.todoForm of
+            ( { model | todoFormState = TodoFormOpened <| initEditTodoForm todo }
+            , case model.todoFormState of
                 TodoFormClosed ->
                     Cmd.none
 
@@ -555,13 +555,13 @@ update message model =
             )
 
         TodoFormChanged fields ->
-            ( case model.todoForm of
+            ( case model.todoFormState of
                 TodoFormClosed ->
                     model
 
                 TodoFormOpened todoForm ->
                     { model
-                        | todoForm =
+                        | todoFormState =
                             TodoFormOpened
                                 (case todoForm of
                                     AddTodoForm info ->
@@ -575,8 +575,8 @@ update message model =
             )
 
         TodoFormSaveClicked ->
-            ( { model | todoForm = TodoFormClosed }
-            , case model.todoForm of
+            ( { model | todoFormState = TodoFormClosed }
+            , case model.todoFormState of
                 TodoFormClosed ->
                     Cmd.none
 
@@ -585,8 +585,8 @@ update message model =
             )
 
         TodoFormDeleteClicked ->
-            ( { model | todoForm = TodoFormClosed }
-            , case model.todoForm of
+            ( { model | todoFormState = TodoFormClosed }
+            , case model.todoFormState of
                 TodoFormClosed ->
                     Cmd.none
 
@@ -600,7 +600,7 @@ update message model =
             )
 
         TodoFormCancelClicked ->
-            ( { model | todoForm = TodoFormClosed }, Cmd.none )
+            ( { model | todoFormState = TodoFormClosed }, Cmd.none )
 
         AddTodoWithDueTodayClicked ->
             ( model
@@ -968,7 +968,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, todoForm } todoList =
+viewKeyedTodoItems { here, todoFormState } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -977,16 +977,17 @@ viewKeyedTodoItems { here, todoForm } todoList =
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
             List.map viewBase
-
-        viewForm =
-            ( "todo-form-key", viewTodoForm todoForm )
     in
-    case todoForm of
+    case todoFormState of
         TodoFormClosed ->
             viewBaseList todoList
 
-        TodoFormOpened tf ->
-            case tf of
+        TodoFormOpened todoForm ->
+            let
+                viewForm =
+                    ( "todo-form-key", viewTodoForm todoForm )
+            in
+            case todoForm of
                 EditTodoForm { todoId } ->
                     if List.any (.id >> eq_ todoId) todoList then
                         todoList
