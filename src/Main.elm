@@ -415,8 +415,13 @@ persistTodoForm todoForm =
             persistEditTodoForm info
 
         AddTodoForm { fields } ->
-            AddTodo fields.title fields.dueAt fields.projectId
-                |> continueWithNow
+            persistNewTodo fields.title fields.dueAt fields.projectId
+
+
+persistNewTodo : String -> DueAt -> ProjectId -> Cmd Msg
+persistNewTodo title dueAt projectId =
+    AddTodo title dueAt projectId
+        |> continueWithNow
 
 
 update : Msg -> Model -> Return
