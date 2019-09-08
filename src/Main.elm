@@ -986,28 +986,30 @@ viewKeyedTodoItems { here, todoForm } todoList =
         TodoFormClosed ->
             viewBaseList todoList
 
-        EditTodoForm { todoId } ->
-            if List.any (.id >> eq_ todoId) todoList then
-                todoList
-                    |> List.map
-                        (\todo ->
-                            if todo.id == todoId then
-                                viewForm
+        TodoFormOpen tf ->
+            case tf of
+                EditTodoForm { todoId } ->
+                    if List.any (.id >> eq_ todoId) todoList then
+                        todoList
+                            |> List.map
+                                (\todo ->
+                                    if todo.id == todoId then
+                                        viewForm
 
-                            else
-                                viewBase todo
-                        )
+                                    else
+                                        viewBase todo
+                                )
 
-            else
-                viewForm :: viewBaseList todoList
+                    else
+                        viewForm :: viewBaseList todoList
 
-        AddTodoForm { addAt } ->
-            case addAt of
-                Start ->
-                    viewForm :: viewBaseList todoList
+                AddTodoForm { addAt } ->
+                    case addAt of
+                        Start ->
+                            viewForm :: viewBaseList todoList
 
-                End ->
-                    viewBaseList todoList ++ [ viewForm ]
+                        End ->
+                            viewBaseList todoList ++ [ viewForm ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
