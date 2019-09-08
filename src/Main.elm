@@ -256,7 +256,7 @@ type NowMsg
     | AddProject
     | PersistAddTodoForm AddTodoForm.Model
     | PersistEditTodoForm EditTodoForm.Model
-    | PatchTodoWithNow TodoId (List Todo.Msg)
+    | PatchTodo_ TodoId (List Todo.Msg)
 
 
 type Msg
@@ -418,13 +418,13 @@ update message model =
                 PersistEditTodoForm form ->
                     ( model, EditTodoForm.persist now form )
 
-                PatchTodoWithNow todoId todoMsgList ->
+                PatchTodo_ todoId todoMsgList ->
                     ( model
                     , Todo.patchTodo now todoId todoMsgList
                     )
 
         PatchTodo todoId todoMsgList ->
-            ( model, continueWithNow (PatchTodoWithNow todoId todoMsgList) )
+            ( model, continueWithNow (PatchTodo_ todoId todoMsgList) )
 
         AddNewTodoClicked addAt projectId ->
             let
