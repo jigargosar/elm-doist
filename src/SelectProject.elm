@@ -19,9 +19,9 @@ type alias Internal =
     { projectId : ProjectId }
 
 
-init : ProjectId -> Model
+init : ProjectId -> ( Model, Cmd Msg )
 init projectId =
-    Model (Internal projectId)
+    ( Model (Internal projectId), Cmd.none )
 
 
 map : (Internal -> Internal) -> Model -> Model

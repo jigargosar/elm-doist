@@ -75,6 +75,7 @@ closeEditor =
 type Msg
     = FieldsChanged Fields
     | OpenEditor Editor
+    | OpenSelectProject
     | CloseEditor (Maybe Fields)
     | Close (Maybe Fields)
     | OnSelectProjectMsg SelectProject.Msg
@@ -88,6 +89,13 @@ update message model =
 
         OpenEditor editor ->
             ( setEditor editor model, Cmd.none )
+
+        OpenSelectProject ->
+            let
+                ( editor, cmd ) =
+                    SelectProject.init (getProjectId model)
+            in
+            ( setEditor (SelectProject editor) model, Cmd.none )
 
         CloseEditor maybeFields ->
             case maybeFields of
@@ -191,12 +199,7 @@ view projectList model =
                     |> H.map OnSelectProjectMsg
 
             _ ->
-                div
-                    [ E.onClick
-                        (OpenEditor
-                            (SelectProject <| SelectProject.init (getProjectId model))
-                        )
-                    ]
+                div [ E.onClick OpenSelectProject ]
                     [ text "project: ", text (getSelectedProjectTitle projectList model) ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary (Close (Just <| getFields model)) "Save" []
