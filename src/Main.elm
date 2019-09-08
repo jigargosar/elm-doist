@@ -137,20 +137,14 @@ viewTodoForm model =
             case todoForm of
                 EditTodoForm info ->
                     viewTodoFormFields
-                        { save = TodoFormSaveClicked
-                        , cancel = TodoFormSaveClicked
-                        , changed = TodoFormChanged
-                        , delete = Just TodoFormDeleteClicked
+                        { defaultTodoFormViewConfig
+                            | delete = Just TodoFormDeleteClicked
                         }
                         info.fields
 
                 AddTodoForm info ->
                     viewTodoFormFields
-                        { save = TodoFormSaveClicked
-                        , cancel = TodoFormSaveClicked
-                        , changed = TodoFormChanged
-                        , delete = Nothing
-                        }
+                        defaultTodoFormViewConfig
                         info.fields
 
         TodoFormClosed ->
@@ -162,6 +156,15 @@ type alias TodoFormViewConfig msg =
     , cancel : msg
     , changed : TodoFormFields -> msg
     , delete : Maybe msg
+    }
+
+
+defaultTodoFormViewConfig : TodoFormViewConfig Msg
+defaultTodoFormViewConfig =
+    { save = TodoFormSaveClicked
+    , cancel = TodoFormCancelClicked
+    , changed = TodoFormChanged
+    , delete = Nothing
     }
 
 
