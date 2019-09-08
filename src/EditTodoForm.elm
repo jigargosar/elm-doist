@@ -113,6 +113,7 @@ view config (Model ({ title } as info)) =
                 ]
             , div [] [ text "schedule" ]
             ]
+        , div [] [ text "projectId" ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary config.save "Save" []
             , TextButton.primary config.cancel "Cancel" []
