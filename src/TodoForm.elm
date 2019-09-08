@@ -1,11 +1,14 @@
 module TodoForm exposing (Model, Msg, init, update, view)
 
 import Accessibility.Styled exposing (text)
+import BasicsExtra exposing (eq_)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Encode as JE
+import List.Extra as LX
+import Maybe.Extra as MX
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
@@ -158,6 +161,12 @@ getProjectId =
     getFields >> .projectId
 
 
+getSelectedProjectTitle : ProjectList -> Model -> String
+getSelectedProjectTitle projectList model =
+    LX.find (.id >> eq_ (getProjectId model)) projectList
+        |> MX.unwrap "Inbox" .title
+
+
 view : ProjectList -> Model -> H.Html Msg
 view projectList model =
     div [ class "pa3" ]
@@ -176,23 +185,19 @@ view projectList model =
                 ]
             , div [] [ text "schedule" ]
             ]
-        , div
-            [ E.onClick
-                (OpenEditor
-                    (SelectProject <| SelectProject.init (getProjectId model))
-                )
-            ]
-            [ text "select project" ]
         , case getEditor model of
-            Nothing ->
-                HX.none
-
-            Just SelectDueDate ->
-                HX.none
-
             Just (SelectProject spm) ->
                 SelectProject.view projectList spm
                     |> H.map OnSelectProjectMsg
+
+            _ ->
+                div
+                    [ E.onClick
+                        (OpenEditor
+                            (SelectProject <| SelectProject.init (getProjectId model))
+                        )
+                    ]
+                    [ text "project: ", text (getSelectedProjectTitle projectList model) ]
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary (Close (Just <| getFields model)) "Save" []
             , TextButton.primary (Close Nothing) "Cancel" []
