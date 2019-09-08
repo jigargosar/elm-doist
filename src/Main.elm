@@ -251,7 +251,7 @@ init encodedFlags url key =
 -- MSG
 
 
-type NowMsg
+type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
     | PersistAddTodoForm AddTodoForm.Model
@@ -267,6 +267,9 @@ type Msg
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
     | ScrolledToTop ()
+      -- NowMsg
+    | ContinueWithNow NowContinuation Time.Posix
+      -- Fire
     | AuthStateChanged Value
     | GotFirestoreQueryResponse FirestoreQueryResponse
     | SignInClicked
@@ -285,8 +288,6 @@ type Msg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
-      -- NowMsg
-    | ContinueWithNow NowMsg Time.Posix
 
 
 addTodoClicked : AddAt -> ProjectId -> Msg
