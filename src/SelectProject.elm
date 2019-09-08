@@ -8,6 +8,7 @@ import Json.Decode as JD
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import UI.Key as Key
+import UI.TextButton as TextButton
 
 
 type Model
@@ -82,9 +83,8 @@ viewListItem initialProjectId projectId projectTitle =
             else
                 Css.batch []
     in
-    H.styled div
+    TextButton.styled
         [ Css.cursor Css.pointer, styles ]
-        [ tabindex 0
-        , onClick (Selected_ projectId)
-        ]
-        [ text projectTitle ]
+        (Selected_ projectId)
+        projectTitle
+        []
