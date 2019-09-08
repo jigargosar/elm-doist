@@ -1,10 +1,12 @@
-module TodoForm exposing (Model, init, update)
+module TodoForm exposing (Model, Msg, init, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
+import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Encode as JE
+import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
 import SelectProject
@@ -151,7 +153,13 @@ getEditor =
     unwrap >> .maybeEditor
 
 
-view config projectList model =
+getProjectId : Model -> ProjectId
+getProjectId =
+    getFields >> .projectId
+
+
+view : ProjectList -> Model -> H.Html Msg
+view projectList model =
     div [ class "pa3" ]
         [ div [ class "flex" ]
             [ div [ class "flex-grow-1" ]
@@ -168,6 +176,13 @@ view config projectList model =
                 ]
             , div [] [ text "schedule" ]
             ]
+        , div
+            [ E.onClick
+                (OpenEditor
+                    (SelectProject <| SelectProject.init (getProjectId model))
+                )
+            ]
+            [ text "select project" ]
         , case getEditor model of
             Nothing ->
                 HX.none
@@ -181,11 +196,12 @@ view config projectList model =
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary (Close (Just <| getFields model)) "Save" []
             , TextButton.primary (Close Nothing) "Cancel" []
-            , case config.delete of
-                Nothing ->
-                    HX.none
 
-                Just del ->
-                    TextButton.primary del "Delete" []
+            --            , case config.delete of
+            --                Nothing ->
+            --                    HX.none
+            --
+            --                Just del ->
+            --                    TextButton.primary del "Delete" []
             ]
         ]

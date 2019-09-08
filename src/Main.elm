@@ -378,6 +378,8 @@ type Msg
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
+      -- New TFM
+    | OnTFM TodoForm.Msg
 
 
 addTodoClicked : AddAt -> ProjectId -> Msg
@@ -628,6 +630,18 @@ update message model =
             ( model
             , Fire.deleteProject projectId
             )
+
+        OnTFM msg ->
+            case model.maybeTodoForm of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just todoForm ->
+                    let
+                        ( newTodoForm, todoFormCmd ) =
+                            TodoForm.update msg todoForm
+                    in
+                    ( { model | maybeTodoForm = Just newTodoForm }, Cmd.map OnTFM todoFormCmd )
 
 
 
@@ -982,7 +996,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, todoFormState, projectList } todoList =
+viewKeyedTodoItems { here, todoFormState, projectList, maybeTodoForm } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -992,38 +1006,48 @@ viewKeyedTodoItems { here, todoFormState, projectList } todoList =
         viewBaseList =
             List.map viewBase
     in
-    case todoFormState of
-        TodoFormClosed ->
+    --    case todoFormState of
+    --        TodoFormClosed ->
+    --            viewBaseList todoList
+    --
+    --        TodoFormOpened todoForm ->
+    --            let
+    --                viewForm =
+    --                    ( "todo-form-key", viewTodoForm projectList todoForm )
+    --            in
+    --            case todoForm of
+    --                EditTodoForm { todoId } ->
+    --                    if List.any (.id >> eq_ todoId) todoList then
+    --                        todoList
+    --                            |> List.map
+    --                                (\todo ->
+    --                                    if todo.id == todoId then
+    --                                        viewForm
+    --
+    --                                    else
+    --                                        viewBase todo
+    --                                )
+    --
+    --                    else
+    --                        viewForm :: viewBaseList todoList
+    --
+    --                AddTodoForm { addAt } ->
+    --                    case addAt of
+    --                        Start ->
+    --                            viewForm :: viewBaseList todoList
+    --
+    --                        End ->
+    --                            viewBaseList todoList ++ [ viewForm ]
+    case maybeTodoForm of
+        Nothing ->
             viewBaseList todoList
 
-        TodoFormOpened todoForm ->
-            let
-                viewForm =
-                    ( "todo-form-key", viewTodoForm projectList todoForm )
-            in
-            case todoForm of
-                EditTodoForm { todoId } ->
-                    if List.any (.id >> eq_ todoId) todoList then
-                        todoList
-                            |> List.map
-                                (\todo ->
-                                    if todo.id == todoId then
-                                        viewForm
-
-                                    else
-                                        viewBase todo
-                                )
-
-                    else
-                        viewForm :: viewBaseList todoList
-
-                AddTodoForm { addAt } ->
-                    case addAt of
-                        Start ->
-                            viewForm :: viewBaseList todoList
-
-                        End ->
-                            viewBaseList todoList ++ [ viewForm ]
+        Just tf ->
+            [ ( "tfk"
+              , TodoForm.view projectList tf
+                    |> H.map OnTFM
+              )
+            ]
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg
