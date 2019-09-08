@@ -131,8 +131,8 @@ toTodoMsgList { todo, fields } =
 
 
 viewTodoForm : TodoFormState -> Html Msg
-viewTodoForm model =
-    case model of
+viewTodoForm todoFormState =
+    case todoFormState of
         TodoFormOpened todoForm ->
             case todoForm of
                 EditTodoForm info ->
