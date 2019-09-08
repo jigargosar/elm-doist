@@ -56,18 +56,18 @@ view projectList model =
         initialProjectId =
             getProjectId model
 
-        viewProjectItems =
-            List.map (\{ id, title } -> viewProject initialProjectId id title) projectList
+        viewProjectItem { id, title } =
+            viewListItem initialProjectId id title
 
         viewInboxItem =
-            viewProject initialProjectId ProjectId.default "Inbox"
+            viewListItem initialProjectId ProjectId.default "Inbox"
     in
     div []
-        (viewInboxItem :: viewProjectItems)
+        (viewInboxItem :: List.map viewProjectItem projectList)
 
 
-viewProject : ProjectId -> ProjectId -> String -> H.Html Msg
-viewProject initialProjectId projectId projectTitle =
+viewListItem : ProjectId -> ProjectId -> String -> H.Html Msg
+viewListItem initialProjectId projectId projectTitle =
     let
         styles =
             if projectId == initialProjectId then
