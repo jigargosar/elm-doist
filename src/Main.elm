@@ -413,6 +413,16 @@ persistAddTodoForm { fields } =
         |> continueWithNow
 
 
+persistTodoForm : TodoForm -> Cmd Msg
+persistTodoForm tf =
+    case tf of
+        EditTodoForm info ->
+            persistEditTodoForm info
+
+        AddTodoForm info ->
+            persistAddTodoForm info
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -537,12 +547,7 @@ update message model =
                     Cmd.none
 
                 TodoFormOpen tf ->
-                    case tf of
-                        AddTodoForm info ->
-                            persistAddTodoForm info
-
-                        EditTodoForm info ->
-                            persistEditTodoForm info
+                    persistTodoForm tf
             )
 
         TodoFormChanged fields ->
@@ -575,12 +580,7 @@ update message model =
                     Cmd.none
 
                 TodoFormOpen tf ->
-                    case tf of
-                        EditTodoForm info ->
-                            persistEditTodoForm info
-
-                        AddTodoForm info ->
-                            persistAddTodoForm info
+                    persistTodoForm tf
             )
 
         TodoFormDeleteClicked ->
