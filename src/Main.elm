@@ -8,7 +8,6 @@ import Browser.Navigation as Nav
 import BrowserSize exposing (BrowserSize)
 import Calendar
 import Css exposing (none, outline)
-import EditTodoForm
 import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
@@ -73,7 +72,8 @@ type alias AddTodoFormInfo =
 
 type alias EditTodoFormInfo =
     { todoId : TodoId
-    , form : EditTodoForm.Model
+    , todo : Todo
+    , form : TodoFormFields
     }
 
 
@@ -100,19 +100,36 @@ initEditTodoForm : Todo -> TodoForm
 initEditTodoForm todo =
     EditTodoForm
         { todoId = todo.id
-        , form = EditTodoForm.init todo
+        , todo = todo
+        , form = { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
         }
+
+
+toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
+toTodoMsgList { todo, form } =
+    [ if todo.title /= form.title then
+        Just <| Todo.SetTitle form.title
+
+      else
+        Nothing
+    , if todo.projectId /= form.projectId then
+        Just <| Todo.SetProjectId form.projectId
+
+      else
+        Nothing
+    ]
+        |> List.filterMap identity
 
 
 viewTodoForm : TodoForm -> Html Msg
 viewTodoForm model =
     case model of
         EditTodoForm info ->
-            EditTodoForm.view
+            viewTodoFormFields
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
                 , changed = \form -> TodoFormChanged <| EditTodoForm { info | form = form }
-                , delete = TodoFormDeleteClicked
+                , delete = Just TodoFormDeleteClicked
                 }
                 info.form
 
@@ -121,6 +138,7 @@ viewTodoForm model =
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
                 , changed = \form -> TodoFormChanged <| AddTodoForm { info | fields = form }
+                , delete = Nothing
                 }
                 info.fields
 
@@ -132,6 +150,7 @@ type alias TodoFormViewConfig msg =
     { save : msg
     , cancel : msg
     , changed : TodoFormFields -> msg
+    , delete : Maybe msg
     }
 
 
@@ -159,6 +178,12 @@ viewTodoFormFields config fields =
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary config.save "Save" []
             , TextButton.primary config.cancel "Cancel" []
+            , case config.delete of
+                Nothing ->
+                    HX.none
+
+                Just del ->
+                    TextButton.primary del "Delete" []
             ]
         ]
 
@@ -297,7 +322,7 @@ type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
     | PersistAddTodoForm AddTodoFormInfo
-    | PersistEditTodoForm EditTodoForm.Model
+    | PersistEditTodoForm EditTodoFormInfo
     | PatchTodo_ TodoId (List Todo.Msg)
 
 
@@ -364,7 +389,7 @@ todoDoneCheckedMsg todoId isChecked =
     PatchTodo todoId [ Todo.SetCompleted isChecked ]
 
 
-persistEditTodoForm : EditTodoForm.Model -> Cmd Msg
+persistEditTodoForm : EditTodoFormInfo -> Cmd Msg
 persistEditTodoForm =
     PersistEditTodoForm >> continueWithNow
 
@@ -439,8 +464,8 @@ update message model =
                     in
                     ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
-                PersistEditTodoForm form ->
-                    ( model, EditTodoForm.persist now form )
+                PersistEditTodoForm info ->
+                    ( model, Todo.patchTodo now info.todo.id (toTodoMsgList info) )
 
                 PatchTodo_ todoId todoMsgList ->
                     ( model
@@ -489,7 +514,7 @@ update message model =
 
                 EditTodoForm info ->
                     ( { model | todoForm = addTodoForm }
-                    , persistEditTodoForm info.form
+                    , persistEditTodoForm info
                     )
 
         EditTodoClicked todo ->
@@ -502,7 +527,7 @@ update message model =
                     persistAddTodoForm info
 
                 EditTodoForm info ->
-                    persistEditTodoForm info.form
+                    persistEditTodoForm info
             )
 
         TodoFormChanged form ->
@@ -515,7 +540,7 @@ update message model =
                     Cmd.none
 
                 EditTodoForm info ->
-                    persistEditTodoForm info.form
+                    persistEditTodoForm info
 
                 AddTodoForm info ->
                     persistAddTodoForm info
