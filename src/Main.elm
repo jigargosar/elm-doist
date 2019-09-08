@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import AddTodoForm
 import AuthState exposing (AuthState)
 import BasicsExtra exposing (..)
 import Browser
@@ -19,14 +18,14 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, text)
-import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex)
+import Html.Styled.Events exposing (onClick, onInput)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode exposing (Value)
+import Json.Encode as JE exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -59,14 +58,28 @@ type AddAt
     | End
 
 
+type alias TodoFormFields =
+    { title : String
+    , dueAt : Todo.DueAt
+    , projectId : ProjectId
+    }
+
+
+initAddTodoFormFields projectId =
+    { title = "", dueAt = Todo.notDue, projectId = projectId }
+
+
+type alias AddTodoFormInfo =
+    { addAt : AddAt
+    , form : TodoFormFields
+    }
+
+
 type TodoForm
-    = EditTodoForm
+    = AddTodoForm AddTodoFormInfo
+    | EditTodoForm
         { todoId : TodoId
         , form : EditTodoForm.Model
-        }
-    | AddTodoForm
-        { addAt : AddAt
-        , form : AddTodoForm.Model
         }
     | NoTodoForm
 
@@ -75,7 +88,7 @@ initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
     AddTodoForm
         { addAt = addAt
-        , form = AddTodoForm.init projectId
+        , form = initAddTodoFormFields projectId
         }
 
 
@@ -100,7 +113,7 @@ viewTodoForm model =
                 info.form
 
         AddTodoForm info ->
-            AddTodoForm.view
+            viewTodoFormFields
                 { save = TodoFormSaveClicked
                 , cancel = TodoFormSaveClicked
                 , changed = \form -> TodoFormChanged <| AddTodoForm { info | form = form }
@@ -109,6 +122,41 @@ viewTodoForm model =
 
         NoTodoForm ->
             HX.none
+
+
+type alias TodoFormViewConfig msg =
+    { save : msg
+    , cancel : msg
+    , changed : TodoFormFields -> msg
+    }
+
+
+viewTodoFormFields : TodoFormViewConfig msg -> TodoFormFields -> Html msg
+viewTodoFormFields config fields =
+    let
+        titleChangedMsg newTitle =
+            config.changed { fields | title = newTitle }
+    in
+    div [ class "pa3" ]
+        [ div [ class "flex" ]
+            [ div [ class "flex-grow-1" ]
+                [ H.node "auto-resize-textarea"
+                    [ A.property "textAreaValue" (JE.string fields.title) ]
+                    [ textarea
+                        [ class "pa0 lh-copy overflow-hidden w-100"
+                        , rows 1
+                        , onInput titleChangedMsg
+                        ]
+                        []
+                    ]
+                ]
+            , div [] [ text "schedule" ]
+            ]
+        , div [ class "flex hs3 lh-copy" ]
+            [ TextButton.primary config.save "Save" []
+            , TextButton.primary config.cancel "Cancel" []
+            ]
+        ]
 
 
 
@@ -244,7 +292,7 @@ init encodedFlags url key =
 type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
-    | PersistAddTodoForm AddTodoForm.Model
+    | PersistAddTodoForm AddTodoFormInfo
     | PersistEditTodoForm EditTodoForm.Model
     | PatchTodo_ TodoId (List Todo.Msg)
 
@@ -317,7 +365,7 @@ persistEditTodoForm =
     PersistEditTodoForm >> continueWithNow
 
 
-persistAddTodoForm : AddTodoForm.Model -> Cmd Msg
+persistAddTodoForm : AddTodoFormInfo -> Cmd Msg
 persistAddTodoForm =
     PersistAddTodoForm >> continueWithNow
 
@@ -380,8 +428,12 @@ update message model =
                 AddProject ->
                     ( model, Fire.addProject (Project.new now) )
 
-                PersistAddTodoForm form ->
-                    ( model, AddTodoForm.persist now form )
+                PersistAddTodoForm info ->
+                    let
+                        { title, dueAt, projectId } =
+                            info.form
+                    in
+                    ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
                 PersistEditTodoForm form ->
                     ( model, EditTodoForm.persist now form )
@@ -443,7 +495,7 @@ update message model =
                     Cmd.none
 
                 AddTodoForm info ->
-                    persistAddTodoForm info.form
+                    persistAddTodoForm info
 
                 EditTodoForm info ->
                     persistEditTodoForm info.form
@@ -462,7 +514,7 @@ update message model =
                     persistEditTodoForm info.form
 
                 AddTodoForm info ->
-                    persistAddTodoForm info.form
+                    persistAddTodoForm info
             )
 
         TodoFormDeleteClicked ->
