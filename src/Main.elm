@@ -17,14 +17,14 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
-import Html.Styled as H exposing (Attribute, Html, a, div, text, textarea)
-import Html.Styled.Attributes as A exposing (class, css, disabled, href, rows, tabindex)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled as H exposing (Attribute, Html, a, div, text)
+import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
+import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import List.Extra
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -106,15 +106,6 @@ initAddTodoForm addAt projectId =
         }
 
 
-initEditTodoForm : Todo -> TodoForm
-initEditTodoForm todo =
-    EditTodoForm
-        { todoId = todo.id
-        , todo = todo
-        , fields = todoFormFieldsFromTodo todo
-        }
-
-
 toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
 toTodoMsgList { todo, fields } =
     [ if todo.title /= fields.title then
@@ -131,83 +122,12 @@ toTodoMsgList { todo, fields } =
         |> List.filterMap identity
 
 
-viewTodoForm : ProjectList -> TodoForm -> Html Msg
-viewTodoForm projectList todoForm =
-    case todoForm of
-        EditTodoForm info ->
-            viewTodoFormFields
-                { defaultTodoFormViewConfig
-                    | delete = Just TodoFormDeleteClicked
-                }
-                projectList
-                info.fields
-
-        AddTodoForm info ->
-            viewTodoFormFields
-                defaultTodoFormViewConfig
-                projectList
-                info.fields
-
-
 type alias TodoFormViewConfig msg =
     { save : msg
     , cancel : msg
     , changed : TodoFormFields -> msg
     , delete : Maybe msg
     }
-
-
-defaultTodoFormViewConfig : TodoFormViewConfig Msg
-defaultTodoFormViewConfig =
-    { save = TodoFormSaveClicked
-    , cancel = TodoFormCancelClicked
-    , changed = TodoFormChanged
-    , delete = Nothing
-    }
-
-
-viewTodoFormFields :
-    TodoFormViewConfig msg
-    -> ProjectList
-    -> TodoFormFields
-    -> Html msg
-viewTodoFormFields config projectList fields =
-    let
-        titleChangedMsg newTitle =
-            config.changed { fields | title = newTitle }
-    in
-    div [ class "pa3" ]
-        [ div [ class "flex" ]
-            [ div [ class "flex-grow-1" ]
-                [ H.node "auto-resize-textarea"
-                    [ A.property "textAreaValue" (JE.string fields.title) ]
-                    [ textarea
-                        [ class "pa0 lh-copy overflow-hidden w-100"
-                        , rows 1
-                        , onInput titleChangedMsg
-                        ]
-                        []
-                    ]
-                ]
-            , div [] [ text "schedule" ]
-            ]
-        , viewSelectProject projectList
-        , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary config.save "Save" []
-            , TextButton.primary config.cancel "Cancel" []
-            , case config.delete of
-                Nothing ->
-                    HX.none
-
-                Just del ->
-                    TextButton.primary del "Delete" []
-            ]
-        ]
-
-
-viewSelectProject : ProjectList -> Html msg
-viewSelectProject projectList =
-    div [] [ text "projectList" ]
 
 
 
