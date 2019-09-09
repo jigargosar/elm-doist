@@ -653,11 +653,11 @@ update message model =
                     ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
                     , Cmd.map TodoFormMsg cmd
                     )
-                        |> Return.andThen (handleTodoFormMaybeOutMsg maybeOutMsg)
+                        |> Return.andThen (handleTodoFormMaybeOutMsg meta maybeOutMsg)
 
 
-handleTodoFormMaybeOutMsg : Maybe TodoForm.OutMsg -> Model -> Return
-handleTodoFormMaybeOutMsg maybeOutMsg model =
+handleTodoFormMaybeOutMsg : TodoFormMeta -> Maybe TodoForm.OutMsg -> Model -> Return
+handleTodoFormMaybeOutMsg meta maybeOutMsg model =
     case maybeOutMsg of
         Nothing ->
             ( model, Cmd.none )
@@ -665,15 +665,39 @@ handleTodoFormMaybeOutMsg maybeOutMsg model =
         Just out ->
             case out of
                 TodoForm.Submit fields ->
-                    handleTodoFormSubmit fields model
+                    handleTodoFormSubmit meta fields model
 
                 TodoForm.Cancel ->
                     ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
-handleTodoFormSubmit : TodoForm.Fields -> Model -> Return
-handleTodoFormSubmit fields model =
-    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+handleTodoFormSubmit : TodoFormMeta -> TodoForm.Fields -> Model -> Return
+handleTodoFormSubmit meta fields model =
+    case meta of
+        AddTodoFormMeta ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+        EditTodoFormMeta todo ->
+            ( { model | maybeTodoForm = Nothing }
+            , PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
+                |> continueWithNow
+            )
+
+
+todoFormFieldsToMsgList : Todo -> TodoForm.Fields -> List Todo.Msg
+todoFormFieldsToMsgList todo fields =
+    [ if todo.title /= fields.title then
+        Just <| Todo.SetTitle fields.title
+
+      else
+        Nothing
+    , if todo.projectId /= fields.projectId then
+        Just <| Todo.SetProjectId fields.projectId
+
+      else
+        Nothing
+    ]
+        |> List.filterMap identity
 
 
 
