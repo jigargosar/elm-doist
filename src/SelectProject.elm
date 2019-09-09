@@ -6,6 +6,7 @@ import Focus
 import Html.Styled as H exposing (div, text)
 import Html.Styled.Attributes as A exposing (tabindex)
 import Html.Styled.Events as E exposing (onClick)
+import HtmlExtra as HX
 import Json.Decode as JD
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -14,7 +15,8 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = Model Internal
+    = SelectOpen
+    | SelectClosed
 
 
 type alias Internal =
@@ -23,12 +25,18 @@ type alias Internal =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model {}, Focus.attempt Focused firstDomId )
+    ( SelectClosed, Cmd.none )
 
 
-map : (Internal -> Internal) -> Model -> Model
-map fn (Model internal) =
-    Model (fn internal)
+focusFirstCmd : Cmd Msg
+focusFirstCmd =
+    Focus.attempt Focused firstDomId
+
+
+
+--map : (Internal -> Internal) -> Model -> Model
+--map fn (Model internal) =
+--    Model (fn internal)
 
 
 type Msg
@@ -46,10 +54,10 @@ update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
 update message model =
     case message of
         Selected projectId ->
-            ( model, Cmd.none, Just <| Closed <| Just projectId )
+            ( SelectClosed, Cmd.none, Just <| Closed <| Just projectId )
 
         Cancel ->
-            ( model, Cmd.none, Just <| Closed Nothing )
+            ( SelectClosed, Cmd.none, Just <| Closed Nothing )
 
         Focused result ->
             ( model
@@ -80,18 +88,23 @@ inboxDisplayProject =
 
 
 view : ProjectId -> ProjectList -> Model -> H.Html Msg
-view selectedProjectId projectList _ =
-    let
-        displayProjects =
-            inboxDisplayProject :: List.map toDisplayProject projectList
-    in
-    H.styled (H.node "track-focus-outside")
-        []
-        [ E.on "focusOutside" (JD.succeed Cancel)
-        , Key.onEscape Cancel
-        , tabindex -1
-        ]
-        (List.indexedMap (viewDisplayProject selectedProjectId) displayProjects)
+view selectedProjectId projectList model =
+    case model of
+        SelectClosed ->
+            HX.none
+
+        SelectOpen ->
+            let
+                displayProjects =
+                    inboxDisplayProject :: List.map toDisplayProject projectList
+            in
+            H.styled (H.node "track-focus-outside")
+                []
+                [ E.on "focusOutside" (JD.succeed Cancel)
+                , Key.onEscape Cancel
+                , tabindex -1
+                ]
+                (List.indexedMap (viewDisplayProject selectedProjectId) displayProjects)
 
 
 viewDisplayProject : ProjectId -> Int -> DisplayProject -> H.Html Msg
