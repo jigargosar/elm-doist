@@ -94,30 +94,33 @@ view selectedProjectId projectList model =
             HX.none
 
         SelectOpen ->
-            let
-                displayProjects =
-                    inboxDisplayProject :: List.map toDisplayProject projectList
-            in
-            H.styled (H.node "track-focus-outside")
-                []
-                [ E.on "focusOutside" (JD.succeed Cancel)
-                , Key.onEscape Cancel
-                , tabindex -1
-                ]
-                (List.indexedMap (viewDisplayProject selectedProjectId) displayProjects)
+            selectContainer
+                (inboxDisplayProject
+                    :: List.map toDisplayProject projectList
+                    |> List.indexedMap (viewListItem selectedProjectId)
+                )
 
 
-viewDisplayProject : ProjectId -> Int -> DisplayProject -> H.Html Msg
-viewDisplayProject selectedProjectId idx displayProject =
-    viewListItem
+selectContainer =
+    H.styled (H.node "track-focus-outside")
+        []
+        [ E.on "focusOutside" (JD.succeed Cancel)
+        , Key.onEscape Cancel
+        , tabindex -1
+        ]
+
+
+viewListItem : ProjectId -> Int -> DisplayProject -> H.Html Msg
+viewListItem selectedProjectId idx displayProject =
+    viewListItemHelp
         { isSelected = selectedProjectId == displayProject.id
         , isFirst = idx == 0
         }
         displayProject
 
 
-viewListItem : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
-viewListItem { isSelected, isFirst } displayProject =
+viewListItemHelp : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
+viewListItemHelp { isSelected, isFirst } displayProject =
     let
         styles =
             if isSelected then
