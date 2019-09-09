@@ -18,8 +18,8 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = SelectOpen
-    | SelectClosed
+    = MenuOpen
+    | MenuClosed
 
 
 type alias Internal =
@@ -28,7 +28,7 @@ type alias Internal =
 
 init : Model
 init =
-    SelectClosed
+    MenuClosed
 
 
 focusFirstCmd : Cmd Msg
@@ -53,13 +53,13 @@ update : Msg -> Model -> ( Model, Cmd Msg, Maybe ProjectId )
 update message model =
     case message of
         OpenMenu ->
-            ( SelectOpen, focusFirstCmd, Nothing )
+            ( MenuOpen, focusFirstCmd, Nothing )
 
         CloseMenu ->
-            ( SelectClosed, Cmd.none, Nothing )
+            ( MenuClosed, Cmd.none, Nothing )
 
         Selected projectId ->
-            ( SelectClosed, Cmd.none, Just projectId )
+            ( MenuClosed, Cmd.none, Just projectId )
 
         Focused _ ->
             ( model, Cmd.none, Nothing )
@@ -95,13 +95,13 @@ view selectedProjectId projectList model =
                 :: List.map toDisplayProject projectList
     in
     case model of
-        SelectClosed ->
+        MenuClosed ->
             div [ E.onClick OpenMenu ]
                 [ text "project: "
                 , text (getDisplayProjectTitle selectedProjectId displayProjectList)
                 ]
 
-        SelectOpen ->
+        MenuOpen ->
             selectContainer
                 (displayProjectList
                     |> List.indexedMap (viewListItem selectedProjectId)
