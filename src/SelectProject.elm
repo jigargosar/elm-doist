@@ -96,7 +96,11 @@ view selectedProjectId projectList _ =
 
 viewDisplayProject : ProjectId -> Int -> DisplayProject -> H.Html Msg
 viewDisplayProject selectedProjectId idx displayProject =
-    viewListItem { isSelected = selectedProjectId == displayProject.id, isFirst = idx == 0 } displayProject
+    viewListItem
+        { isSelected = selectedProjectId == displayProject.id
+        , isFirst = idx == 0
+        }
+        displayProject
 
 
 viewListItem : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
