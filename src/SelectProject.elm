@@ -51,7 +51,6 @@ type Msg
 
 type Exit
     = Closed (Maybe ProjectId)
-    | DomError Dom.Error
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
@@ -66,16 +65,8 @@ update message model =
         Cancel ->
             ( SelectClosed, Cmd.none, Just <| Closed Nothing )
 
-        Focused result ->
-            ( model
-            , Cmd.none
-            , case result of
-                Ok _ ->
-                    Nothing
-
-                Err domError ->
-                    Just (DomError domError)
-            )
+        Focused _ ->
+            ( model, Cmd.none, Nothing )
 
 
 type alias DisplayProject =
