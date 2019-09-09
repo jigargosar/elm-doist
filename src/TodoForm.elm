@@ -100,8 +100,8 @@ getProjectId =
 
 
 type Msg
-    = Save
-    | Cancel
+    = SaveClicked
+    | CancelClicked
     | SelectProjectMsg SelectProject.Msg
     | TitleChanged String
 
@@ -112,10 +112,10 @@ update message model =
         TitleChanged title ->
             ( setTitle title model, Cmd.none )
 
-        Save ->
+        SaveClicked ->
             ( model, Cmd.none )
 
-        Cancel ->
+        CancelClicked ->
             ( model, Cmd.none )
 
         SelectProjectMsg msg ->
@@ -149,8 +149,8 @@ view projectList model =
         , SelectProject.view (getProjectId model) projectList (getSelectProject model)
             |> H.map SelectProjectMsg
         , div [ class "flex hs3 lh-copy" ]
-            [ TextButton.primary Save "Save" []
-            , TextButton.primary Cancel "Cancel" []
+            [ TextButton.primary SaveClicked "Save" []
+            , TextButton.primary CancelClicked "Cancel" []
 
             --            , case config.delete of
             --                Nothing ->
