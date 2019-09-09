@@ -22,13 +22,8 @@ type Model
 
 type alias Internal =
     { fields : Fields
-    , maybeEditor : Maybe Editor
+    , selectProject : SelectProject.Model
     }
-
-
-type Editor
-    = SelectProject SelectProject.Model
-    | SelectDueDate
 
 
 type alias Fields =
@@ -42,7 +37,7 @@ init : String -> Todo.DueAt -> ProjectId -> Model
 init title dueAt projectId =
     Model
         { fields = Fields title dueAt projectId
-        , maybeEditor = Nothing
+        , selectProject = SelectProject.init
         }
 
 
@@ -61,20 +56,28 @@ mapFields fn =
     map (\internal -> { internal | fields = fn internal.fields })
 
 
-setEditor : Editor -> Model -> Model
-setEditor editor =
-    map (\internal -> { internal | maybeEditor = Just editor })
+setSelectProject : SelectProject.Model -> Model -> Model
+setSelectProject selectProject =
+    map (\internal -> { internal | selectProject = selectProject })
 
 
-closeEditor : Model -> Model
-closeEditor =
-    map (\internal -> { internal | maybeEditor = Nothing })
+getSelectProject =
+    unwrap >> .selectProject
+
+
+
+--setEditor : Editor -> Model -> Model
+--setEditor editor =
+--    map (\internal -> { internal | maybeEditor = Just editor })
+--
+--
+--closeEditor : Model -> Model
+--closeEditor =
+--    map (\internal -> { internal | maybeEditor = Nothing })
 
 
 type Msg
     = FieldsChanged Fields
-    | OpenSelectProject
-    | CloseEditor (Maybe Fields)
     | Save
     | Cancel
     | OnSelectProjectMsg SelectProject.Msg
@@ -86,25 +89,6 @@ update message model =
         FieldsChanged fields ->
             ( setFields fields model, Cmd.none )
 
-        OpenSelectProject ->
-            let
-                ( editor, cmd ) =
-                    SelectProject.init
-            in
-            ( setEditor (SelectProject editor) model, Cmd.map OnSelectProjectMsg cmd )
-
-        CloseEditor maybeFields ->
-            case maybeFields of
-                Just fields ->
-                    ( model
-                        |> setFields fields
-                        |> closeEditor
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
         Save ->
             ( model, Cmd.none )
 
@@ -112,20 +96,15 @@ update message model =
             ( model, Cmd.none )
 
         OnSelectProjectMsg msg ->
-            case getEditor model of
-                Just (SelectProject spm) ->
-                    let
-                        ( newSP, newSPCmd, spMaybeExit ) =
-                            SelectProject.update msg spm
-                    in
-                    ( setEditor (SelectProject newSP) model
-                    , Cmd.map OnSelectProjectMsg newSPCmd
-                    )
-                        |> Return.andThen
-                            (handleSelectProjectExitMsg spMaybeExit)
-
-                _ ->
-                    ( model, Cmd.none )
+            let
+                ( newSelectProject, cmd, mayExit ) =
+                    SelectProject.update msg (getSelectProject model)
+            in
+            ( setSelectProject newSelectProject model
+            , Cmd.map OnSelectProjectMsg cmd
+            )
+                |> Return.andThen
+                    (handleSelectProjectExitMsg mayExit)
 
 
 handleSelectProjectExitMsg : Maybe SelectProject.Exit -> Model -> ( Model, Cmd Msg )
@@ -135,15 +114,13 @@ handleSelectProjectExitMsg maybeExit model =
             ( model, Cmd.none )
 
         Just (SelectProject.Closed (Just projectId)) ->
-            ( closeEditor model
+            ( model
                 |> mapFields (\fields -> { fields | projectId = projectId })
             , Cmd.none
             )
 
         Just (SelectProject.Closed Nothing) ->
-            ( closeEditor model
-            , Cmd.none
-            )
+            ( model, Cmd.none )
 
         Just (SelectProject.DomError error) ->
             ( model, Cmd.none )
@@ -159,11 +136,6 @@ getFields =
 
 getTitle =
     getFields >> .title
-
-
-getEditor : Model -> Maybe Editor
-getEditor =
-    unwrap >> .maybeEditor
 
 
 getProjectId : Model -> ProjectId
@@ -195,14 +167,8 @@ view projectList model =
                 ]
             , div [] [ text "schedule" ]
             ]
-        , case getEditor model of
-            Just (SelectProject spm) ->
-                SelectProject.view (getProjectId model) projectList spm
-                    |> H.map OnSelectProjectMsg
-
-            _ ->
-                div [ E.onClick OpenSelectProject ]
-                    [ text "project: ", text (getSelectedProjectTitle projectList model) ]
+        , SelectProject.view (getProjectId model) projectList (getSelectProject model)
+            |> H.map OnSelectProjectMsg
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary Save "Save" []
             , TextButton.primary Cancel "Cancel" []

@@ -1,5 +1,6 @@
 module SelectProject exposing (Exit(..), Model, Msg, init, update, view)
 
+import BasicsExtra exposing (eq_)
 import Browser.Dom as Dom
 import Css
 import Focus
@@ -8,6 +9,8 @@ import Html.Styled.Attributes as A exposing (tabindex)
 import Html.Styled.Events as E exposing (onClick)
 import HtmlExtra as HX
 import Json.Decode as JD
+import List.Extra as LX
+import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import UI.Key as Key
@@ -23,9 +26,9 @@ type alias Internal =
     {}
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( SelectClosed, Cmd.none )
+    SelectClosed
 
 
 focusFirstCmd : Cmd Msg
@@ -40,7 +43,8 @@ focusFirstCmd =
 
 
 type Msg
-    = Selected ProjectId
+    = OpenMenu
+    | Selected ProjectId
     | Cancel
     | Focused Focus.FocusResult
 
@@ -53,6 +57,9 @@ type Exit
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
 update message model =
     case message of
+        OpenMenu ->
+            ( SelectOpen, focusFirstCmd, Nothing )
+
         Selected projectId ->
             ( SelectClosed, Cmd.none, Just <| Closed <| Just projectId )
 
@@ -87,16 +94,29 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
+getDisplayProjectTitle : ProjectId -> List DisplayProject -> String
+getDisplayProjectTitle projectId projectList =
+    LX.find (.id >> eq_ projectId) projectList
+        |> MX.unwrap "<Unknown Project>" .title
+
+
 view : ProjectId -> ProjectList -> Model -> H.Html Msg
 view selectedProjectId projectList model =
+    let
+        displayProjectList =
+            inboxDisplayProject
+                :: List.map toDisplayProject projectList
+    in
     case model of
         SelectClosed ->
-            HX.none
+            div [ E.onClick OpenMenu ]
+                [ text "project: "
+                , text (getDisplayProjectTitle selectedProjectId displayProjectList)
+                ]
 
         SelectOpen ->
             selectContainer
-                (inboxDisplayProject
-                    :: List.map toDisplayProject projectList
+                (displayProjectList
                     |> List.indexedMap (viewListItem selectedProjectId)
                 )
 
