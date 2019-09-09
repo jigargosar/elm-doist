@@ -1,4 +1,4 @@
-module TodoForm exposing (Fields, Model, Msg, OutMsg(..), init, update, view)
+module TodoForm exposing (Fields, Model, Msg, OutMsg(..), getFields, init, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -86,6 +86,7 @@ unwrap (Model internal) =
     internal
 
 
+getFields : Model -> Fields
 getFields =
     unwrap >> .fields
 

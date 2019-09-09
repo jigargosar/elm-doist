@@ -581,27 +581,38 @@ handleTodoFormMsg msg meta todoForm model =
     , Cmd.map TodoFormMsg cmd
     )
         |> Return.andThen
-            (MX.unwrap Return.singleton
-                (handleTodoFormOutMsg meta)
-                maybeOutMsg
+            (MX.unwrap Return.singleton handleTodoFormOutMsg maybeOutMsg)
+
+
+handleTodoFormOutMsg : TodoForm.OutMsg -> Model -> Return
+handleTodoFormOutMsg out model =
+    case out of
+        TodoForm.Submit _ ->
+            ( { model | maybeTodoForm = Nothing }
+            , persistMaybeTodoForm model
             )
 
+        TodoForm.Cancel ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
-handleTodoFormOutMsg : TodoFormMeta -> TodoForm.OutMsg -> Model -> Return
-handleTodoFormOutMsg meta out model =
-    case out of
-        TodoForm.Submit fields ->
-            ( { model | maybeTodoForm = Nothing }
-            , case meta of
+
+persistMaybeTodoForm : Model -> Cmd Msg
+persistMaybeTodoForm model =
+    case model.maybeTodoForm of
+        Just ( meta, todoForm ) ->
+            let
+                fields =
+                    TodoForm.getFields todoForm
+            in
+            case meta of
                 AddTodoFormMeta ->
                     persistNewTodoWithFormFields fields
 
                 EditTodoFormMeta todo ->
                     patchTodoWithFormFields fields todo
-            )
 
-        TodoForm.Cancel ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
+        Nothing ->
+            Cmd.none
 
 
 patchTodoWithFormFields : TodoForm.Fields -> Todo -> Cmd Msg
