@@ -93,11 +93,6 @@ defaultTodoFormFields =
     { title = "", dueAt = Todo.notDue, projectId = ProjectId.default }
 
 
-todoFormFieldsFromTodo : Todo -> TodoFormFields
-todoFormFieldsFromTodo todo =
-    { title = todo.title, dueAt = todo.dueAt, projectId = todo.projectId }
-
-
 initAddTodoForm : AddAt -> ProjectId -> TodoForm
 initAddTodoForm addAt projectId =
     AddTodoForm
@@ -120,14 +115,6 @@ toTodoMsgList { todo, fields } =
         Nothing
     ]
         |> List.filterMap identity
-
-
-type alias TodoFormViewConfig msg =
-    { save : msg
-    , cancel : msg
-    , changed : TodoFormFields -> msg
-    , delete : Maybe msg
-    }
 
 
 
