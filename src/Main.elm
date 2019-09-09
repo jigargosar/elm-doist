@@ -667,7 +667,7 @@ handleTodoFormOutMsg meta out model =
             ( { model | maybeTodoForm = Nothing }
             , case meta of
                 AddTodoFormMeta ->
-                    Cmd.none
+                    persistNewTodo fields.title fields.dueAt fields.projectId
 
                 EditTodoFormMeta todo ->
                     PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
