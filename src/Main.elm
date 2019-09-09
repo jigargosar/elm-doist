@@ -638,12 +638,28 @@ update message model =
 
                 Just todoForm ->
                     let
-                        ( newTodoForm, todoFormCmd ) =
+                        ( newTodoForm, cmd, maybeOutMsg ) =
                             TodoForm.update msg todoForm
                     in
                     ( { model | maybeTodoForm = Just newTodoForm }
-                    , Cmd.map OnTFM todoFormCmd
+                    , Cmd.map OnTFM cmd
                     )
+                        |> Return.andThen (handleTodoFormMaybeOutMsg maybeOutMsg)
+
+
+handleTodoFormMaybeOutMsg : Maybe TodoForm.OutMsg -> Model -> Return
+handleTodoFormMaybeOutMsg maybeOutMsg model =
+    case maybeOutMsg of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just out ->
+            case out of
+                TodoForm.Submit fields ->
+                    ( model, Cmd.none )
+
+                TodoForm.Cancel ->
+                    ( model, Cmd.none )
 
 
 

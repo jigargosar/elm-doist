@@ -1,4 +1,4 @@
-module TodoForm exposing (Model, Msg, init, update, view)
+module TodoForm exposing (Fields, Model, Msg, OutMsg(..), init, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -107,20 +107,25 @@ type Msg
     | TitleChanged String
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+type OutMsg
+    = Submit Fields
+    | Cancel
+
+
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update message model =
     case message of
         FieldsChanged fields ->
-            ( setFields fields model, Cmd.none )
+            ( setFields fields model, Cmd.none, Nothing )
 
         TitleChanged title ->
-            ( setTitle title model, Cmd.none )
+            ( setTitle title model, Cmd.none, Nothing )
 
         SaveClicked ->
-            ( model, Cmd.none )
+            ( model, Cmd.none, Just <| Submit (getFields model) )
 
         CancelClicked ->
-            ( model, Cmd.none )
+            ( model, Cmd.none, Nothing )
 
         SelectProjectMsg msg ->
             let
@@ -130,6 +135,7 @@ update message model =
             ( setSelectProject newSelectProject model
                 |> setMaybeProjectId maybeProjectId
             , Cmd.map SelectProjectMsg cmd
+            , Nothing
             )
 
 
