@@ -664,15 +664,15 @@ handleTodoFormOutMsg : TodoFormMeta -> TodoForm.OutMsg -> Model -> Return
 handleTodoFormOutMsg meta out model =
     case out of
         TodoForm.Submit fields ->
-            case meta of
+            ( { model | maybeTodoForm = Nothing }
+            , case meta of
                 AddTodoFormMeta ->
-                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+                    Cmd.none
 
                 EditTodoFormMeta todo ->
-                    ( { model | maybeTodoForm = Nothing }
-                    , PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
+                    PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
                         |> continueWithNow
-                    )
+            )
 
         TodoForm.Cancel ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
