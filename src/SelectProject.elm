@@ -45,7 +45,7 @@ focusFirstCmd =
 type Msg
     = OpenMenu
     | Selected ProjectId
-    | Cancel
+    | CloseMenu
     | Focused Focus.FocusResult
 
 
@@ -55,11 +55,11 @@ update message model =
         OpenMenu ->
             ( SelectOpen, focusFirstCmd, Nothing )
 
+        CloseMenu ->
+            ( SelectClosed, Cmd.none, Nothing )
+
         Selected projectId ->
             ( SelectClosed, Cmd.none, Just projectId )
-
-        Cancel ->
-            ( SelectClosed, Cmd.none, Nothing )
 
         Focused _ ->
             ( model, Cmd.none, Nothing )
@@ -111,8 +111,8 @@ view selectedProjectId projectList model =
 selectContainer =
     H.styled (H.node "track-focus-outside")
         []
-        [ E.on "focusOutside" (JD.succeed Cancel)
-        , Key.onEscape Cancel
+        [ E.on "focusOutside" (JD.succeed CloseMenu)
+        , Key.onEscape CloseMenu
         , tabindex -1
         ]
 
