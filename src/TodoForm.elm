@@ -100,7 +100,8 @@ getProjectId =
 
 
 type Msg
-    = SaveClicked
+    = FieldsChanged Fields
+    | SaveClicked
     | CancelClicked
     | SelectProjectMsg SelectProject.Msg
     | TitleChanged String
@@ -109,6 +110,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
+        FieldsChanged fields ->
+            ( setFields fields model, Cmd.none )
+
         TitleChanged title ->
             ( setTitle title model, Cmd.none )
 
