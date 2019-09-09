@@ -242,11 +242,16 @@ flagsDecoder =
 -- MODEL
 
 
+type TodoFormMeta
+    = AddTodoFormMeta
+    | EditTodoFormMeta Todo
+
+
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , todoFormState : TodoFormState
-    , maybeTodoForm : Maybe TodoForm.Model
+    , maybeTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -566,7 +571,11 @@ update message model =
                        persistTodoForm tf
                )
             -}
-            ( { model | maybeTodoForm = Just <| TodoForm.init todo.title todo.dueAt todo.projectId }
+            ( { model
+                | maybeTodoForm =
+                    Just <|
+                        ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
+              }
             , Cmd.none
             )
 
@@ -636,12 +645,12 @@ update message model =
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just todoForm ->
+                Just ( meta, todoForm ) ->
                     let
                         ( newTodoForm, cmd, maybeOutMsg ) =
                             TodoForm.update msg todoForm
                     in
-                    ( { model | maybeTodoForm = Just newTodoForm }
+                    ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
                     , Cmd.map OnTFM cmd
                     )
                         |> Return.andThen (handleTodoFormMaybeOutMsg maybeOutMsg)
@@ -656,10 +665,10 @@ handleTodoFormMaybeOutMsg maybeOutMsg model =
         Just out ->
             case out of
                 TodoForm.Submit fields ->
-                    ( model, Cmd.none )
+                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
                 TodoForm.Cancel ->
-                    ( model, Cmd.none )
+                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
 
@@ -1060,12 +1069,32 @@ viewKeyedTodoItems { here, todoFormState, projectList, maybeTodoForm } todoList 
         Nothing ->
             viewBaseList todoList
 
-        Just tf ->
-            [ ( "tfk"
-              , TodoForm.view projectList tf
-                    |> H.map OnTFM
-              )
-            ]
+        Just ( meta, tf ) ->
+            let
+                viewForm =
+                    ( "tfk"
+                    , TodoForm.view projectList tf
+                        |> H.map OnTFM
+                    )
+            in
+            case meta of
+                AddTodoFormMeta ->
+                    viewBaseList todoList ++ [ viewForm ]
+
+                EditTodoFormMeta editingTodo ->
+                    if List.any (.id >> eq_ editingTodo.id) todoList then
+                        todoList
+                            |> List.map
+                                (\todo ->
+                                    if editingTodo.id == todo.id then
+                                        viewForm
+
+                                    else
+                                        viewBase todo
+                                )
+
+                    else
+                        viewForm :: viewBaseList todoList
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg

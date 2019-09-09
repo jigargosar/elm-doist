@@ -125,7 +125,7 @@ update message model =
             ( model, Cmd.none, Just <| Submit (getFields model) )
 
         CancelClicked ->
-            ( model, Cmd.none, Nothing )
+            ( model, Cmd.none, Just Cancel )
 
         SelectProjectMsg msg ->
             let
