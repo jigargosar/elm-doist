@@ -93,14 +93,6 @@ defaultTodoFormFields =
     { title = "", dueAt = Todo.notDue, projectId = ProjectId.default }
 
 
-initAddTodoForm : AddAt -> ProjectId -> TodoForm
-initAddTodoForm addAt projectId =
-    AddTodoForm
-        { addAt = addAt
-        , fields = { defaultTodoFormFields | projectId = projectId }
-        }
-
-
 toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
 toTodoMsgList { todo, fields } =
     [ if todo.title /= fields.title then
@@ -150,7 +142,7 @@ flagsDecoder =
 
 
 type TodoFormMeta
-    = AddTodoFormMeta
+    = AddTodoFormMeta AddAt
     | EditTodoFormMeta Todo
 
 
@@ -456,27 +448,30 @@ update message model =
 
         AddNewTodoClicked addAt projectId ->
             let
+                addTodoForm : TodoForm.Model
                 addTodoForm =
-                    initAddTodoForm addAt projectId
+                    TodoForm.init "" Todo.notDue projectId
 
-                ( newTodoForm, cmd ) =
-                    case model.todoFormState of
-                        TodoFormClosed ->
-                            ( addTodoForm, Cmd.none )
+                addTodoFormMeta =
+                    AddTodoFormMeta addAt
 
-                        TodoFormOpened todoFrom ->
-                            case todoFrom of
-                                AddTodoForm info ->
-                                    ( AddTodoForm { info | addAt = addAt }
-                                    , Cmd.none
-                                    )
+                addTodoFormWithMeta =
+                    ( addTodoFormMeta, addTodoForm )
 
-                                EditTodoForm info ->
-                                    ( addTodoForm
-                                    , persistEditTodoForm info
-                                    )
+                ( newTodoFormWithMeta, cmd ) =
+                    case model.maybeTodoForm of
+                        Just ( AddTodoFormMeta _, todoForm ) ->
+                            ( ( addTodoFormMeta, todoForm ), Cmd.none )
+
+                        Just ( EditTodoFormMeta todo, todoForm_ ) ->
+                            ( addTodoFormWithMeta
+                            , patchTodoWithFormFields (TodoForm.getFields todoForm_) todo
+                            )
+
+                        Nothing ->
+                            ( addTodoFormWithMeta, Cmd.none )
             in
-            ( { model | todoFormState = TodoFormOpened newTodoForm }, cmd )
+            ( { model | maybeTodoForm = Just newTodoFormWithMeta }, cmd )
 
         EditTodoClicked todo ->
             ( { model
@@ -596,7 +591,7 @@ persistMaybeTodoForm model =
                     TodoForm.getFields todoForm
             in
             case meta of
-                AddTodoFormMeta ->
+                AddTodoFormMeta _ ->
                     persistNewTodoWithFormFields fields
 
                 EditTodoFormMeta todo ->
@@ -1001,7 +996,7 @@ viewKeyedTodoItems { here, projectList, maybeTodoForm } todoList =
                     )
             in
             case meta of
-                AddTodoFormMeta ->
+                AddTodoFormMeta addAt ->
                     viewBaseList todoList ++ [ viewForm ]
 
                 EditTodoFormMeta editingTodo ->
