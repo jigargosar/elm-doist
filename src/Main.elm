@@ -479,21 +479,12 @@ update message model =
             ( { model | todoFormState = TodoFormOpened newTodoForm }, cmd )
 
         EditTodoClicked todo ->
-            {- ( { model | todoFormState = TodoFormOpened <| initEditTodoForm todo }
-               , case model.todoFormState of
-                   TodoFormClosed ->
-                       Cmd.none
-
-                   TodoFormOpened tf ->
-                       persistTodoForm tf
-               )
-            -}
             ( { model
                 | maybeTodoForm =
                     Just <|
                         ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
               }
-            , Cmd.none
+            , persistMaybeTodoForm model
             )
 
         TodoFormChanged fields ->
