@@ -136,7 +136,7 @@ viewListItemHelp { isSelected, isFirst } displayProject =
             else
                 Css.batch []
     in
-    TextButton.view2
+    TextButton.view
         [ HX.idIf isFirst (always firstDomId)
         , css [ Css.cursor Css.pointer, styles ]
         ]

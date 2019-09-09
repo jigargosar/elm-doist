@@ -50,7 +50,7 @@ view conf zone today =
             conf.schedule
 
         viewSetDueButton dueAt label attrs =
-            TextButton.view (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
+            TextButton.view_ (setDueMsg <| dueAt) label (class "ph3 pv2" :: attrs)
 
         closeMsg : msg
         closeMsg =

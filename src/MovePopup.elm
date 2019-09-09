@@ -44,7 +44,7 @@ view : ViewConfig msg -> ProjectId -> List Project -> Html msg
 view config projectId projectList =
     let
         viewProjectItem idx dp =
-            TextButton.view (config.move dp.id)
+            TextButton.view_ (config.move dp.id)
                 dp.title
                 [ class "ph3 pv2"
                 , classList [ ( "b", dp.id == projectId ) ]

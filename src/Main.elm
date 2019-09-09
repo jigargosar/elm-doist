@@ -824,7 +824,7 @@ viewHeader model =
 
 viewHeaderBtn : msg -> String -> List (Attribute msg) -> Html msg
 viewHeaderBtn =
-    TextButton.styled [ FCss.underline, FCss.white ]
+    TextButton.styled_ [ FCss.underline, FCss.white ]
 
 
 
@@ -1082,7 +1082,7 @@ viewTodoItemDueDate clickMsg here dueAt =
                     []
 
             Just formattedDueAt ->
-                TextButton.view clickMsg
+                TextButton.view_ clickMsg
                     formattedDueAt
                     [ class "pa2 flex-shrink-0 f7 lh-copy" ]
         ]

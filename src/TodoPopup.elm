@@ -298,7 +298,7 @@ viewMenuItem viewSubPopup menuItem =
                 ""
     in
     div [ class "relative" ]
-        [ TextButton.view
+        [ TextButton.view_
             menuItem.action
             menuItem.label
             [ class "pa2"
