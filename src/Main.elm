@@ -670,28 +670,31 @@ handleTodoFormOutMsg meta out model =
                     persistNewTodo fields.title fields.dueAt fields.projectId
 
                 EditTodoFormMeta todo ->
-                    PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
-                        |> continueWithNow
+                    patchTodoWithFormFields fields todo
             )
 
         TodoForm.Cancel ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
-todoFormFieldsToMsgList : Todo -> TodoForm.Fields -> List Todo.Msg
-todoFormFieldsToMsgList todo fields =
-    [ if todo.title /= fields.title then
-        Just <| Todo.SetTitle fields.title
+patchTodoWithFormFields : TodoForm.Fields -> Todo -> Cmd Msg
+patchTodoWithFormFields fields todo =
+    let
+        msgList =
+            [ if todo.title /= fields.title then
+                Just <| Todo.SetTitle fields.title
 
-      else
-        Nothing
-    , if todo.projectId /= fields.projectId then
-        Just <| Todo.SetProjectId fields.projectId
+              else
+                Nothing
+            , if todo.projectId /= fields.projectId then
+                Just <| Todo.SetProjectId fields.projectId
 
-      else
-        Nothing
-    ]
-        |> List.filterMap identity
+              else
+                Nothing
+            ]
+                |> List.filterMap identity
+    in
+    PatchTodo_ todo.id msgList |> continueWithNow
 
 
 
