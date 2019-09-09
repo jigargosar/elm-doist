@@ -1,13 +1,9 @@
 module TodoForm exposing (Model, Msg, init, update, view)
 
 import Accessibility.Styled exposing (text)
-import BasicsExtra exposing (eq_)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
-import Html.Styled.Events as E
 import Json.Encode as JE
-import List.Extra as LX
-import Maybe.Extra as MX
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
@@ -97,33 +93,27 @@ update message model =
 
         OnSelectProjectMsg msg ->
             let
-                ( newSelectProject, cmd, mayExit ) =
+                ( newSelectProject, cmd, maybeProjectId ) =
                     SelectProject.update msg (getSelectProject model)
             in
             ( setSelectProject newSelectProject model
             , Cmd.map OnSelectProjectMsg cmd
             )
                 |> Return.andThen
-                    (handleSelectProjectExitMsg mayExit)
+                    (handleSelectProjectExitMsg maybeProjectId)
 
 
-handleSelectProjectExitMsg : Maybe SelectProject.Exit -> Model -> ( Model, Cmd Msg )
-handleSelectProjectExitMsg maybeExit model =
-    case maybeExit of
+handleSelectProjectExitMsg : Maybe ProjectId -> Model -> ( Model, Cmd Msg )
+handleSelectProjectExitMsg maybeProjectId model =
+    case maybeProjectId of
         Nothing ->
             ( model, Cmd.none )
 
-        Just (SelectProject.Closed (Just projectId)) ->
+        Just projectId ->
             ( model
                 |> mapFields (\fields -> { fields | projectId = projectId })
             , Cmd.none
             )
-
-        Just (SelectProject.Closed Nothing) ->
-            ( model, Cmd.none )
-
-        Just (SelectProject.DomError error) ->
-            ( model, Cmd.none )
 
 
 unwrap (Model internal) =
@@ -141,12 +131,6 @@ getTitle =
 getProjectId : Model -> ProjectId
 getProjectId =
     getFields >> .projectId
-
-
-getSelectedProjectTitle : ProjectList -> Model -> String
-getSelectedProjectTitle projectList model =
-    LX.find (.id >> eq_ (getProjectId model)) projectList
-        |> MX.unwrap "Inbox" .title
 
 
 view : ProjectList -> Model -> H.Html Msg

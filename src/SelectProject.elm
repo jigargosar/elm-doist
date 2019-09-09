@@ -1,4 +1,4 @@
-module SelectProject exposing (Exit(..), Model, Msg, init, update, view)
+module SelectProject exposing (Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
 import Browser.Dom as Dom
@@ -49,21 +49,17 @@ type Msg
     | Focused Focus.FocusResult
 
 
-type Exit
-    = Closed (Maybe ProjectId)
-
-
-update : Msg -> Model -> ( Model, Cmd Msg, Maybe Exit )
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe ProjectId )
 update message model =
     case message of
         OpenMenu ->
             ( SelectOpen, focusFirstCmd, Nothing )
 
         Selected projectId ->
-            ( SelectClosed, Cmd.none, Just <| Closed <| Just projectId )
+            ( SelectClosed, Cmd.none, Just projectId )
 
         Cancel ->
-            ( SelectClosed, Cmd.none, Just <| Closed Nothing )
+            ( SelectClosed, Cmd.none, Nothing )
 
         Focused _ ->
             ( model, Cmd.none, Nothing )
