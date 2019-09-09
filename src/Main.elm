@@ -384,7 +384,7 @@ type Msg
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
       -- New TFM
-    | OnTFM TodoForm.Msg
+    | TodoFormMsg TodoForm.Msg
 
 
 addTodoClicked : AddAt -> ProjectId -> Msg
@@ -640,7 +640,7 @@ update message model =
             , Fire.deleteProject projectId
             )
 
-        OnTFM msg ->
+        TodoFormMsg msg ->
             case model.maybeTodoForm of
                 Nothing ->
                     ( model, Cmd.none )
@@ -651,7 +651,7 @@ update message model =
                             TodoForm.update msg todoForm
                     in
                     ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
-                    , Cmd.map OnTFM cmd
+                    , Cmd.map TodoFormMsg cmd
                     )
                         |> Return.andThen (handleTodoFormMaybeOutMsg maybeOutMsg)
 
@@ -665,10 +665,15 @@ handleTodoFormMaybeOutMsg maybeOutMsg model =
         Just out ->
             case out of
                 TodoForm.Submit fields ->
-                    ( { model | maybeTodoForm = Nothing }, Cmd.none )
+                    handleTodoFormSubmit fields model
 
                 TodoForm.Cancel ->
                     ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
+
+handleTodoFormSubmit : TodoForm.Fields -> Model -> Return
+handleTodoFormSubmit fields model =
+    ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
 
@@ -1074,7 +1079,7 @@ viewKeyedTodoItems { here, todoFormState, projectList, maybeTodoForm } todoList 
                 viewForm =
                     ( "tfk"
                     , TodoForm.view projectList tf
-                        |> H.map OnTFM
+                        |> H.map TodoFormMsg
                     )
             in
             case meta of
