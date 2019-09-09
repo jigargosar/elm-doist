@@ -76,15 +76,21 @@ setMaybeProjectId maybeProjectId model =
             setProjectId projectId model
 
 
+unwrap (Model internal) =
+    internal
 
---setEditor : Editor -> Model -> Model
---setEditor editor =
---    map (\internal -> { internal | maybeEditor = Just editor })
---
---
---closeEditor : Model -> Model
---closeEditor =
---    map (\internal -> { internal | maybeEditor = Nothing })
+
+getFields =
+    unwrap >> .fields
+
+
+getTitle =
+    getFields >> .title
+
+
+getProjectId : Model -> ProjectId
+getProjectId =
+    getFields >> .projectId
 
 
 type Msg
@@ -115,23 +121,6 @@ update message model =
                 |> setMaybeProjectId maybeProjectId
             , Cmd.map OnSelectProjectMsg cmd
             )
-
-
-unwrap (Model internal) =
-    internal
-
-
-getFields =
-    unwrap >> .fields
-
-
-getTitle =
-    getFields >> .title
-
-
-getProjectId : Model -> ProjectId
-getProjectId =
-    getFields >> .projectId
 
 
 view : ProjectList -> Model -> H.Html Msg
