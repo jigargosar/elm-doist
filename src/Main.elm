@@ -220,8 +220,6 @@ type Msg
       -- ProjectPage Messages
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
-      -- TodoForm Messages
-      --    | TodoFormDeleteClicked
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -395,20 +393,6 @@ update message model =
             , persistMaybeTodoForm model
             )
 
-        --        TodoFormDeleteClicked ->
-        --            ( { model | todoFormState = TodoFormClosed }
-        --            , case model.todoFormState of
-        --                TodoFormClosed ->
-        --                    Cmd.none
-        --
-        --                TodoFormOpened tf ->
-        --                    case tf of
-        --                        EditTodoForm editInfo ->
-        --                            Fire.deleteTodo editInfo.todoId
-        --
-        --                        AddTodoForm _ ->
-        --                            Cmd.none
-        --            )
         AddTodoWithDueTodayClicked ->
             ( model
             , mapContinueWithNow (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
