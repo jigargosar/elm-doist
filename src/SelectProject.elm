@@ -4,10 +4,10 @@ import Browser.Dom as Dom
 import Css
 import Focus
 import Html.Styled as H exposing (div, text)
-import Html.Styled.Attributes exposing (tabindex)
+import Html.Styled.Attributes as A exposing (tabindex)
 import Html.Styled.Events as E exposing (onClick)
 import Json.Decode as JD
-import Project exposing (ProjectList)
+import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import UI.Key as Key
 import UI.TextButton as TextButton
@@ -18,12 +18,12 @@ type Model
 
 
 type alias Internal =
-    { projectId : ProjectId }
+    {}
 
 
-init : ProjectId -> ( Model, Cmd Msg )
-init projectId =
-    ( Model (Internal projectId), Focus.attempt Focused "" )
+init : ( Model, Cmd Msg )
+init =
+    ( Model {}, Focus.attempt Focused firstDomId )
 
 
 map : (Internal -> Internal) -> Model -> Model
@@ -63,21 +63,27 @@ update message model =
             )
 
 
-getProjectId (Model { projectId }) =
-    projectId
+type alias DisplayProject =
+    { id : ProjectId
+    , title : String
+    }
 
 
-view : ProjectList -> Model -> H.Html Msg
-view projectList model =
+toDisplayProject : Project -> DisplayProject
+toDisplayProject { id, title } =
+    { id = id, title = title }
+
+
+inboxDisplayProject : DisplayProject
+inboxDisplayProject =
+    { id = ProjectId.default, title = "Inbox" }
+
+
+view : ProjectId -> ProjectList -> Model -> H.Html Msg
+view selectedProjectId projectList _ =
     let
-        initialProjectId =
-            getProjectId model
-
-        viewProjectItem { id, title } =
-            viewListItem initialProjectId id title
-
-        viewInboxItem =
-            viewListItem initialProjectId ProjectId.default "Inbox"
+        displayProjects =
+            inboxDisplayProject :: List.map toDisplayProject projectList
     in
     H.styled (H.node "track-focus-outside")
         []
@@ -85,14 +91,19 @@ view projectList model =
         , Key.onEscape Cancel
         , tabindex -1
         ]
-        (viewInboxItem :: List.map viewProjectItem projectList)
+        (List.indexedMap (viewDisplayProject selectedProjectId) displayProjects)
 
 
-viewListItem : ProjectId -> ProjectId -> String -> H.Html Msg
-viewListItem initialProjectId projectId projectTitle =
+viewDisplayProject : ProjectId -> Int -> DisplayProject -> H.Html Msg
+viewDisplayProject selectedProjectId idx displayProject =
+    viewListItem { isSelected = selectedProjectId == displayProject.id, isFirst = idx == 0 } displayProject
+
+
+viewListItem : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
+viewListItem { isSelected, isFirst } displayProject =
     let
         styles =
-            if projectId == initialProjectId then
+            if isSelected then
                 Css.batch [ Css.fontWeight Css.bold ]
 
             else
@@ -100,6 +111,16 @@ viewListItem initialProjectId projectId projectTitle =
     in
     TextButton.styled
         [ Css.cursor Css.pointer, styles ]
-        (Selected projectId)
-        projectTitle
-        []
+        (Selected displayProject.id)
+        displayProject.title
+        [ A.id <|
+            if isFirst then
+                firstDomId
+
+            else
+                ""
+        ]
+
+
+firstDomId =
+    "select-project__first-dom-id"

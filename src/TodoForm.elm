@@ -89,7 +89,7 @@ update message model =
         OpenSelectProject ->
             let
                 ( editor, cmd ) =
-                    SelectProject.init (getProjectId model)
+                    SelectProject.init
             in
             ( setEditor (SelectProject editor) model, Cmd.map OnSelectProjectMsg cmd )
 
@@ -197,7 +197,7 @@ view projectList model =
             ]
         , case getEditor model of
             Just (SelectProject spm) ->
-                SelectProject.view projectList spm
+                SelectProject.view (getProjectId model) projectList spm
                     |> H.map OnSelectProjectMsg
 
             _ ->
