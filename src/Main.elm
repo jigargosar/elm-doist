@@ -652,18 +652,28 @@ update message model =
                     ( model, Cmd.none )
 
                 Just ( meta, todoForm ) ->
-                    let
-                        ( newTodoForm, cmd, maybeOutMsg ) =
-                            TodoForm.update msg todoForm
-                    in
-                    ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
-                    , Cmd.map TodoFormMsg cmd
-                    )
-                        |> Return.andThen
-                            (MX.unwrap Return.singleton
-                                (handleTodoFormOutMsg meta)
-                                maybeOutMsg
-                            )
+                    handleTodoFormMsg msg meta todoForm model
+
+
+handleTodoFormMsg :
+    TodoForm.Msg
+    -> TodoFormMeta
+    -> TodoForm.Model
+    -> Model
+    -> Return
+handleTodoFormMsg msg meta todoForm model =
+    let
+        ( newTodoForm, cmd, maybeOutMsg ) =
+            TodoForm.update msg todoForm
+    in
+    ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
+    , Cmd.map TodoFormMsg cmd
+    )
+        |> Return.andThen
+            (MX.unwrap Return.singleton
+                (handleTodoFormOutMsg meta)
+                maybeOutMsg
+            )
 
 
 handleTodoFormOutMsg : TodoFormMeta -> TodoForm.OutMsg -> Model -> Return
