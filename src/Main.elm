@@ -441,6 +441,12 @@ persistNewTodo title dueAt projectId =
         |> continueWithNow
 
 
+persistNewTodoWithFormFields : TodoForm.Fields -> Cmd Msg
+persistNewTodoWithFormFields { title, dueAt, projectId } =
+    AddTodo title dueAt projectId
+        |> continueWithNow
+
+
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -667,7 +673,7 @@ handleTodoFormOutMsg meta out model =
             ( { model | maybeTodoForm = Nothing }
             , case meta of
                 AddTodoFormMeta ->
-                    persistNewTodo fields.title fields.dueAt fields.projectId
+                    persistNewTodoWithFormFields fields
 
                 EditTodoFormMeta todo ->
                     patchTodoWithFormFields fields todo
