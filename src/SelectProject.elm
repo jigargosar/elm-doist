@@ -138,7 +138,7 @@ viewListItemHelp { isSelected, isFirst } displayProject =
     in
     TextButton.view
         [ HX.idIf isFirst (always firstDomId)
-        , css [ Css.cursor Css.pointer, styles ]
+        , css [ styles ]
         ]
         (Selected displayProject.id)
         displayProject.title
