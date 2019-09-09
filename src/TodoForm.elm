@@ -3,6 +3,7 @@ module TodoForm exposing (Model, Msg, init, update, view)
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
+import Html.Styled.Events as E
 import Json.Encode as JE
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
@@ -66,6 +67,11 @@ setProjectId projectId =
     mapFields (\fields -> { fields | projectId = projectId })
 
 
+setTitle : String -> Model -> Model
+setTitle title =
+    mapFields (\fields -> { fields | title = title })
+
+
 setMaybeProjectId : Maybe ProjectId -> Model -> Model
 setMaybeProjectId maybeProjectId model =
     case maybeProjectId of
@@ -97,7 +103,8 @@ type Msg
     = FieldsChanged Fields
     | Save
     | Cancel
-    | OnSelectProjectMsg SelectProject.Msg
+    | SelectProjectMsg SelectProject.Msg
+    | TitleChanged String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -106,20 +113,23 @@ update message model =
         FieldsChanged fields ->
             ( setFields fields model, Cmd.none )
 
+        TitleChanged title ->
+            ( setTitle title model, Cmd.none )
+
         Save ->
             ( model, Cmd.none )
 
         Cancel ->
             ( model, Cmd.none )
 
-        OnSelectProjectMsg msg ->
+        SelectProjectMsg msg ->
             let
                 ( newSelectProject, cmd, maybeProjectId ) =
                     SelectProject.update msg (getSelectProject model)
             in
             ( setSelectProject newSelectProject model
                 |> setMaybeProjectId maybeProjectId
-            , Cmd.map OnSelectProjectMsg cmd
+            , Cmd.map SelectProjectMsg cmd
             )
 
 
@@ -133,8 +143,7 @@ view projectList model =
                     [ textarea
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
-
-                        --                        , E.onInput titleChangedMsg
+                        , E.onInput TitleChanged
                         ]
                         []
                     ]
@@ -142,7 +151,7 @@ view projectList model =
             , div [] [ text "schedule" ]
             ]
         , SelectProject.view (getProjectId model) projectList (getSelectProject model)
-            |> H.map OnSelectProjectMsg
+            |> H.map SelectProjectMsg
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary Save "Save" []
             , TextButton.primary Cancel "Cancel" []
