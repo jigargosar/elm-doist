@@ -653,35 +653,29 @@ update message model =
                     ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
                     , Cmd.map TodoFormMsg cmd
                     )
-                        |> Return.andThen (handleTodoFormMaybeOutMsg meta maybeOutMsg)
+                        |> Return.andThen
+                            (MX.unwrap Return.singleton
+                                (handleTodoFormOutMsg meta)
+                                maybeOutMsg
+                            )
 
 
-handleTodoFormMaybeOutMsg : TodoFormMeta -> Maybe TodoForm.OutMsg -> Model -> Return
-handleTodoFormMaybeOutMsg meta maybeOutMsg model =
-    case maybeOutMsg of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just out ->
-            case out of
-                TodoForm.Submit fields ->
-                    handleTodoFormSubmit meta fields model
-
-                TodoForm.Cancel ->
+handleTodoFormOutMsg : TodoFormMeta -> TodoForm.OutMsg -> Model -> Return
+handleTodoFormOutMsg meta out model =
+    case out of
+        TodoForm.Submit fields ->
+            case meta of
+                AddTodoFormMeta ->
                     ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
+                EditTodoFormMeta todo ->
+                    ( { model | maybeTodoForm = Nothing }
+                    , PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
+                        |> continueWithNow
+                    )
 
-handleTodoFormSubmit : TodoFormMeta -> TodoForm.Fields -> Model -> Return
-handleTodoFormSubmit meta fields model =
-    case meta of
-        AddTodoFormMeta ->
+        TodoForm.Cancel ->
             ( { model | maybeTodoForm = Nothing }, Cmd.none )
-
-        EditTodoFormMeta todo ->
-            ( { model | maybeTodoForm = Nothing }
-            , PatchTodo_ todo.id (todoFormFieldsToMsgList todo fields)
-                |> continueWithNow
-            )
 
 
 todoFormFieldsToMsgList : Todo -> TodoForm.Fields -> List Todo.Msg
