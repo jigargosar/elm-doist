@@ -1,4 +1,4 @@
-module UI.TextButton exposing (primary, primaryStyle, secondary, secondaryStyle, styled, view)
+module UI.TextButton exposing (primary, primaryStyle, secondary, secondaryStyle, styled, styled2, view, view2)
 
 import Css exposing (..)
 import FunctionalCss as FCss
@@ -21,6 +21,11 @@ view =
     styled []
 
 
+view2 : List (Attribute msg) -> msg -> String -> Html msg
+view2 =
+    styled2 []
+
+
 primaryStyle =
     Css.batch [ FCss.underline, FCss.blue ]
 
@@ -36,6 +41,19 @@ styled :
     -> List (Attribute msg)
     -> Html msg
 styled styles action label attrs =
+    Button.styled styles
+        action
+        attrs
+        [ text label ]
+
+
+styled2 :
+    List Style
+    -> List (Attribute msg)
+    -> msg
+    -> String
+    -> Html msg
+styled2 styles attrs action label =
     Button.styled styles
         action
         attrs

@@ -5,7 +5,7 @@ import Browser.Dom as Dom
 import Css
 import Focus
 import Html.Styled as H exposing (div, text)
-import Html.Styled.Attributes as A exposing (tabindex)
+import Html.Styled.Attributes as A exposing (css, tabindex)
 import Html.Styled.Events as E exposing (onClick)
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -136,17 +136,12 @@ viewListItemHelp { isSelected, isFirst } displayProject =
             else
                 Css.batch []
     in
-    TextButton.styled
-        [ Css.cursor Css.pointer, styles ]
+    TextButton.view2
+        [ HX.idIf isFirst (always firstDomId)
+        , css [ Css.cursor Css.pointer, styles ]
+        ]
         (Selected displayProject.id)
         displayProject.title
-        [ A.id <|
-            if isFirst then
-                firstDomId
-
-            else
-                ""
-        ]
 
 
 firstDomId =
