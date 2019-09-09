@@ -473,7 +473,11 @@ update message model =
                     Route.fromUrl url
             in
             if model.route /= newRoute then
-                ( { model | route = newRoute, todoFormState = TodoFormClosed }
+                ( { model
+                    | route = newRoute
+                    , todoFormState = TodoFormClosed
+                    , maybeTodoForm = Nothing
+                  }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
 
@@ -1065,7 +1069,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, todoFormState, projectList, maybeTodoForm } todoList =
+viewKeyedTodoItems { here, projectList, maybeTodoForm } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -1075,38 +1079,6 @@ viewKeyedTodoItems { here, todoFormState, projectList, maybeTodoForm } todoList 
         viewBaseList =
             List.map viewBase
     in
-    --    case todoFormState of
-    --        TodoFormClosed ->
-    --            viewBaseList todoList
-    --
-    --        TodoFormOpened todoForm ->
-    --            let
-    --                viewForm =
-    --                    ( "todo-form-key", viewTodoForm projectList todoForm )
-    --            in
-    --            case todoForm of
-    --                EditTodoForm { todoId } ->
-    --                    if List.any (.id >> eq_ todoId) todoList then
-    --                        todoList
-    --                            |> List.map
-    --                                (\todo ->
-    --                                    if todo.id == todoId then
-    --                                        viewForm
-    --
-    --                                    else
-    --                                        viewBase todo
-    --                                )
-    --
-    --                    else
-    --                        viewForm :: viewBaseList todoList
-    --
-    --                AddTodoForm { addAt } ->
-    --                    case addAt of
-    --                        Start ->
-    --                            viewForm :: viewBaseList todoList
-    --
-    --                        End ->
-    --                            viewBaseList todoList ++ [ viewForm ]
     case maybeTodoForm of
         Nothing ->
             viewBaseList todoList
