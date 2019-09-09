@@ -58,55 +58,9 @@ type AddAt
     | End
 
 
-type alias TodoFormFields =
-    { title : String
-    , dueAt : Todo.DueAt
-    , projectId : ProjectId
-    }
-
-
-type alias AddTodoFormInfo =
-    { addAt : AddAt
-    , fields : TodoFormFields
-    }
-
-
-type alias EditTodoFormInfo =
-    { todoId : TodoId
-    , todo : Todo
-    , fields : TodoFormFields
-    }
-
-
-type TodoForm
-    = AddTodoForm AddTodoFormInfo
-    | EditTodoForm EditTodoFormInfo
-
-
-type TodoFormState
-    = TodoFormOpened TodoForm
-    | TodoFormClosed
-
-
-defaultTodoFormFields : TodoFormFields
-defaultTodoFormFields =
-    { title = "", dueAt = Todo.notDue, projectId = ProjectId.default }
-
-
-toTodoMsgList : EditTodoFormInfo -> List Todo.Msg
-toTodoMsgList { todo, fields } =
-    [ if todo.title /= fields.title then
-        Just <| Todo.SetTitle fields.title
-
-      else
-        Nothing
-    , if todo.projectId /= fields.projectId then
-        Just <| Todo.SetProjectId fields.projectId
-
-      else
-        Nothing
-    ]
-        |> List.filterMap identity
+type TodoFormMeta
+    = AddTodoFormMeta AddAt
+    | EditTodoFormMeta Todo
 
 
 
@@ -141,15 +95,9 @@ flagsDecoder =
 -- MODEL
 
 
-type TodoFormMeta
-    = AddTodoFormMeta AddAt
-    | EditTodoFormMeta Todo
-
-
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , todoFormState : TodoFormState
     , maybeTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
     , authState : AuthState
     , errors : Errors
@@ -221,7 +169,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , todoFormState = TodoFormClosed
             , maybeTodoForm = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -249,7 +196,6 @@ init encodedFlags url key =
 type NowContinuation
     = AddTodo String DueAt ProjectId
     | AddProject
-    | PersistAddTodoForm AddTodoFormInfo
     | PatchTodo_ TodoId (List Todo.Msg)
 
 
@@ -275,10 +221,7 @@ type Msg
     | AddNewTodoClicked AddAt ProjectId
     | EditTodoClicked Todo
       -- TodoForm Messages
-    | TodoFormSaveClicked
-    | TodoFormCancelClicked
-    | TodoFormChanged TodoFormFields
-    | TodoFormDeleteClicked
+      --    | TodoFormDeleteClicked
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -318,28 +261,6 @@ subscriptions _ =
 -- UPDATE
 
 
-persistEditTodoForm : EditTodoFormInfo -> Cmd Msg
-persistEditTodoForm info =
-    PatchTodo_ info.todoId (toTodoMsgList info)
-        |> continueWithNow
-
-
-persistTodoForm : TodoForm -> Cmd Msg
-persistTodoForm todoForm =
-    case todoForm of
-        EditTodoForm info ->
-            persistEditTodoForm info
-
-        AddTodoForm { fields } ->
-            persistNewTodo fields.title fields.dueAt fields.projectId
-
-
-persistNewTodo : String -> DueAt -> ProjectId -> Cmd Msg
-persistNewTodo title dueAt projectId =
-    AddTodo title dueAt projectId
-        |> continueWithNow
-
-
 persistNewTodoWithFormFields : TodoForm.Fields -> Cmd Msg
 persistNewTodoWithFormFields { title, dueAt, projectId } =
     AddTodo title dueAt projectId
@@ -374,7 +295,6 @@ update message model =
             if model.route /= newRoute then
                 ( { model
                     | route = newRoute
-                    , todoFormState = TodoFormClosed
                     , maybeTodoForm = Nothing
                   }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
@@ -407,13 +327,6 @@ update message model =
 
                 AddProject ->
                     ( model, Fire.addProject (Project.new now) )
-
-                PersistAddTodoForm info ->
-                    let
-                        { title, dueAt, projectId } =
-                            info.fields
-                    in
-                    ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
                 PatchTodo_ todoId todoMsgList ->
                     ( model
@@ -482,54 +395,20 @@ update message model =
             , persistMaybeTodoForm model
             )
 
-        TodoFormChanged fields ->
-            ( case model.todoFormState of
-                TodoFormClosed ->
-                    model
-
-                TodoFormOpened todoForm ->
-                    { model
-                        | todoFormState =
-                            TodoFormOpened
-                                (case todoForm of
-                                    AddTodoForm info ->
-                                        AddTodoForm { info | fields = fields }
-
-                                    EditTodoForm info ->
-                                        EditTodoForm { info | fields = fields }
-                                )
-                    }
-            , Cmd.none
-            )
-
-        TodoFormSaveClicked ->
-            ( { model | todoFormState = TodoFormClosed }
-            , case model.todoFormState of
-                TodoFormClosed ->
-                    Cmd.none
-
-                TodoFormOpened tf ->
-                    persistTodoForm tf
-            )
-
-        TodoFormDeleteClicked ->
-            ( { model | todoFormState = TodoFormClosed }
-            , case model.todoFormState of
-                TodoFormClosed ->
-                    Cmd.none
-
-                TodoFormOpened tf ->
-                    case tf of
-                        EditTodoForm editInfo ->
-                            Fire.deleteTodo editInfo.todoId
-
-                        AddTodoForm _ ->
-                            Cmd.none
-            )
-
-        TodoFormCancelClicked ->
-            ( { model | todoFormState = TodoFormClosed }, Cmd.none )
-
+        --        TodoFormDeleteClicked ->
+        --            ( { model | todoFormState = TodoFormClosed }
+        --            , case model.todoFormState of
+        --                TodoFormClosed ->
+        --                    Cmd.none
+        --
+        --                TodoFormOpened tf ->
+        --                    case tf of
+        --                        EditTodoForm editInfo ->
+        --                            Fire.deleteTodo editInfo.todoId
+        --
+        --                        AddTodoForm _ ->
+        --                            Cmd.none
+        --            )
         AddTodoWithDueTodayClicked ->
             ( model
             , mapContinueWithNow (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
@@ -996,7 +875,7 @@ viewKeyedTodoItems { here, projectList, maybeTodoForm } todoList =
                     )
             in
             case meta of
-                AddTodoFormMeta addAt ->
+                AddTodoFormMeta _ ->
                     viewBaseList todoList ++ [ viewForm ]
 
                 EditTodoFormMeta editingTodo ->
