@@ -61,6 +61,21 @@ getSelectProject =
     unwrap >> .selectProject
 
 
+setProjectId : ProjectId -> Model -> Model
+setProjectId projectId =
+    mapFields (\fields -> { fields | projectId = projectId })
+
+
+setMaybeProjectId : Maybe ProjectId -> Model -> Model
+setMaybeProjectId maybeProjectId model =
+    case maybeProjectId of
+        Nothing ->
+            model
+
+        Just projectId ->
+            setProjectId projectId model
+
+
 
 --setEditor : Editor -> Model -> Model
 --setEditor editor =
@@ -97,22 +112,8 @@ update message model =
                     SelectProject.update msg (getSelectProject model)
             in
             ( setSelectProject newSelectProject model
+                |> setMaybeProjectId maybeProjectId
             , Cmd.map OnSelectProjectMsg cmd
-            )
-                |> Return.andThen
-                    (handleSelectProjectExitMsg maybeProjectId)
-
-
-handleSelectProjectExitMsg : Maybe ProjectId -> Model -> ( Model, Cmd Msg )
-handleSelectProjectExitMsg maybeProjectId model =
-    case maybeProjectId of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just projectId ->
-            ( model
-                |> mapFields (\fields -> { fields | projectId = projectId })
-            , Cmd.none
             )
 
 
