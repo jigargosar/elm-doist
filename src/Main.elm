@@ -376,9 +376,9 @@ update message model =
                         Just ( AddTodoFormMeta _, todoForm ) ->
                             ( ( addTodoFormMeta, todoForm ), Cmd.none )
 
-                        Just ( EditTodoFormMeta todo, todoForm_ ) ->
+                        Just ( EditTodoFormMeta todo, todoForm ) ->
                             ( addTodoFormWithMeta
-                            , patchTodoWithFormFields (TodoForm.getFields todoForm_) todo
+                            , patchTodoWithFormFields (TodoForm.getFields todoForm) todo
                             )
 
                         Nothing ->
