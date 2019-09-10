@@ -1,11 +1,8 @@
 module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
 
-import Basics.Extra exposing (flip)
 import Html.Styled as H exposing (Html)
-import Maybe.Extra as MX
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
-import Return
 import Task
 import Todo exposing (Todo)
 import TodoForm
@@ -31,19 +28,9 @@ type Meta
     | EditTodoFormMeta Todo
 
 
-closed : Model
-closed =
-    Closed
-
-
-opened : OpenedState -> Model
-opened =
-    Opened
-
-
 init : Model
 init =
-    closed
+    Closed
 
 
 mapOpened : (OpenedState -> OpenedState) -> Model -> Model
@@ -64,21 +51,6 @@ getAddTodoForm model =
 
         _ ->
             Nothing
-
-
-getTodoForm : Model -> Maybe TodoForm.Model
-getTodoForm model =
-    case model of
-        Opened ( _, todoForm ) ->
-            Just todoForm
-
-        _ ->
-            Nothing
-
-
-setTodoForm : TodoForm.Model -> Model -> Model
-setTodoForm todoForm =
-    mapOpened (Tuple.mapSecond (always todoForm))
 
 
 type Msg
@@ -119,24 +91,30 @@ update config message model =
                         |> getAddTodoForm
                         |> Maybe.withDefault (TodoForm.fromProjectId projectId)
             in
-            ( opened ( newMeta, newTodoForm ), notifyIfEditing config model )
+            ( Opened ( newMeta, newTodoForm ), notifyIfEditing config model )
 
         EditClicked todo ->
-            ( opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
+            ( Opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
             , notifyAddedOrEdited config model
             )
 
         TodoFormMsg msg ->
-            getTodoForm model
-                |> MX.unwrap ( model, Cmd.none )
-                    (todoFormUpdate msg >> Tuple.mapFirst (flip setTodoForm model))
-                |> Return.mapCmd config.toMsg
+            case model of
+                Opened ( meta, todoForm ) ->
+                    let
+                        ( newTodoForm, cmd ) =
+                            todoFormUpdate msg todoForm
+                    in
+                    ( Opened ( meta, newTodoForm ), Cmd.map config.toMsg cmd )
+
+                Closed ->
+                    ( model, Cmd.none )
 
         SaveClicked _ ->
-            ( closed, notifyAddedOrEdited config model )
+            ( Closed, notifyAddedOrEdited config model )
 
         CancelClicked ->
-            ( closed, Cmd.none )
+            ( Closed, Cmd.none )
 
 
 todoFormUpdate : TodoForm.Msg -> TodoForm.Model -> ( TodoForm.Model, Cmd Msg )
