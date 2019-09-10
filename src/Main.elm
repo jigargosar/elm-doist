@@ -881,7 +881,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
     InlineTodoForm.view
         InlineTodoFormMsg
         { closed = \_ -> viewBaseList todoList
-        , add = \addAt viewForm -> viewBaseList todoList ++ [ ( "tfk", viewForm ) ]
+        , add = \_ viewForm -> viewBaseList todoList ++ [ ( "tfk", viewForm ) ]
         , edit =
             \todoId viewForm ->
                 if List.any (.id >> eq_ todoId) todoList then

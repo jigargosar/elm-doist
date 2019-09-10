@@ -135,10 +135,10 @@ update config message model =
                     ( model, Cmd.none )
 
         SaveClicked fields ->
-            ( model, Cmd.none )
+            ( Model Nothing, notifyAddedOrEdited config model )
 
         CancelClicked ->
-            ( model, Cmd.none )
+            ( Model Nothing, Cmd.none )
 
 
 perform : a -> Cmd a
