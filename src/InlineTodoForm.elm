@@ -99,20 +99,12 @@ update config message model =
                 newMeta =
                     AddTodoFormMeta addAt
 
-                updatedOpenState =
-                    case model of
-                        Opened ( meta, todoForm ) ->
-                            case meta of
-                                AddTodoFormMeta _ ->
-                                    ( newMeta, todoForm )
-
-                                EditTodoFormMeta _ ->
-                                    ( newMeta, TodoForm.fromProjectId projectId )
-
-                        Closed ->
-                            ( newMeta, TodoForm.fromProjectId projectId )
+                newTodoForm =
+                    model
+                        |> getAddTodoForm
+                        |> Maybe.withDefault (TodoForm.fromProjectId projectId)
             in
-            ( opened updatedOpenState, notifyIfEditing config model )
+            ( opened ( newMeta, newTodoForm ), notifyIfEditing config model )
 
         EditClicked todo ->
             ( opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
@@ -130,6 +122,16 @@ update config message model =
 
         CancelClicked ->
             ( closed, Cmd.none )
+
+
+getAddTodoForm : Model -> Maybe TodoForm.Model
+getAddTodoForm model =
+    case model of
+        Opened ( AddTodoFormMeta _, todoForm ) ->
+            Just todoForm
+
+        _ ->
+            Nothing
 
 
 getTodoForm : Model -> Maybe TodoForm.Model
