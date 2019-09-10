@@ -53,19 +53,6 @@ import Url exposing (Url)
 
 
 -- TodoForm MODULE
-
-
-type AddAt
-    = Start
-    | End
-
-
-type TodoFormMeta
-    = AddTodoFormMeta AddAt
-    | EditTodoFormMeta Todo
-
-
-
 -- Flags
 
 
@@ -100,7 +87,6 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeInlineTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
     , inlineTodoForm : InlineTodoForm.Model
     , authState : AuthState
     , errors : Errors
@@ -177,7 +163,6 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , maybeInlineTodoForm = Nothing
             , inlineTodoForm = InlineTodoForm.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
@@ -227,15 +212,10 @@ type Msg
     | AddTodoWithDueTodayClicked
     | PatchTodo TodoId (List Todo.Msg)
       -- ProjectPage Messages
-    | AddNewTodoClicked AddAt ProjectId
-    | EditTodoClicked Todo
       -- Project
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
       -- New TFM
-    | TodoFormMsg TodoForm.Msg
-    | OnTodoFormSave TodoForm.Fields
-    | OnTodoFormCancel
     | InlineTodoFormMsg InlineTodoForm.Msg
 
 
@@ -369,42 +349,6 @@ update message model =
         PatchTodo todoId todoMsgList ->
             ( model, continueWithNow (PatchTodo_ todoId todoMsgList) )
 
-        AddNewTodoClicked addAt projectId ->
-            let
-                addTodoForm : TodoForm.Model
-                addTodoForm =
-                    TodoForm.init "" Todo.notDue projectId
-
-                addTodoFormMeta =
-                    AddTodoFormMeta addAt
-
-                addTodoFormWithMeta =
-                    ( addTodoFormMeta, addTodoForm )
-
-                ( newTodoFormWithMeta, cmd ) =
-                    case model.maybeInlineTodoForm of
-                        Just ( AddTodoFormMeta _, todoForm ) ->
-                            ( ( addTodoFormMeta, todoForm ), Cmd.none )
-
-                        Just ( EditTodoFormMeta todo, todoForm ) ->
-                            ( addTodoFormWithMeta
-                            , patchTodoWithFormFields (TodoForm.getFields todoForm) todo
-                            )
-
-                        Nothing ->
-                            ( addTodoFormWithMeta, Cmd.none )
-            in
-            ( { model | maybeInlineTodoForm = Just newTodoFormWithMeta }, cmd )
-
-        EditTodoClicked todo ->
-            ( { model
-                | maybeInlineTodoForm =
-                    Just <|
-                        ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
-              }
-            , persistMaybeTodoForm model
-            )
-
         AddTodoWithDueTodayClicked ->
             ( model
             , mapContinueWithNow (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
@@ -427,93 +371,6 @@ update message model =
                 msg
                 model.inlineTodoForm
                 |> Tuple.mapFirst (flip setInlineTodoForm model)
-
-        TodoFormMsg msg ->
-            case model.maybeInlineTodoForm of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just ( meta, todoForm ) ->
-                    handleTodoFormMsg msg meta todoForm model
-
-        OnTodoFormSave fields ->
-            ( { model | maybeInlineTodoForm = Nothing }
-            , case model.maybeInlineTodoForm of
-                Nothing ->
-                    Cmd.none
-
-                Just ( meta, _ ) ->
-                    case meta of
-                        AddTodoFormMeta _ ->
-                            persistNewTodoWithFormFields fields
-
-                        EditTodoFormMeta todo ->
-                            patchTodoWithFormFields fields todo
-            )
-
-        OnTodoFormCancel ->
-            ( { model | maybeInlineTodoForm = Nothing }, Cmd.none )
-
-
-handleTodoFormMsg :
-    TodoForm.Msg
-    -> TodoFormMeta
-    -> TodoForm.Model
-    -> Model
-    -> Return
-handleTodoFormMsg msg meta todoForm model =
-    let
-        ( newTodoForm, cmd ) =
-            TodoForm.update
-                { toMsg = TodoFormMsg
-                , onSave = OnTodoFormSave
-                , onCancel = OnTodoFormCancel
-                }
-                msg
-                todoForm
-    in
-    ( { model | maybeInlineTodoForm = Just ( meta, newTodoForm ) }
-    , cmd
-    )
-
-
-persistMaybeTodoForm : Model -> Cmd Msg
-persistMaybeTodoForm model =
-    case model.maybeInlineTodoForm of
-        Just ( meta, todoForm ) ->
-            let
-                fields =
-                    TodoForm.getFields todoForm
-            in
-            case meta of
-                AddTodoFormMeta _ ->
-                    persistNewTodoWithFormFields fields
-
-                EditTodoFormMeta todo ->
-                    patchTodoWithFormFields fields todo
-
-        Nothing ->
-            Cmd.none
-
-
-patchTodoWithFormFields : TodoForm.Fields -> Todo -> Cmd Msg
-patchTodoWithFormFields fields todo =
-    let
-        msgList =
-            [ if todo.title /= fields.title then
-                Just <| Todo.SetTitle fields.title
-
-              else
-                Nothing
-            , if todo.projectId /= fields.projectId then
-                Just <| Todo.SetProjectId fields.projectId
-
-              else
-                Nothing
-            ]
-                |> List.filterMap identity
-    in
-    PatchTodo_ todo.id msgList |> continueWithNow
 
 
 
