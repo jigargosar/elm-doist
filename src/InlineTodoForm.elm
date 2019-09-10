@@ -46,16 +46,6 @@ init =
     closed
 
 
-getOpenedState : Model -> Maybe OpenState
-getOpenedState model =
-    case model of
-        Opened openState ->
-            Just openState
-
-        Closed ->
-            Nothing
-
-
 mapOpened : (OpenState -> OpenState) -> Model -> Model
 mapOpened fn model =
     case model of
@@ -64,6 +54,31 @@ mapOpened fn model =
 
         Closed ->
             model
+
+
+getAddTodoForm : Model -> Maybe TodoForm.Model
+getAddTodoForm model =
+    case model of
+        Opened ( AddTodoFormMeta _, todoForm ) ->
+            Just todoForm
+
+        _ ->
+            Nothing
+
+
+getTodoForm : Model -> Maybe TodoForm.Model
+getTodoForm model =
+    case model of
+        Opened ( _, todoForm ) ->
+            Just todoForm
+
+        _ ->
+            Nothing
+
+
+setTodoForm : TodoForm.Model -> Model -> Model
+setTodoForm todoForm =
+    mapOpened (Tuple.mapSecond (always todoForm))
 
 
 type Msg
@@ -122,26 +137,6 @@ update config message model =
 
         CancelClicked ->
             ( closed, Cmd.none )
-
-
-getAddTodoForm : Model -> Maybe TodoForm.Model
-getAddTodoForm model =
-    case model of
-        Opened ( AddTodoFormMeta _, todoForm ) ->
-            Just todoForm
-
-        _ ->
-            Nothing
-
-
-getTodoForm : Model -> Maybe TodoForm.Model
-getTodoForm =
-    getOpenedState >> Maybe.map Tuple.second
-
-
-setTodoForm : TodoForm.Model -> Model -> Model
-setTodoForm todoForm =
-    mapOpened (Tuple.mapSecond (always todoForm))
 
 
 todoFormUpdate : TodoForm.Msg -> TodoForm.Model -> ( TodoForm.Model, Cmd Msg )
