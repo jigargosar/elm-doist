@@ -96,28 +96,23 @@ update config message model =
     case message of
         AddClicked addAt projectId ->
             let
-                addTodoFormMeta =
+                newMeta =
                     AddTodoFormMeta addAt
 
-                addTodoFormWithMeta =
-                    ( addTodoFormMeta, TodoForm.fromProjectId projectId )
-
-                ( newTodoFormWithMeta, cmd ) =
+                updatedOpenState =
                     case model of
                         Opened ( meta, todoForm ) ->
                             case meta of
                                 AddTodoFormMeta _ ->
-                                    ( ( addTodoFormMeta, todoForm ), Cmd.none )
+                                    ( newMeta, todoForm )
 
-                                EditTodoFormMeta todo ->
-                                    ( addTodoFormWithMeta
-                                    , notifyEdited config todo todoForm
-                                    )
+                                EditTodoFormMeta _ ->
+                                    ( newMeta, TodoForm.fromProjectId projectId )
 
                         Closed ->
-                            ( addTodoFormWithMeta, Cmd.none )
+                            ( newMeta, TodoForm.fromProjectId projectId )
             in
-            ( opened newTodoFormWithMeta, cmd )
+            ( opened updatedOpenState, notifyIfEditing config model )
 
         EditClicked todo ->
             ( opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
