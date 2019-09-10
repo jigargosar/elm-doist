@@ -13,11 +13,11 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Opened OpenState
+    = Opened OpenedState
     | Closed
 
 
-type alias OpenState =
+type alias OpenedState =
     ( Meta, TodoForm.Model )
 
 
@@ -36,7 +36,7 @@ closed =
     Closed
 
 
-opened : OpenState -> Model
+opened : OpenedState -> Model
 opened =
     Opened
 
@@ -46,7 +46,7 @@ init =
     closed
 
 
-mapOpened : (OpenState -> OpenState) -> Model -> Model
+mapOpened : (OpenedState -> OpenedState) -> Model -> Model
 mapOpened fn model =
     case model of
         Opened openState ->
