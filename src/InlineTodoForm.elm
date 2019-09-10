@@ -85,14 +85,17 @@ update config message model =
             in
             ( Opened ( newMeta, newTodoForm )
             , Cmd.batch
-                [ notifyIfEditing config model
-                , focusForm config
+                [ focusForm config
+                , notifyIfEditing config model
                 ]
             )
 
         EditClicked todo ->
             ( Opened ( EditMeta todo, TodoForm.fromTodo todo )
-            , notifyAddedOrEdited config model
+            , Cmd.batch
+                [ focusForm config
+                , notifyAddedOrEdited config model
+                ]
             )
 
         TodoFormMsg msg ->
