@@ -11,10 +11,10 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Model (Maybe Internal)
+    = Model (Maybe OpenForm)
 
 
-type alias Internal =
+type alias OpenForm =
     ( Meta, TodoForm.Model )
 
 
@@ -38,6 +38,16 @@ init =
     closed
 
 
+map : (Maybe OpenForm -> Maybe OpenForm) -> Model -> Model
+map fn =
+    unwrap >> fn >> Model
+
+
+mapOpened : (OpenForm -> OpenForm) -> Model -> Model
+mapOpened fn =
+    map (Maybe.map fn)
+
+
 type Msg
     = AddClicked AddAt ProjectId
     | EditClicked Todo
@@ -56,7 +66,7 @@ edit =
     EditClicked
 
 
-unwrap : Model -> Maybe Internal
+unwrap : Model -> Maybe OpenForm
 unwrap (Model internal) =
     internal
 
@@ -127,6 +137,16 @@ update config message model =
 
         CancelClicked ->
             ( closed, Cmd.none )
+
+
+getTodoForm : Model -> Maybe TodoForm.Model
+getTodoForm =
+    unwrap >> Maybe.map Tuple.second
+
+
+setTodoForm : TodoForm.Model -> Model -> Model
+setTodoForm todoForm =
+    mapOpened (Tuple.mapSecond (always todoForm))
 
 
 updateTodoForm : (TodoForm.Model -> ( TodoForm.Model, Cmd msg )) -> Model -> ( Model, Cmd msg )
