@@ -98,6 +98,7 @@ type Msg
     = SaveClicked
     | CancelClicked
     | SelectProjectMsg SelectProject.Msg
+    | SetProjectId ProjectId
     | TitleChanged String
 
 
@@ -120,14 +121,18 @@ update message model =
 
         SelectProjectMsg msg ->
             let
-                ( newSelectProject, cmd, maybeProjectId ) =
-                    SelectProject.update msg (getSelectProject model)
+                ( newSelectProject, cmd ) =
+                    SelectProject.update { toMsg = SelectProjectMsg, onSelect = SetProjectId }
+                        msg
+                        (getSelectProject model)
             in
             ( setSelectProject newSelectProject model
-                |> setMaybeProjectId maybeProjectId
-            , Cmd.map SelectProjectMsg cmd
+            , cmd
             , Nothing
             )
+
+        SetProjectId projectId ->
+            ( setProjectId projectId model, Cmd.none, Nothing )
 
 
 view : ProjectList -> Model -> H.Html Msg

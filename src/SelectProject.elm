@@ -13,6 +13,7 @@ import List.Extra as LX
 import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
+import Task
 import UI.Key as Key
 import UI.TextButton as TextButton
 
@@ -49,20 +50,25 @@ type Msg
     | Focused Focus.FocusResult
 
 
-update : Msg -> Model -> ( Model, Cmd Msg, Maybe ProjectId )
-update message model =
+update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
+update config message model =
     case message of
         OpenMenu ->
-            ( MenuOpen, focusFirstCmd, Nothing )
+            ( MenuOpen, focusFirstCmd |> Cmd.map config.toMsg )
 
         CloseMenu ->
-            ( MenuClosed, Cmd.none, Nothing )
+            ( MenuClosed, Cmd.none )
 
         Selected projectId ->
-            ( MenuClosed, Cmd.none, Just projectId )
+            ( MenuClosed, config.onSelect projectId |> perform )
 
         Focused _ ->
-            ( model, Cmd.none, Nothing )
+            ( model, Cmd.none )
+
+
+perform : a -> Cmd a
+perform =
+    Task.succeed >> Task.perform identity
 
 
 type alias DisplayProject =
