@@ -92,7 +92,7 @@ update config message model =
             let
                 addTodoForm : TodoForm.Model
                 addTodoForm =
-                    TodoForm.init "" Todo.notDue projectId
+                    TodoForm.fromParts "" Todo.notDue projectId
 
                 addTodoFormMeta =
                     AddTodoFormMeta addAt
@@ -116,7 +116,7 @@ update config message model =
             ( Model <| Just newTodoFormWithMeta, cmd )
 
         EditClicked todo ->
-            ( opened ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
+            ( opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
             , notifyAddedOrEdited config model
             )
 

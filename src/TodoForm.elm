@@ -1,4 +1,4 @@
-module TodoForm exposing (Fields, Model, Msg, getFields, init, update, view)
+module TodoForm exposing (Fields, Model, Msg, fromParts, fromTodo, getFields, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -9,7 +9,7 @@ import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectProject
 import Task
-import Todo
+import Todo exposing (Todo)
 import UI.TextButton as TextButton
 
 
@@ -30,12 +30,17 @@ type alias Fields =
     }
 
 
-init : String -> Todo.DueAt -> ProjectId -> Model
-init title dueAt projectId =
+fromParts : String -> Todo.DueAt -> ProjectId -> Model
+fromParts title dueAt projectId =
     Model
         { fields = Fields title dueAt projectId
         , selectProject = SelectProject.init
         }
+
+
+fromTodo : Todo -> Model
+fromTodo { title, dueAt, projectId } =
+    fromParts title dueAt projectId
 
 
 map : (Internal -> Internal) -> Model -> Model
