@@ -7,7 +7,6 @@ import Html.Styled.Events as E
 import Json.Encode as JE
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
-import Return
 import SelectProject
 import Todo
 import UI.TextButton as TextButton
@@ -41,11 +40,6 @@ init title dueAt projectId =
 map : (Internal -> Internal) -> Model -> Model
 map fn (Model internal) =
     Model (fn internal)
-
-
-setFields : Fields -> Model -> Model
-setFields fields =
-    map (\internal -> { internal | fields = fields })
 
 
 mapFields : (Fields -> Fields) -> Model -> Model
@@ -101,8 +95,7 @@ getProjectId =
 
 
 type Msg
-    = FieldsChanged Fields
-    | SaveClicked
+    = SaveClicked
     | CancelClicked
     | SelectProjectMsg SelectProject.Msg
     | TitleChanged String
@@ -116,9 +109,6 @@ type OutMsg
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update message model =
     case message of
-        FieldsChanged fields ->
-            ( setFields fields model, Cmd.none, Nothing )
-
         TitleChanged title ->
             ( setTitle title model, Cmd.none, Nothing )
 
