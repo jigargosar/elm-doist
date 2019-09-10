@@ -13,7 +13,11 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Model (Maybe OpenState)
+    = Model Internal
+
+
+type alias Internal =
+    Maybe OpenState
 
 
 type alias OpenState =
