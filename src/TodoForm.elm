@@ -1,4 +1,4 @@
-module TodoForm exposing (Fields, Model, Msg, fromParts, fromTodo, getFields, update, view)
+module TodoForm exposing (Fields, Model, Msg, fromParts, fromProjectId, fromTodo, getFields, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -36,6 +36,11 @@ fromParts title dueAt projectId =
         { fields = Fields title dueAt projectId
         , selectProject = SelectProject.init
         }
+
+
+fromProjectId : ProjectId -> Model
+fromProjectId projectId =
+    fromParts "" Todo.notDue projectId
 
 
 fromTodo : Todo -> Model

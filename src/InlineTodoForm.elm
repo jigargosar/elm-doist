@@ -90,15 +90,11 @@ update config message model =
     case message of
         AddClicked addAt projectId ->
             let
-                addTodoForm : TodoForm.Model
-                addTodoForm =
-                    TodoForm.fromParts "" Todo.notDue projectId
-
                 addTodoFormMeta =
                     AddTodoFormMeta addAt
 
                 addTodoFormWithMeta =
-                    ( addTodoFormMeta, addTodoForm )
+                    ( addTodoFormMeta, TodoForm.fromProjectId projectId )
 
                 ( newTodoFormWithMeta, cmd ) =
                     case unwrap model of
