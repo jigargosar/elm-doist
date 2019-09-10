@@ -188,7 +188,7 @@ init encodedFlags url key =
 
 
 type NowContinuation
-    = AddTodo String DueAt ProjectId
+    = AddTodo_ String DueAt ProjectId
     | AddProject
     | PatchTodo_ TodoId (List Todo.Msg)
 
@@ -208,15 +208,14 @@ type Msg
     | GotFirestoreQueryResponse FirestoreQueryResponse
     | SignInClicked
     | SignOutClicked
-      -- TodayPage Messages
-    | AddTodoWithDueTodayClicked
+      -- TodoOps
     | PatchTodo TodoId (List Todo.Msg)
-      -- ProjectPage Messages
-      -- Project
+    | AddTodo TodoForm.Fields
+    | AddTodoWithDueTodayClicked
+    | InlineTodoFormMsg InlineTodoForm.Msg
+      -- ProjectOps
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
-      -- New TFM
-    | InlineTodoFormMsg InlineTodoForm.Msg
 
 
 addTodoClicked : InlineTodoForm.AddAt -> ProjectId -> Msg
@@ -253,7 +252,7 @@ subscriptions _ =
 
 persistNewTodoWithFormFields : TodoForm.Fields -> Cmd Msg
 persistNewTodoWithFormFields { title, dueAt, projectId } =
-    AddTodo title dueAt projectId
+    AddTodo_ title dueAt projectId
         |> continueWithNow
 
 
@@ -312,7 +311,7 @@ update message model =
 
         ContinueWithNow msg now ->
             case msg of
-                AddTodo title dueAt projectId ->
+                AddTodo_ title dueAt projectId ->
                     ( model, Fire.addTodo (Todo.new now title dueAt projectId) )
 
                 AddProject ->
@@ -346,12 +345,15 @@ update message model =
         GotFirestoreQueryResponse qs ->
             onFirestoreQueryResponse qs model
 
+        AddTodo { title, dueAt, projectId } ->
+            ( model, continueWithNow (AddTodo_ title dueAt projectId) )
+
         PatchTodo todoId todoMsgList ->
             ( model, continueWithNow (PatchTodo_ todoId todoMsgList) )
 
         AddTodoWithDueTodayClicked ->
             ( model
-            , mapContinueWithNow (\now -> AddTodo "" (Todo.dueAtFromPosix now) ProjectId.default)
+            , mapContinueWithNow (\now -> AddTodo_ "" (Todo.dueAtFromPosix now) ProjectId.default)
             )
 
         AddProjectClicked ->
