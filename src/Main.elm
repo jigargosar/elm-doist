@@ -868,7 +868,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, projectList, maybeInlineTodoForm } todoList =
+viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -878,36 +878,28 @@ viewKeyedTodoItems { here, projectList, maybeInlineTodoForm } todoList =
         viewBaseList =
             List.map viewBase
     in
-    case maybeInlineTodoForm of
-        Nothing ->
-            viewBaseList todoList
+    InlineTodoForm.view
+        InlineTodoFormMsg
+        { closed = \_ -> viewBaseList todoList
+        , add = \addAt viewForm -> viewBaseList todoList ++ [ ( "tfk", viewForm ) ]
+        , edit =
+            \todoId viewForm ->
+                if List.any (.id >> eq_ todoId) todoList then
+                    todoList
+                        |> List.map
+                            (\todo ->
+                                if todoId == todo.id then
+                                    ( "tfk", viewForm )
 
-        Just ( meta, tf ) ->
-            let
-                viewForm =
-                    ( "tfk"
-                    , TodoForm.view projectList tf
-                        |> H.map TodoFormMsg
-                    )
-            in
-            case meta of
-                AddTodoFormMeta _ ->
-                    viewBaseList todoList ++ [ viewForm ]
+                                else
+                                    viewBase todo
+                            )
 
-                EditTodoFormMeta editingTodo ->
-                    if List.any (.id >> eq_ editingTodo.id) todoList then
-                        todoList
-                            |> List.map
-                                (\todo ->
-                                    if editingTodo.id == todo.id then
-                                        viewForm
-
-                                    else
-                                        viewBase todo
-                                )
-
-                    else
-                        viewForm :: viewBaseList todoList
+                else
+                    ( "tfk", viewForm ) :: viewBaseList todoList
+        }
+        projectList
+        inlineTodoForm
 
 
 viewTodoItemBase : Zone -> Todo -> Html Msg

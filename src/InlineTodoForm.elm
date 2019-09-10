@@ -1,5 +1,7 @@
-module InlineTodoForm exposing (AddAt(..), Model, Msg, add, close, edit, init, update)
+module InlineTodoForm exposing (AddAt(..), Model, Msg, add, close, edit, init, update, view)
 
+import Html.Styled as H exposing (Html)
+import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import Task
 import Todo exposing (Todo)
@@ -34,6 +36,9 @@ type Msg
     = AddClicked AddAt ProjectId
     | EditClicked Todo
     | Closed
+    | TodoFormMsg TodoForm.Msg
+    | SaveClicked TodoForm.Fields
+    | CancelClicked
 
 
 add : AddAt -> ProjectId -> Msg
@@ -64,8 +69,8 @@ update :
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
-update config msg model =
-    case msg of
+update config message model =
+    case message of
         AddClicked addAt projectId ->
             let
                 addTodoForm : TodoForm.Model
@@ -107,6 +112,33 @@ update config msg model =
 
         Closed ->
             ( Model Nothing, Cmd.none )
+
+        TodoFormMsg msg ->
+            case unwrap model of
+                Just tuple ->
+                    let
+                        ( meta, todoForm ) =
+                            tuple
+
+                        ( newTodoForm, cmd ) =
+                            TodoForm.update
+                                { toMsg = TodoFormMsg
+                                , onSave = SaveClicked
+                                , onCancel = CancelClicked
+                                }
+                                msg
+                                todoForm
+                    in
+                    ( Model <| Just <| ( meta, newTodoForm ), cmd |> Cmd.map config.toMsg )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        SaveClicked fields ->
+            ( model, Cmd.none )
+
+        CancelClicked ->
+            ( model, Cmd.none )
 
 
 perform : a -> Cmd a
@@ -170,3 +202,25 @@ getPatchMsgList fields todo =
                 |> List.filterMap identity
     in
     msgList
+
+
+view :
+    (Msg -> msg)
+    ->
+        { closed : () -> out
+        , add : AddAt -> Html msg -> out
+        , edit : TodoId -> Html msg -> out
+        }
+    -> ProjectList
+    -> Model
+    -> out
+view toMsg config projectList model =
+    case unwrap model of
+        Nothing ->
+            config.closed ()
+
+        Just ( AddTodoFormMeta addAt, todoForm ) ->
+            config.add addAt (TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg))
+
+        Just ( EditTodoFormMeta todo, todoForm ) ->
+            config.edit todo.id (TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg))
