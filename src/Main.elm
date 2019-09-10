@@ -225,6 +225,8 @@ type Msg
     | AddProjectClicked
       -- New TFM
     | TodoFormMsg TodoForm.Msg
+    | OnTodoFormSave TodoForm.Fields
+    | OnTodoFormCancel
 
 
 addTodoClicked : AddAt -> ProjectId -> Msg
@@ -414,6 +416,24 @@ update message model =
                 Just ( meta, todoForm ) ->
                     handleTodoFormMsg msg meta todoForm model
 
+        OnTodoFormSave fields ->
+            ( { model | maybeTodoForm = Nothing }
+            , case model.maybeTodoForm of
+                Nothing ->
+                    Cmd.none
+
+                Just ( meta, _ ) ->
+                    case meta of
+                        AddTodoFormMeta _ ->
+                            persistNewTodoWithFormFields fields
+
+                        EditTodoFormMeta todo ->
+                            patchTodoWithFormFields fields todo
+            )
+
+        OnTodoFormCancel ->
+            ( { model | maybeTodoForm = Nothing }, Cmd.none )
+
 
 handleTodoFormMsg :
     TodoForm.Msg
@@ -423,26 +443,18 @@ handleTodoFormMsg :
     -> Return
 handleTodoFormMsg msg meta todoForm model =
     let
-        ( newTodoForm, cmd, maybeOutMsg ) =
-            TodoForm.update msg todoForm
+        ( newTodoForm, cmd ) =
+            TodoForm.update
+                { toMsg = TodoFormMsg
+                , onSave = OnTodoFormSave
+                , onCancel = OnTodoFormCancel
+                }
+                msg
+                todoForm
     in
     ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
-    , Cmd.map TodoFormMsg cmd
+    , cmd
     )
-        |> Return.andThen
-            (MX.unwrap Return.singleton handleTodoFormOutMsg maybeOutMsg)
-
-
-handleTodoFormOutMsg : TodoForm.OutMsg -> Model -> Return
-handleTodoFormOutMsg out model =
-    case out of
-        TodoForm.Submit _ ->
-            ( { model | maybeTodoForm = Nothing }
-            , persistMaybeTodoForm model
-            )
-
-        TodoForm.Cancel ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
 
 
 persistMaybeTodoForm : Model -> Cmd Msg

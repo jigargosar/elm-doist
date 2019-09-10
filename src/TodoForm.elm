@@ -1,4 +1,4 @@
-module TodoForm exposing (Fields, Model, Msg, OutMsg(..), getFields, init, update, view)
+module TodoForm exposing (Fields, Model, Msg, getFields, init, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -8,6 +8,7 @@ import Json.Encode as JE
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectProject
+import Task
 import Todo
 import UI.TextButton as TextButton
 
@@ -66,16 +67,6 @@ setTitle title =
     mapFields (\fields -> { fields | title = title })
 
 
-setMaybeProjectId : Maybe ProjectId -> Model -> Model
-setMaybeProjectId maybeProjectId model =
-    case maybeProjectId of
-        Nothing ->
-            model
-
-        Just projectId ->
-            setProjectId projectId model
-
-
 unwrap (Model internal) =
     internal
 
@@ -102,22 +93,21 @@ type Msg
     | TitleChanged String
 
 
-type OutMsg
-    = Submit Fields
-    | Cancel
-
-
-update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
-update message model =
+update :
+    { toMsg : Msg -> msg, onSave : Fields -> msg, onCancel : msg }
+    -> Msg
+    -> Model
+    -> ( Model, Cmd msg )
+update config message model =
     case message of
         TitleChanged title ->
-            ( setTitle title model, Cmd.none, Nothing )
+            ( setTitle title model, Cmd.none )
 
         SaveClicked ->
-            ( model, Cmd.none, Just <| Submit (getFields model) )
+            ( model, config.onSave (getFields model) |> perform )
 
         CancelClicked ->
-            ( model, Cmd.none, Just Cancel )
+            ( model, config.onCancel |> perform )
 
         SelectProjectMsg msg ->
             let
@@ -128,11 +118,15 @@ update message model =
             in
             ( setSelectProject newSelectProject model
             , cmd
-            , Nothing
             )
 
         SetProjectId projectId ->
-            ( setProjectId projectId model, Cmd.none, Nothing )
+            ( setProjectId projectId model, Cmd.none )
+
+
+perform : a -> Cmd a
+perform =
+    Task.succeed >> Task.perform identity
 
 
 view : ProjectList -> Model -> H.Html Msg
