@@ -250,12 +250,6 @@ subscriptions _ =
 -- UPDATE
 
 
-persistNewTodoWithFormFields : TodoForm.Fields -> Cmd Msg
-persistNewTodoWithFormFields { title, dueAt, projectId } =
-    AddTodo_ title dueAt projectId
-        |> continueWithNow
-
-
 update : Msg -> Model -> Return
 update message model =
     case message of
@@ -378,7 +372,7 @@ update message model =
 updateInlineTodoForm =
     InlineTodoForm.update
         { toMsg = InlineTodoFormMsg
-        , onAdded = persistNewTodoWithFormFields
+        , onAdded = AddTodo
         , onEdited = PatchTodo
         }
 

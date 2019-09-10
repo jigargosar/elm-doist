@@ -63,7 +63,7 @@ edit =
 
 update :
     { toMsg : Msg -> msg
-    , onAdded : TodoForm.Fields -> Cmd msg
+    , onAdded : TodoForm.Fields -> msg
     , onEdited : TodoId -> List Todo.Msg -> msg
     }
     -> Msg
@@ -145,14 +145,16 @@ notifyIfEditing config model =
             Cmd.none
 
 
-notifyAdded : { a | onAdded : TodoForm.Fields -> b } -> TodoForm.Model -> b
+notifyAdded : { a | onAdded : TodoForm.Fields -> msg } -> TodoForm.Model -> Cmd msg
 notifyAdded config todoForm =
-    TodoForm.getFields todoForm |> config.onAdded
+    TodoForm.getFields todoForm
+        |> config.onAdded
+        |> perform
 
 
 notifyAddedOrEdited :
     { a
-        | onAdded : TodoForm.Fields -> Cmd msg
+        | onAdded : TodoForm.Fields -> msg
         , onEdited : TodoId -> List Todo.Msg -> msg
     }
     -> Model
