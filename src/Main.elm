@@ -245,8 +245,8 @@ addTodoClicked addAt projectId =
 
 
 editTodoClicked : Todo -> Msg
-editTodoClicked =
-    EditTodoClicked
+editTodoClicked todo =
+    InlineTodoFormMsg (InlineTodoForm.edit todo)
 
 
 todoDoneChecked : TodoId -> Bool -> Msg

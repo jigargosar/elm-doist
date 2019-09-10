@@ -125,7 +125,7 @@ notifyEdited config todo todoForm =
         |> perform
 
 
-notifyAdded : { a | onAdded : TodoForm.Fields -> msg } -> TodoForm.Model -> msg
+notifyAdded : { a | onAdded : TodoForm.Fields -> b } -> TodoForm.Model -> b
 notifyAdded config todoForm =
     TodoForm.getFields todoForm
         |> config.onAdded
@@ -141,10 +141,6 @@ notifyAddedOrEdited :
 notifyAddedOrEdited config model =
     case unwrap model of
         Just ( meta, todoForm ) ->
-            let
-                fields =
-                    TodoForm.getFields todoForm
-            in
             case meta of
                 AddTodoFormMeta _ ->
                     notifyAdded config todoForm
