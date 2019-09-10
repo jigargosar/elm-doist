@@ -172,6 +172,19 @@ notifyEdited config todo todoForm =
         |> perform
 
 
+notifyIfEditing :
+    { a | onEdited : TodoId -> List Todo.Msg -> msg }
+    -> Model
+    -> Cmd msg
+notifyIfEditing config model =
+    case model of
+        Opened ( EditTodoFormMeta todo, todoForm ) ->
+            notifyEdited config todo todoForm
+
+        _ ->
+            Cmd.none
+
+
 notifyAdded : { a | onAdded : TodoForm.Fields -> b } -> TodoForm.Model -> b
 notifyAdded config todoForm =
     TodoForm.getFields todoForm
