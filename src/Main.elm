@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import AuthState exposing (AuthState)
+import Basics.Extra exposing (flip)
 import BasicsExtra exposing (..)
 import Browser
 import Browser.Dom as Dom
@@ -22,6 +23,7 @@ import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabinde
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
+import InlineTodoForm
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
@@ -99,6 +101,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , maybeInlineTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
+    , inlineTodoForm : InlineTodoForm.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -138,6 +141,11 @@ setAuthState authState model =
     { model | authState = authState }
 
 
+setInlineTodoForm : InlineTodoForm.Model -> Model -> Model
+setInlineTodoForm inlineTodoForm model =
+    { model | inlineTodoForm = inlineTodoForm }
+
+
 setBrowserSize : BrowserSize -> Model -> Model
 setBrowserSize browserSize model =
     { model | browserSize = browserSize }
@@ -170,6 +178,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , maybeInlineTodoForm = Nothing
+            , inlineTodoForm = InlineTodoForm.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -227,11 +236,12 @@ type Msg
     | TodoFormMsg TodoForm.Msg
     | OnTodoFormSave TodoForm.Fields
     | OnTodoFormCancel
+    | InlineTodoFormMsg InlineTodoForm.Msg
 
 
-addTodoClicked : AddAt -> ProjectId -> Msg
+addTodoClicked : InlineTodoForm.AddAt -> ProjectId -> Msg
 addTodoClicked addAt projectId =
-    AddNewTodoClicked addAt projectId
+    InlineTodoFormMsg (InlineTodoForm.add addAt projectId)
 
 
 editTodoClicked : Todo -> Msg
@@ -295,7 +305,7 @@ update message model =
             if model.route /= newRoute then
                 ( { model
                     | route = newRoute
-                    , maybeInlineTodoForm = Nothing
+                    , inlineTodoForm = InlineTodoForm.init
                   }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
@@ -407,6 +417,16 @@ update message model =
             ( model
             , Fire.deleteProject projectId
             )
+
+        InlineTodoFormMsg msg ->
+            InlineTodoForm.update
+                { toMsg = InlineTodoFormMsg
+                , onAdded = persistNewTodoWithFormFields
+                , onEdited = PatchTodo
+                }
+                msg
+                model.inlineTodoForm
+                |> Tuple.mapFirst (flip setInlineTodoForm model)
 
         TodoFormMsg msg ->
             case model.maybeInlineTodoForm of
@@ -831,10 +851,10 @@ viewProjectTodoListPage projectId projectName model =
         (div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (addTodoClicked Start projectId) "add task" []
+                , TextButton.primary (addTodoClicked InlineTodoForm.Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked End projectId) "add task" [] ]
+            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked InlineTodoForm.End projectId) "add task" [] ]
             ]
         )
         model

@@ -117,7 +117,7 @@ update config message model =
                         (getSelectProject model)
             in
             ( setSelectProject newSelectProject model
-            , cmd
+            , cmd |> Cmd.map config.toMsg
             )
 
         SetProjectId projectId ->

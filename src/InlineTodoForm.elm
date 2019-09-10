@@ -1,4 +1,4 @@
-module InlineTodoForm exposing (AddAt, Model, add, close, edit, init)
+module InlineTodoForm exposing (AddAt(..), Model, Msg, add, close, edit, init, update)
 
 import ProjectId exposing (ProjectId)
 import Task
@@ -58,7 +58,7 @@ unwrap (Model internal) =
 
 update :
     { toMsg : Msg -> msg
-    , onAdded : TodoForm.Fields -> msg
+    , onAdded : TodoForm.Fields -> Cmd msg
     , onEdited : TodoId -> List Todo.Msg -> msg
     }
     -> Msg
@@ -134,7 +134,7 @@ notifyAdded config todoForm =
 notifyAddedOrEdited :
     { a
         | onAdded : TodoForm.Fields -> Cmd msg
-        , onEdited : TodoId -> List Todo.Msg -> b
+        , onEdited : TodoId -> List Todo.Msg -> msg
     }
     -> Model
     -> Cmd msg
