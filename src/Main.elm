@@ -98,7 +98,7 @@ flagsDecoder =
 type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
-    , maybeTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
+    , maybeInlineTodoForm : Maybe ( TodoFormMeta, TodoForm.Model )
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -169,7 +169,7 @@ init encodedFlags url key =
         model =
             { todoList = []
             , projectList = []
-            , maybeTodoForm = Nothing
+            , maybeInlineTodoForm = Nothing
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key
@@ -295,7 +295,7 @@ update message model =
             if model.route /= newRoute then
                 ( { model
                     | route = newRoute
-                    , maybeTodoForm = Nothing
+                    , maybeInlineTodoForm = Nothing
                   }
                 , Dom.setViewport 0 0 |> Task.perform ScrolledToTop
                 )
@@ -372,7 +372,7 @@ update message model =
                     ( addTodoFormMeta, addTodoForm )
 
                 ( newTodoFormWithMeta, cmd ) =
-                    case model.maybeTodoForm of
+                    case model.maybeInlineTodoForm of
                         Just ( AddTodoFormMeta _, todoForm ) ->
                             ( ( addTodoFormMeta, todoForm ), Cmd.none )
 
@@ -384,11 +384,11 @@ update message model =
                         Nothing ->
                             ( addTodoFormWithMeta, Cmd.none )
             in
-            ( { model | maybeTodoForm = Just newTodoFormWithMeta }, cmd )
+            ( { model | maybeInlineTodoForm = Just newTodoFormWithMeta }, cmd )
 
         EditTodoClicked todo ->
             ( { model
-                | maybeTodoForm =
+                | maybeInlineTodoForm =
                     Just <|
                         ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
               }
@@ -409,7 +409,7 @@ update message model =
             )
 
         TodoFormMsg msg ->
-            case model.maybeTodoForm of
+            case model.maybeInlineTodoForm of
                 Nothing ->
                     ( model, Cmd.none )
 
@@ -417,8 +417,8 @@ update message model =
                     handleTodoFormMsg msg meta todoForm model
 
         OnTodoFormSave fields ->
-            ( { model | maybeTodoForm = Nothing }
-            , case model.maybeTodoForm of
+            ( { model | maybeInlineTodoForm = Nothing }
+            , case model.maybeInlineTodoForm of
                 Nothing ->
                     Cmd.none
 
@@ -432,7 +432,7 @@ update message model =
             )
 
         OnTodoFormCancel ->
-            ( { model | maybeTodoForm = Nothing }, Cmd.none )
+            ( { model | maybeInlineTodoForm = Nothing }, Cmd.none )
 
 
 handleTodoFormMsg :
@@ -452,14 +452,14 @@ handleTodoFormMsg msg meta todoForm model =
                 msg
                 todoForm
     in
-    ( { model | maybeTodoForm = Just ( meta, newTodoForm ) }
+    ( { model | maybeInlineTodoForm = Just ( meta, newTodoForm ) }
     , cmd
     )
 
 
 persistMaybeTodoForm : Model -> Cmd Msg
 persistMaybeTodoForm model =
-    case model.maybeTodoForm of
+    case model.maybeInlineTodoForm of
         Just ( meta, todoForm ) ->
             let
                 fields =
@@ -848,7 +848,7 @@ viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, projectList, maybeTodoForm } todoList =
+viewKeyedTodoItems { here, projectList, maybeInlineTodoForm } todoList =
     let
         viewBase : Todo -> ( String, Html Msg )
         viewBase todo =
@@ -858,7 +858,7 @@ viewKeyedTodoItems { here, projectList, maybeTodoForm } todoList =
         viewBaseList =
             List.map viewBase
     in
-    case maybeTodoForm of
+    case maybeInlineTodoForm of
         Nothing ->
             viewBaseList todoList
 
