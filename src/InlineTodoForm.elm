@@ -1,5 +1,6 @@
 module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
 
+import Basics.Extra exposing (flip)
 import Html.Styled as H exposing (Html)
 import Maybe.Extra as MX
 import Project exposing (ProjectList)
@@ -122,16 +123,7 @@ update config message model =
             )
 
         TodoFormMsg msg ->
-            updateTodoForm
-                (TodoForm.update
-                    { toMsg = TodoFormMsg
-                    , onSave = SaveClicked
-                    , onCancel = CancelClicked
-                    }
-                    msg
-                )
-                model
-                |> Return.mapCmd config.toMsg
+            onTodoFormMsg config msg model
 
         SaveClicked _ ->
             ( closed, notifyAddedOrEdited config model )
@@ -150,20 +142,25 @@ setTodoForm todoForm =
     mapOpened (Tuple.mapSecond (always todoForm))
 
 
-updateTodoForm :
-    (TodoForm.Model -> ( TodoForm.Model, Cmd msg ))
+todoFormUpdate : TodoForm.Msg -> TodoForm.Model -> ( TodoForm.Model, Cmd Msg )
+todoFormUpdate =
+    TodoForm.update
+        { toMsg = TodoFormMsg
+        , onSave = SaveClicked
+        , onCancel = CancelClicked
+        }
+
+
+onTodoFormMsg :
+    { a | toMsg : Msg -> msg }
+    -> TodoForm.Msg
     -> Model
-    -> ( Model, Cmd msg )
-updateTodoForm fn model =
+    -> Return.Return msg Model
+onTodoFormMsg config msg model =
     getTodoForm model
         |> MX.unwrap ( model, Cmd.none )
-            (\todoForm ->
-                let
-                    ( newTodoForm, cmd ) =
-                        fn todoForm
-                in
-                ( setTodoForm newTodoForm model, cmd )
-            )
+            (todoFormUpdate msg >> Tuple.mapFirst (flip setTodoForm model))
+        |> Return.mapCmd config.toMsg
 
 
 perform : a -> Cmd a
