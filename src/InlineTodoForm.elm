@@ -1,6 +1,7 @@
 module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
 
 import Html.Styled as H exposing (Html)
+import Maybe.Extra as MX
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
 import Return
@@ -149,21 +150,20 @@ setTodoForm todoForm =
     mapOpened (Tuple.mapSecond (always todoForm))
 
 
-updateTodoForm : (TodoForm.Model -> ( TodoForm.Model, Cmd msg )) -> Model -> ( Model, Cmd msg )
+updateTodoForm :
+    (TodoForm.Model -> ( TodoForm.Model, Cmd msg ))
+    -> Model
+    -> ( Model, Cmd msg )
 updateTodoForm fn model =
-    case unwrap model of
-        Just tuple ->
-            let
-                ( meta, todoForm ) =
-                    tuple
-
-                ( newTodoForm, cmd ) =
-                    fn todoForm
-            in
-            ( Model <| Just <| ( meta, newTodoForm ), cmd )
-
-        Nothing ->
-            ( model, Cmd.none )
+    getTodoForm model
+        |> MX.unwrap ( model, Cmd.none )
+            (\todoForm ->
+                let
+                    ( newTodoForm, cmd ) =
+                        fn todoForm
+                in
+                ( setTodoForm newTodoForm model, cmd )
+            )
 
 
 perform : a -> Cmd a
