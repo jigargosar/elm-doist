@@ -740,26 +740,48 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
             List.map viewBase
+
+        viewKeyedForm : b -> ( String, b )
+        viewKeyedForm =
+            Tuple.pair "tfk"
     in
     InlineTodoForm.view
         InlineTodoFormMsg
         { closed = \_ -> viewBaseList todoList
-        , add = \_ viewForm -> viewBaseList todoList ++ [ ( "tfk", viewForm ) ]
+        , add =
+            \addAt formHtml ->
+                let
+                    keyedForm =
+                        viewKeyedForm formHtml
+
+                    keyedList =
+                        viewBaseList todoList
+                in
+                case addAt of
+                    InlineTodoForm.Start ->
+                        keyedForm :: keyedList
+
+                    InlineTodoForm.End ->
+                        keyedList ++ [ keyedForm ]
         , edit =
-            \todoId viewForm ->
+            \todoId formHtml ->
+                let
+                    keyedForm =
+                        viewKeyedForm formHtml
+                in
                 if List.any (.id >> eq_ todoId) todoList then
                     todoList
                         |> List.map
                             (\todo ->
                                 if todoId == todo.id then
-                                    ( "tfk", viewForm )
+                                    keyedForm
 
                                 else
                                     viewBase todo
                             )
 
                 else
-                    ( "tfk", viewForm ) :: viewBaseList todoList
+                    keyedForm :: viewBaseList todoList
         }
         projectList
         inlineTodoForm
