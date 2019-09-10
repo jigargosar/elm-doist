@@ -33,16 +33,6 @@ init =
     Closed
 
 
-mapOpened : (OpenedState -> OpenedState) -> Model -> Model
-mapOpened fn model =
-    case model of
-        Opened openState ->
-            fn openState |> Opened
-
-        Closed ->
-            model
-
-
 getAddTodoForm : Model -> Maybe TodoForm.Model
 getAddTodoForm model =
     case model of
