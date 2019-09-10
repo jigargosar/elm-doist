@@ -365,14 +365,22 @@ update message model =
             )
 
         InlineTodoFormMsg msg ->
-            InlineTodoForm.update
-                { toMsg = InlineTodoFormMsg
-                , onAdded = persistNewTodoWithFormFields
-                , onEdited = PatchTodo
-                }
+            updateInlineTodoForm
                 msg
                 model.inlineTodoForm
                 |> Tuple.mapFirst (flip setInlineTodoForm model)
+
+
+
+-- Update TodoForm
+
+
+updateInlineTodoForm =
+    InlineTodoForm.update
+        { toMsg = InlineTodoFormMsg
+        , onAdded = persistNewTodoWithFormFields
+        , onEdited = PatchTodo
+        }
 
 
 
