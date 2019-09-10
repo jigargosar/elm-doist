@@ -768,8 +768,11 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
                 let
                     keyedForm =
                         viewKeyedForm formHtml
+
+                    hasEditingTodo =
+                        List.any (.id >> eq_ todoId) todoList
                 in
-                if List.any (.id >> eq_ todoId) todoList then
+                if hasEditingTodo then
                     todoList
                         |> List.map
                             (\todo ->
