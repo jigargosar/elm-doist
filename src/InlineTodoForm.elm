@@ -94,7 +94,16 @@ update config msg model =
             ( Model <| Just newTodoFormWithMeta, cmd )
 
         EditClicked todo ->
-            ( Model Nothing, Cmd.none )
+            let
+                cmd : Cmd msg
+                cmd =
+                    notifyAddedOrEdited config model
+            in
+            ( Model <|
+                Just <|
+                    ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
+            , cmd
+            )
 
         Closed ->
             ( Model Nothing, Cmd.none )
@@ -114,6 +123,37 @@ notifyEdited config todo todoForm =
     getPatchMsgList (TodoForm.getFields todoForm) todo
         |> config.onEdited todo.id
         |> perform
+
+
+notifyAdded : { a | onAdded : TodoForm.Fields -> msg } -> TodoForm.Model -> msg
+notifyAdded config todoForm =
+    TodoForm.getFields todoForm
+        |> config.onAdded
+
+
+notifyAddedOrEdited :
+    { a
+        | onAdded : TodoForm.Fields -> Cmd msg
+        , onEdited : TodoId -> List Todo.Msg -> b
+    }
+    -> Model
+    -> Cmd msg
+notifyAddedOrEdited config model =
+    case unwrap model of
+        Just ( meta, todoForm ) ->
+            let
+                fields =
+                    TodoForm.getFields todoForm
+            in
+            case meta of
+                AddTodoFormMeta _ ->
+                    notifyAdded config todoForm
+
+                EditTodoFormMeta todo ->
+                    notifyEdited config todo todoForm
+
+        Nothing ->
+            Cmd.none
 
 
 getPatchMsgList : TodoForm.Fields -> Todo -> List Todo.Msg
