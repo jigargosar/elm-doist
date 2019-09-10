@@ -1,5 +1,6 @@
 module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
 
+import Focus
 import Html.Styled as H exposing (Html)
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
@@ -49,6 +50,7 @@ type Msg
     | TodoFormMsg TodoForm.Msg
     | SaveClicked TodoForm.Fields
     | CancelClicked
+    | Focused Focus.FocusResult
 
 
 add : AddAt -> ProjectId -> Msg
@@ -81,7 +83,12 @@ update config message model =
                         |> getAddTodoForm
                         |> Maybe.withDefault (TodoForm.fromProjectId projectId)
             in
-            ( Opened ( newMeta, newTodoForm ), notifyIfEditing config model )
+            ( Opened ( newMeta, newTodoForm )
+            , Cmd.batch
+                [ notifyIfEditing config model
+                , focusForm config
+                ]
+            )
 
         EditClicked todo ->
             ( Opened ( EditMeta todo, TodoForm.fromTodo todo )
@@ -105,6 +112,15 @@ update config message model =
 
         CancelClicked ->
             ( Closed, Cmd.none )
+
+        Focused _ ->
+            ( model, Cmd.none )
+
+
+focusForm : { a | toMsg : Msg -> msg } -> Cmd msg
+focusForm config =
+    Focus.attempt Focused TodoForm.firstFocusable
+        |> Cmd.map config.toMsg
 
 
 todoFormUpdate : TodoForm.Msg -> TodoForm.Model -> ( TodoForm.Model, Cmd Msg )

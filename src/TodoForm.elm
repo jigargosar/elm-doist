@@ -1,4 +1,4 @@
-module TodoForm exposing (Fields, Model, Msg, fromParts, fromProjectId, fromTodo, getFields, update, view)
+module TodoForm exposing (Fields, Model, Msg, firstFocusable, fromParts, fromProjectId, fromTodo, getFields, update, view)
 
 import Accessibility.Styled exposing (text)
 import Html.Styled as H exposing (div, textarea)
@@ -139,6 +139,11 @@ perform =
     Task.succeed >> Task.perform identity
 
 
+firstFocusable : String
+firstFocusable =
+    "todo-form__first-focusable"
+
+
 view : ProjectList -> Model -> H.Html Msg
 view projectList model =
     div [ class "pa3" ]
@@ -150,6 +155,7 @@ view projectList model =
                         [ class "pa0 lh-copy overflow-hidden w-100"
                         , rows 1
                         , E.onInput TitleChanged
+                        , A.id firstFocusable
                         ]
                         []
                     ]
