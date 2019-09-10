@@ -347,7 +347,14 @@ update message model =
 
         AddTodoWithDueTodayClicked ->
             ( model
-            , mapContinueWithNow (\now -> AddTodo_ "" (Todo.dueAtFromPosix now) ProjectId.default)
+            , Time.now
+                |> Task.map
+                    (\now ->
+                        ContinueWithNow
+                            (AddTodo_ "" (Todo.dueAtFromPosix now) ProjectId.default)
+                            now
+                    )
+                |> Task.perform identity
             )
 
         AddProjectClicked ->
@@ -369,6 +376,7 @@ update message model =
 -- Update TodoForm
 
 
+updateInlineTodoForm : InlineTodoForm.Msg -> InlineTodoForm.Model -> ( InlineTodoForm.Model, Cmd Msg )
 updateInlineTodoForm =
     InlineTodoForm.update
         { toMsg = InlineTodoFormMsg
@@ -379,12 +387,6 @@ updateInlineTodoForm =
 
 
 -- Update Helpers
-
-
-mapContinueWithNow fn =
-    Time.now
-        |> Task.map (\now -> ContinueWithNow (fn now) now)
-        |> Task.perform identity
 
 
 continueWithNow msg =
