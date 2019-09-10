@@ -13,11 +13,8 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Model Internal
-
-
-type alias Internal =
-    Maybe OpenState
+    = Opened OpenState
+    | Closed
 
 
 type alias OpenState =
@@ -36,12 +33,12 @@ type Meta
 
 closed : Model
 closed =
-    Model Nothing
+    Closed
 
 
 opened : OpenState -> Model
 opened =
-    Just >> Model
+    Opened
 
 
 init : Model
@@ -49,14 +46,24 @@ init =
     closed
 
 
-map : (Maybe OpenState -> Maybe OpenState) -> Model -> Model
-map fn =
-    unwrap >> fn >> Model
+getOpenedState : Model -> Maybe OpenState
+getOpenedState model =
+    case model of
+        Opened openState ->
+            Just openState
+
+        Closed ->
+            Nothing
 
 
 mapOpened : (OpenState -> OpenState) -> Model -> Model
-mapOpened fn =
-    map (Maybe.map fn)
+mapOpened fn model =
+    case model of
+        Opened openState ->
+            fn openState |> Opened
+
+        Closed ->
+            model
 
 
 type Msg
@@ -75,11 +82,6 @@ add =
 edit : Todo -> Msg
 edit =
     EditClicked
-
-
-unwrap : Model -> Maybe OpenState
-unwrap (Model internal) =
-    internal
 
 
 update :
@@ -101,8 +103,8 @@ update config message model =
                     ( addTodoFormMeta, TodoForm.fromProjectId projectId )
 
                 ( newTodoFormWithMeta, cmd ) =
-                    case unwrap model of
-                        Just ( meta, todoForm ) ->
+                    case model of
+                        Opened ( meta, todoForm ) ->
                             case meta of
                                 AddTodoFormMeta _ ->
                                     ( ( addTodoFormMeta, todoForm ), Cmd.none )
@@ -112,7 +114,7 @@ update config message model =
                                     , notifyEdited config todo todoForm
                                     )
 
-                        Nothing ->
+                        Closed ->
                             ( addTodoFormWithMeta, Cmd.none )
             in
             ( opened newTodoFormWithMeta, cmd )
@@ -137,7 +139,7 @@ update config message model =
 
 getTodoForm : Model -> Maybe TodoForm.Model
 getTodoForm =
-    unwrap >> Maybe.map Tuple.second
+    getOpenedState >> Maybe.map Tuple.second
 
 
 setTodoForm : TodoForm.Model -> Model -> Model
@@ -184,8 +186,8 @@ notifyAddedOrEdited :
     -> Model
     -> Cmd msg
 notifyAddedOrEdited config model =
-    case unwrap model of
-        Just ( meta, todoForm ) ->
+    case model of
+        Opened ( meta, todoForm ) ->
             case meta of
                 AddTodoFormMeta _ ->
                     notifyAdded config todoForm
@@ -193,7 +195,7 @@ notifyAddedOrEdited config model =
                 EditTodoFormMeta todo ->
                     notifyEdited config todo todoForm
 
-        Nothing ->
+        Closed ->
             Cmd.none
 
 
@@ -228,12 +230,18 @@ view :
     -> Model
     -> out
 view toMsg config projectList model =
-    case unwrap model of
-        Nothing ->
+    case model of
+        Closed ->
             config.closed ()
 
-        Just ( AddTodoFormMeta addAt, todoForm ) ->
-            config.add addAt (TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg))
+        Opened ( meta, todoForm ) ->
+            let
+                todoFormView =
+                    TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg)
+            in
+            case meta of
+                AddTodoFormMeta addAt ->
+                    config.add addAt todoFormView
 
-        Just ( EditTodoFormMeta todo, todoForm ) ->
-            config.edit todo.id (TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg))
+                EditTodoFormMeta todo ->
+                    config.edit todo.id todoFormView
