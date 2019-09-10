@@ -102,13 +102,15 @@ update config message model =
 
                 ( newTodoFormWithMeta, cmd ) =
                     case unwrap model of
-                        Just ( AddTodoFormMeta _, todoForm ) ->
-                            ( ( addTodoFormMeta, todoForm ), Cmd.none )
+                        Just ( meta, todoForm ) ->
+                            case meta of
+                                AddTodoFormMeta _ ->
+                                    ( ( addTodoFormMeta, todoForm ), Cmd.none )
 
-                        Just ( EditTodoFormMeta todo, todoForm ) ->
-                            ( addTodoFormWithMeta
-                            , notifyEdited config todo todoForm
-                            )
+                                EditTodoFormMeta todo ->
+                                    ( addTodoFormWithMeta
+                                    , notifyEdited config todo todoForm
+                                    )
 
                         Nothing ->
                             ( addTodoFormWithMeta, Cmd.none )
