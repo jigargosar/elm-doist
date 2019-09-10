@@ -113,7 +113,7 @@ update config message model =
                         Nothing ->
                             ( addTodoFormWithMeta, Cmd.none )
             in
-            ( Model <| Just newTodoFormWithMeta, cmd )
+            ( opened newTodoFormWithMeta, cmd )
 
         EditClicked todo ->
             ( opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
