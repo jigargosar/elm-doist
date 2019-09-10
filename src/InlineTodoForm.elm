@@ -123,7 +123,10 @@ update config message model =
             )
 
         TodoFormMsg msg ->
-            onTodoFormMsg config msg model
+            getTodoForm model
+                |> MX.unwrap ( model, Cmd.none )
+                    (todoFormUpdate msg >> Tuple.mapFirst (flip setTodoForm model))
+                |> Return.mapCmd config.toMsg
 
         SaveClicked _ ->
             ( closed, notifyAddedOrEdited config model )
@@ -149,18 +152,6 @@ todoFormUpdate =
         , onSave = SaveClicked
         , onCancel = CancelClicked
         }
-
-
-onTodoFormMsg :
-    { a | toMsg : Msg -> msg }
-    -> TodoForm.Msg
-    -> Model
-    -> Return.Return msg Model
-onTodoFormMsg config msg model =
-    getTodoForm model
-        |> MX.unwrap ( model, Cmd.none )
-            (todoFormUpdate msg >> Tuple.mapFirst (flip setTodoForm model))
-        |> Return.mapCmd config.toMsg
 
 
 perform : a -> Cmd a
