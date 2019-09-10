@@ -1,8 +1,9 @@
-module InlineTodoForm exposing (AddAt(..), Model, Msg, add, close, edit, init, update, view)
+module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
 
 import Html.Styled as H exposing (Html)
 import Project exposing (ProjectList)
 import ProjectId exposing (ProjectId)
+import Return
 import Task
 import Todo exposing (Todo)
 import TodoForm
@@ -27,15 +28,19 @@ type Meta
     | EditTodoFormMeta Todo
 
 
+closed : Model
+closed =
+    Model Nothing
+
+
 init : Model
 init =
-    Model Nothing
+    closed
 
 
 type Msg
     = AddClicked AddAt ProjectId
     | EditClicked Todo
-    | Closed
     | TodoFormMsg TodoForm.Msg
     | SaveClicked TodoForm.Fields
     | CancelClicked
@@ -49,11 +54,6 @@ add =
 edit : Todo -> Msg
 edit =
     EditClicked
-
-
-close : Msg
-close =
-    Closed
 
 
 unwrap : Model -> Maybe Internal
@@ -110,35 +110,40 @@ update config message model =
             , cmd
             )
 
-        Closed ->
-            ( Model Nothing, Cmd.none )
-
         TodoFormMsg msg ->
-            case unwrap model of
-                Just tuple ->
-                    let
-                        ( meta, todoForm ) =
-                            tuple
+            updateTodoForm
+                (TodoForm.update
+                    { toMsg = TodoFormMsg
+                    , onSave = SaveClicked
+                    , onCancel = CancelClicked
+                    }
+                    msg
+                )
+                model
+                |> Return.mapCmd config.toMsg
 
-                        ( newTodoForm, cmd ) =
-                            TodoForm.update
-                                { toMsg = TodoFormMsg
-                                , onSave = SaveClicked
-                                , onCancel = CancelClicked
-                                }
-                                msg
-                                todoForm
-                    in
-                    ( Model <| Just <| ( meta, newTodoForm ), cmd |> Cmd.map config.toMsg )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        SaveClicked fields ->
-            ( Model Nothing, notifyAddedOrEdited config model )
+        SaveClicked _ ->
+            ( closed, notifyAddedOrEdited config model )
 
         CancelClicked ->
-            ( Model Nothing, Cmd.none )
+            ( closed, Cmd.none )
+
+
+updateTodoForm : (TodoForm.Model -> ( TodoForm.Model, Cmd msg )) -> Model -> ( Model, Cmd msg )
+updateTodoForm fn model =
+    case unwrap model of
+        Just tuple ->
+            let
+                ( meta, todoForm ) =
+                    tuple
+
+                ( newTodoForm, cmd ) =
+                    fn todoForm
+            in
+            ( Model <| Just <| ( meta, newTodoForm ), cmd )
+
+        Nothing ->
+            ( model, Cmd.none )
 
 
 perform : a -> Cmd a
