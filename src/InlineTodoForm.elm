@@ -24,8 +24,8 @@ type AddAt
 
 
 type Meta
-    = AddTodoFormMeta AddAt
-    | EditTodoFormMeta Todo
+    = AddMeta AddAt
+    | EditMeta Todo
 
 
 init : Model
@@ -46,7 +46,7 @@ mapOpened fn model =
 getAddTodoForm : Model -> Maybe TodoForm.Model
 getAddTodoForm model =
     case model of
-        Opened ( AddTodoFormMeta _, todoForm ) ->
+        Opened ( AddMeta _, todoForm ) ->
             Just todoForm
 
         _ ->
@@ -84,7 +84,7 @@ update config message model =
         AddClicked addAt projectId ->
             let
                 newMeta =
-                    AddTodoFormMeta addAt
+                    AddMeta addAt
 
                 newTodoForm =
                     model
@@ -94,7 +94,7 @@ update config message model =
             ( Opened ( newMeta, newTodoForm ), notifyIfEditing config model )
 
         EditClicked todo ->
-            ( Opened ( EditTodoFormMeta todo, TodoForm.fromTodo todo )
+            ( Opened ( EditMeta todo, TodoForm.fromTodo todo )
             , notifyAddedOrEdited config model
             )
 
@@ -148,7 +148,7 @@ notifyIfEditing :
     -> Cmd msg
 notifyIfEditing config model =
     case model of
-        Opened ( EditTodoFormMeta todo, todoForm ) ->
+        Opened ( EditMeta todo, todoForm ) ->
             notifyEdited config todo todoForm
 
         _ ->
@@ -172,10 +172,10 @@ notifyAddedOrEdited config model =
     case model of
         Opened ( meta, todoForm ) ->
             case meta of
-                AddTodoFormMeta _ ->
+                AddMeta _ ->
                     notifyAdded config todoForm
 
-                EditTodoFormMeta todo ->
+                EditMeta todo ->
                     notifyEdited config todo todoForm
 
         Closed ->
@@ -223,8 +223,8 @@ view toMsg config projectList model =
                     TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg)
             in
             case meta of
-                AddTodoFormMeta addAt ->
+                AddMeta addAt ->
                     config.add addAt todoFormView
 
-                EditTodoFormMeta todo ->
+                EditMeta todo ->
                     config.edit todo.id todoFormView
