@@ -68,3 +68,20 @@
 ## Maybe
 
 - Firestore Abstraction
+
+
+## Thinking Elm Api Design
+
+projectList
+
+maybe selected, 
+
+type InlineForm =    
+    AddForm
+    EditForm
+    None
+    
+viewListWithSelected selI todoList = 
+    case selected of 
+        None -> 
+            
