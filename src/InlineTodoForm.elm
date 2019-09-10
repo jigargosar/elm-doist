@@ -147,8 +147,7 @@ notifyIfEditing config model =
 
 notifyAdded : { a | onAdded : TodoForm.Fields -> b } -> TodoForm.Model -> b
 notifyAdded config todoForm =
-    TodoForm.getFields todoForm
-        |> config.onAdded
+    TodoForm.getFields todoForm |> config.onAdded
 
 
 notifyAddedOrEdited :
