@@ -13,10 +13,10 @@ import TodoId exposing (TodoId)
 
 
 type Model
-    = Model (Maybe OpenForm)
+    = Model (Maybe OpenState)
 
 
-type alias OpenForm =
+type alias OpenState =
     ( Meta, TodoForm.Model )
 
 
@@ -35,17 +35,22 @@ closed =
     Model Nothing
 
 
+opened : OpenState -> Model
+opened =
+    Just >> Model
+
+
 init : Model
 init =
     closed
 
 
-map : (Maybe OpenForm -> Maybe OpenForm) -> Model -> Model
+map : (Maybe OpenState -> Maybe OpenState) -> Model -> Model
 map fn =
     unwrap >> fn >> Model
 
 
-mapOpened : (OpenForm -> OpenForm) -> Model -> Model
+mapOpened : (OpenState -> OpenState) -> Model -> Model
 mapOpened fn =
     map (Maybe.map fn)
 
@@ -68,7 +73,7 @@ edit =
     EditClicked
 
 
-unwrap : Model -> Maybe OpenForm
+unwrap : Model -> Maybe OpenState
 unwrap (Model internal) =
     internal
 
@@ -111,15 +116,8 @@ update config message model =
             ( Model <| Just newTodoFormWithMeta, cmd )
 
         EditClicked todo ->
-            let
-                cmd : Cmd msg
-                cmd =
-                    notifyAddedOrEdited config model
-            in
-            ( Model <|
-                Just <|
-                    ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
-            , cmd
+            ( opened ( EditTodoFormMeta todo, TodoForm.init todo.title todo.dueAt todo.projectId )
+            , notifyAddedOrEdited config model
             )
 
         TodoFormMsg msg ->
