@@ -528,6 +528,11 @@ masterLayout title content model =
         }
 
 
+viewPage : { title : String, content : Html Msg } -> Model -> StyledDocument Msg
+viewPage { title, content } model =
+    masterLayout title content model
+
+
 
 -- LAYOUT HEADER
 
