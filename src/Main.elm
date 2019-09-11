@@ -692,22 +692,17 @@ todayContent model =
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
+
+        viewItemList =
+            viewKeyedTodoItemList model.here
     in
     InlineTodoForm.view
         InlineTodoFormMsg
         { closed =
             \_ ->
-                let
-                    viewItemList =
-                        viewKeyedTodoItemList model.here
-                in
                 viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         , add =
             \_ formHtml ->
-                let
-                    viewItemList =
-                        viewKeyedTodoItemList model.here
-                in
                 viewTodayContentHelp (viewItemList overDueList)
                     (viewItemList todayList ++ [ viewKeyedTodoForm formHtml ])
         , edit =
