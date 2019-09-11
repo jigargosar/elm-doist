@@ -43,6 +43,7 @@ import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoForm
 import TodoId exposing (TodoId)
+import TodoItem
 import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
@@ -764,9 +765,17 @@ viewProjectTodoListPage projectId projectName model =
 -- TodoItem
 
 
+todoItemConfig : TodoItem.Config Msg
+todoItemConfig =
+    { noOp = NoOp
+    , doneChanged = todoDoneChecked
+    , editClicked = editTodoClicked
+    }
+
+
 viewBaseTodoItem : Time.Zone -> Todo -> ( String, Html Msg )
 viewBaseTodoItem zone todo =
-    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
+    ( TodoId.toString todo.id, TodoItem.view todoItemConfig zone todo )
 
 
 viewBaseTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
@@ -832,77 +841,6 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
         }
         projectList
         inlineTodoForm
-
-
-viewTodoItemBase : Zone -> Todo -> Html Msg
-viewTodoItemBase zone todo =
-    div
-        [ class "flex hide-child"
-        ]
-        [ viewTodoItemDoneCheckbox (todoDoneChecked todo.id) todo.isDone
-        , viewTodoItemTitle (editTodoClicked todo) todo.title
-        , viewTodoItemDueDate NoOp zone todo.dueAt
-        , div [ class "relative flex" ]
-            [ IconButton.view NoOp
-                [ A.id <| TodoPopup.triggerElDomId todo.id
-                , class "pa2 tc child"
-                ]
-                FAS.ellipsisH
-                []
-            ]
-        ]
-
-
-viewTodoItemDueDate : msg -> Zone -> DueAt -> Html msg
-viewTodoItemDueDate clickMsg here dueAt =
-    div [ class "flex-shrink-0 relative flex" ]
-        [ case Todo.formatDueAt "MMM dd" here dueAt of
-            Nothing ->
-                IconButton.view clickMsg
-                    [ class "pa2 child" ]
-                    FAR.calendarPlus
-                    []
-
-            Just formattedDueAt ->
-                TextButton.view_ clickMsg
-                    formattedDueAt
-                    [ class "pa2 flex-shrink-0 f7 lh-copy" ]
-        ]
-
-
-viewTodoItemDoneCheckbox : (Bool -> msg) -> Bool -> Html msg
-viewTodoItemDoneCheckbox checkedMsg isChecked =
-    let
-        faCheckBtn action icon =
-            IconButton.view action
-                [ class "pa2 " ]
-                icon
-                [ FAA.lg ]
-    in
-    ifElse isChecked
-        (faCheckBtn (checkedMsg False) FAR.checkCircle)
-        (faCheckBtn (checkedMsg True) FAR.circle)
-
-
-viewTodoItemTitle : Msg -> String -> Html Msg
-viewTodoItemTitle clickMsg title_ =
-    let
-        ( title, titleClass ) =
-            ifElse (SX.isBlank title_)
-                ( "<no title>", "i black-70" )
-                ( title_, "" )
-
-        viewTitle =
-            div [ class "", onClick NoOp ]
-                [ text title ]
-    in
-    div
-        [ class titleClass
-        , class "pa2 flex-grow-1 hover-bg-light-yellow"
-        , class " lh-title"
-        , onClick clickMsg
-        ]
-        [ viewTitle ]
 
 
 
