@@ -719,7 +719,11 @@ todayContent model =
                             [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                             , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                             ]
-                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
+                        , HK.node "div"
+                            [ class "" ]
+                            (viewBaseTodoItemList model.here todayList
+                                ++ [ viewKeyedForm formHtml ]
+                            )
                         ]
                     ]
         , edit =
