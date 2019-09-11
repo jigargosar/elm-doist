@@ -687,30 +687,12 @@ todayContent model =
                 viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         , add =
             \addAt formHtml ->
-                div [ class "pv2 vs3" ]
-                    [ overDueList
-                        |> HX.viewIfListNotEmpty
-                            (\_ ->
-                                div [ class "vs3" ]
-                                    [ div [ class "pv2 flex items-center hs3" ]
-                                        [ div [ class "lh-copy b flex-grow-1" ]
-                                            [ text "Overdue" ]
-                                        ]
-                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
-                                    ]
-                            )
-                    , div [ class "vs3" ]
-                        [ div [ class "pv2 flex items-center hs3" ]
-                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
-                            ]
-                        , HK.node "div"
-                            [ class "" ]
-                            (viewBaseTodoItemList model.here todayList
-                                ++ [ viewKeyedForm formHtml ]
-                            )
-                        ]
-                    ]
+                let
+                    viewItemList =
+                        viewBaseTodoItemList model.here
+                in
+                viewTodayContentHelp (viewItemList overDueList)
+                    (viewItemList todayList ++ [ viewKeyedForm formHtml ])
         , edit =
             \todoId formHtml ->
                 let
