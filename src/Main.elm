@@ -666,20 +666,28 @@ viewTodayPage model =
     { title = "Today", content = todayContent model }
 
 
-todayContent : Model -> Html Msg
+todayContent :
+    { a
+        | today : Calendar.Date
+        , todoList : List Todo
+        , here : Zone
+        , projectList : ProjectList
+        , inlineTodoForm : InlineTodoForm.Model
+    }
+    -> Html Msg
 todayContent model =
     let
-        nowDate =
+        today =
             model.today
 
         todayList =
-            List.filter (Todo.dueDateEq nowDate)
+            List.filter (Todo.dueDateEq today)
                 model.todoList
                 |> List.filter (.isDone >> not)
 
         overDueList =
             List.filter
-                (Todo.compareDueDate nowDate
+                (Todo.compareDueDate today
                     >> MX.unwrap False (eq_ GT)
                 )
                 model.todoList
