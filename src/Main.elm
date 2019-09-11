@@ -707,9 +707,9 @@ todayContent model =
         model.inlineTodoForm
 
 
-viewTodayContentHelp overDueHtmlItems todayHtmlItems =
+viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
     div [ class "pv2 vs3" ]
-        [ overDueHtmlItems
+        [ overDueKeyedHtmlItems
             |> HX.viewIfListNotEmpty
                 (\_ ->
                     div [ class "vs3" ]
@@ -717,7 +717,7 @@ viewTodayContentHelp overDueHtmlItems todayHtmlItems =
                             [ div [ class "lh-copy b flex-grow-1" ]
                                 [ text "Overdue" ]
                             ]
-                        , HK.node "div" [ class "" ] overDueHtmlItems
+                        , HK.node "div" [ class "" ] overDueKeyedHtmlItems
                         ]
                 )
         , div [ class "vs3" ]
@@ -725,7 +725,7 @@ viewTodayContentHelp overDueHtmlItems todayHtmlItems =
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                 , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                 ]
-            , HK.node "div" [ class "" ] todayHtmlItems
+            , HK.node "div" [ class "" ] todayKeyedHtmlItems
             ]
         ]
 
