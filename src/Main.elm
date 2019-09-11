@@ -670,30 +670,78 @@ todayContent model =
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
-
-        _ =
-            InlineTodoForm.getMeta model.inlineTodoForm
     in
-    div [ class "pv2 vs3" ]
-        [ overDueList
-            |> HX.viewIfListNotEmpty
-                (\_ ->
-                    div [ class "vs3" ]
+    InlineTodoForm.view
+        InlineTodoFormMsg
+        { closed =
+            \_ ->
+                div [ class "pv2 vs3" ]
+                    [ overDueList
+                        |> HX.viewIfListNotEmpty
+                            (\_ ->
+                                div [ class "vs3" ]
+                                    [ div [ class "pv2 flex items-center hs3" ]
+                                        [ div [ class "lh-copy b flex-grow-1" ]
+                                            [ text "Overdue" ]
+                                        ]
+                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
+                                    ]
+                            )
+                    , div [ class "vs3" ]
                         [ div [ class "pv2 flex items-center hs3" ]
-                            [ div [ class "lh-copy b flex-grow-1" ]
-                                [ text "Overdue" ]
+                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
+                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                             ]
-                        , HK.node "div" [ class "" ] (viewKeyedTodoItems model overDueList)
+                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
                         ]
-                )
-        , div [ class "vs3" ]
-            [ div [ class "pv2 flex items-center hs3" ]
-                [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                , TextButton.primary AddTodoWithDueTodayClicked "add task" []
-                ]
-            , HK.node "div" [ class "" ] (viewKeyedTodoItems model todayList)
-            ]
-        ]
+                    ]
+        , add =
+            \addAt formHtml ->
+                div [ class "pv2 vs3" ]
+                    [ overDueList
+                        |> HX.viewIfListNotEmpty
+                            (\_ ->
+                                div [ class "vs3" ]
+                                    [ div [ class "pv2 flex items-center hs3" ]
+                                        [ div [ class "lh-copy b flex-grow-1" ]
+                                            [ text "Overdue" ]
+                                        ]
+                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
+                                    ]
+                            )
+                    , div [ class "vs3" ]
+                        [ div [ class "pv2 flex items-center hs3" ]
+                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
+                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
+                            ]
+                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
+                        ]
+                    ]
+        , edit =
+            \todoId formHtml ->
+                div [ class "pv2 vs3" ]
+                    [ overDueList
+                        |> HX.viewIfListNotEmpty
+                            (\_ ->
+                                div [ class "vs3" ]
+                                    [ div [ class "pv2 flex items-center hs3" ]
+                                        [ div [ class "lh-copy b flex-grow-1" ]
+                                            [ text "Overdue" ]
+                                        ]
+                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
+                                    ]
+                            )
+                    , div [ class "vs3" ]
+                        [ div [ class "pv2 flex items-center hs3" ]
+                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
+                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
+                            ]
+                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
+                        ]
+                    ]
+        }
+        model.projectList
+        model.inlineTodoForm
 
 
 
@@ -726,19 +774,25 @@ viewProjectTodoListPage projectId projectName model =
 -- TodoItem
 
 
+viewBaseTodoItem : Time.Zone -> Todo -> ( String, Html Msg )
+viewBaseTodoItem zone todo =
+    ( TodoId.toString todo.id, viewTodoItemBase zone todo )
+
+
+viewBaseTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
+viewBaseTodoItemList zone =
+    List.map (viewBaseTodoItem zone)
+
+
 viewKeyedTodoItems :
     Model
     -> List Todo
     -> List ( String, Html Msg )
 viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
     let
-        viewBase : Todo -> ( String, Html Msg )
-        viewBase todo =
-            ( TodoId.toString todo.id, viewTodoItemBase here todo )
-
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
-            List.map viewBase
+            viewBaseTodoItemList here
 
         viewKeyedForm : b -> ( String, b )
         viewKeyedForm =
@@ -779,7 +833,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
                                     keyedForm
 
                                 else
-                                    viewBase todo
+                                    viewBaseTodoItem here todo
                             )
 
                 else
