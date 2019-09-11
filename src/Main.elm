@@ -670,11 +670,6 @@ todayContent model =
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
-
-        hasTodoId todoId =
-            overDueList
-                ++ todayList
-                |> List.any (.id >> eq_ todoId)
     in
     InlineTodoForm.view
         InlineTodoFormMsg
@@ -686,7 +681,7 @@ todayContent model =
                 in
                 viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         , add =
-            \addAt formHtml ->
+            \_ formHtml ->
                 let
                     viewItemList =
                         viewBaseTodoItemList model.here
