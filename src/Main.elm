@@ -783,7 +783,7 @@ viewKeyedTodoItemList zone =
     List.map (viewKeyedTodoItem zone)
 
 
-viewKeyedTodoForm : b -> ( String, b )
+viewKeyedTodoForm : Html msg -> ( String, Html msg )
 viewKeyedTodoForm =
     Tuple.pair "todo-item-inline-form-key"
 
