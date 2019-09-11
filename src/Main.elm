@@ -682,26 +682,26 @@ todayContent model =
             \_ ->
                 let
                     viewItemList =
-                        viewBaseTodoItemList model.here
+                        viewKeyedTodoItemList model.here
                 in
                 viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         , add =
             \_ formHtml ->
                 let
                     viewItemList =
-                        viewBaseTodoItemList model.here
+                        viewKeyedTodoItemList model.here
                 in
                 viewTodayContentHelp (viewItemList overDueList)
-                    (viewItemList todayList ++ [ viewKeyedForm formHtml ])
+                    (viewItemList todayList ++ [ viewKeyedTodoForm formHtml ])
         , edit =
             \todoId formHtml ->
                 let
                     viewItem todo =
                         if todo.id == todoId then
-                            viewKeyedForm formHtml
+                            viewKeyedTodoForm formHtml
 
                         else
-                            viewBaseTodoItem model.here todo
+                            viewKeyedTodoItem model.here todo
 
                     viewItemList =
                         List.map viewItem
@@ -773,19 +773,19 @@ todoItemConfig =
     }
 
 
-viewBaseTodoItem : Time.Zone -> Todo -> ( String, Html Msg )
-viewBaseTodoItem zone todo =
-    ( TodoId.toString todo.id, TodoItem.view todoItemConfig zone todo )
+viewKeyedTodoItem : Time.Zone -> Todo -> ( String, Html Msg )
+viewKeyedTodoItem =
+    TodoItem.viewKeyed todoItemConfig
 
 
-viewBaseTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
-viewBaseTodoItemList zone =
-    List.map (viewBaseTodoItem zone)
+viewKeyedTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
+viewKeyedTodoItemList zone =
+    List.map (viewKeyedTodoItem zone)
 
 
-viewKeyedForm : b -> ( String, b )
-viewKeyedForm =
-    Tuple.pair "tfk"
+viewKeyedTodoForm : b -> ( String, b )
+viewKeyedTodoForm =
+    Tuple.pair "todo-item-inline-form-key"
 
 
 viewKeyedTodoItems :
@@ -796,7 +796,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
     let
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
-            viewBaseTodoItemList here
+            viewKeyedTodoItemList here
     in
     InlineTodoForm.view
         InlineTodoFormMsg
@@ -805,7 +805,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
             \addAt formHtml ->
                 let
                     keyedForm =
-                        viewKeyedForm formHtml
+                        viewKeyedTodoForm formHtml
 
                     keyedList =
                         viewBaseList todoList
@@ -820,7 +820,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
             \todoId formHtml ->
                 let
                     keyedForm =
-                        viewKeyedForm formHtml
+                        viewKeyedTodoForm formHtml
 
                     hasEditingTodo =
                         List.any (.id >> eq_ todoId) todoList
@@ -833,7 +833,7 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
                                     keyedForm
 
                                 else
-                                    viewBaseTodoItem here todo
+                                    viewKeyedTodoItem here todo
                             )
 
                 else

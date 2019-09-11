@@ -1,4 +1,4 @@
-module TodoItem exposing (Config, view)
+module TodoItem exposing (Config, view, viewKeyed)
 
 import BasicsExtra exposing (..)
 import FontAwesome.Attributes as FAA
@@ -21,6 +21,11 @@ type alias Config msg =
     , doneChanged : TodoId -> Bool -> msg
     , editClicked : Todo -> msg
     }
+
+
+viewKeyed : Config msg -> Zone -> Todo -> ( String, Html msg )
+viewKeyed config zone todo =
+    ( TodoId.toString todo.id, view config zone todo )
 
 
 view : Config msg -> Zone -> Todo -> Html msg
