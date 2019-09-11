@@ -680,7 +680,11 @@ todayContent model =
         InlineTodoFormMsg
         { closed =
             \_ ->
-                viewTodayContentHelp (viewBaseTodoItemList model.here) overDueList todayList
+                let
+                    viewItemList =
+                        viewBaseTodoItemList model.here
+                in
+                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         , add =
             \addAt formHtml ->
                 div [ class "pv2 vs3" ]
@@ -720,15 +724,15 @@ todayContent model =
                     viewItemList =
                         List.map viewItem
                 in
-                viewTodayContentHelp viewItemList overDueList todayList
+                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
         }
         model.projectList
         model.inlineTodoForm
 
 
-viewTodayContentHelp viewItemList overDueList todayList =
+viewTodayContentHelp overDueHtmlItems todayHtmlItems =
     div [ class "pv2 vs3" ]
-        [ overDueList
+        [ overDueHtmlItems
             |> HX.viewIfListNotEmpty
                 (\_ ->
                     div [ class "vs3" ]
@@ -736,7 +740,7 @@ viewTodayContentHelp viewItemList overDueList todayList =
                             [ div [ class "lh-copy b flex-grow-1" ]
                                 [ text "Overdue" ]
                             ]
-                        , HK.node "div" [ class "" ] (viewItemList overDueList)
+                        , HK.node "div" [ class "" ] overDueHtmlItems
                         ]
                 )
         , div [ class "vs3" ]
@@ -744,7 +748,7 @@ viewTodayContentHelp viewItemList overDueList todayList =
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                 , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                 ]
-            , HK.node "div" [ class "" ] (viewItemList todayList)
+            , HK.node "div" [ class "" ] todayHtmlItems
             ]
         ]
 
