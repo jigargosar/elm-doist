@@ -735,29 +735,33 @@ todayContent model =
                     viewItemList =
                         List.map viewItem
                 in
-                div [ class "pv2 vs3" ]
-                    [ overDueList
-                        |> HX.viewIfListNotEmpty
-                            (\_ ->
-                                div [ class "vs3" ]
-                                    [ div [ class "pv2 flex items-center hs3" ]
-                                        [ div [ class "lh-copy b flex-grow-1" ]
-                                            [ text "Overdue" ]
-                                        ]
-                                    , HK.node "div" [ class "" ] (viewItemList overDueList)
-                                    ]
-                            )
-                    , div [ class "vs3" ]
-                        [ div [ class "pv2 flex items-center hs3" ]
-                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
-                            ]
-                        , HK.node "div" [ class "" ] (viewItemList todayList)
-                        ]
-                    ]
+                viewTodayContentHelp viewItemList overDueList todayList
         }
         model.projectList
         model.inlineTodoForm
+
+
+viewTodayContentHelp viewItemList overDueList todayList =
+    div [ class "pv2 vs3" ]
+        [ overDueList
+            |> HX.viewIfListNotEmpty
+                (\_ ->
+                    div [ class "vs3" ]
+                        [ div [ class "pv2 flex items-center hs3" ]
+                            [ div [ class "lh-copy b flex-grow-1" ]
+                                [ text "Overdue" ]
+                            ]
+                        , HK.node "div" [ class "" ] (viewItemList overDueList)
+                        ]
+                )
+        , div [ class "vs3" ]
+            [ div [ class "pv2 flex items-center hs3" ]
+                [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
+                , TextButton.primary AddTodoWithDueTodayClicked "add task" []
+                ]
+            , HK.node "div" [ class "" ] (viewItemList todayList)
+            ]
+        ]
 
 
 
