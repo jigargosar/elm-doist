@@ -680,26 +680,7 @@ todayContent model =
         InlineTodoFormMsg
         { closed =
             \_ ->
-                div [ class "pv2 vs3" ]
-                    [ overDueList
-                        |> HX.viewIfListNotEmpty
-                            (\_ ->
-                                div [ class "vs3" ]
-                                    [ div [ class "pv2 flex items-center hs3" ]
-                                        [ div [ class "lh-copy b flex-grow-1" ]
-                                            [ text "Overdue" ]
-                                        ]
-                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
-                                    ]
-                            )
-                    , div [ class "vs3" ]
-                        [ div [ class "pv2 flex items-center hs3" ]
-                            [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                            , TextButton.primary AddTodoWithDueTodayClicked "add task" []
-                            ]
-                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
-                        ]
-                    ]
+                viewTodayContentHelp (viewBaseTodoItemList model.here) overDueList todayList
         , add =
             \addAt formHtml ->
                 div [ class "pv2 vs3" ]
