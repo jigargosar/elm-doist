@@ -496,7 +496,7 @@ viewRoute route model =
                     viewRoute Route.Inbox model
 
         Route.Today ->
-            masterLayout "Today" (todayContent model) model
+            viewPage (viewTodayPage model) model
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
@@ -660,6 +660,10 @@ viewSignInDialog =
 dateFromMillis : Int -> Calendar.Date
 dateFromMillis =
     Time.millisToPosix >> Calendar.fromPosix
+
+
+viewTodayPage model =
+    { title = "Today", content = todayContent model }
 
 
 todayContent : Model -> Html Msg
