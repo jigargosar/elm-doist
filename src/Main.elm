@@ -670,6 +670,11 @@ todayContent model =
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
+
+        hasTodoId todoId =
+            overDueList
+                ++ todayList
+                |> List.any (.id >> eq_ todoId)
     in
     InlineTodoForm.view
         InlineTodoFormMsg
@@ -719,6 +724,17 @@ todayContent model =
                     ]
         , edit =
             \todoId formHtml ->
+                let
+                    viewItem todo =
+                        if todo.id == todoId then
+                            viewKeyedForm formHtml
+
+                        else
+                            viewBaseTodoItem model.here todo
+
+                    viewItemList =
+                        List.map viewItem
+                in
                 div [ class "pv2 vs3" ]
                     [ overDueList
                         |> HX.viewIfListNotEmpty
@@ -728,7 +744,7 @@ todayContent model =
                                         [ div [ class "lh-copy b flex-grow-1" ]
                                             [ text "Overdue" ]
                                         ]
-                                    , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here overDueList)
+                                    , HK.node "div" [ class "" ] (viewItemList overDueList)
                                     ]
                             )
                     , div [ class "vs3" ]
@@ -736,7 +752,7 @@ todayContent model =
                             [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
                             , TextButton.primary AddTodoWithDueTodayClicked "add task" []
                             ]
-                        , HK.node "div" [ class "" ] (viewBaseTodoItemList model.here todayList)
+                        , HK.node "div" [ class "" ] (viewItemList todayList)
                         ]
                     ]
         }
@@ -784,6 +800,11 @@ viewBaseTodoItemList zone =
     List.map (viewBaseTodoItem zone)
 
 
+viewKeyedForm : b -> ( String, b )
+viewKeyedForm =
+    Tuple.pair "tfk"
+
+
 viewKeyedTodoItems :
     Model
     -> List Todo
@@ -793,10 +814,6 @@ viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
             viewBaseTodoItemList here
-
-        viewKeyedForm : b -> ( String, b )
-        viewKeyedForm =
-            Tuple.pair "tfk"
     in
     InlineTodoForm.view
         InlineTodoFormMsg
