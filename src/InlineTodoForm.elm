@@ -5,7 +5,6 @@ module InlineTodoForm exposing
     , Msg
     , add
     , edit
-    , getMeta
     , init
     , update
     , view
@@ -50,16 +49,6 @@ getAddTodoForm model =
     case model of
         Opened ( AddMeta _, todoForm ) ->
             Just todoForm
-
-        _ ->
-            Nothing
-
-
-getMeta : Model -> Maybe Meta
-getMeta model =
-    case model of
-        Opened ( meta, _ ) ->
-            Just meta
 
         _ ->
             Nothing
