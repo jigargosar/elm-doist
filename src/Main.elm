@@ -223,6 +223,10 @@ addTodoClicked addAt projectId =
     InlineTodoFormMsg (InlineTodoForm.add addAt projectId)
 
 
+addTodoWithDueAtClicked =
+    InlineTodoFormMsg (InlineTodoForm.add InlineTodoForm.End ProjectId.default)
+
+
 editTodoClicked : Todo -> Msg
 editTodoClicked todo =
     InlineTodoFormMsg (InlineTodoForm.edit todo)
@@ -723,7 +727,7 @@ viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
         , div [ class "vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "lh-copy b flex-grow-1" ] [ text "Today" ]
-                , TextButton.primary AddTodoWithDueTodayClicked "add task" []
+                , TextButton.primary addTodoWithDueAtClicked "add task" []
                 ]
             , HK.node "div" [ class "" ] todayKeyedHtmlItems
             ]
