@@ -491,11 +491,7 @@ viewRoute route model =
                     viewRoute Route.Inbox model
 
         Route.Today ->
-            let
-                title =
-                    "Today"
-            in
-            masterLayout title (todayContent model) model
+            masterLayout "Today" (todayContent model) model
 
         Route.NotFound _ ->
             viewRoute Route.Inbox model
