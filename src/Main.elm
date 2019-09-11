@@ -670,6 +670,9 @@ todayContent model =
                 )
                 model.todoList
                 |> List.filter (.isDone >> not)
+
+        _ =
+            InlineTodoForm.getMeta model.inlineTodoForm
     in
     div [ class "pv2 vs3" ]
         [ overDueList

@@ -1,4 +1,15 @@
-module InlineTodoForm exposing (AddAt(..), Model, Msg, add, edit, init, update, view)
+module InlineTodoForm exposing
+    ( AddAt(..)
+    , Meta(..)
+    , Model
+    , Msg
+    , add
+    , edit
+    , getMeta
+    , init
+    , update
+    , view
+    )
 
 import Focus
 import Html.Styled as H exposing (Html)
@@ -39,6 +50,16 @@ getAddTodoForm model =
     case model of
         Opened ( AddMeta _, todoForm ) ->
             Just todoForm
+
+        _ ->
+            Nothing
+
+
+getMeta : Model -> Maybe Meta
+getMeta model =
+    case model of
+        Opened ( meta, _ ) ->
+            Just meta
 
         _ ->
             Nothing
