@@ -78,17 +78,13 @@ viewTodoItemDoneCheckbox checkedMsg isChecked =
         (faCheckBtn (checkedMsg True) FAR.circle)
 
 
-viewTodoItemTitle : Msg -> String -> Html Msg
+viewTodoItemTitle : msg -> String -> Html msg
 viewTodoItemTitle clickMsg title_ =
     let
         ( title, titleClass ) =
             ifElse (SX.isBlank title_)
                 ( "<no title>", "i black-70" )
                 ( title_, "" )
-
-        viewTitle =
-            div [ class "", onClick NoOp ]
-                [ text title ]
     in
     div
         [ class titleClass
@@ -96,4 +92,4 @@ viewTodoItemTitle clickMsg title_ =
         , class " lh-title"
         , onClick clickMsg
         ]
-        [ viewTitle ]
+        [ div [ class "" ] [ text title ] ]

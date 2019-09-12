@@ -13,14 +13,12 @@ import Errors exposing (Errors)
 import Fire
 import FontAwesome.Attributes as FAA
 import FontAwesome.Brands as FABrands
-import FontAwesome.Regular as FAR
 import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
-import Html.Styled.Events exposing (onClick)
 import Html.Styled.Keyed as HK
 import HtmlExtra as HX
 import InlineTodoForm
@@ -36,7 +34,6 @@ import ProjectId exposing (ProjectId)
 import Return
 import Route exposing (Route)
 import Skeleton
-import String.Extra as SX
 import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
@@ -44,7 +41,6 @@ import Todo exposing (DueAt, Todo, TodoList)
 import TodoForm
 import TodoId exposing (TodoId)
 import TodoItem
-import TodoPopup
 import UI.Button as Button
 import UI.FAIcon as FAIcon
 import UI.IconButton as IconButton
@@ -715,10 +711,10 @@ todayContent model =
                         else
                             viewKeyedTodoItem model.here todo
 
-                    viewItemList =
+                    viewItemList_ =
                         List.map viewItem
                 in
-                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
+                viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
         }
         model.projectList
         model.inlineTodoForm

@@ -1,6 +1,5 @@
 module InlineTodoForm exposing
     ( AddAt(..)
-    , Meta(..)
     , Model
     , Msg
     , add
@@ -25,18 +24,22 @@ type Model
     | Closed
 
 
-type alias OpenedState =
-    ( Meta, TodoForm.Model )
+type OpenedState
+    = Add AddState
+    | Edit EditState
+
+
+type alias AddState =
+    { addAt : AddAt, form : TodoForm.Model }
+
+
+type alias EditState =
+    { todo : Todo, form : TodoForm.Model }
 
 
 type AddAt
     = Start
     | End
-
-
-type Meta
-    = AddMeta AddAt
-    | EditMeta Todo
 
 
 init : Model
@@ -47,8 +50,8 @@ init =
 getAddTodoForm : Model -> Maybe TodoForm.Model
 getAddTodoForm model =
     case model of
-        Opened ( AddMeta _, todoForm ) ->
-            Just todoForm
+        Opened (Add state) ->
+            Just state.form
 
         _ ->
             Nothing
@@ -73,6 +76,16 @@ edit =
     EditClicked
 
 
+getAddState : Model -> Maybe AddState
+getAddState model =
+    case model of
+        Opened (Add state) ->
+            Just state
+
+        _ ->
+            Nothing
+
+
 update :
     { toMsg : Msg -> msg
     , onAdded : TodoForm.Fields -> msg
@@ -85,15 +98,15 @@ update config message model =
     case message of
         AddClicked addAt projectId ->
             let
-                newMeta =
-                    AddMeta addAt
-
-                newTodoForm =
+                newModel =
                     model
-                        |> getAddTodoForm
-                        |> Maybe.withDefault (TodoForm.fromProjectId projectId)
+                        |> getAddState
+                        |> Maybe.map (\state -> { state | addAt = addAt })
+                        |> Maybe.withDefault { addAt = addAt, form = TodoForm.fromProjectId projectId }
+                        |> Add
+                        |> Opened
             in
-            ( Opened ( newMeta, newTodoForm )
+            ( newModel
             , Cmd.batch
                 [ focusForm config
                 , notifyIfEditing config model
@@ -101,7 +114,7 @@ update config message model =
             )
 
         EditClicked todo ->
-            ( Opened ( EditMeta todo, TodoForm.fromTodo todo )
+            ( Opened (Edit { todo = todo, form = TodoForm.fromTodo todo })
             , Cmd.batch
                 [ focusForm config
                 , notifyAddedOrEdited config model
@@ -110,12 +123,19 @@ update config message model =
 
         TodoFormMsg msg ->
             case model of
-                Opened ( meta, todoForm ) ->
+                Opened (Add state) ->
                     let
                         ( newTodoForm, cmd ) =
-                            todoFormUpdate msg todoForm
+                            todoFormUpdate msg state.form
                     in
-                    ( Opened ( meta, newTodoForm ), Cmd.map config.toMsg cmd )
+                    ( Opened (Add { state | form = newTodoForm }), Cmd.map config.toMsg cmd )
+
+                Opened (Edit state) ->
+                    let
+                        ( newTodoForm, cmd ) =
+                            todoFormUpdate msg state.form
+                    in
+                    ( Opened (Edit { state | form = newTodoForm }), Cmd.map config.toMsg cmd )
 
                 Closed ->
                     ( model, Cmd.none )
@@ -167,8 +187,8 @@ notifyIfEditing :
     -> Cmd msg
 notifyIfEditing config model =
     case model of
-        Opened ( EditMeta todo, todoForm ) ->
-            notifyEdited config todo todoForm
+        Opened (Edit state) ->
+            notifyEdited config state.todo state.form
 
         _ ->
             Cmd.none
@@ -190,13 +210,11 @@ notifyAddedOrEdited :
     -> Cmd msg
 notifyAddedOrEdited config model =
     case model of
-        Opened ( meta, todoForm ) ->
-            case meta of
-                AddMeta _ ->
-                    notifyAdded config todoForm
+        Opened (Add state) ->
+            notifyAdded config state.form
 
-                EditMeta todo ->
-                    notifyEdited config todo todoForm
+        Opened (Edit state) ->
+            notifyEdited config state.todo state.form
 
         Closed ->
             Cmd.none
@@ -237,14 +255,14 @@ view toMsg config projectList model =
         Closed ->
             config.closed ()
 
-        Opened ( meta, todoForm ) ->
+        Opened openedState ->
             let
-                todoFormView =
+                todoFormView todoForm =
                     TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg)
             in
-            case meta of
-                AddMeta addAt ->
-                    config.add addAt todoFormView
+            case openedState of
+                Add { addAt, form } ->
+                    config.add addAt (todoFormView form)
 
-                EditMeta todo ->
-                    config.edit todo.id todoFormView
+                Edit { todo, form } ->
+                    config.edit todo.id (todoFormView form)
