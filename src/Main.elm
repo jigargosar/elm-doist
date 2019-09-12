@@ -788,7 +788,7 @@ viewKeyedTodoItem =
 
 viewKeyedTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
 viewKeyedTodoItemList zone =
-    List.map (viewKeyedTodoItem zone)
+    TodoItem.viewList todoItemConfig zone
 
 
 viewKeyedTodoForm : Html msg -> ( String, Html msg )
