@@ -4,9 +4,11 @@ module InlineTodoForm exposing
     , Msg
     , add
     , edit
+    , getOpenedState
     , init
     , update
     , view
+    , viewOpenedState
     )
 
 import Focus
@@ -266,3 +268,31 @@ view toMsg config projectList model =
 
                 Edit { todo, form } ->
                     config.edit todo.id (todoFormView form)
+
+
+getOpenedState : Model -> Maybe OpenedState
+getOpenedState model =
+    case model of
+        Opened openedState ->
+            Just openedState
+
+        Closed ->
+            Nothing
+
+
+viewOpenedState :
+    (Msg -> msg)
+    -> ProjectList
+    -> OpenedState
+    -> Html msg
+viewOpenedState toMsg projectList openedState =
+    let
+        todoFormView todoForm =
+            TodoForm.view projectList todoForm |> H.map (TodoFormMsg >> toMsg)
+    in
+    case openedState of
+        Add { addAt, form } ->
+            todoFormView form
+
+        Edit { todo, form } ->
+            todoFormView form
