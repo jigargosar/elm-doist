@@ -1,4 +1,4 @@
-module TodoItem exposing (Config, view, viewKeyed)
+module TodoItem exposing (Config, viewKeyed)
 
 import BasicsExtra exposing (..)
 import FontAwesome.Attributes as FAA
