@@ -692,33 +692,32 @@ todayContent model =
         viewItemList =
             viewKeyedTodoItemList model.here
     in
-    InlineTodoForm.getOpenedState model.inlineTodoForm
-        |> MX.unpack (\_ -> viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList))
-            (\openedState ->
+    InlineTodoForm.view
+        InlineTodoFormMsg
+        { closed =
+            \_ ->
+                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
+        , add =
+            \_ formHtml ->
+                viewTodayContentHelp (viewItemList overDueList)
+                    (viewItemList todayList ++ [ viewKeyedTodoForm formHtml ])
+        , edit =
+            \todoId formHtml ->
                 let
-                    keyedTodoFormHtml =
-                        InlineTodoForm.viewOpenedState InlineTodoFormMsg model.projectList openedState
-                            |> viewKeyedTodoForm
+                    viewItem todo =
+                        if todo.id == todoId then
+                            viewKeyedTodoForm formHtml
+
+                        else
+                            viewKeyedTodoItem model.here todo
+
+                    viewItemList_ =
+                        List.map viewItem
                 in
-                case openedState of
-                    InlineTodoForm.Add { addAt } ->
-                        viewTodayContentHelp (viewItemList overDueList)
-                            (viewItemList todayList ++ [ keyedTodoFormHtml ])
-
-                    InlineTodoForm.Edit { todo } ->
-                        let
-                            viewItem todo_ =
-                                if todo_.id == todo.id then
-                                    keyedTodoFormHtml
-
-                                else
-                                    viewKeyedTodoItem model.here todo_
-
-                            viewItemList_ =
-                                List.map viewItem
-                        in
-                        viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
-            )
+                viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
+        }
+        model.projectList
+        model.inlineTodoForm
 
 
 viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
