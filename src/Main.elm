@@ -692,32 +692,33 @@ todayContent model =
         viewItemList =
             viewKeyedTodoItemList model.here
     in
-    InlineTodoForm.view
-        InlineTodoFormMsg
-        { closed =
-            \_ ->
-                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
-        , add =
-            \_ formHtml ->
-                viewTodayContentHelp (viewItemList overDueList)
-                    (viewItemList todayList ++ [ viewKeyedTodoForm formHtml ])
-        , edit =
-            \todoId formHtml ->
+    InlineTodoForm.getOpenedState model.inlineTodoForm
+        |> MX.unpack (\_ -> viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList))
+            (\openedState ->
                 let
-                    viewItem todo =
-                        if todo.id == todoId then
-                            viewKeyedTodoForm formHtml
-
-                        else
-                            viewKeyedTodoItem model.here todo
-
-                    viewItemList_ =
-                        List.map viewItem
+                    keyedTodoFormHtml =
+                        InlineTodoForm.viewOpenedState InlineTodoFormMsg model.projectList openedState
+                            |> viewKeyedTodoForm
                 in
-                viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
-        }
-        model.projectList
-        model.inlineTodoForm
+                case openedState of
+                    InlineTodoForm.Add { addAt } ->
+                        viewTodayContentHelp (viewItemList overDueList)
+                            (viewItemList todayList ++ [ keyedTodoFormHtml ])
+
+                    InlineTodoForm.Edit { todo } ->
+                        let
+                            viewItem todo_ =
+                                if todo_.id == todo.id then
+                                    keyedTodoFormHtml
+
+                                else
+                                    viewKeyedTodoItem model.here todo_
+
+                            viewItemList_ =
+                                List.map viewItem
+                        in
+                        viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
+            )
 
 
 viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =

@@ -2,6 +2,7 @@ module InlineTodoForm exposing
     ( AddAt(..)
     , Model
     , Msg
+    , OpenedState(..)
     , add
     , edit
     , getOpenedState
