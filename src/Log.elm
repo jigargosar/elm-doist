@@ -13,6 +13,11 @@ type Model
     = Model Internal
 
 
+init : Model
+init =
+    Model []
+
+
 type alias Internal =
     List String
 
@@ -29,6 +34,7 @@ addStringError errorString =
 
 type Msg
     = GotStringError String
+    | Clear
 
 
 subscriptions : Model -> Sub msg
@@ -43,3 +49,6 @@ update message model =
     case message of
         GotStringError errorString ->
             addStringError errorString model
+
+        Clear ->
+            init
