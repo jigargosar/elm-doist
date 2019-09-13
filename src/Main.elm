@@ -479,14 +479,14 @@ viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
     case route of
         Route.Inbox ->
-            viewProjectTodoListPage ProjectId.default "Inbox" model
+            viewPage (viewProjectTodoListPage ProjectId.default "Inbox" model) model
 
         Route.Project pid ->
             case
                 findActiveProjectById pid model
             of
                 Just project ->
-                    viewProjectTodoListPage project.id project.title model
+                    viewPage (viewProjectTodoListPage project.id project.title model) model
 
                 Nothing ->
                     viewRoute Route.Inbox model
@@ -747,7 +747,7 @@ viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
 -- ProjectTodoList
 
 
-viewProjectTodoListPage : ProjectId -> String -> Model -> StyledDocument Msg
+viewProjectTodoListPage : ProjectId -> String -> Model -> { title : String, content : Html Msg }
 viewProjectTodoListPage projectId projectName model =
     let
         displayTodoList =
@@ -756,8 +756,9 @@ viewProjectTodoListPage projectId projectName model =
         title =
             projectName
     in
-    masterLayout title
-        (div [ class "pv2 vs3" ]
+    { title = title
+    , content =
+        div [ class "pv2 vs3" ]
             [ div [ class "pv2 flex items-center hs3" ]
                 [ div [ class "b flex-grow-1" ] [ text title ]
                 , TextButton.primary (addTodoClicked InlineTodoForm.Start projectId) "add task" []
@@ -765,8 +766,7 @@ viewProjectTodoListPage projectId projectName model =
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
             , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked InlineTodoForm.End projectId) "add task" [] ]
             ]
-        )
-        model
+    }
 
 
 
