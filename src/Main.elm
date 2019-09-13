@@ -753,7 +753,7 @@ viewProjectTodoListPage projectId projectName model =
     , content =
         viewProjectTodoListContent projectId
             projectName
-            (viewProjectTodoList model todoList)
+            (viewKeyedProjectTodoList model todoList)
     }
 
 
@@ -800,11 +800,11 @@ viewKeyedTodoForm =
     Tuple.pair "todo-item-inline-form-key"
 
 
-viewProjectTodoList :
+viewKeyedProjectTodoList :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewProjectTodoList { here, projectList, inlineTodoForm } todoList =
+viewKeyedProjectTodoList { here, projectList, inlineTodoForm } todoList =
     let
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
