@@ -96,15 +96,11 @@ view model =
 
 main : Program Value Model Msg
 main =
-    let
-        c =
-            Main.appConfig
-    in
     Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = c.onUrlRequest >> MainMsg
-        , onUrlChange = c.onUrlChange >> MainMsg
+        , onUrlRequest = Main.appConfig.onUrlRequest >> MainMsg
+        , onUrlChange = Main.appConfig.onUrlChange >> MainMsg
         }
