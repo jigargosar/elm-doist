@@ -59,6 +59,7 @@ type alias Model =
 
 type Msg
     = MainMsg Main.Msg
+    | LogMsg Log.Msg
 
 
 type alias Return =
@@ -81,6 +82,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Main.appConfig.subscriptions model.mainModel |> Sub.map MainMsg
+        , Log.subscriptions model.log |> Sub.map LogMsg
         ]
 
 
@@ -90,11 +92,20 @@ update message model =
         MainMsg msg ->
             updateMain msg model
 
+        LogMsg msg ->
+            updateLog msg model
+
 
 updateMain : Main.Msg -> Model -> Return
 updateMain message model =
     Main.appConfig.update message model.mainModel
         |> Tuple.mapBoth (\mainModel -> { model | mainModel = mainModel }) (Cmd.map MainMsg)
+
+
+updateLog : Log.Msg -> Model -> Return
+updateLog message model =
+    Log.update message model.log
+        |> Tuple.mapFirst (\log -> { model | log = log })
 
 
 view : Model -> Browser.Document Msg

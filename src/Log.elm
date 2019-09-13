@@ -1,4 +1,4 @@
-port module Log exposing (Model, init, subscriptions, update)
+port module Log exposing (Model, Msg, init, subscriptions, update)
 
 import BasicsExtra exposing (..)
 import Html.Styled as H exposing (Attribute, Html, div, text)
@@ -46,14 +46,14 @@ subscriptions _ =
         ]
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd msg )
 update message model =
     case message of
         GotStringError errorString ->
-            addStringError errorString model
+            ( addStringError errorString model, Cmd.none )
 
         Clear ->
-            init
+            ( init, Cmd.none )
 
 
 view : Html msg
