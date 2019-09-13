@@ -28,7 +28,6 @@ import Json.Encode exposing (Value)
 import List.Extra
 import Log
 import Maybe.Extra as MX
-import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -58,7 +57,6 @@ type alias Flags =
     , cachedProjectList : ProjectList
     , cachedAuthState : AuthState
     , browserSize : BrowserSize
-    , now : Millis
     }
 
 
@@ -74,7 +72,6 @@ flagsDecoder =
         |> cachedField "cachedProjectList" Project.listDecoder []
         |> cachedField "cachedAuthState" AuthState.decoder AuthState.initial
         |> JDP.required "browserSize" BrowserSize.decoder
-        |> JDP.required "now" JD.int
 
 
 
@@ -137,11 +134,6 @@ setBrowserSize browserSize model =
 dateFromMillis : Int -> Calendar.Date
 dateFromMillis =
     Time.millisToPosix >> Calendar.fromPosix
-
-
-setTodayFromMillis : Int -> Model -> Model
-setTodayFromMillis millis model =
-    { model | today = dateFromMillis millis }
 
 
 setToday : Calendar.Date -> Model -> Model
