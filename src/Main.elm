@@ -743,7 +743,7 @@ sortedInProject pid todoList =
 viewProjectTodoListPage : ProjectId -> String -> Model -> { title : String, content : Html Msg }
 viewProjectTodoListPage projectId projectName model =
     let
-        displayTodoList =
+        todoList =
             sortedInProject projectId model.todoList
 
         title =
@@ -751,20 +751,26 @@ viewProjectTodoListPage projectId projectName model =
     in
     { title = title
     , content =
-        div [ class "pv2 vs3" ]
-            [ div [ class "pv2 flex items-center hs3" ]
-                [ div [ class "b flex-grow-1" ] [ text title ]
-                , TextButton.primary (addTodoClicked InlineTodoForm.Start projectId) "add task" []
-                ]
-            , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ]
-                [ TextButton.primary
-                    (addTodoClicked InlineTodoForm.End projectId)
-                    "add task"
-                    []
-                ]
-            ]
+        viewProjectTodoListContent projectId
+            projectName
+            (viewProjectTodoList model todoList)
     }
+
+
+viewProjectTodoListContent projectId title todoHtmlItems =
+    div [ class "pv2 vs3" ]
+        [ div [ class "pv2 flex items-center hs3" ]
+            [ div [ class "b flex-grow-1" ] [ text title ]
+            , TextButton.primary (addTodoClicked InlineTodoForm.Start projectId) "add task" []
+            ]
+        , HK.node "div" [ class "" ] todoHtmlItems
+        , div [ class "lh-copy" ]
+            [ TextButton.primary
+                (addTodoClicked InlineTodoForm.End projectId)
+                "add task"
+                []
+            ]
+        ]
 
 
 
@@ -794,11 +800,11 @@ viewKeyedTodoForm =
     Tuple.pair "todo-item-inline-form-key"
 
 
-viewKeyedTodoItems :
+viewProjectTodoList :
     Model
     -> List Todo
     -> List ( String, Html Msg )
-viewKeyedTodoItems { here, projectList, inlineTodoForm } todoList =
+viewProjectTodoList { here, projectList, inlineTodoForm } todoList =
     let
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
