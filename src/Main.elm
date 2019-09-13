@@ -757,6 +757,7 @@ viewProjectTodoListPage projectId projectName model =
     }
 
 
+viewProjectTodoListContent : ProjectId -> String -> List ( String, Html Msg ) -> Html Msg
 viewProjectTodoListContent projectId title todoHtmlItems =
     div [ class "pv2 vs3" ]
         [ div [ class "pv2 flex items-center hs3" ]
