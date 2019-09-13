@@ -1,4 +1,4 @@
-module BasicsExtra exposing (callWith, eq_, extractAndApply, ifElse, uncurry, unpackErr)
+module BasicsExtra exposing (callWith, cons, eq_, extractAndApply, ifElse, uncurry, unpackErr)
 
 -- CORE HELPERS
 
@@ -21,6 +21,11 @@ callWith =
 eq_ : a -> a -> Bool
 eq_ =
     (==)
+
+
+cons : a -> List a -> List a
+cons =
+    (::)
 
 
 ifElse : Bool -> c -> c -> c
