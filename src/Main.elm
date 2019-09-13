@@ -372,23 +372,27 @@ update message model =
             )
 
         InlineTodoFormMsg msg ->
-            updateInlineTodoForm
-                msg
-                model.inlineTodoForm
-                |> Tuple.mapFirst (flip setInlineTodoForm model)
+            updateInlineTodoForm msg model
 
 
 
 -- Update TodoForm
 
 
-updateInlineTodoForm : InlineTodoForm.Msg -> InlineTodoForm.Model -> ( InlineTodoForm.Model, Cmd Msg )
-updateInlineTodoForm =
-    InlineTodoForm.update
-        { toMsg = InlineTodoFormMsg
-        , onAdded = AddTodo
-        , onEdited = PatchTodo
-        }
+inlineTodoFormConfig : InlineTodoForm.Config Msg
+inlineTodoFormConfig =
+    { toMsg = InlineTodoFormMsg
+    , onAdded = AddTodo
+    , onEdited = PatchTodo
+    }
+
+
+updateInlineTodoForm : InlineTodoForm.Msg -> Model -> Return
+updateInlineTodoForm message model =
+    InlineTodoForm.update inlineTodoFormConfig
+        message
+        model.inlineTodoForm
+        |> Tuple.mapFirst (flip setInlineTodoForm model)
 
 
 

@@ -1,5 +1,6 @@
 module InlineTodoForm exposing
     ( AddAt(..)
+    , Config
     , Model
     , Msg
     , OpenedState(..)
@@ -89,11 +90,15 @@ getAddState model =
             Nothing
 
 
-update :
+type alias Config msg =
     { toMsg : Msg -> msg
     , onAdded : TodoForm.Fields -> msg
     , onEdited : TodoId -> List Todo.Msg -> msg
     }
+
+
+update :
+    Config msg
     -> Msg
     -> Model
     -> ( Model, Cmd msg )
