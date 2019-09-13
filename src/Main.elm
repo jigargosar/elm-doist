@@ -146,6 +146,11 @@ setTodayFromPosix posix =
     setToday (Calendar.fromPosix posix)
 
 
+setZone : Time.Zone -> Model -> Model
+setZone zone model =
+    { model | here = zone }
+
+
 
 -- INIT
 
@@ -309,7 +314,8 @@ update message model =
             ( model, Cmd.none )
 
         Init here now browserSize ->
-            ( { model | here = here }
+            ( model
+                |> setZone here
                 |> setTodayFromPosix now
                 |> setBrowserSize browserSize
             , Cmd.none
