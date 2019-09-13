@@ -831,9 +831,6 @@ viewProjectTodoList { here, projectList, inlineTodoForm } todoList =
         , edit =
             \todoId formHtml ->
                 let
-                    keyedForm =
-                        viewKeyedTodoForm formHtml
-
                     hasEditingTodo =
                         List.any (.id >> eq_ todoId) todoList
                 in
@@ -842,14 +839,14 @@ viewProjectTodoList { here, projectList, inlineTodoForm } todoList =
                         |> List.map
                             (\todo ->
                                 if todoId == todo.id then
-                                    keyedForm
+                                    viewKeyedTodoForm formHtml
 
                                 else
                                     viewKeyedTodoItem here todo
                             )
 
                 else
-                    keyedForm :: viewBaseList todoList
+                    viewKeyedTodoForm formHtml :: viewBaseList todoList
         }
         projectList
         inlineTodoForm
