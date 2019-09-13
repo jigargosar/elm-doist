@@ -676,10 +676,10 @@ viewTodayPage model =
             InlineTodoFormMsg
             { closed =
                 \_ ->
-                    viewTodayContentHelp (viewList overDueList) (viewList todayList)
+                    viewTodayContent (viewList overDueList) (viewList todayList)
             , add =
                 \_ formHtml ->
-                    viewTodayContentHelp (viewList overDueList)
+                    viewTodayContent (viewList overDueList)
                         (viewList todayList ++ [ viewKeyedTodoForm formHtml ])
             , edit =
                 \todoId formHtml ->
@@ -694,14 +694,14 @@ viewTodayPage model =
                         viewItemList_ =
                             List.map viewItem
                     in
-                    viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
+                    viewTodayContent (viewItemList_ overDueList) (viewItemList_ todayList)
             }
             model.projectList
             model.inlineTodoForm
     }
 
 
-viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
+viewTodayContent overDueKeyedHtmlItems todayKeyedHtmlItems =
     div [ class "pv2 vs3" ]
         [ overDueKeyedHtmlItems
             |> HX.viewIfListNotEmpty
