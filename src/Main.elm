@@ -757,7 +757,12 @@ viewProjectTodoListPage projectId projectName model =
                 , TextButton.primary (addTodoClicked InlineTodoForm.Start projectId) "add task" []
                 ]
             , HK.node "div" [ class "" ] (viewKeyedTodoItems model displayTodoList)
-            , div [ class "lh-copy" ] [ TextButton.primary (addTodoClicked InlineTodoForm.End projectId) "add task" [] ]
+            , div [ class "lh-copy" ]
+                [ TextButton.primary
+                    (addTodoClicked InlineTodoForm.End projectId)
+                    "add task"
+                    []
+                ]
             ]
     }
 
