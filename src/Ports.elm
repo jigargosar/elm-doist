@@ -6,9 +6,7 @@ port module Ports exposing
     , localStorageSetJsonItem
     , localStorageSetStringItem
     , onAuthStateChanged
-    , onBrowserFocusChanged
     , onFirestoreQueryResponse
-    , onTodoListChanged
     , queryFirestore
     , signIn
     , signOut
@@ -18,9 +16,6 @@ port module Ports exposing
 import Json.Encode exposing (Value)
 
 
-port onBrowserFocusChanged : (Bool -> msg) -> Sub msg
-
-
 port localStorageSetStringItem : ( String, String ) -> Cmd msg
 
 
@@ -28,9 +23,6 @@ port localStorageSetJsonItem : ( String, Value ) -> Cmd msg
 
 
 port onAuthStateChanged : (Value -> msg) -> Sub msg
-
-
-port onTodoListChanged : (Value -> msg) -> Sub msg
 
 
 port signIn : () -> Cmd msg
