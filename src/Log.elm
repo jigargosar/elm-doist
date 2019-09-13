@@ -31,10 +31,11 @@ type Msg
     = GotStringError String
 
 
-subscriptions : Model -> List (Sub msg)
-subscriptions model =
-    [ errorStringSub GotStringError
-    ]
+subscriptions : Model -> Sub msg
+subscriptions _ =
+    Sub.batch
+        [ errorStringSub GotStringError
+        ]
 
 
 update : Msg -> Model -> Model
