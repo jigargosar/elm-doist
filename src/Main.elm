@@ -175,7 +175,7 @@ init encodedFlags url key =
             , browserSize = BrowserSize.initial
             }
     in
-    case JD.decodeValue flagsDecoder encodedFlags of
+    (case JD.decodeValue flagsDecoder encodedFlags of
         Ok flags ->
             ( setTodoList flags.cachedTodoList model
                 |> setProjectList flags.cachedProjectList
@@ -187,9 +187,11 @@ init encodedFlags url key =
 
         Err err ->
             addDecodeError err model
-                |> Return.command (Millis.hereCmd GotHere)
+    )
+        |> Return.command (Millis.hereCmd GotHere)
 
 
+addDecodeError : JD.Error -> Model -> Return
 addDecodeError error model =
     ( HasErrors.addDecodeError error model, Log.decodeError error )
 
