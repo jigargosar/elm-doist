@@ -481,7 +481,7 @@ viewRoute route model =
         viewInboxPage =
             viewProjectTodoListPage ProjectId.default "Inbox"
 
-        pageView =
+        { title, content } =
             case route of
                 Route.Inbox ->
                     viewInboxPage model
@@ -502,26 +502,6 @@ viewRoute route model =
                 Route.NotFound _ ->
                     viewInboxPage model
     in
-    viewPage pageView model
-
-
-sortedInProject : ProjectId -> TodoList -> TodoList
-sortedInProject pid todoList =
-    Todo.filterSort
-        (Todo.BelongsToProject pid)
-        [ Todo.ByIdx
-        , Todo.ByRecentlyModifiedProjectId
-        , Todo.ByRecentlyCreated
-        ]
-        todoList
-
-
-
--- MASTER LAYOUT
-
-
-viewPage : { title : String, content : Html Msg } -> Model -> StyledDocument Msg
-viewPage { title, content } model =
     Skeleton.view
         { title = title
         , header = viewHeader model
@@ -747,6 +727,17 @@ viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
 
 
 -- ProjectTodoList
+
+
+sortedInProject : ProjectId -> TodoList -> TodoList
+sortedInProject pid todoList =
+    Todo.filterSort
+        (Todo.BelongsToProject pid)
+        [ Todo.ByIdx
+        , Todo.ByRecentlyModifiedProjectId
+        , Todo.ByRecentlyCreated
+        ]
+        todoList
 
 
 viewProjectTodoListPage : ProjectId -> String -> Model -> { title : String, content : Html Msg }
