@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (BrowserAppConfig, Model, Msg, appConfig)
 
 import AuthState exposing (AuthState)
 import Basics.Extra exposing (flip)
@@ -850,13 +850,27 @@ viewKeyedProjectTodoList { here, projectList, inlineTodoForm } todoList =
 -- MAIN
 
 
+type alias BrowserAppConfig flags model msg =
+    { init : flags -> Url.Url -> Nav.Key -> ( model, Cmd msg )
+    , view : model -> Browser.Document msg
+    , update : msg -> model -> ( model, Cmd msg )
+    , subscriptions : model -> Sub msg
+    , onUrlRequest : Browser.UrlRequest -> msg
+    , onUrlChange : Url.Url -> msg
+    }
+
+
+appConfig : BrowserAppConfig Value Model Msg
+appConfig =
+    { init = init
+    , view = view
+    , update = update
+    , subscriptions = subscriptions
+    , onUrlRequest = LinkClicked
+    , onUrlChange = UrlChanged
+    }
+
+
 main : Program Value Model Msg
 main =
-    Browser.application
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        , onUrlRequest = LinkClicked
-        , onUrlChange = UrlChanged
-        }
+    Browser.application appConfig
