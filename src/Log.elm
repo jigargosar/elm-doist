@@ -1,4 +1,4 @@
-port module Log exposing (Model, subscriptions, update)
+port module Log exposing (Model, init, subscriptions, update)
 
 import BasicsExtra exposing (..)
 import Html.Styled as H exposing (Attribute, Html, div, text)

@@ -27,6 +27,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
 import List.Extra
+import Log
 import Main
 import Maybe.Extra as MX
 import Millis exposing (Millis)
@@ -51,7 +52,9 @@ import Url exposing (Url)
 
 
 type alias Model =
-    { mainModel : Main.Model }
+    { mainModel : Main.Model
+    , log : Log.Model
+    }
 
 
 type Msg
@@ -65,7 +68,13 @@ type alias Return =
 init : Value -> Url -> Nav.Key -> Return
 init f u k =
     Main.appConfig.init f u k
-        |> Tuple.mapBoth (\mainModel -> { mainModel = mainModel }) (Cmd.map MainMsg)
+        |> Tuple.mapBoth
+            (\mainModel ->
+                { mainModel = mainModel
+                , log = Log.init
+                }
+            )
+            (Cmd.map MainMsg)
 
 
 subscriptions : Model -> Sub Msg
