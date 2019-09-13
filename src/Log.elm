@@ -1,11 +1,17 @@
-port module Log exposing (Model, Msg, init, subscriptions, update)
+port module Log exposing (Model, Msg, decodeError, init, subscriptions, update)
 
 import BasicsExtra exposing (..)
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class, tabindex)
+import Json.Decode as JD
 
 
 port errorStringCmd : String -> Cmd msg
+
+
+decodeError : JD.Error -> Cmd msg
+decodeError error =
+    JD.errorToString error |> errorStringCmd
 
 
 port errorStringSub : (String -> msg) -> Sub msg
@@ -39,7 +45,7 @@ type Msg
     | Clear
 
 
-subscriptions : Model -> Sub msg
+subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ errorStringSub GotStringError

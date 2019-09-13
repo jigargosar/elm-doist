@@ -26,6 +26,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Json.Encode exposing (Value)
 import List.Extra
+import Log
 import Maybe.Extra as MX
 import Millis exposing (Millis)
 import Ports exposing (FirestoreQueryResponse)
@@ -174,18 +175,23 @@ init encodedFlags url key =
             , browserSize = BrowserSize.initial
             }
     in
-    ( case JD.decodeValue flagsDecoder encodedFlags of
+    case JD.decodeValue flagsDecoder encodedFlags of
         Ok flags ->
-            setTodoList flags.cachedTodoList model
+            ( setTodoList flags.cachedTodoList model
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
                 |> setBrowserSize flags.browserSize
                 |> setTodayFromMillis flags.now
+            , Cmd.none
+            )
 
         Err err ->
-            HasErrors.addDecodeError err model
-    , Millis.hereCmd GotHere
-    )
+            addDecodeError err model
+                |> Return.command (Millis.hereCmd GotHere)
+
+
+addDecodeError error model =
+    ( HasErrors.addDecodeError error model, Log.decodeError error )
 
 
 type NowContinuation
