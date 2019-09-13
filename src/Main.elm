@@ -701,6 +701,7 @@ viewTodayPage model =
     }
 
 
+viewTodayContent : List ( String, Html Msg ) -> List ( String, Html Msg ) -> Html Msg
 viewTodayContent overDueKeyedHtmlItems todayKeyedHtmlItems =
     div [ class "pv2 vs3" ]
         [ overDueKeyedHtmlItems
