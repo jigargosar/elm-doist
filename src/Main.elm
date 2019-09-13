@@ -134,6 +134,11 @@ setBrowserSize browserSize model =
     { model | browserSize = browserSize }
 
 
+dateFromMillis : Int -> Calendar.Date
+dateFromMillis =
+    Time.millisToPosix >> Calendar.fromPosix
+
+
 setTodayFromMillis : Int -> Model -> Model
 setTodayFromMillis millis model =
     { model | today = dateFromMillis millis }
@@ -633,11 +638,6 @@ viewSignInDialog =
 
 
 -- TODAY PAGE CONTENT
-
-
-dateFromMillis : Int -> Calendar.Date
-dateFromMillis =
-    Time.millisToPosix >> Calendar.fromPosix
 
 
 viewTodayPage :
