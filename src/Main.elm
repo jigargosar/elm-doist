@@ -144,6 +144,16 @@ setTodayFromMillis millis model =
     { model | today = dateFromMillis millis }
 
 
+setToday : Calendar.Date -> Model -> Model
+setToday today model =
+    { model | today = today }
+
+
+setTodayFromPosix : Time.Posix -> Model -> Model
+setTodayFromPosix posix model =
+    { model | today = Calendar.fromPosix posix }
+
+
 
 -- INIT
 
@@ -188,13 +198,14 @@ init encodedFlags url key =
         Err err ->
             onDecodeError err model
     )
-        |> Return.command (Millis.hereCmd GotHere)
+        |> Return.command (Cmd.batch [ Millis.hereCmd GotHere, continueWithNow SetToday ])
 
 
 type NowContinuation
     = AddTodo_ String DueAt ProjectId
     | AddProject
     | PatchTodo_ TodoId (List Todo.Msg)
+    | SetToday
 
 
 type Msg
@@ -323,6 +334,9 @@ update message model =
                     ( model
                     , Todo.patchTodo now todoId todoMsgList
                     )
+
+                SetToday ->
+                    ( setTodayFromPosix now model, Cmd.none )
 
         AuthStateChanged encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
