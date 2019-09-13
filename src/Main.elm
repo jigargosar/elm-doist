@@ -200,7 +200,7 @@ init encodedFlags url key =
     )
         |> Return.command
             (Cmd.batch
-                [ Task.map2 GotHere Time.here Time.now |> Task.perform identity
+                [ Task.map2 GotHereNow Time.here Time.now |> Task.perform identity
                 ]
             )
 
@@ -215,7 +215,7 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
-    | GotHere Time.Zone Time.Posix
+    | GotHereNow Time.Zone Time.Posix
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
     | ScrolledToTop ()
@@ -311,7 +311,7 @@ update message model =
         ScrolledToTop _ ->
             ( model, Cmd.none )
 
-        GotHere here now ->
+        GotHereNow here now ->
             ( { model | here = here }
                 |> setTodayFromPosix now
             , Cmd.none
