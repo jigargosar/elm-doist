@@ -49,7 +49,6 @@ import Url exposing (Url)
 
 
 
--- TodoForm MODULE
 -- Flags
 
 
@@ -376,7 +375,7 @@ update message model =
 
 
 
--- Update TodoForm
+-- Update: TodoForm
 
 
 inlineTodoFormConfig : InlineTodoForm.Config Msg
@@ -396,7 +395,7 @@ updateInlineTodoForm message model =
 
 
 
--- Update Helpers
+-- Update:  Misc
 
 
 continueWithNow msg =
@@ -404,7 +403,7 @@ continueWithNow msg =
 
 
 
--- Update Fire Helpers
+-- Update: Firebase
 
 
 onFirestoreQueryResponse : FirestoreQueryResponse -> Model -> Return
