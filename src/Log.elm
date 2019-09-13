@@ -56,6 +56,7 @@ update message model =
             init
 
 
+view : Html msg
 view =
     viewHelp [ div [] [ text "errors" ] ]
 
