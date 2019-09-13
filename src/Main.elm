@@ -186,13 +186,13 @@ init encodedFlags url key =
             )
 
         Err err ->
-            addDecodeError err model
+            onDecodeError err model
     )
         |> Return.command (Millis.hereCmd GotHere)
 
 
-addDecodeError : JD.Error -> Model -> Return
-addDecodeError error model =
+onDecodeError : JD.Error -> Model -> Return
+onDecodeError error model =
     ( HasErrors.addDecodeError error model, Log.decodeError error )
 
 
