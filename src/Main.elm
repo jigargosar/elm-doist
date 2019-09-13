@@ -477,25 +477,32 @@ type alias StyledDocument msg =
 
 viewRoute : Route -> Model -> StyledDocument Msg
 viewRoute route model =
-    case route of
-        Route.Inbox ->
-            viewPage (viewProjectTodoListPage ProjectId.default "Inbox" model) model
+    let
+        viewInboxPage =
+            viewProjectTodoListPage ProjectId.default "Inbox"
 
-        Route.Project pid ->
-            case
-                findActiveProjectById pid model
-            of
-                Just project ->
-                    viewPage (viewProjectTodoListPage project.id project.title model) model
+        pageView =
+            case route of
+                Route.Inbox ->
+                    viewInboxPage model
 
-                Nothing ->
-                    viewRoute Route.Inbox model
+                Route.Project pid ->
+                    case
+                        findActiveProjectById pid model
+                    of
+                        Just project ->
+                            viewProjectTodoListPage project.id project.title model
 
-        Route.Today ->
-            viewPage (viewTodayPage model) model
+                        Nothing ->
+                            viewInboxPage model
 
-        Route.NotFound _ ->
-            viewRoute Route.Inbox model
+                Route.Today ->
+                    viewTodayPage model
+
+                Route.NotFound _ ->
+                    viewInboxPage model
+    in
+    viewPage pageView model
 
 
 sortedInProject : ProjectId -> TodoList -> TodoList
@@ -513,8 +520,8 @@ sortedInProject pid todoList =
 -- MASTER LAYOUT
 
 
-masterLayout : String -> Html Msg -> Model -> StyledDocument Msg
-masterLayout title content model =
+viewPage : { title : String, content : Html Msg } -> Model -> StyledDocument Msg
+viewPage { title, content } model =
     Skeleton.view
         { title = title
         , header = viewHeader model
@@ -522,11 +529,6 @@ masterLayout title content model =
         , content = [ HasErrors.detailView model, content ]
         , footer = viewFooter model
         }
-
-
-viewPage : { title : String, content : Html Msg } -> Model -> StyledDocument Msg
-viewPage { title, content } model =
-    masterLayout title content model
 
 
 
