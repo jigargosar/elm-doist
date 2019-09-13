@@ -212,7 +212,6 @@ type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
-    | GotHereNow Time.Zone Time.Posix
     | Init Time.Zone Time.Posix BrowserSize
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
@@ -313,12 +312,6 @@ update message model =
             ( { model | here = here }
                 |> setTodayFromPosix now
                 |> setBrowserSize browserSize
-            , Cmd.none
-            )
-
-        GotHereNow here now ->
-            ( { model | here = here }
-                |> setTodayFromPosix now
             , Cmd.none
             )
 
