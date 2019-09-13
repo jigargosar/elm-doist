@@ -150,8 +150,8 @@ setToday today model =
 
 
 setTodayFromPosix : Time.Posix -> Model -> Model
-setTodayFromPosix posix model =
-    { model | today = Calendar.fromPosix posix }
+setTodayFromPosix posix =
+    setToday (Calendar.fromPosix posix)
 
 
 
@@ -191,7 +191,6 @@ init encodedFlags url key =
                 |> setProjectList flags.cachedProjectList
                 |> setAuthState flags.cachedAuthState
                 |> setBrowserSize flags.browserSize
-                |> setTodayFromMillis flags.now
             , Cmd.none
             )
 
