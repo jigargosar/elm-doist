@@ -691,7 +691,7 @@ todayContent model =
                             viewKeyedTodoForm formHtml
 
                         else
-                            viewKeyedTodoItem model.here todo
+                            TodoItem.viewKeyed todoItemConfig model.here todo
 
                     viewItemList_ =
                         List.map viewItem
@@ -785,11 +785,6 @@ todoItemConfig =
     }
 
 
-viewKeyedTodoItem : Time.Zone -> Todo -> ( String, Html Msg )
-viewKeyedTodoItem =
-    TodoItem.viewKeyed todoItemConfig
-
-
 viewKeyedTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
 viewKeyedTodoItemList zone =
     TodoItem.viewList todoItemConfig zone
@@ -842,7 +837,7 @@ viewKeyedProjectTodoList { here, projectList, inlineTodoForm } todoList =
                                     viewKeyedTodoForm formHtml
 
                                 else
-                                    viewKeyedTodoItem here todo
+                                    TodoItem.viewKeyed todoItemConfig here todo
                             )
 
                 else
