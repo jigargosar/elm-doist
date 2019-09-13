@@ -191,7 +191,13 @@ init encodedFlags url key =
     )
         |> Return.command
             (Cmd.batch
-                [ Task.map2 GotHereNow Time.here Time.now |> Task.perform identity
+                [ Task.map3 Init
+                    Time.here
+                    Time.now
+                    (Dom.getViewport
+                        |> Task.map (.viewport >> BrowserSize.fromViewport)
+                    )
+                    |> Task.perform identity
                 ]
             )
 
@@ -207,6 +213,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
     | GotHereNow Time.Zone Time.Posix
+    | Init Time.Zone Time.Posix BrowserSize
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
     | ScrolledToTop ()
@@ -301,6 +308,13 @@ update message model =
 
         ScrolledToTop _ ->
             ( model, Cmd.none )
+
+        Init here now browserSize ->
+            ( { model | here = here }
+                |> setTodayFromPosix now
+                |> setBrowserSize browserSize
+            , Cmd.none
+            )
 
         GotHereNow here now ->
             ( { model | here = here }
