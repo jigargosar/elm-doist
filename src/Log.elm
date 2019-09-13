@@ -1,6 +1,8 @@
 port module Log exposing (Model, subscriptions, update)
 
-import BasicsExtra exposing (cons)
+import BasicsExtra exposing (..)
+import Html.Styled as H exposing (Attribute, Html, div, text)
+import Html.Styled.Attributes exposing (class, tabindex)
 
 
 port errorStringCmd : String -> Cmd msg
@@ -52,3 +54,21 @@ update message model =
 
         Clear ->
             init
+
+
+view =
+    viewHelp [ div [] [ text "errors" ] ]
+
+
+viewHelp content =
+    div
+        [ class "z-1 fixed absolute--fill flex items-center justify-center"
+        , tabindex -1
+        ]
+        [ div
+            [ class "absolute absolute--fill bg-black-50"
+            ]
+            []
+        , div [ class "absolute" ] content
+        , H.node "style" [] [ text "body { overflow: hidden; }" ]
+        ]
