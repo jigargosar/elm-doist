@@ -198,21 +198,24 @@ init encodedFlags url key =
         Err err ->
             onDecodeError err model
     )
-        |> Return.command (Cmd.batch [ Millis.hereCmd GotHere, continueWithNow SetToday ])
+        |> Return.command
+            (Cmd.batch
+                [ Task.map2 GotHere Time.here Time.now |> Task.perform identity
+                ]
+            )
 
 
 type NowContinuation
     = AddTodo_ String DueAt ProjectId
     | AddProject
     | PatchTodo_ TodoId (List Todo.Msg)
-    | SetToday
 
 
 type Msg
     = NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url
-    | GotHere Time.Zone
+    | GotHere Time.Zone Time.Posix
     | BrowserSizeChanged BrowserSize
     | Focused (Result Dom.Error ())
     | ScrolledToTop ()
@@ -308,8 +311,11 @@ update message model =
         ScrolledToTop _ ->
             ( model, Cmd.none )
 
-        GotHere here ->
-            ( { model | here = here }, Cmd.none )
+        GotHere here now ->
+            ( { model | here = here }
+                |> setTodayFromPosix now
+            , Cmd.none
+            )
 
         BrowserSizeChanged size ->
             setBrowserSize size model |> Return.singleton
@@ -334,9 +340,6 @@ update message model =
                     ( model
                     , Todo.patchTodo now todoId todoMsgList
                     )
-
-                SetToday ->
-                    ( setTodayFromPosix now model, Cmd.none )
 
         AuthStateChanged encodedValue ->
             case JD.decodeValue AuthState.decoder encodedValue of
