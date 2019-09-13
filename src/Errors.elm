@@ -1,4 +1,13 @@
-module Errors exposing (Errors, add, addDecodeError, detailView, empty, fromStrings, mapErrorList, viewError)
+module Errors exposing
+    ( Errors
+    , add
+    , addDecodeError
+    , detailView
+    , empty
+    , fromStrings
+    , mapErrorList
+    , viewError
+    )
 
 import Html.Styled exposing (Html, div, li, ol, text)
 import Html.Styled.Attributes exposing (class)
