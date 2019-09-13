@@ -191,11 +191,6 @@ init encodedFlags url key =
         |> Return.command (Millis.hereCmd GotHere)
 
 
-onDecodeError : JD.Error -> Model -> Return
-onDecodeError error model =
-    ( HasErrors.addDecodeError error model, Log.decodeError error )
-
-
 type NowContinuation
     = AddTodo_ String DueAt ProjectId
     | AddProject
@@ -380,6 +375,15 @@ update message model =
 
         InlineTodoFormMsg msg ->
             updateInlineTodoForm msg model
+
+
+
+-- Update: Log Errors
+
+
+onDecodeError : JD.Error -> Model -> Return
+onDecodeError error model =
+    ( HasErrors.addDecodeError error model, Log.decodeError error )
 
 
 
