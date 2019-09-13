@@ -17,6 +17,7 @@ import FontAwesome.Solid as FAS
 import FontAwesome.Styles
 import FunctionalCss as FCss
 import HasErrors
+import Html
 import Html.Styled as H exposing (Attribute, Html, a, div, text)
 import Html.Styled.Attributes as A exposing (class, css, disabled, href, tabindex)
 import Html.Styled.Keyed as HK
@@ -49,17 +50,61 @@ import UI.TextButton as TextButton
 import Url exposing (Url)
 
 
-main : Program Value Main.Model Main.Msg
+type alias Model =
+    { mainModel : Main.Model }
+
+
+type Msg
+    = MainMsg Main.Msg
+
+
+type alias Return =
+    Return.Return Msg Model
+
+
+init : Value -> Url -> Nav.Key -> Return
+init f u k =
+    Main.appConfig.init f u k
+        |> Tuple.mapBoth (\mainModel -> { mainModel = mainModel }) (Cmd.map MainMsg)
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Main.appConfig.subscriptions model.mainModel |> Sub.map MainMsg
+        ]
+
+
+update : Msg -> Model -> Return
+update message model =
+    case message of
+        MainMsg msg ->
+            updateMain msg model
+
+
+updateMain : Main.Msg -> Model -> Return
+updateMain message model =
+    Main.appConfig.update message model.mainModel
+        |> Tuple.mapBoth (\mainModel -> { model | mainModel = mainModel }) (Cmd.map MainMsg)
+
+
+view : Model -> Browser.Document Msg
+view model =
+    Main.appConfig.view model.mainModel
+        |> Html.map MainMsg
+
+
+main : Program Value Model Msg
 main =
     let
         c =
             Main.appConfig
     in
     Browser.application
-        { init = c.init
-        , view = c.view
-        , update = c.update
-        , subscriptions = c.subscriptions
-        , onUrlRequest = c.onUrlRequest
-        , onUrlChange = c.onUrlChange
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        , onUrlRequest = c.onUrlRequest >> MainMsg
+        , onUrlChange = c.onUrlChange >> MainMsg
         }
