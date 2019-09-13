@@ -640,11 +640,7 @@ dateFromMillis =
     Time.millisToPosix >> Calendar.fromPosix
 
 
-viewTodayPage model =
-    { title = "Today", content = todayContent model }
-
-
-todayContent :
+viewTodayPage :
     { a
         | today : Calendar.Date
         , todoList : List Todo
@@ -652,8 +648,8 @@ todayContent :
         , projectList : ProjectList
         , inlineTodoForm : InlineTodoForm.Model
     }
-    -> Html Msg
-todayContent model =
+    -> { title : String, content : Html Msg }
+viewTodayPage model =
     let
         today =
             model.today
@@ -671,35 +667,38 @@ todayContent model =
                 model.todoList
                 |> List.filter (.isDone >> not)
 
-        viewItemList =
-            viewKeyedTodoItemList model.here
+        viewList =
+            TodoItem.viewList todoItemConfig model.here
     in
-    InlineTodoForm.view
-        InlineTodoFormMsg
-        { closed =
-            \_ ->
-                viewTodayContentHelp (viewItemList overDueList) (viewItemList todayList)
-        , add =
-            \_ formHtml ->
-                viewTodayContentHelp (viewItemList overDueList)
-                    (viewItemList todayList ++ [ viewKeyedTodoForm formHtml ])
-        , edit =
-            \todoId formHtml ->
-                let
-                    viewItem todo =
-                        if todo.id == todoId then
-                            viewKeyedTodoForm formHtml
+    { title = "Today"
+    , content =
+        InlineTodoForm.view
+            InlineTodoFormMsg
+            { closed =
+                \_ ->
+                    viewTodayContentHelp (viewList overDueList) (viewList todayList)
+            , add =
+                \_ formHtml ->
+                    viewTodayContentHelp (viewList overDueList)
+                        (viewList todayList ++ [ viewKeyedTodoForm formHtml ])
+            , edit =
+                \todoId formHtml ->
+                    let
+                        viewItem todo =
+                            if todo.id == todoId then
+                                viewKeyedTodoForm formHtml
 
-                        else
-                            TodoItem.viewKeyed todoItemConfig model.here todo
+                            else
+                                TodoItem.viewKeyed todoItemConfig model.here todo
 
-                    viewItemList_ =
-                        List.map viewItem
-                in
-                viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
-        }
-        model.projectList
-        model.inlineTodoForm
+                        viewItemList_ =
+                            List.map viewItem
+                    in
+                    viewTodayContentHelp (viewItemList_ overDueList) (viewItemList_ todayList)
+            }
+            model.projectList
+            model.inlineTodoForm
+    }
 
 
 viewTodayContentHelp overDueKeyedHtmlItems todayKeyedHtmlItems =
@@ -785,11 +784,6 @@ todoItemConfig =
     }
 
 
-viewKeyedTodoItemList : Time.Zone -> List Todo -> List ( String, Html Msg )
-viewKeyedTodoItemList zone =
-    TodoItem.viewList todoItemConfig zone
-
-
 viewKeyedTodoForm : Html msg -> ( String, Html msg )
 viewKeyedTodoForm =
     Tuple.pair "todo-item-inline-form-key"
@@ -803,7 +797,7 @@ viewKeyedProjectTodoList { here, projectList, inlineTodoForm } todoList =
     let
         viewBaseList : List Todo -> List ( String, Html Msg )
         viewBaseList =
-            viewKeyedTodoItemList here
+            TodoItem.viewList todoItemConfig here
     in
     InlineTodoForm.view
         InlineTodoFormMsg
