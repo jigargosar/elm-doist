@@ -184,10 +184,10 @@ init encodedFlags url key =
     in
     (case JD.decodeValue flagsDecoder encodedFlags of
         Ok flags ->
-            ( setTodoList flags.cachedTodoList model
-                |> setProjectList flags.cachedProjectList
+            ( model
                 |> setAuthState flags.cachedAuthState
-                |> setBrowserSize flags.browserSize
+                |> setTodoList flags.cachedTodoList
+                |> setProjectList flags.cachedProjectList
             , Cmd.none
             )
 
