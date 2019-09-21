@@ -18,7 +18,7 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = DropDownOpen Bool
+    = IsOpen Bool
 
 
 type alias Internal =
@@ -27,7 +27,7 @@ type alias Internal =
 
 init : Model
 init =
-    DropDownOpen False
+    IsOpen False
 
 
 focusFirstCmd : Cmd Msg
@@ -36,23 +36,23 @@ focusFirstCmd =
 
 
 type Msg
-    = OpenMenu
+    = OpenPopup
     | Selected ProjectId
-    | CloseMenu
+    | ClosePopup
     | Focused Focus.FocusResult
 
 
 update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
-        OpenMenu ->
-            ( DropDownOpen True, focusFirstCmd |> Cmd.map config.toMsg )
+        OpenPopup ->
+            ( IsOpen True, focusFirstCmd |> Cmd.map config.toMsg )
 
-        CloseMenu ->
-            ( DropDownOpen False, Cmd.none )
+        ClosePopup ->
+            ( IsOpen False, Cmd.none )
 
         Selected projectId ->
-            ( DropDownOpen False, config.onSelect projectId |> perform )
+            ( IsOpen False, config.onSelect projectId |> perform )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -130,7 +130,7 @@ view selectedProjectId projectList model =
 
         open =
             case model of
-                DropDownOpen bool ->
+                IsOpen bool ->
                     bool
 
         pivot =
@@ -140,8 +140,8 @@ view selectedProjectId projectList model =
     in
     viewSelectInput
         { itemLabel = .title
-        , onClose = CloseMenu
-        , onOpen = OpenMenu
+        , onClose = ClosePopup
+        , onOpen = OpenPopup
         , onSelect = \{ id } -> Selected id
         }
         { open = open, items = pivot }
