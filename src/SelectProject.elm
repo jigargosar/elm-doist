@@ -37,12 +37,6 @@ focusFirstCmd =
     Focus.attempt Focused firstDomId
 
 
-
---map : (Internal -> Internal) -> Model -> Model
---map fn (Model internal) =
---    Model (fn internal)
-
-
 type Msg
     = OpenMenu
     | Selected ProjectId
