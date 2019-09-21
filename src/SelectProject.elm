@@ -18,8 +18,7 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = MenuOpen
-    | MenuClosed
+    = DropDownOpen Bool
 
 
 type alias Internal =
@@ -28,7 +27,7 @@ type alias Internal =
 
 init : Model
 init =
-    MenuClosed
+    DropDownOpen False
 
 
 focusFirstCmd : Cmd Msg
@@ -47,13 +46,13 @@ update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> 
 update config message model =
     case message of
         OpenMenu ->
-            ( MenuOpen, focusFirstCmd |> Cmd.map config.toMsg )
+            ( DropDownOpen True, focusFirstCmd |> Cmd.map config.toMsg )
 
         CloseMenu ->
-            ( MenuClosed, Cmd.none )
+            ( DropDownOpen False, Cmd.none )
 
         Selected projectId ->
-            ( MenuClosed, config.onSelect projectId |> perform )
+            ( DropDownOpen False, config.onSelect projectId |> perform )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -98,11 +97,8 @@ view selectedProjectId projectList model =
 
         open =
             case model of
-                MenuClosed ->
-                    False
-
-                MenuOpen ->
-                    True
+                DropDownOpen bool ->
+                    bool
     in
     div [ class "relative" ]
         [ div [ E.onClick OpenMenu ]
