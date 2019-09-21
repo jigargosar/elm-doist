@@ -54,6 +54,13 @@ attempt focusedMsg domId =
     focus domId |> Task.attempt focusedMsg
 
 
+
+-- JS
+
+
+port focusSelector : String -> Cmd msg
+
+
 autoFocusWithin : String -> Cmd msg
 autoFocusWithin selector =
     focusSelector (selector ++ " " ++ " [data-autofocus=true]")
@@ -62,9 +69,6 @@ autoFocusWithin selector =
 autoFocusWithinId : String -> Cmd msg
 autoFocusWithinId id =
     autoFocusWithin ("#" ++ id)
-
-
-port focusSelector : String -> Cmd msg
 
 
 dataAutoFocus : Bool -> Attribute msg
