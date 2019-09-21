@@ -115,7 +115,7 @@ function dynamicImportPrefetchFaker() {
 
 initSubs({
   focusSelector: selector => {
-    console.log(selector)
+    console.log("Focusing selector",selector)
     setTimeout(() => {
       const el = document.querySelector(selector)
       if (el) {
