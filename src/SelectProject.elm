@@ -1,4 +1,4 @@
-port module SelectProject exposing (Model, Msg, init, update, view)
+module SelectProject exposing (Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
 import Focus
@@ -10,9 +10,6 @@ import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectInput
 import Task
-
-
-port focusSelector : String -> Cmd msg
 
 
 type Model
@@ -40,16 +37,6 @@ type Msg
     | Focused Focus.FocusResult
 
 
-autoFocusWithin : String -> Cmd msg
-autoFocusWithin selector =
-    focusSelector (selector ++ " " ++ " [data-autofocus=true]")
-
-
-autoFocusWithinId : String -> Cmd msg
-autoFocusWithinId id =
-    autoFocusWithin ("#" ++ id)
-
-
 update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
@@ -57,7 +44,7 @@ update config message model =
             ( IsOpen True
             , Cmd.batch
                 [ focusFirstCmd |> Cmd.map config.toMsg
-                , autoFocusWithinId selectProjectInputId
+                , Focus.autoFocusWithinId selectProjectInputId
                 ]
             )
 

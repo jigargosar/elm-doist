@@ -1,6 +1,7 @@
 module SelectInput exposing (..)
 
 import Css
+import Focus
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (attribute, autofocus, class, css, tabindex)
 import Html.Styled.Events as E
@@ -37,15 +38,8 @@ view config props =
             else
                 Css.batch []
 
-        boolToAttr bool =
-            if bool then
-                "true"
-
-            else
-                "false"
-
         attrsForItem item =
-            [ attribute "data-autofocus" (boolToAttr (item == firstItem))
+            [ Focus.dataAutoFocus (item == firstItem)
             , css [ selectedItemStyle item ]
             ]
 

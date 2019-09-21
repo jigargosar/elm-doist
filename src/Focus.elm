@@ -1,8 +1,9 @@
-module Focus exposing (FocusResult, attempt, onFocusOutsideDomId, outsideElIdDecoder)
+port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, onFocusOutsideDomId, outsideElIdDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)
 import Html.Styled exposing (Attribute)
+import Html.Styled.Attributes as A
 import Html.Styled.Events exposing (on)
 import Json.Decode as JD exposing (Decoder)
 import Task
@@ -51,3 +52,29 @@ type alias FocusResult =
 attempt : (FocusResult -> msg) -> String -> Cmd msg
 attempt focusedMsg domId =
     focus domId |> Task.attempt focusedMsg
+
+
+autoFocusWithin : String -> Cmd msg
+autoFocusWithin selector =
+    focusSelector (selector ++ " " ++ " [data-autofocus=true]")
+
+
+autoFocusWithinId : String -> Cmd msg
+autoFocusWithinId id =
+    autoFocusWithin ("#" ++ id)
+
+
+port focusSelector : String -> Cmd msg
+
+
+dataAutoFocus : Bool -> Attribute msg
+dataAutoFocus bool =
+    A.attribute "data-autofocus" (boolToAttr bool)
+
+
+boolToAttr bool =
+    if bool then
+        "true"
+
+    else
+        "false"
