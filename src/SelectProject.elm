@@ -4,7 +4,7 @@ import BasicsExtra exposing (eq_)
 import Css
 import Focus
 import Html.Styled as H exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes exposing (class, css, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -96,7 +96,8 @@ view selectedProjectId projectList model =
                     identity
     in
     viewSelectInput
-        { itemLabel = .title
+        { attrs = [ A.id "select-project" ]
+        , itemLabel = .title
         , onClose = ClosePopup
         , onOpen = OpenPopup
         , onSelect = \{ id } -> Selected id
@@ -105,7 +106,8 @@ view selectedProjectId projectList model =
 
 
 viewSelectInput :
-    { itemLabel : item -> String
+    { attrs : List (Attribute msg)
+    , itemLabel : item -> String
     , onClose : msg
     , onOpen : msg
     , onSelect : item -> msg
