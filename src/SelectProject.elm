@@ -29,7 +29,6 @@ type Msg
     = OpenPopup
     | Selected ProjectId
     | ClosePopup
-    | Focused Focus.FocusResult
 
 
 update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
@@ -45,9 +44,6 @@ update config message model =
 
         Selected projectId ->
             ( IsOpen False, config.onSelect projectId |> perform )
-
-        Focused _ ->
-            ( model, Cmd.none )
 
 
 perform : a -> Cmd a
