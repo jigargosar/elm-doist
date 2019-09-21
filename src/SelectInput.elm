@@ -2,7 +2,7 @@ module SelectInput exposing (..)
 
 import Css
 import Html.Styled as H exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes exposing (class, css, tabindex)
+import Html.Styled.Attributes exposing (autofocus, class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -38,7 +38,7 @@ view config props =
                 Css.batch []
 
         attrsForItem item =
-            [ HX.idIf (item == firstItem) (always "")
+            [ autofocus (item == firstItem)
             , css [ selectedItemStyle item ]
             ]
 
