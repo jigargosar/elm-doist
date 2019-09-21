@@ -79,8 +79,8 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
-zipperFromListBy : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
-zipperFromListBy pred list =
+zipperFromListFocusedBy : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
+zipperFromListFocusedBy pred list =
     let
         ( l, c, r ) =
             zipperFromListByHelp pred list
@@ -134,7 +134,7 @@ view selectedProjectId projectList model =
                     bool
 
         pivot =
-            zipperFromListBy (.id >> eq_ selectedProjectId) displayList
+            zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
                 |> MX.unpack (\_ -> zipperFromCons inboxDisplayProject (List.drop 1 displayList))
                     identity
     in
