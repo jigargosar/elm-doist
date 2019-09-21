@@ -92,19 +92,22 @@ view selectedProjectId projectList model =
         displayProjectList =
             inboxDisplayProject
                 :: List.map toDisplayProject projectList
+
+        currentProjectTitle =
+            getDisplayProjectTitle selectedProjectId displayProjectList
     in
     case model of
         MenuClosed ->
             div [ E.onClick OpenMenu ]
                 [ text "project: "
-                , text (getDisplayProjectTitle selectedProjectId displayProjectList)
+                , text currentProjectTitle
                 ]
 
         MenuOpen ->
             div [ class "relative" ]
                 [ div []
                     [ text "project: "
-                    , text (getDisplayProjectTitle selectedProjectId displayProjectList)
+                    , text currentProjectTitle
                     ]
                 , popupContainer
                     (displayProjectList
