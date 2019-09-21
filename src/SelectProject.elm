@@ -1,4 +1,4 @@
-module SelectProject exposing (Model, Msg, init, update, view)
+port module SelectProject exposing (Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
 import Focus
@@ -10,6 +10,9 @@ import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectInput
 import Task
+
+
+port focusSelector : String -> Cmd msg
 
 
 type Model
@@ -41,7 +44,12 @@ update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> 
 update config message model =
     case message of
         OpenPopup ->
-            ( IsOpen True, focusFirstCmd |> Cmd.map config.toMsg )
+            ( IsOpen True
+            , Cmd.batch
+                [ focusFirstCmd |> Cmd.map config.toMsg
+                , focusSelector ("#" ++ selectProjectInputId ++ " [autofocus=true]")
+                ]
+            )
 
         ClosePopup ->
             ( IsOpen False, Cmd.none )
@@ -92,10 +100,14 @@ view selectedProjectId projectList model =
                     identity
     in
     SelectInput.view
-        { attrs = [ A.id "select-project-input" ]
+        { attrs = [ A.id selectProjectInputId ]
         , itemLabel = .title
         , onClose = ClosePopup
         , onOpen = OpenPopup
         , onSelect = \{ id } -> Selected id
         }
         { open = open, items = pivot }
+
+
+selectProjectInputId =
+    "select-project-input"
