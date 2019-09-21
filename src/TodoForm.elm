@@ -21,7 +21,7 @@ import ListZipper as LZ
 import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
-import SelectProject
+import SelectInput
 import Task
 import Todo exposing (Todo)
 import UI.TextButton as TextButton
@@ -33,7 +33,7 @@ type Model
 
 type alias Internal =
     { fields : Fields
-    , selectProject : SelectProject.Model
+    , selectProject : SelectInput.Model
     }
 
 
@@ -48,7 +48,7 @@ fromParts : String -> Todo.DueAt -> ProjectId -> Model
 fromParts title dueAt projectId =
     Model
         { fields = Fields title dueAt projectId
-        , selectProject = SelectProject.init
+        , selectProject = SelectInput.init
         }
 
 
@@ -72,7 +72,7 @@ mapFields fn =
     map (\internal -> { internal | fields = fn internal.fields })
 
 
-setSelectProject : SelectProject.Model -> Model -> Model
+setSelectProject : SelectInput.Model -> Model -> Model
 setSelectProject selectProject =
     map (\internal -> { internal | selectProject = selectProject })
 
@@ -112,7 +112,7 @@ getProjectId =
 type Msg
     = SaveClicked
     | CancelClicked
-    | SelectProjectMsg (SelectProject.Msg DisplayProject)
+    | SelectProjectMsg (SelectInput.Msg DisplayProject)
     | SetProjectId ProjectId
     | TitleChanged String
 
@@ -136,7 +136,7 @@ update config message model =
         SelectProjectMsg msg ->
             let
                 ( newSelectProject, cmd ) =
-                    SelectProject.update selectProjectConfig
+                    SelectInput.update selectProjectConfig
                         msg
                         (getSelectProject model)
             in
@@ -148,7 +148,7 @@ update config message model =
             ( setProjectId projectId model, Cmd.none )
 
 
-selectProjectConfig : SelectProject.Config Msg DisplayProject
+selectProjectConfig : SelectInput.Config Msg DisplayProject
 selectProjectConfig =
     { id = "project"
     , itemLabel = .title
@@ -216,7 +216,7 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
-viewSelectProjectInput : ProjectId -> ProjectList -> SelectProject.Model -> H.Html Msg
+viewSelectProjectInput : ProjectId -> ProjectList -> SelectInput.Model -> H.Html Msg
 viewSelectProjectInput selectedProjectId projectList =
     let
         displayList =
@@ -228,4 +228,4 @@ viewSelectProjectInput selectedProjectId projectList =
                 |> MX.unpack (\_ -> LZ.zipperFromCons inboxDisplayProject (List.drop 1 displayList))
                     identity
     in
-    SelectProject.view selectProjectConfig itemsZipper
+    SelectInput.view selectProjectConfig itemsZipper

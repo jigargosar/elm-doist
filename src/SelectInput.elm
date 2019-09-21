@@ -1,4 +1,4 @@
-module SelectInput exposing (..)
+module SelectInput exposing (Config, Model, Msg, init, update, view)
 
 import Css
 import Focus
@@ -7,11 +7,82 @@ import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import Json.Decode as JD
 import ListZipper as LZ
+import Task
 import UI.Key as Key
 import UI.TextButton as TextButton
 
 
-view :
+type Model
+    = IsOpen Bool
+
+
+type alias Internal =
+    {}
+
+
+init : Model
+init =
+    IsOpen False
+
+
+type Msg item
+    = OpenPopup
+    | Selected item
+    | ClosePopup
+
+
+type alias Config msg item =
+    { id : String
+    , toMsg : Msg item -> msg
+    , onSelect : item -> msg
+    , itemLabel : item -> String
+    }
+
+
+update : Config msg item -> Msg item -> Model -> ( Model, Cmd msg )
+update config message _ =
+    case message of
+        OpenPopup ->
+            ( IsOpen True
+            , Focus.autoFocusWithinId (selectInputId config.id)
+            )
+
+        ClosePopup ->
+            ( IsOpen False, Cmd.none )
+
+        Selected projectId ->
+            ( IsOpen False, config.onSelect projectId |> perform )
+
+
+perform : a -> Cmd a
+perform =
+    Task.succeed >> Task.perform identity
+
+
+view : Config msg item -> LZ.ListZipper item -> Model -> H.Html msg
+view config items model =
+    let
+        open =
+            case model of
+                IsOpen bool ->
+                    bool
+    in
+    viewHelp
+        { id = selectInputId config.id
+        , itemLabel = config.itemLabel
+        , onClose = ClosePopup
+        , onOpen = OpenPopup
+        , onSelect = Selected
+        }
+        { open = open, items = items }
+        |> H.map config.toMsg
+
+
+selectInputId uid =
+    "select-input__" ++ uid
+
+
+viewHelp :
     { id : String
     , itemLabel : item -> String
     , onClose : msg
@@ -20,7 +91,7 @@ view :
     }
     -> { open : Bool, items : ( List item, item, List item ) }
     -> Html msg
-view config props =
+viewHelp config props =
     let
         selectedItem =
             LZ.zipperFocus props.items
