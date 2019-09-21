@@ -1,12 +1,11 @@
 module SelectProject exposing (Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
-import Browser.Dom as Dom
 import Css
 import Focus
 import Html.Styled as H exposing (div, text)
-import Html.Styled.Attributes as A exposing (css, tabindex)
-import Html.Styled.Events as E exposing (onClick)
+import Html.Styled.Attributes exposing (css, tabindex)
+import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
 import List.Extra as LX
