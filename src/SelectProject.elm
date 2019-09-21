@@ -124,34 +124,10 @@ view selectedProjectId projectList model =
                 DropDownOpen bool ->
                     bool
 
-        listSelection =
-            List.foldl
-                (\item ( l, c, r ) ->
-                    case c of
-                        Just _ ->
-                            ( l, c, item :: r )
-
-                        Nothing ->
-                            if item.id == selectedProjectId then
-                                ( l, Just item, r )
-
-                            else
-                                ( item :: l, c, r )
-                )
-                ( [], Nothing, [] )
-                displayList
-
         pivot =
-            let
-                ( l, c, r ) =
-                    listSelection
-            in
-            case c of
-                Just item ->
-                    ( l, item, List.reverse r )
-
-                Nothing ->
-                    ( [], inboxDisplayProject, List.drop 1 displayList )
+            findSplit (.id >> eq_ selectedProjectId) displayList
+                |> MX.unpack (\_ -> ( [], inboxDisplayProject, List.drop 1 displayList ))
+                    identity
     in
     viewSelectInput
         { itemLabel = .title
