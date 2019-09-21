@@ -1,15 +1,15 @@
 module SelectProject exposing (Config, Model, Msg, init, update, view)
 
-import BasicsExtra exposing (eq_)
+import Css
 import Focus
-import Html.Styled as H exposing (Attribute, Html)
-import Html.Styled.Attributes as A
+import Html.Styled as H exposing (Attribute, Html, div, text)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
+import Html.Styled.Events as E
+import Json.Decode as JD
 import ListZipper as LZ
-import Maybe.Extra as MX
-import Project exposing (Project, ProjectList)
-import ProjectId exposing (ProjectId)
-import SelectInput
 import Task
+import UI.Key as Key
+import UI.TextButton as TextButton
 
 
 type Model
@@ -44,7 +44,7 @@ update config message _ =
     case message of
         OpenPopup ->
             ( IsOpen True
-            , Focus.autoFocusWithinId (selectProjectInputId config.id)
+            , Focus.autoFocusWithinId (selectInputId config.id)
             )
 
         ClosePopup ->
@@ -67,8 +67,8 @@ view config items model =
                 IsOpen bool ->
                     bool
     in
-    SelectInput.view
-        { id = selectProjectInputId config.id
+    viewHelp
+        { id = selectInputId config.id
         , itemLabel = config.itemLabel
         , onClose = ClosePopup
         , onOpen = OpenPopup
@@ -78,5 +78,64 @@ view config items model =
         |> H.map config.toMsg
 
 
-selectProjectInputId uid =
+selectInputId uid =
     "select-input__" ++ uid
+
+
+viewHelp :
+    { id : String
+    , itemLabel : item -> String
+    , onClose : msg
+    , onOpen : msg
+    , onSelect : item -> msg
+    }
+    -> { open : Bool, items : ( List item, item, List item ) }
+    -> Html msg
+viewHelp config props =
+    let
+        selectedItem =
+            LZ.zipperFocus props.items
+
+        allItems =
+            LZ.zipperToList props.items
+
+        firstItem =
+            List.head allItems |> Maybe.withDefault selectedItem
+
+        selectedItemStyle item =
+            if item == selectedItem then
+                Css.batch [ Css.fontWeight Css.bold ]
+
+            else
+                Css.batch []
+
+        attrsForItem item =
+            [ Focus.dataAutoFocus (item == firstItem)
+            , css [ selectedItemStyle item ]
+            ]
+
+        viewItem item =
+            viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
+    in
+    div (class "relative" :: [ A.id config.id ])
+        [ div [ E.onClick config.onOpen ]
+            [ text (config.itemLabel selectedItem)
+            ]
+        , if props.open then
+            H.styled (H.node "track-focus-outside")
+                []
+                [ class "absolute top-1 left--1 shadow-1 bg-white"
+                , E.on "focusOutside" (JD.succeed config.onClose)
+                , Key.onEscape config.onClose
+                , tabindex -1
+                ]
+                (List.map viewItem allItems)
+
+          else
+            text ""
+        ]
+
+
+viewMenuItem : List (Attribute msg) -> msg -> String -> Html msg
+viewMenuItem attrs =
+    TextButton.view (class "pa2" :: attrs)
