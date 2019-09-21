@@ -93,8 +93,8 @@ zipperToList ( l, c, r ) =
     List.reverse l ++ [ c ] ++ r
 
 
-zipperCurrent : ( List a, a, List a ) -> a
-zipperCurrent ( _, c, _ ) =
+zipperFocus : ( List a, a, List a ) -> a
+zipperFocus ( _, c, _ ) =
     c
 
 
@@ -162,7 +162,7 @@ viewSelectInput :
 viewSelectInput config props =
     let
         selected =
-            zipperCurrent props.items
+            zipperFocus props.items
 
         allItems =
             zipperToList props.items
