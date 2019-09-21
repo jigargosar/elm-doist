@@ -85,6 +85,33 @@ getDisplayProjectTitle projectId projectList =
         |> MX.unwrap "<Unknown Project>" .title
 
 
+findSplit : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
+findSplit pred list =
+    let
+        ( l, c, r ) =
+            findSplitHelp pred list
+    in
+    Maybe.map (\jc -> ( l, jc, r )) c
+
+
+findSplitHelp : (a -> Bool) -> List a -> ( List a, Maybe a, List a )
+findSplitHelp pred =
+    List.foldl
+        (\item ( l, c, r ) ->
+            case c of
+                Just _ ->
+                    ( l, c, item :: r )
+
+                Nothing ->
+                    if pred item then
+                        ( l, Just item, r )
+
+                    else
+                        ( item :: l, c, r )
+        )
+        ( [], Nothing, [] )
+
+
 view : ProjectId -> ProjectList -> Model -> H.Html Msg
 view selectedProjectId projectList model =
     let
