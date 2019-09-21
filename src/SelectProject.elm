@@ -98,8 +98,8 @@ zipperCurrent ( _, c, _ ) =
     c
 
 
-zipperFromFirst : a -> List a -> ( List a, a, List a )
-zipperFromFirst first list =
+zipperFromCons : a -> List a -> ( List a, a, List a )
+zipperFromCons first list =
     ( [], first, list )
 
 
@@ -135,7 +135,7 @@ view selectedProjectId projectList model =
 
         pivot =
             zipperFromListBy (.id >> eq_ selectedProjectId) displayList
-                |> MX.unpack (\_ -> zipperFromFirst inboxDisplayProject (List.drop 1 displayList))
+                |> MX.unpack (\_ -> zipperFromCons inboxDisplayProject (List.drop 1 displayList))
                     identity
     in
     viewSelectInput
