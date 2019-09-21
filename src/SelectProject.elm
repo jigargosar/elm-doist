@@ -8,7 +8,6 @@ import Html.Styled.Attributes exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
-import List.Extra as LX
 import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
