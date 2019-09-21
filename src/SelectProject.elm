@@ -85,37 +85,6 @@ getDisplayProjectTitle projectId projectList =
         |> MX.unwrap "<Unknown Project>" .title
 
 
-view_ : ProjectId -> ProjectList -> Model -> H.Html Msg
-view_ selectedProjectId projectList model =
-    let
-        displayList =
-            inboxDisplayProject
-                :: List.map toDisplayProject projectList
-
-        selectedTitle =
-            getDisplayProjectTitle selectedProjectId displayList
-
-        open =
-            case model of
-                DropDownOpen bool ->
-                    bool
-    in
-    div [ class "relative" ]
-        [ div [ E.onClick OpenMenu ]
-            [ text "project: "
-            , text selectedTitle
-            ]
-        , if open then
-            popupContainer
-                (displayList
-                    |> List.indexedMap (viewItem selectedProjectId)
-                )
-
-          else
-            text ""
-        ]
-
-
 view : ProjectId -> ProjectList -> Model -> H.Html Msg
 view selectedProjectId projectList model =
     let
@@ -218,44 +187,6 @@ viewSelectInput config props =
           else
             text ""
         ]
-
-
-popupContainer =
-    H.styled (H.node "track-focus-outside")
-        []
-        [ class "absolute top-1 shadow-1 bg-white"
-        , E.on "focusOutside" (JD.succeed CloseMenu)
-        , Key.onEscape CloseMenu
-        , tabindex -1
-        ]
-
-
-viewItem : ProjectId -> Int -> DisplayProject -> H.Html Msg
-viewItem selectedProjectId idx displayProject =
-    viewItemHelp
-        { isSelected = selectedProjectId == displayProject.id
-        , isFirst = idx == 0
-        }
-        displayProject
-
-
-viewItemHelp : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
-viewItemHelp { isSelected, isFirst } displayProject =
-    let
-        styles =
-            if isSelected then
-                Css.batch [ Css.fontWeight Css.bold ]
-
-            else
-                Css.batch []
-    in
-    TextButton.view
-        [ HX.idIf isFirst (always firstDomId)
-        , css [ styles ]
-        , class "pa2"
-        ]
-        (Selected displayProject.id)
-        displayProject.title
 
 
 viewMenuItem attrs =
