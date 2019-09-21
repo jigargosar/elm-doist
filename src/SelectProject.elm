@@ -93,6 +93,11 @@ zipperToList ( l, c, r ) =
     List.reverse l ++ [ c ] ++ r
 
 
+zipperCurrent : ( List a, a, List a ) -> a
+zipperCurrent ( _, c, _ ) =
+    c
+
+
 zipperFromFirst : a -> List a -> ( List a, a, List a )
 zipperFromFirst first list =
     ( [], first, list )
@@ -156,14 +161,14 @@ viewSelectInput :
     -> Html msg
 viewSelectInput config props =
     let
-        ( left, selected, right ) =
-            props.items
+        selected =
+            zipperCurrent props.items
 
         allItems =
-            left ++ [ selected ] ++ right
+            zipperToList props.items
 
         firstItem =
-            List.head left |> Maybe.withDefault selected
+            List.head allItems |> Maybe.withDefault selected
 
         selectedItemStyle item =
             if item == selected then
