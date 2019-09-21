@@ -123,9 +123,6 @@ view selectedProjectId projectList model =
             inboxDisplayProject
                 :: List.map toDisplayProject projectList
 
-        selectedTitle =
-            getDisplayProjectTitle selectedProjectId displayList
-
         open =
             case model of
                 DropDownOpen bool ->
