@@ -3,7 +3,7 @@ module SelectInput exposing (..)
 import Css
 import Focus
 import Html.Styled as H exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes exposing (class, css, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import Json.Decode as JD
 import ListZipper as LZ
@@ -12,7 +12,7 @@ import UI.TextButton as TextButton
 
 
 view :
-    { attrs : List (Attribute msg)
+    { id : String
     , itemLabel : item -> String
     , onClose : msg
     , onOpen : msg
@@ -46,7 +46,7 @@ view config props =
         viewItem item =
             viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
     in
-    div (class "relative" :: config.attrs)
+    div (class "relative" :: [ A.id config.id ])
         [ div [ E.onClick config.onOpen ]
             [ text (config.itemLabel selectedItem)
             ]
