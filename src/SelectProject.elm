@@ -95,25 +95,29 @@ view selectedProjectId projectList model =
 
         currentProjectTitle =
             getDisplayProjectTitle selectedProjectId displayProjectList
-    in
-    case model of
-        MenuClosed ->
-            div [ E.onClick OpenMenu ]
-                [ text "project: "
-                , text currentProjectTitle
-                ]
 
-        MenuOpen ->
-            div [ class "relative" ]
-                [ div []
-                    [ text "project: "
-                    , text currentProjectTitle
-                    ]
-                , popupContainer
-                    (displayProjectList
-                        |> List.indexedMap (viewItem selectedProjectId)
-                    )
-                ]
+        open =
+            case model of
+                MenuClosed ->
+                    False
+
+                MenuOpen ->
+                    True
+    in
+    div [ class "relative" ]
+        [ div [ E.onClick OpenMenu ]
+            [ text "project: "
+            , text currentProjectTitle
+            ]
+        , if open then
+            popupContainer
+                (displayProjectList
+                    |> List.indexedMap (viewItem selectedProjectId)
+                )
+
+          else
+            text ""
+        ]
 
 
 popupContainer =
