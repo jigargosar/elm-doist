@@ -117,7 +117,12 @@ initSubs({
   focusSelector: selector => {
     console.log(selector)
     setTimeout(() => {
-      console.log(document.querySelector(selector))
+      const el = document.querySelector(selector)
+      if (el) {
+        el.focus()
+      } else {
+        console.error('focusSelector failed:', selector)
+      }
     }, 0)
   },
   localStorageSetJsonItem,
