@@ -108,7 +108,7 @@ view selectedProjectId projectList model =
                     ]
                 , selectContainer
                     (displayProjectList
-                        |> List.indexedMap (viewListItem selectedProjectId)
+                        |> List.indexedMap (viewItem selectedProjectId)
                     )
                 ]
 
@@ -116,24 +116,24 @@ view selectedProjectId projectList model =
 selectContainer =
     H.styled (H.node "track-focus-outside")
         []
-        [ class "absolute"
+        [ class "absolute top-1 shadow-1 bg-white"
         , E.on "focusOutside" (JD.succeed CloseMenu)
         , Key.onEscape CloseMenu
         , tabindex -1
         ]
 
 
-viewListItem : ProjectId -> Int -> DisplayProject -> H.Html Msg
-viewListItem selectedProjectId idx displayProject =
-    viewListItemHelp
+viewItem : ProjectId -> Int -> DisplayProject -> H.Html Msg
+viewItem selectedProjectId idx displayProject =
+    viewItemHelp
         { isSelected = selectedProjectId == displayProject.id
         , isFirst = idx == 0
         }
         displayProject
 
 
-viewListItemHelp : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
-viewListItemHelp { isSelected, isFirst } displayProject =
+viewItemHelp : { isSelected : Bool, isFirst : Bool } -> DisplayProject -> H.Html Msg
+viewItemHelp { isSelected, isFirst } displayProject =
     let
         styles =
             if isSelected then
