@@ -79,7 +79,7 @@ view selectedProjectId projectList model =
                 IsOpen bool ->
                     bool
 
-        pivot =
+        itemsZipper =
             LZ.zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
                 |> MX.unpack (\_ -> LZ.zipperFromCons inboxDisplayProject (List.drop 1 displayList))
                     identity
@@ -91,7 +91,7 @@ view selectedProjectId projectList model =
         , onOpen = OpenPopup
         , onSelect = \{ id } -> Selected id
         }
-        { open = open, items = pivot }
+        { open = open, items = itemsZipper }
 
 
 selectProjectInputId =
