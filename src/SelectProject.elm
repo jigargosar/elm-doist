@@ -101,10 +101,16 @@ view selectedProjectId projectList model =
                 ]
 
         MenuOpen ->
-            selectContainer
-                (displayProjectList
-                    |> List.indexedMap (viewListItem selectedProjectId)
-                )
+            div []
+                [ div [ E.onClick OpenMenu ]
+                    [ text "project: "
+                    , text (getDisplayProjectTitle selectedProjectId displayProjectList)
+                    ]
+                , selectContainer
+                    (displayProjectList
+                        |> List.indexedMap (viewListItem selectedProjectId)
+                    )
+                ]
 
 
 selectContainer =
