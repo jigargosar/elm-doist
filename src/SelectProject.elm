@@ -25,11 +25,6 @@ init =
     IsOpen False
 
 
-focusFirstCmd : Cmd Msg
-focusFirstCmd =
-    Focus.attempt Focused ""
-
-
 type Msg
     = OpenPopup
     | Selected ProjectId
@@ -42,10 +37,7 @@ update config message model =
     case message of
         OpenPopup ->
             ( IsOpen True
-            , Cmd.batch
-                [ focusFirstCmd |> Cmd.map config.toMsg
-                , Focus.autoFocusWithinId selectProjectInputId
-                ]
+            , Focus.autoFocusWithinId selectProjectInputId
             )
 
         ClosePopup ->
