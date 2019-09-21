@@ -85,8 +85,8 @@ getDisplayProjectTitle projectId projectList =
         |> MX.unwrap "<Unknown Project>" .title
 
 
-view : ProjectId -> ProjectList -> Model -> H.Html Msg
-view selectedProjectId projectList model =
+view_ : ProjectId -> ProjectList -> Model -> H.Html Msg
+view_ selectedProjectId projectList model =
     let
         displayList =
             inboxDisplayProject
@@ -116,10 +116,66 @@ view selectedProjectId projectList model =
         ]
 
 
+view : ProjectId -> ProjectList -> Model -> H.Html Msg
+view selectedProjectId projectList model =
+    let
+        displayList =
+            inboxDisplayProject
+                :: List.map toDisplayProject projectList
+
+        selectedTitle =
+            getDisplayProjectTitle selectedProjectId displayList
+
+        open =
+            case model of
+                DropDownOpen bool ->
+                    bool
+
+        listSelection =
+            List.foldl
+                (\item ( l, c, r ) ->
+                    case c of
+                        Just _ ->
+                            ( l, c, item :: r )
+
+                        Nothing ->
+                            if item.id == selectedProjectId then
+                                ( l, Just item, r )
+
+                            else
+                                ( item :: l, c, r )
+                )
+                ( [], Nothing, [] )
+                displayList
+
+        pivot =
+            let
+                ( l, c, r ) =
+                    listSelection
+            in
+            case c of
+                Just item ->
+                    ( l, item, List.reverse r )
+
+                Nothing ->
+                    ( [], inboxDisplayProject, List.drop 1 displayList )
+    in
+    viewSelectInput
+        { itemLabel = .title
+        , view =
+            \{ id, title } attrs ->
+                viewMenuItem attrs (Selected id) title
+        , onClose = CloseMenu
+        , onOpen = OpenMenu
+        }
+        { open = open, items = pivot }
+
+
 viewSelectInput :
     { itemLabel : item -> String
     , view : item -> List (Attribute msg) -> Html msg
     , onClose : msg
+    , onOpen : msg
     }
     -> { open : Bool, items : ( List item, item, List item ) }
     -> Html msg
@@ -144,11 +200,11 @@ viewSelectInput config props =
         attrsForItem item =
             [ HX.idIf (item == firstItem) (always firstDomId), css [ selectedItemStyle item ] ]
 
-        viewItem item =
+        viewItem_ item =
             config.view item (attrsForItem item)
     in
     div [ class "relative" ]
-        [ div [ E.onClick OpenMenu ]
+        [ div [ E.onClick config.onOpen ]
             [ text "project: "
             , text (config.itemLabel selected)
             ]
@@ -160,7 +216,7 @@ viewSelectInput config props =
                 , Key.onEscape config.onClose
                 , tabindex -1
                 ]
-                (List.map viewItem allItems)
+                (List.map viewItem_ allItems)
 
           else
             text ""
@@ -203,6 +259,11 @@ viewItemHelp { isSelected, isFirst } displayProject =
         ]
         (Selected displayProject.id)
         displayProject.title
+
+
+viewMenuItem attrs =
+    TextButton.view
+        (class "pa2" :: attrs)
 
 
 firstDomId =
