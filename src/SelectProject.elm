@@ -79,6 +79,99 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
+view : ProjectId -> ProjectList -> Model -> H.Html Msg
+view selectedProjectId projectList model =
+    let
+        displayList =
+            inboxDisplayProject
+                :: List.map toDisplayProject projectList
+
+        open =
+            case model of
+                IsOpen bool ->
+                    bool
+
+        pivot =
+            zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
+                |> MX.unpack (\_ -> zipperFromCons inboxDisplayProject (List.drop 1 displayList))
+                    identity
+    in
+    viewSelectInput
+        { itemLabel = .title
+        , onClose = ClosePopup
+        , onOpen = OpenPopup
+        , onSelect = \{ id } -> Selected id
+        }
+        { open = open, items = pivot }
+
+
+viewSelectInput :
+    { itemLabel : item -> String
+    , onClose : msg
+    , onOpen : msg
+    , onSelect : item -> msg
+    }
+    -> { open : Bool, items : ( List item, item, List item ) }
+    -> Html msg
+viewSelectInput config props =
+    let
+        selectedItem =
+            zipperFocus props.items
+
+        allItems =
+            zipperToList props.items
+
+        firstItem =
+            List.head allItems |> Maybe.withDefault selectedItem
+
+        selectedItemStyle item =
+            if item == selectedItem then
+                Css.batch [ Css.fontWeight Css.bold ]
+
+            else
+                Css.batch []
+
+        attrsForItem item =
+            [ HX.idIf (item == firstItem) (always firstDomId)
+            , css [ selectedItemStyle item ]
+            ]
+
+        viewItem item =
+            viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
+    in
+    div [ class "relative" ]
+        [ div [ E.onClick config.onOpen ]
+            [ text "project: "
+            , text (config.itemLabel selectedItem)
+            ]
+        , if props.open then
+            H.styled (H.node "track-focus-outside")
+                []
+                [ class "absolute top-1 shadow-1 bg-white"
+                , E.on "focusOutside" (JD.succeed config.onClose)
+                , Key.onEscape config.onClose
+                , tabindex -1
+                ]
+                (List.map viewItem allItems)
+
+          else
+            text ""
+        ]
+
+
+viewMenuItem : List (Attribute msg) -> msg -> String -> Html msg
+viewMenuItem attrs =
+    TextButton.view (class "pa2" :: attrs)
+
+
+firstDomId =
+    "select-project__first-dom-id"
+
+
+
+-- ZIPPER
+
+
 zipperFromListFocusedBy : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
 zipperFromListFocusedBy pred list =
     let
@@ -119,92 +212,3 @@ zipperFromListByHelp pred =
                         ( item :: l, c, r )
         )
         ( [], Nothing, [] )
-
-
-view : ProjectId -> ProjectList -> Model -> H.Html Msg
-view selectedProjectId projectList model =
-    let
-        displayList =
-            inboxDisplayProject
-                :: List.map toDisplayProject projectList
-
-        open =
-            case model of
-                IsOpen bool ->
-                    bool
-
-        pivot =
-            zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
-                |> MX.unpack (\_ -> zipperFromCons inboxDisplayProject (List.drop 1 displayList))
-                    identity
-    in
-    viewSelectInput
-        { itemLabel = .title
-        , onClose = ClosePopup
-        , onOpen = OpenPopup
-        , onSelect = \{ id } -> Selected id
-        }
-        { open = open, items = pivot }
-
-
-viewSelectInput :
-    { itemLabel : item -> String
-    , onClose : msg
-    , onOpen : msg
-    , onSelect : item -> msg
-    }
-    -> { open : Bool, items : ( List item, item, List item ) }
-    -> Html msg
-viewSelectInput config props =
-    let
-        selected =
-            zipperFocus props.items
-
-        allItems =
-            zipperToList props.items
-
-        firstItem =
-            List.head allItems |> Maybe.withDefault selected
-
-        selectedItemStyle item =
-            if item == selected then
-                Css.batch [ Css.fontWeight Css.bold ]
-
-            else
-                Css.batch []
-
-        attrsForItem item =
-            [ HX.idIf (item == firstItem) (always firstDomId)
-            , css [ selectedItemStyle item ]
-            ]
-
-        viewItem item =
-            viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
-    in
-    div [ class "relative" ]
-        [ div [ E.onClick config.onOpen ]
-            [ text "project: "
-            , text (config.itemLabel selected)
-            ]
-        , if props.open then
-            H.styled (H.node "track-focus-outside")
-                []
-                [ class "absolute top-1 shadow-1 bg-white"
-                , E.on "focusOutside" (JD.succeed config.onClose)
-                , Key.onEscape config.onClose
-                , tabindex -1
-                ]
-                (List.map viewItem allItems)
-
-          else
-            text ""
-        ]
-
-
-viewMenuItem : List (Attribute msg) -> msg -> String -> Html msg
-viewMenuItem attrs =
-    TextButton.view (class "pa2" :: attrs)
-
-
-firstDomId =
-    "select-project__first-dom-id"
