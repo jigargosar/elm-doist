@@ -4,7 +4,7 @@ import BasicsExtra exposing (eq_)
 import Css
 import Focus
 import Html.Styled as H exposing (div, text)
-import Html.Styled.Attributes exposing (css, tabindex)
+import Html.Styled.Attributes exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -101,8 +101,8 @@ view selectedProjectId projectList model =
                 ]
 
         MenuOpen ->
-            div []
-                [ div [ E.onClick OpenMenu ]
+            div [ class "relative" ]
+                [ div []
                     [ text "project: "
                     , text (getDisplayProjectTitle selectedProjectId displayProjectList)
                     ]
@@ -116,7 +116,8 @@ view selectedProjectId projectList model =
 selectContainer =
     H.styled (H.node "track-focus-outside")
         []
-        [ E.on "focusOutside" (JD.succeed CloseMenu)
+        [ class "absolute"
+        , E.on "focusOutside" (JD.succeed CloseMenu)
         , Key.onEscape CloseMenu
         , tabindex -1
         ]
