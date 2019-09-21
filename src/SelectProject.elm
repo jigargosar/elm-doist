@@ -92,8 +92,7 @@ view selectedProjectId projectList model =
                     identity
     in
     SelectInput.view
-        { attrs = [ A.id "select-project" ]
-        , itemLabel = .title
+        { itemLabel = .title
         , onClose = ClosePopup
         , onOpen = OpenPopup
         , onSelect = \{ id } -> Selected id

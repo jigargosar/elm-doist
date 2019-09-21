@@ -12,8 +12,7 @@ import UI.TextButton as TextButton
 
 
 view :
-    { attrs : List (Attribute msg)
-    , itemLabel : item -> String
+    { itemLabel : item -> String
     , onClose : msg
     , onOpen : msg
     , onSelect : item -> msg
