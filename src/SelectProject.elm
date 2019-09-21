@@ -1,4 +1,4 @@
-module SelectProject exposing (Model, Msg, init, update, view)
+module SelectProject exposing (Config, Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
 import Focus
@@ -25,18 +25,26 @@ init =
     IsOpen False
 
 
-type Msg
+type Msg item
     = OpenPopup
-    | Selected ProjectId
+    | Selected item
     | ClosePopup
 
 
-update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
-update config message model =
+type alias Config msg item =
+    { id : String
+    , toMsg : Msg item -> msg
+    , onSelect : item -> msg
+    , itemLabel : item -> String
+    }
+
+
+update : Config msg item -> Msg item -> Model -> ( Model, Cmd msg )
+update config message _ =
     case message of
         OpenPopup ->
             ( IsOpen True
-            , Focus.autoFocusWithinId selectProjectInputId
+            , Focus.autoFocusWithinId (selectProjectInputId config.id)
             )
 
         ClosePopup ->
@@ -51,48 +59,24 @@ perform =
     Task.succeed >> Task.perform identity
 
 
-type alias DisplayProject =
-    { id : ProjectId
-    , title : String
-    }
-
-
-toDisplayProject : Project -> DisplayProject
-toDisplayProject { id, title } =
-    { id = id, title = title }
-
-
-inboxDisplayProject : DisplayProject
-inboxDisplayProject =
-    { id = ProjectId.default, title = "Inbox" }
-
-
-view : ProjectId -> ProjectList -> Model -> H.Html Msg
-view selectedProjectId projectList model =
+view : Config msg item -> LZ.ListZipper item -> Model -> H.Html msg
+view config items model =
     let
-        displayList =
-            inboxDisplayProject
-                :: List.map toDisplayProject projectList
-
         open =
             case model of
                 IsOpen bool ->
                     bool
-
-        itemsZipper =
-            LZ.zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
-                |> MX.unpack (\_ -> LZ.zipperFromCons inboxDisplayProject (List.drop 1 displayList))
-                    identity
     in
     SelectInput.view
-        { id = selectProjectInputId
-        , itemLabel = .title
+        { id = selectProjectInputId config.id
+        , itemLabel = config.itemLabel
         , onClose = ClosePopup
         , onOpen = OpenPopup
-        , onSelect = \{ id } -> Selected id
+        , onSelect = Selected
         }
-        { open = open, items = itemsZipper }
+        { open = open, items = items }
+        |> H.map config.toMsg
 
 
-selectProjectInputId =
-    "select-project-input"
+selectProjectInputId uid =
+    "select-input__" ++ uid

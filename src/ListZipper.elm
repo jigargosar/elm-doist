@@ -1,6 +1,10 @@
 module ListZipper exposing (..)
 
 
+type alias ListZipper a =
+    ( List a, a, List a )
+
+
 zipperFromListFocusedBy : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
 zipperFromListFocusedBy pred list =
     let

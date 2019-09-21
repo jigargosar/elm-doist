@@ -1,11 +1,14 @@
 module TodoForm exposing (Fields, Model, Msg, firstFocusable, fromParts, fromProjectId, fromTodo, getFields, update, view)
 
 import Accessibility.Styled exposing (text)
+import BasicsExtra exposing (eq_)
 import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import Json.Encode as JE
-import Project exposing (ProjectList)
+import ListZipper as LZ
+import Maybe.Extra as MX
+import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectProject
 import Task
@@ -98,7 +101,7 @@ getProjectId =
 type Msg
     = SaveClicked
     | CancelClicked
-    | SelectProjectMsg SelectProject.Msg
+    | SelectProjectMsg (SelectProject.Msg DisplayProject)
     | SetProjectId ProjectId
     | TitleChanged String
 
@@ -122,7 +125,7 @@ update config message model =
         SelectProjectMsg msg ->
             let
                 ( newSelectProject, cmd ) =
-                    SelectProject.update { toMsg = SelectProjectMsg, onSelect = SetProjectId }
+                    SelectProject.update selectProjectConfig
                         msg
                         (getSelectProject model)
             in
@@ -132,6 +135,15 @@ update config message model =
 
         SetProjectId projectId ->
             ( setProjectId projectId model, Cmd.none )
+
+
+selectProjectConfig : SelectProject.Config Msg DisplayProject
+selectProjectConfig =
+    { id = "project"
+    , itemLabel = .title
+    , toMsg = SelectProjectMsg
+    , onSelect = .id >> SetProjectId
+    }
 
 
 perform : a -> Cmd a
@@ -162,8 +174,7 @@ view projectList model =
                 ]
             , div [] [ text "schedule" ]
             ]
-        , SelectProject.view (getProjectId model) projectList (getSelectProject model)
-            |> H.map SelectProjectMsg
+        , viewSP (getProjectId model) projectList (getSelectProject model)
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary SaveClicked "Save" []
             , TextButton.primary CancelClicked "Cancel" []
@@ -176,3 +187,34 @@ view projectList model =
             --                    TextButton.primary del "Delete" []
             ]
         ]
+
+
+type alias DisplayProject =
+    { id : ProjectId
+    , title : String
+    }
+
+
+toDisplayProject : Project -> DisplayProject
+toDisplayProject { id, title } =
+    { id = id, title = title }
+
+
+inboxDisplayProject : DisplayProject
+inboxDisplayProject =
+    { id = ProjectId.default, title = "Inbox" }
+
+
+viewSP : ProjectId -> ProjectList -> SelectProject.Model -> H.Html Msg
+viewSP selectedProjectId projectList =
+    let
+        displayList =
+            inboxDisplayProject
+                :: List.map toDisplayProject projectList
+
+        itemsZipper =
+            LZ.zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
+                |> MX.unpack (\_ -> LZ.zipperFromCons inboxDisplayProject (List.drop 1 displayList))
+                    identity
+    in
+    SelectProject.view selectProjectConfig itemsZipper
