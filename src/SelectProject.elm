@@ -89,12 +89,12 @@ getDisplayProjectTitle projectId projectList =
 view : ProjectId -> ProjectList -> Model -> H.Html Msg
 view selectedProjectId projectList model =
     let
-        displayProjectList =
+        displayList =
             inboxDisplayProject
                 :: List.map toDisplayProject projectList
 
-        currentProjectTitle =
-            getDisplayProjectTitle selectedProjectId displayProjectList
+        selectedTitle =
+            getDisplayProjectTitle selectedProjectId displayList
 
         open =
             case model of
@@ -107,11 +107,11 @@ view selectedProjectId projectList model =
     div [ class "relative" ]
         [ div [ E.onClick OpenMenu ]
             [ text "project: "
-            , text currentProjectTitle
+            , text selectedTitle
             ]
         , if open then
             popupContainer
-                (displayProjectList
+                (displayList
                     |> List.indexedMap (viewItem selectedProjectId)
                 )
 
@@ -152,6 +152,7 @@ viewItemHelp { isSelected, isFirst } displayProject =
     TextButton.view
         [ HX.idIf isFirst (always firstDomId)
         , css [ styles ]
+        , class "pa2"
         ]
         (Selected displayProject.id)
         displayProject.title
