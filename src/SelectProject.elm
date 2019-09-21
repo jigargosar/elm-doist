@@ -3,7 +3,7 @@ module SelectProject exposing (Model, Msg, init, update, view)
 import BasicsExtra exposing (eq_)
 import Css
 import Focus
-import Html.Styled as H exposing (div, text)
+import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
@@ -109,6 +109,59 @@ view selectedProjectId projectList model =
             popupContainer
                 (displayList
                     |> List.indexedMap (viewItem selectedProjectId)
+                )
+
+          else
+            text ""
+        ]
+
+
+viewSelectInput :
+    { itemLabel : item -> String
+    , view : item -> List (Attribute msg) -> Html msg
+    , onClose : msg
+    }
+    -> { open : Bool, items : ( List item, item, List item ) }
+    -> Html msg
+viewSelectInput config props =
+    let
+        ( left, selected, right ) =
+            props.items
+
+        allItems =
+            left ++ [ selected ] ++ right
+
+        firstItem =
+            List.head left |> Maybe.withDefault selected
+
+        selectedItemStyle item =
+            if item == selected then
+                Css.batch [ Css.fontWeight Css.bold ]
+
+            else
+                Css.batch []
+
+        attrsForItem item =
+            [ HX.idIf (item == firstItem) (always firstDomId), css [ selectedItemStyle item ] ]
+    in
+    div [ class "relative" ]
+        [ div [ E.onClick OpenMenu ]
+            [ text "project: "
+            , text (config.itemLabel selected)
+            ]
+        , if props.open then
+            H.styled (H.node "track-focus-outside")
+                []
+                [ class "absolute top-1 shadow-1 bg-white"
+                , E.on "focusOutside" (JD.succeed config.onClose)
+                , Key.onEscape config.onClose
+                , tabindex -1
+                ]
+                (List.map
+                    (\item ->
+                        config.view item (attrsForItem item)
+                    )
+                    allItems
                 )
 
           else
