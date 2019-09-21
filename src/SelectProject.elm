@@ -182,7 +182,7 @@ viewSelectInput config props =
             , css [ selectedItemStyle item ]
             ]
 
-        viewItem_ item =
+        viewItem item =
             viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
     in
     div [ class "relative" ]
@@ -198,7 +198,7 @@ viewSelectInput config props =
                 , Key.onEscape config.onClose
                 , tabindex -1
                 ]
-                (List.map viewItem_ allItems)
+                (List.map viewItem allItems)
 
           else
             text ""
