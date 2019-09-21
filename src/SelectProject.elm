@@ -143,6 +143,9 @@ viewSelectInput config props =
 
         attrsForItem item =
             [ HX.idIf (item == firstItem) (always firstDomId), css [ selectedItemStyle item ] ]
+
+        viewItem item =
+            config.view item (attrsForItem item)
     in
     div [ class "relative" ]
         [ div [ E.onClick OpenMenu ]
@@ -157,12 +160,7 @@ viewSelectInput config props =
                 , Key.onEscape config.onClose
                 , tabindex -1
                 ]
-                (List.map
-                    (\item ->
-                        config.view item (attrsForItem item)
-                    )
-                    allItems
-                )
+                (List.map viewItem allItems)
 
           else
             text ""
