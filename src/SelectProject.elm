@@ -40,6 +40,16 @@ type Msg
     | Focused Focus.FocusResult
 
 
+autoFocusWithin : String -> Cmd msg
+autoFocusWithin selector =
+    focusSelector (selector ++ " " ++ " [data-autofocus=true]")
+
+
+autoFocusWithinId : String -> Cmd msg
+autoFocusWithinId id =
+    autoFocusWithin ("#" ++ id)
+
+
 update : { toMsg : Msg -> msg, onSelect : ProjectId -> msg } -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
@@ -47,7 +57,7 @@ update config message model =
             ( IsOpen True
             , Cmd.batch
                 [ focusFirstCmd |> Cmd.map config.toMsg
-                , focusSelector ("#" ++ selectProjectInputId ++ " [data-autofocus=true]")
+                , autoFocusWithinId selectProjectInputId
                 ]
             )
 
