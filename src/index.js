@@ -114,6 +114,12 @@ function dynamicImportPrefetchFaker() {
 }
 
 initSubs({
+  focusSelector: selector => {
+    console.log(selector)
+    setTimeout(() => {
+      console.log(document.querySelector(selector))
+    }, 0)
+  },
   localStorageSetJsonItem,
   signIn: async () => (await firePromise).signIn(),
   signOut: async () => (await firePromise).signOut(),
@@ -129,8 +135,8 @@ initSubs({
     fire.addDisposerWithId(
       options.id,
       query.onSnapshot(qs => {
-        if(qs.docChanges().length === 0){
-            return
+        if (qs.docChanges().length === 0) {
+          return
         }
         const docDataList = qs.docs.map(ds => ds.data())
         const response = { id: options.id, docDataList }

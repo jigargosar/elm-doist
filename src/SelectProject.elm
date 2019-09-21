@@ -47,7 +47,7 @@ update config message model =
             ( IsOpen True
             , Cmd.batch
                 [ focusFirstCmd |> Cmd.map config.toMsg
-                , focusSelector ("#" ++ selectProjectInputId ++ " [autofocus=true]")
+                , focusSelector ("#" ++ selectProjectInputId ++ " [data-autofocus=true]")
                 ]
             )
 
