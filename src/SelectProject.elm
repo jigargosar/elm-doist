@@ -141,13 +141,12 @@ viewSelectInput config props =
     in
     div [ class "relative" ]
         [ div [ E.onClick config.onOpen ]
-            [ text "project: "
-            , text (config.itemLabel selectedItem)
+            [ text (config.itemLabel selectedItem)
             ]
         , if props.open then
             H.styled (H.node "track-focus-outside")
                 []
-                [ class "absolute top-1 shadow-1 bg-white"
+                [ class "absolute top-1 left--1 shadow-1 bg-white"
                 , E.on "focusOutside" (JD.succeed config.onClose)
                 , Key.onEscape config.onClose
                 , tabindex -1
