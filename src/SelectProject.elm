@@ -189,9 +189,9 @@ viewSelectInput config props =
         ]
 
 
+viewMenuItem : List (Attribute msg) -> msg -> String -> Html msg
 viewMenuItem attrs =
-    TextButton.view
-        (class "pa2" :: attrs)
+    TextButton.view (class "pa2" :: attrs)
 
 
 firstDomId =
