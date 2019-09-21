@@ -79,23 +79,27 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
-getDisplayProjectTitle : ProjectId -> List DisplayProject -> String
-getDisplayProjectTitle projectId projectList =
-    LX.find (.id >> eq_ projectId) projectList
-        |> MX.unwrap "<Unknown Project>" .title
-
-
-findSplit : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
-findSplit pred list =
+zipperFromListBy : (a -> Bool) -> List a -> Maybe ( List a, a, List a )
+zipperFromListBy pred list =
     let
         ( l, c, r ) =
-            findSplitHelp pred list
+            zipperFromListByHelp pred list
     in
-    Maybe.map (\jc -> ( l, jc, r )) c
+    Maybe.map (\jc -> ( l, jc, List.reverse r )) c
 
 
-findSplitHelp : (a -> Bool) -> List a -> ( List a, Maybe a, List a )
-findSplitHelp pred =
+zipperToList : ( List a, a, List a ) -> List a
+zipperToList ( l, c, r ) =
+    List.reverse l ++ [ c ] ++ r
+
+
+zipperFromFirst : a -> List a -> ( List a, a, List a )
+zipperFromFirst first list =
+    ( [], first, list )
+
+
+zipperFromListByHelp : (a -> Bool) -> List a -> ( List a, Maybe a, List a )
+zipperFromListByHelp pred =
     List.foldl
         (\item ( l, c, r ) ->
             case c of
@@ -125,8 +129,8 @@ view selectedProjectId projectList model =
                     bool
 
         pivot =
-            findSplit (.id >> eq_ selectedProjectId) displayList
-                |> MX.unpack (\_ -> ( [], inboxDisplayProject, List.drop 1 displayList ))
+            zipperFromListBy (.id >> eq_ selectedProjectId) displayList
+                |> MX.unpack (\_ -> zipperFromFirst inboxDisplayProject (List.drop 1 displayList))
                     identity
     in
     viewSelectInput
