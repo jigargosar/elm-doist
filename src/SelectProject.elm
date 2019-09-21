@@ -106,14 +106,14 @@ view selectedProjectId projectList model =
                     [ text "project: "
                     , text (getDisplayProjectTitle selectedProjectId displayProjectList)
                     ]
-                , selectContainer
+                , popupContainer
                     (displayProjectList
                         |> List.indexedMap (viewItem selectedProjectId)
                     )
                 ]
 
 
-selectContainer =
+popupContainer =
     H.styled (H.node "track-focus-outside")
         []
         [ class "absolute top-1 shadow-1 bg-white"
