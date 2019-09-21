@@ -133,6 +133,7 @@ view selectedProjectId projectList model =
                 viewMenuItem attrs (Selected id) title
         , onClose = CloseMenu
         , onOpen = OpenMenu
+        , onSelect = \{ id } -> Selected id
         }
         { open = open, items = pivot }
 
@@ -142,6 +143,7 @@ viewSelectInput :
     , view : item -> List (Attribute msg) -> Html msg
     , onClose : msg
     , onOpen : msg
+    , onSelect : item -> msg
     }
     -> { open : Bool, items : ( List item, item, List item ) }
     -> Html msg
