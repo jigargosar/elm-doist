@@ -178,10 +178,12 @@ viewSelectInput config props =
                 Css.batch []
 
         attrsForItem item =
-            [ HX.idIf (item == firstItem) (always firstDomId), css [ selectedItemStyle item ] ]
+            [ HX.idIf (item == firstItem) (always firstDomId)
+            , css [ selectedItemStyle item ]
+            ]
 
         viewItem_ item =
-            config.view item (attrsForItem item)
+            viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
     in
     div [ class "relative" ]
         [ div [ E.onClick config.onOpen ]
