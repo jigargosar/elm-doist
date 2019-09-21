@@ -11,7 +11,8 @@ import UI.TextButton as TextButton
 
 
 view :
-    { itemLabel : item -> String
+    { attrs : List (Attribute msg)
+    , itemLabel : item -> String
     , onClose : msg
     , onOpen : msg
     , onSelect : item -> msg
@@ -44,7 +45,7 @@ view config props =
         viewItem item =
             viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
     in
-    div [ class "relative" ]
+    div (class "relative" :: config.attrs)
         [ div [ E.onClick config.onOpen ]
             [ text (config.itemLabel selectedItem)
             ]
