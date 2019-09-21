@@ -1,21 +1,15 @@
 module SelectProject exposing (Model, Msg, init, update, view)
 
 import BasicsExtra exposing (eq_)
-import Css
 import Focus
-import Html.Styled as H exposing (Attribute, Html, div, text)
-import Html.Styled.Attributes as A exposing (class, css, tabindex)
-import Html.Styled.Events as E
-import HtmlExtra as HX
-import Json.Decode as JD
+import Html.Styled as H exposing (Attribute, Html)
+import Html.Styled.Attributes as A
 import ListZipper as LZ
 import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectInput
 import Task
-import UI.Key as Key
-import UI.TextButton as TextButton
 
 
 type Model
