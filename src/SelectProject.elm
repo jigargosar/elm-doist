@@ -140,9 +140,6 @@ view selectedProjectId projectList model =
     in
     viewSelectInput
         { itemLabel = .title
-        , view =
-            \{ id, title } attrs ->
-                viewMenuItem attrs (Selected id) title
         , onClose = CloseMenu
         , onOpen = OpenMenu
         , onSelect = \{ id } -> Selected id
@@ -152,7 +149,6 @@ view selectedProjectId projectList model =
 
 viewSelectInput :
     { itemLabel : item -> String
-    , view : item -> List (Attribute msg) -> Html msg
     , onClose : msg
     , onOpen : msg
     , onSelect : item -> msg
