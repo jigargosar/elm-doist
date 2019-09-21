@@ -1,4 +1,15 @@
-module TodoForm exposing (Fields, Model, Msg, firstFocusable, fromParts, fromProjectId, fromTodo, getFields, update, view)
+module TodoForm exposing
+    ( Fields
+    , Model
+    , Msg
+    , firstFocusable
+    , fromParts
+    , fromProjectId
+    , fromTodo
+    , getFields
+    , update
+    , view
+    )
 
 import Accessibility.Styled exposing (text)
 import BasicsExtra exposing (eq_)
@@ -174,7 +185,7 @@ view projectList model =
                 ]
             , div [] [ text "schedule" ]
             ]
-        , viewSP (getProjectId model) projectList (getSelectProject model)
+        , viewSelectProjectInput (getProjectId model) projectList (getSelectProject model)
         , div [ class "flex hs3 lh-copy" ]
             [ TextButton.primary SaveClicked "Save" []
             , TextButton.primary CancelClicked "Cancel" []
@@ -205,8 +216,8 @@ inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
 
 
-viewSP : ProjectId -> ProjectList -> SelectProject.Model -> H.Html Msg
-viewSP selectedProjectId projectList =
+viewSelectProjectInput : ProjectId -> ProjectList -> SelectProject.Model -> H.Html Msg
+viewSelectProjectInput selectedProjectId projectList =
     let
         displayList =
             inboxDisplayProject
