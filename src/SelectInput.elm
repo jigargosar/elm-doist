@@ -62,12 +62,16 @@ view config items model =
             case model of
                 IsOpen bool ->
                     bool
+
+        selected =
+            LZ.zipperFocus items
     in
     viewHelp
         { id = selectInputId config.id
         , itemLabel = config.itemLabel
         , open = open
         }
+        selected
         items
         |> H.map config.toMsg
 
@@ -81,13 +85,11 @@ viewHelp :
     , itemLabel : item -> String
     , open : Bool
     }
+    -> item
     -> ( List item, item, List item )
-    -> Html msg
-viewHelp config items =
+    -> Html (Msg item)
+viewHelp config selectedItem items =
     let
-        selectedItem =
-            LZ.zipperFocus items
-
         allItems =
             LZ.zipperToList items
 
