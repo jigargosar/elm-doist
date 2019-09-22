@@ -44,7 +44,6 @@ type Msg
     | Close
     | LostFocus
     | ItemMsg ItemMsg
-    | Focused Focus.FocusResult
 
 
 type ItemMsg
@@ -148,9 +147,6 @@ update config message model =
                         MoveTo ->
                             ( model, Cmd.none )
 
-        Focused _ ->
-            ( model, Cmd.none )
-
 
 perform : a -> Cmd a
 perform =
@@ -166,8 +162,8 @@ focusFirstCmd _ =
 
 
 restoreFocusCmd : Config msg -> TodoId -> Cmd msg
-restoreFocusCmd config todoId =
-    triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
+restoreFocusCmd _ todoId =
+    triggerId todoId |> Focus.focusId
 
 
 view : Config msg -> Model -> Html msg
