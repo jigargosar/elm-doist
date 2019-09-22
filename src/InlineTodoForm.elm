@@ -26,6 +26,17 @@ type Model
     | Closed
 
 
+type Meta
+    = AddM AddAt
+    | EditM Todo
+
+
+type alias Internal =
+    { meta : Meta
+    , form : TodoForm.Model
+    }
+
+
 type OpenedState
     = Add AddState
     | Edit EditState
