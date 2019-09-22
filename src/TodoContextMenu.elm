@@ -194,4 +194,9 @@ viewMenuItems =
         ]
         Edit
         "Edit"
+    , TextButton.view
+        [ class "pv1 ph2"
+        ]
+        Edit
+        "Edit"
     ]
