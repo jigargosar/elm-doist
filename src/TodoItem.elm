@@ -43,7 +43,7 @@ view config zone todo =
         , viewTodoItemTitle (config.editClicked todo) todo.title
         , viewTodoItemDueDate config.noOp zone todo.dueAt
         , div [ class "relative flex" ]
-            [ IconButton.view config.noOp
+            [ IconButton.view (config.moreClicked todo)
                 [ A.id <| TodoPopup.triggerElDomId todo.id
                 , class "pa2 tc child"
                 ]
