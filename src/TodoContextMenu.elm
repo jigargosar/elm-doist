@@ -66,7 +66,7 @@ type Msg
 
 type ItemMsg
     = Edit
-    | MoveTo
+    | OpenSelectProjectSubMenu
     | CloseSubMenu
 
 
@@ -159,7 +159,7 @@ update config message model =
                                 ]
                             )
 
-                        MoveTo ->
+                        OpenSelectProjectSubMenu ->
                             ( Opened { state | subMenu = SelectProjectSubMenu }, Cmd.none )
 
                         CloseSubMenu ->
@@ -239,7 +239,7 @@ viewItems subMenu =
         [ TextButton.view
             [ class "pv1 ph2"
             ]
-            MoveTo
+            OpenSelectProjectSubMenu
             "Move To"
         , case subMenu of
             SelectProjectSubMenu ->
