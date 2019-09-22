@@ -226,7 +226,7 @@ view toMsg config projectList model =
         Opened { meta, form } ->
             let
                 todoFormView =
-                    TodoForm.view projectList form |> H.map (TodoFormMsg >> toMsg)
+                    viewForm toMsg projectList form
             in
             case meta of
                 Add addAt ->
@@ -234,3 +234,8 @@ view toMsg config projectList model =
 
                 Edit todo ->
                     config.edit todo.id todoFormView
+
+
+viewForm : (Msg -> msg) -> ProjectList -> TodoForm.Model -> Html msg
+viewForm toMsg projectList form =
+    TodoForm.view projectList form |> H.map (TodoFormMsg >> toMsg)
