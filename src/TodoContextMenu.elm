@@ -60,10 +60,10 @@ update config message model =
 
         ItemMsg msg ->
             case model of
-                Opened todoId ->
+                Opened todo ->
                     case msg of
                         Edit ->
-                            ( Closed, perform (config.edit todoId) )
+                            ( Closed, perform (config.edit todo) )
 
                 Closed ->
                     ( Closed, Cmd.none )
