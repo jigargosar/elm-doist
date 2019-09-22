@@ -1,6 +1,8 @@
-module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update, view)
+module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
+import Accessibility.Key
 import Browser.Dom as Dom exposing (Element)
+import Browser.Events
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
@@ -53,6 +55,30 @@ type alias Config msg =
     { toMsg : Msg -> msg
     , edit : Todo -> msg
     }
+
+
+subscriptions : Config msg -> Model -> Sub msg
+subscriptions config model =
+    let
+        targetOutsideRootDecoder =
+            JD.field "target"
+                (Focus.outsideElIdDecoder rootDomId (config.toMsg Close))
+
+        subWhenOpen =
+            Sub.batch
+                [ Browser.Events.onKeyDown targetOutsideRootDecoder
+                , Browser.Events.onMouseDown targetOutsideRootDecoder
+                ]
+    in
+    case model of
+        Opening _ ->
+            subWhenOpen
+
+        Opened _ _ ->
+            subWhenOpen
+
+        Closed ->
+            Sub.none
 
 
 update : Config msg -> Msg -> Model -> ( Model, Cmd msg )

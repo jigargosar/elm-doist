@@ -271,11 +271,12 @@ todoDoneChecked todoId isChecked =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Ports.onAuthStateChanged AuthStateChanged
         , Ports.onFirestoreQueryResponse GotFirestoreQueryResponse
         , BrowserSize.onBrowserResize BrowserSizeChanged
+        , TodoContextMenu.subscriptions todoContextMenuConfig model.todoContextMenu
         ]
 
 
