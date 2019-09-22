@@ -70,7 +70,7 @@ focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
 
 
-view : { toMsg : Msg -> msg } -> Model -> Html msg
+view : Config msg -> Model -> Html msg
 view config model =
     let
         isOpen =
