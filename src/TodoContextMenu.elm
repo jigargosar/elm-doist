@@ -4,7 +4,7 @@ import Browser.Dom as Dom exposing (Element)
 import Browser.Events
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
-import Html.Styled as H exposing (Html, div)
+import Html.Styled as H exposing (Html, div, text)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -174,25 +174,23 @@ restoreFocusCmd config todoId =
 
 view : Config msg -> Model -> Html msg
 view config model =
-    let
-        maybeAnchorEl =
-            case model of
-                Closed ->
-                    Nothing
-
-                Opening _ ->
-                    Nothing
-
-                Opened { anchor } ->
-                    Just anchor
-    in
-    case maybeAnchorEl of
-        Just anchorEl ->
-            viewOpen config (rootStyles anchorEl)
-                |> H.map config.toMsg
-
-        Nothing ->
+    case model of
+        Closed ->
             HX.none
+
+        Opening _ ->
+            HX.none
+
+        Opened { anchor, subMenu } ->
+            H.styled div
+                [ rootStyles anchor ]
+                [ A.id rootDomId
+                , class "shadow-1 bg-white"
+                , Key.onEscape Close
+                , tabindex -1
+                ]
+                (viewMenuItems subMenu |> List.map (H.map ItemMsg))
+                |> H.map config.toMsg
 
 
 rootStyles : Element -> Css.Style
@@ -209,29 +207,25 @@ rootStyles anchorEl =
         ]
 
 
-viewOpen : Config msg -> Css.Style -> Html Msg
-viewOpen _ rootStyle =
-    H.styled div
-        [ rootStyle ]
-        [ A.id rootDomId
-        , class "shadow-1 bg-white"
-        , Key.onEscape Close
-        , tabindex -1
-        ]
-        (viewMenuItems |> List.map (H.map ItemMsg))
-
-
-viewMenuItems : List (Html ItemMsg)
-viewMenuItems =
+viewMenuItems : Maybe SubMenu -> List (Html ItemMsg)
+viewMenuItems subMenu =
     [ TextButton.view
         [ Focus.dataAutoFocus True
         , class "pv1 ph2"
         ]
         Edit
         "Edit"
-    , TextButton.view
-        [ class "pv1 ph2"
+    , div [ class "relative" ]
+        [ TextButton.view
+            [ class "pv1 ph2"
+            ]
+            MoveTo
+            "Move To"
+        , case subMenu of
+            Just SelectProject ->
+                div [] [ text "Select Project" ]
+
+            _ ->
+                HX.none
         ]
-        MoveTo
-        "Move To"
     ]
