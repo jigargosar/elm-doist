@@ -21,6 +21,7 @@ open todoId =
 
 type Msg
     = Open TodoId
+    | Close
 
 
 update : { toMsg : Msg -> msg } -> Msg -> Model -> ( Model, Cmd msg )
@@ -28,6 +29,9 @@ update config message model =
     case message of
         Open todoId ->
             ( Opened todoId, focusFirstCmd )
+
+        Close ->
+            ( Closed, Cmd.none )
 
 
 rootDomId =
