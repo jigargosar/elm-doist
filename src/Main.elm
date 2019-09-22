@@ -38,6 +38,7 @@ import Svg.Attributes as SA
 import Task
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
+import TodoContextMenu
 import TodoForm
 import TodoId exposing (TodoId)
 import TodoItem
@@ -82,6 +83,7 @@ type alias Model =
     { todoList : TodoList
     , projectList : ProjectList
     , inlineTodoForm : InlineTodoForm.Model
+    , todoContextMenu : TodoContextMenu.Model
     , authState : AuthState
     , errors : Errors
     , key : Nav.Key
@@ -173,6 +175,7 @@ init encodedFlags url key =
             { todoList = []
             , projectList = []
             , inlineTodoForm = InlineTodoForm.init
+            , todoContextMenu = TodoContextMenu.init
             , authState = AuthState.initial
             , errors = Errors.fromStrings []
             , key = key

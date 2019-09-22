@@ -1,4 +1,4 @@
-module TodoContextMenu exposing (Config, Model, Msg)
+module TodoContextMenu exposing (Config, Model, Msg, init, open)
 
 import Focus
 import Html.Styled as H exposing (Html, div)
