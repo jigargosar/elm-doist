@@ -1,5 +1,6 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update)
 
+import Browser.Dom exposing (Element)
 import Focus
 import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes exposing (class, tabindex)
@@ -36,6 +37,7 @@ triggerId todoId =
 
 type Msg
     = Open Todo
+    | GotAnchorElement Element
     | Close
     | ItemMsg ItemMsg
 
@@ -55,6 +57,17 @@ update config message model =
     case message of
         Open todo ->
             ( Opening todo, focusFirstCmd config )
+
+        GotAnchorElement el ->
+            case model of
+                Closed ->
+                    ( model, Cmd.none )
+
+                Opening todo ->
+                    ( Opened todo, focusFirstCmd config )
+
+                Opened todo ->
+                    ( Opened todo, Cmd.none )
 
         Close ->
             ( Closed, Cmd.none )
