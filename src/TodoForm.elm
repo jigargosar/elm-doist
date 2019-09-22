@@ -18,8 +18,6 @@ import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import Json.Encode as JE
 import List.Extra as LX
-import ListZipper as LZ
-import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import SelectInput

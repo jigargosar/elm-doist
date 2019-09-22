@@ -6,7 +6,6 @@ import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import Json.Decode as JD
-import ListZipper as LZ
 import Task
 import UI.Key as Key
 import UI.TextButton as TextButton
