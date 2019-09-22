@@ -55,16 +55,13 @@ perform =
     Task.succeed >> Task.perform identity
 
 
-view : Config msg item -> LZ.ListZipper item -> Model -> H.Html msg
-view config items model =
+view : Config msg item -> item -> List item -> Model -> H.Html msg
+view config selected items model =
     let
         open =
             case model of
                 IsOpen bool ->
                     bool
-
-        selected =
-            LZ.zipperFocus items
     in
     viewHelp
         { id = selectInputId config.id
@@ -72,7 +69,7 @@ view config items model =
         , open = open
         }
         selected
-        (LZ.zipperToList items)
+        items
         |> H.map config.toMsg
 
 

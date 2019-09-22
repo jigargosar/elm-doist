@@ -17,6 +17,7 @@ import Html.Styled as H exposing (div, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import Json.Encode as JE
+import List.Extra as LX
 import ListZipper as LZ
 import Maybe.Extra as MX
 import Project exposing (Project, ProjectList)
@@ -223,9 +224,8 @@ viewSelectProjectInput selectedProjectId projectList =
             inboxDisplayProject
                 :: List.map toDisplayProject projectList
 
-        itemsZipper =
-            LZ.zipperFromListFocusedBy (.id >> eq_ selectedProjectId) displayList
-                |> MX.unpack (\_ -> LZ.zipperFromCons inboxDisplayProject (List.drop 1 displayList))
-                    identity
+        selected =
+            LX.find (.id >> eq_ selectedProjectId) displayList
+                |> Maybe.withDefault inboxDisplayProject
     in
-    SelectInput.view selectProjectConfig itemsZipper
+    SelectInput.view selectProjectConfig selected displayList
