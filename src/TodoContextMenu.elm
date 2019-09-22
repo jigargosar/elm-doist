@@ -131,6 +131,7 @@ focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
 
 
+restoreFocusCmd : Config msg -> TodoId -> Cmd msg
 restoreFocusCmd config todoId =
     triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
 
