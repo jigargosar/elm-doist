@@ -115,5 +115,5 @@ viewOpen _ =
 
 viewMenuItems : List (Html ItemMsg)
 viewMenuItems =
-    [ TextButton.view [] Edit "Edit"
+    [ TextButton.view [ Focus.dataAutoFocus True ] Edit "Edit"
     ]
