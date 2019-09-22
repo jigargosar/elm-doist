@@ -1,4 +1,4 @@
-module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update)
+module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update, view)
 
 import Browser.Dom exposing (Element)
 import Css exposing (absolute, left, position, px, top, width)

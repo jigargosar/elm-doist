@@ -647,11 +647,14 @@ viewNavProject project =
 
 viewFooter : Model -> Html Msg
 viewFooter model =
-    if model.authState == AuthState.NotSignedIn then
-        viewSignInDialog
+    div []
+        [ if model.authState == AuthState.NotSignedIn then
+            viewSignInDialog
 
-    else
-        HX.none
+          else
+            HX.none
+        , TodoContextMenu.view todoContextMenuConfig model.todoContextMenu
+        ]
 
 
 viewDialogWrapper : List (Html msg) -> Html msg
