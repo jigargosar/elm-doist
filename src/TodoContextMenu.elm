@@ -80,9 +80,12 @@ type alias Config msg =
 subscriptions : Config msg -> Model -> Sub msg
 subscriptions config model =
     let
-        targetOutsideRootDecoder =
+        targetOutsideDecoder domId msg =
             JD.field "target"
-                (Focus.outsideElIdDecoder rootDomId (config.toMsg LostFocus))
+                (Focus.outsideElIdDecoder domId (config.toMsg msg))
+
+        targetOutsideRootDecoder =
+            targetOutsideDecoder rootDomId LostFocus
 
         subWhenOpen =
             Sub.batch
