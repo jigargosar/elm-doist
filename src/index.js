@@ -3,7 +3,7 @@ import './index.css'
 import { Elm } from './Main.elm'
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
-
+import debounce from 'debounce'
 import {
   forEach,
   forEachObjIndexed,
@@ -113,16 +113,23 @@ function dynamicImportPrefetchFaker() {
   )
 }
 
+function focusSelector(selector) {
+  console.log('focusSelector', selector)
+  const el = document.querySelector(selector)
+  if (el) {
+    el.focus()
+  } else {
+    console.error('focusSelector failed:', selector)
+  }
+}
+
+const debouncedFocusSelector = debounce(focusSelector, 0)
+
 initSubs({
   focusSelector: selector => {
-    console.log('Focusing selector', selector)
+    console.log('Queuing focusSelector', selector)
     requestAnimationFrame(() => {
-      const el = document.querySelector(selector)
-      if (el) {
-        el.focus()
-      } else {
-        console.error('focusSelector failed:', selector)
-      }
+      debouncedFocusSelector(selector)
     })
   },
   localStorageSetJsonItem,

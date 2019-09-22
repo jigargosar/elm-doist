@@ -17,6 +17,7 @@
   "author": "Jigar Gosar <jigar.gosar@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "debounce": "^1.2.0",
     "faker": "^4.1.0",
     "firebase": "^6.3.4",
     "fp-ts": "^2.0.3",
