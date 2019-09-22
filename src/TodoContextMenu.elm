@@ -1,13 +1,11 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
-import Accessibility.Key
 import Browser.Dom as Dom exposing (Element)
 import Browser.Events
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
-import Html.Styled as H exposing (Html, div)
+import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, tabindex)
-import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
 import Task
@@ -44,6 +42,7 @@ type Msg
     | Close
     | LostFocus
     | ItemMsg ItemMsg
+    | Focused Focus.FocusResult
 
 
 type ItemMsg
@@ -90,11 +89,7 @@ update config message model =
                 |> Task.attempt (GotAnchorElement >> config.toMsg)
             )
 
-        GotAnchorElement (Err error) ->
-            let
-                _ =
-                    Debug.log "GotAnchorElement Error" error
-            in
+        GotAnchorElement (Err _) ->
             ( model, Cmd.none )
 
         GotAnchorElement (Ok el) ->
@@ -147,6 +142,9 @@ update config message model =
                         MoveTo ->
                             ( model, Cmd.none )
 
+        Focused _ ->
+            ( model, Cmd.none )
+
 
 perform : a -> Cmd a
 perform =
@@ -162,8 +160,8 @@ focusFirstCmd _ =
 
 
 restoreFocusCmd : Config msg -> TodoId -> Cmd msg
-restoreFocusCmd _ todoId =
-    triggerId todoId |> Focus.focusId
+restoreFocusCmd config todoId =
+    triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
 
 
 view : Config msg -> Model -> Html msg
