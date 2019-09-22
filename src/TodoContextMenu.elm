@@ -23,21 +23,17 @@ type Model
 
 type SubMenu
     = SelectProjectSubMenu
-    | NoSubMenu
 
 
 subMenuDomId : SubMenu -> String
 subMenuDomId subMenu =
     case subMenu of
         SelectProjectSubMenu ->
-            "move-to-sub-menu"
-
-        NoSubMenu ->
-            ""
+            "select-project-sub-menu"
 
 
 type alias Internal =
-    { todo : Todo, anchor : Element, subMenu : SubMenu }
+    { todo : Todo, anchor : Element, subMenu : Maybe SubMenu }
 
 
 init : Model
@@ -118,7 +114,7 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened { todo = todo, anchor = el, subMenu = NoSubMenu }, focusFirstCmd config )
+                    ( Opened { todo = todo, anchor = el, subMenu = Nothing }, focusFirstCmd config )
 
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
@@ -160,12 +156,12 @@ update config message model =
                             )
 
                         OpenSelectProjectSubMenu ->
-                            ( Opened { state | subMenu = SelectProjectSubMenu }
+                            ( Opened { state | subMenu = Just SelectProjectSubMenu }
                             , focusSubMenu SelectProjectSubMenu
                             )
 
                         CloseSubMenu ->
-                            ( Opened { state | subMenu = NoSubMenu }, Cmd.none )
+                            ( Opened { state | subMenu = Nothing }, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -234,7 +230,7 @@ rootStyles anchorEl =
         ]
 
 
-viewItems : SubMenu -> List (Html ItemMsg)
+viewItems : Maybe SubMenu -> List (Html ItemMsg)
 viewItems subMenu =
     [ TextButton.view
         [ Focus.dataAutoFocus True
@@ -249,9 +245,9 @@ viewItems subMenu =
             OpenSelectProjectSubMenu
             "Move To"
         , case subMenu of
-            SelectProjectSubMenu ->
+            Just SelectProjectSubMenu ->
                 div
-                    [ A.id (subMenuDomId subMenu)
+                    [ A.id (subMenuDomId SelectProjectSubMenu)
                     , class "absolute top-1 left--1 shadow-1 bg-white"
                     , Key.onEscape CloseSubMenu
                     , tabindex -1
