@@ -28,7 +28,7 @@ update : { toMsg : Msg -> msg } -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
         Open todoId ->
-            ( Opened todoId, focusFirstCmd )
+            ( Opened todoId, focusFirstCmd config )
 
         Close ->
             ( Closed, Cmd.none )
@@ -38,5 +38,5 @@ rootDomId =
     "todo-context-menu"
 
 
-focusFirstCmd =
+focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
