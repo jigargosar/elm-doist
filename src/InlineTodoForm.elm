@@ -84,7 +84,9 @@ update config message model =
                 Opened { meta, form } ->
                     case meta of
                         Add _ ->
-                            ( Opened { meta = Add addAt, form = form }, focusForm config )
+                            ( Opened { meta = Add addAt, form = form }
+                            , focusForm config
+                            )
 
                         Edit todo ->
                             ( Opened { meta = Add addAt, form = TodoForm.fromProjectId projectId }
