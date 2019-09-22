@@ -22,14 +22,14 @@ type Model
 
 
 type SubMenu
-    = MoveToSubMenu
+    = SelectProjectSubMenu
     | NoSubMenu
 
 
 subMenuDomId : SubMenu -> String
 subMenuDomId subMenu =
     case subMenu of
-        MoveToSubMenu ->
+        SelectProjectSubMenu ->
             "move-to-sub-menu"
 
         NoSubMenu ->
@@ -160,7 +160,7 @@ update config message model =
                             )
 
                         MoveTo ->
-                            ( Opened { state | subMenu = MoveToSubMenu }, Cmd.none )
+                            ( Opened { state | subMenu = SelectProjectSubMenu }, Cmd.none )
 
                         CloseSubMenu ->
                             ( Opened { state | subMenu = NoSubMenu }, Cmd.none )
@@ -242,7 +242,7 @@ viewItems subMenu =
             MoveTo
             "Move To"
         , case subMenu of
-            MoveToSubMenu ->
+            SelectProjectSubMenu ->
                 div
                     [ A.id (subMenuDomId subMenu)
                     , class "absolute top-1 left--1 shadow-1 bg-white"
