@@ -22,7 +22,7 @@ type Model
 
 
 type SubMenu
-    = SelectProjectMenu
+    = SelectProjectPopup
     | NoSubMenu
 
 
@@ -149,7 +149,7 @@ update config message model =
                             )
 
                         MoveTo ->
-                            ( Opened { state | subMenu = SelectProjectMenu }, Cmd.none )
+                            ( Opened { state | subMenu = SelectProjectPopup }, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -228,7 +228,7 @@ viewItems subMenu =
             MoveTo
             "Move To"
         , case subMenu of
-            SelectProjectMenu ->
+            SelectProjectPopup ->
                 div [] [ text "Select Project" ]
 
             _ ->
