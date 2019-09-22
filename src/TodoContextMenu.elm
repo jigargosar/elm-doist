@@ -1,6 +1,7 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update)
 
 import Browser.Dom exposing (Element)
+import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes exposing (class, tabindex)
@@ -102,7 +103,7 @@ focusFirstCmd _ =
 view : Config msg -> Model -> Html msg
 view config model =
     let
-        anchorEl =
+        maybeAnchorEl =
             case model of
                 Closed ->
                     Nothing
@@ -113,19 +114,33 @@ view config model =
                 Opened _ el ->
                     Just el
     in
-    case anchorEl of
-        Just el ->
-            viewOpen config
+    case maybeAnchorEl of
+        Just anchorEl ->
+            viewOpen config (rootStyles anchorEl)
                 |> H.map config.toMsg
 
         Nothing ->
             HX.none
 
 
-viewOpen : Config msg -> Html Msg
-viewOpen _ =
+rootStyles : Element -> Css.Style
+rootStyles anchorEl =
+    let
+        popupWidth =
+            256
+    in
+    Css.batch
+        [ position absolute
+        , top <| px <| anchorEl.element.y + 20
+        , left <| px <| anchorEl.element.x + anchorEl.element.width - popupWidth
+        , width <| px popupWidth
+        ]
+
+
+viewOpen : Config msg -> Css.Style -> Html Msg
+viewOpen _ rootStyle =
     H.styled (H.node "track-focus-outside")
-        []
+        [ rootStyle ]
         [ class "absolute top-1 left--1 shadow-1 bg-white"
         , E.on "focusOutside" (JD.succeed Close)
         , Key.onEscape Close
