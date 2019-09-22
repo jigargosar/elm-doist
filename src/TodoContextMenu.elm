@@ -22,11 +22,12 @@ type Model
 
 
 type SubMenu
-    = SelectProject
+    = SelectProjectMenu
+    | NoSubMenu
 
 
 type alias Internal =
-    { todo : Todo, anchor : Element, subMenu : Maybe SubMenu }
+    { todo : Todo, anchor : Element, subMenu : SubMenu }
 
 
 init : Model
@@ -106,7 +107,7 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened { todo = todo, anchor = el, subMenu = Nothing }, focusFirstCmd config )
+                    ( Opened { todo = todo, anchor = el, subMenu = NoSubMenu }, focusFirstCmd config )
 
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
@@ -148,7 +149,7 @@ update config message model =
                             )
 
                         MoveTo ->
-                            ( model, Cmd.none )
+                            ( Opened { state | subMenu = SelectProjectMenu }, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -212,7 +213,7 @@ rootStyles anchorEl =
         ]
 
 
-viewItems : Maybe SubMenu -> List (Html ItemMsg)
+viewItems : SubMenu -> List (Html ItemMsg)
 viewItems subMenu =
     [ TextButton.view
         [ Focus.dataAutoFocus True
@@ -227,7 +228,7 @@ viewItems subMenu =
             MoveTo
             "Move To"
         , case subMenu of
-            Just SelectProject ->
+            SelectProjectMenu ->
                 div [] [ text "Select Project" ]
 
             _ ->
