@@ -111,7 +111,9 @@ viewHelp config props =
             ]
 
         viewItem item =
-            viewMenuItem (attrsForItem item) (config.onSelect item) (config.itemLabel item)
+            viewMenuItem (attrsForItem item)
+                (config.onSelect item)
+                (config.itemLabel item)
     in
     div (class "relative" :: [ A.id config.id ])
         [ div [ E.onClick config.onOpen ]
