@@ -36,7 +36,11 @@ triggerId todoId =
 type Msg
     = Open Todo
     | Close
-    | Edit
+    | ItemMsg ItemMsg
+
+
+type ItemMsg
+    = Edit
 
 
 type alias Config msg =
@@ -54,10 +58,12 @@ update config message model =
         Close ->
             ( Closed, Cmd.none )
 
-        Edit ->
+        ItemMsg msg ->
             case model of
                 Opened todoId ->
-                    ( Closed, perform (config.edit todoId) )
+                    case msg of
+                        Edit ->
+                            ( Closed, perform (config.edit todoId) )
 
                 Closed ->
                     ( Closed, Cmd.none )
@@ -104,10 +110,10 @@ viewOpen _ =
         , Key.onEscape Close
         , tabindex -1
         ]
-        viewMenuItems
+        (viewMenuItems |> List.map (H.map ItemMsg))
 
 
-viewMenuItems : List (Html Msg)
+viewMenuItems : List (Html ItemMsg)
 viewMenuItems =
     [ TextButton.view [] Edit "Edit"
     ]
