@@ -14,7 +14,8 @@ import UI.TextButton as TextButton
 
 
 type Model
-    = Opened Todo
+    = Opening Todo
+    | Opened Todo
     | Closed
 
 
@@ -52,21 +53,24 @@ type alias Config msg =
 update : Config msg -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
-        Open todoId ->
-            ( Opened todoId, focusFirstCmd config )
+        Open todo ->
+            ( Opening todo, focusFirstCmd config )
 
         Close ->
             ( Closed, Cmd.none )
 
         ItemMsg msg ->
             case model of
+                Closed ->
+                    ( model, Cmd.none )
+
+                Opening _ ->
+                    ( model, Cmd.none )
+
                 Opened todo ->
                     case msg of
                         Edit ->
                             ( Closed, perform (config.edit todo) )
-
-                Closed ->
-                    ( Closed, Cmd.none )
 
 
 perform : a -> Cmd a
@@ -91,6 +95,9 @@ view config model =
                     True
 
                 Closed ->
+                    False
+
+                Opening _ ->
                     False
     in
     if isOpen then
