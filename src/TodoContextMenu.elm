@@ -209,7 +209,6 @@ viewOpen _ rootStyle =
         [ rootStyle ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
-        , E.on "focusOutside" (JD.succeed Close)
         , Key.onEscape Close
         , tabindex -1
         ]
