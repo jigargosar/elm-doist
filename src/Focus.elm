@@ -1,4 +1,4 @@
-port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, onFocusOutsideDomId, outsideElIdDecoder)
+port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, focusId, onFocusOutsideDomId, outsideElIdDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)
@@ -59,6 +59,11 @@ attempt focusedMsg domId =
 
 
 port focusSelector : String -> Cmd msg
+
+
+focusId : String -> Cmd msg
+focusId domId =
+    focusSelector ("#" ++ domId)
 
 
 autoFocusWithin : String -> Cmd msg
