@@ -16,7 +16,7 @@ import UI.TextButton as TextButton
 
 type Model
     = Opening Todo
-    | Opened Todo
+    | Opened Todo Element
     | Closed
 
 
@@ -64,10 +64,10 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened todo, focusFirstCmd config )
+                    ( Opened todo el, focusFirstCmd config )
 
-                Opened todo ->
-                    ( Opened todo, Cmd.none )
+                Opened todo _ ->
+                    ( Opened todo el, Cmd.none )
 
         Close ->
             ( Closed, Cmd.none )
@@ -80,7 +80,7 @@ update config message model =
                 Opening _ ->
                     ( model, Cmd.none )
 
-                Opened todo ->
+                Opened todo _ ->
                     case msg of
                         Edit ->
                             ( Closed, perform (config.edit todo) )
@@ -102,23 +102,24 @@ focusFirstCmd _ =
 view : Config msg -> Model -> Html msg
 view config model =
     let
-        isOpen =
+        anchorEl =
             case model of
-                Opened _ ->
-                    True
-
                 Closed ->
-                    False
+                    Nothing
 
                 Opening _ ->
-                    False
-    in
-    if isOpen then
-        viewOpen config
-            |> H.map config.toMsg
+                    Nothing
 
-    else
-        HX.none
+                Opened _ el ->
+                    Just el
+    in
+    case anchorEl of
+        Just el ->
+            viewOpen config
+                |> H.map config.toMsg
+
+        Nothing ->
+            HX.none
 
 
 viewOpen : Config msg -> Html Msg
