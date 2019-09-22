@@ -249,7 +249,13 @@ viewItems subMenu =
                     , Key.onEscape CloseSubMenu
                     , tabindex -1
                     ]
-                    [ TextButton.view [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project" ]
+                    [ TextButton.view
+                        [ Focus.dataAutoFocus True
+                        , class "ph2 pv1"
+                        ]
+                        CloseSubMenu
+                        "Select Project"
+                    ]
 
             _ ->
                 HX.none
