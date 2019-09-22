@@ -21,6 +21,7 @@ type alias Config msg =
     , doneChanged : TodoId -> Bool -> msg
     , editClicked : Todo -> msg
     , moreClicked : Todo -> msg
+    , moreTriggerId : TodoId -> String
     }
 
 
@@ -43,7 +44,7 @@ view config zone todo =
         , viewTodoItemTitle (config.editClicked todo) todo.title
         , viewTodoItemDueDate config.noOp zone todo.dueAt
         , IconButton.view (config.moreClicked todo)
-            [ A.id <| TodoPopup.triggerElDomId todo.id
+            [ A.id <| config.moreTriggerId todo.id
             , class "pa2 tc child"
             ]
             FAS.ellipsisH

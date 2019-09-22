@@ -840,6 +840,7 @@ todoItemConfig =
     , doneChanged = todoDoneChecked
     , editClicked = editTodoClicked
     , moreClicked = TodoContextMenuMsg << TodoContextMenu.open
+    , moreTriggerId = TodoContextMenu.triggerId
     }
 
 

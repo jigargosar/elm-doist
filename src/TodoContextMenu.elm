@@ -1,4 +1,4 @@
-module TodoContextMenu exposing (Config, Model, Msg, init, open, update)
+module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update)
 
 import Focus
 import Html.Styled as H exposing (Html, div)
@@ -26,6 +26,11 @@ init =
 open : Todo -> Msg
 open =
     Open
+
+
+triggerId : TodoId -> String
+triggerId todoId =
+    "todo-context-menu" ++ TodoId.toString todoId
 
 
 type Msg
