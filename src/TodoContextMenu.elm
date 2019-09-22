@@ -41,6 +41,7 @@ type Msg
     | GotAnchorElement (Result Dom.Error Element)
     | Close
     | ItemMsg ItemMsg
+    | Focused Focus.FocusResult
 
 
 type ItemMsg
@@ -113,6 +114,9 @@ update config message model =
                                 ]
                             )
 
+        Focused _ ->
+            ( model, Cmd.none )
+
 
 perform : a -> Cmd a
 perform =
@@ -127,8 +131,8 @@ focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
 
 
-restoreFocusCmd _ todoId =
-    triggerId todoId |> Focus.focusId
+restoreFocusCmd config todoId =
+    triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
 
 
 view : Config msg -> Model -> Html msg
