@@ -46,6 +46,7 @@ type Msg
 
 type ItemMsg
     = Edit
+    | MoveTo
 
 
 type alias Config msg =
@@ -113,6 +114,9 @@ update config message model =
                                 , perform (config.edit todo)
                                 ]
                             )
+
+                        MoveTo ->
+                            ( model, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -197,6 +201,6 @@ viewMenuItems =
     , TextButton.view
         [ class "pv1 ph2"
         ]
-        Edit
-        "Edit"
+        MoveTo
+        "Move To"
     ]
