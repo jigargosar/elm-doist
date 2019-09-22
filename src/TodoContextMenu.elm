@@ -6,8 +6,10 @@ import Html.Styled.Attributes exposing (class, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
+import Task
 import TodoId exposing (TodoId)
 import UI.Key as Key
+import UI.TextButton as TextButton
 
 
 type Model
@@ -28,20 +30,36 @@ open todoId =
 type Msg
     = Open TodoId
     | Close
+    | Edit
 
 
 type alias Config msg =
-    { toMsg : Msg -> msg }
+    { toMsg : Msg -> msg
+    , edit : TodoId -> msg
+    }
 
 
 update : Config msg -> Msg -> Model -> ( Model, Cmd msg )
-update config message _ =
+update config message model =
     case message of
         Open todoId ->
             ( Opened todoId, focusFirstCmd config )
 
         Close ->
             ( Closed, Cmd.none )
+
+        Edit ->
+            case model of
+                Opened todoId ->
+                    ( Closed, perform (config.edit todoId) )
+
+                Closed ->
+                    ( Closed, Cmd.none )
+
+
+perform : a -> Cmd a
+perform =
+    Task.succeed >> Task.perform identity
 
 
 rootDomId =
@@ -72,7 +90,7 @@ view config model =
 
 
 viewOpen : Config msg -> Html Msg
-viewOpen config =
+viewOpen _ =
     H.styled (H.node "track-focus-outside")
         []
         [ class "absolute top-1 left--1 shadow-1 bg-white"
@@ -80,4 +98,10 @@ viewOpen config =
         , Key.onEscape Close
         , tabindex -1
         ]
-        []
+        viewMenuItems
+
+
+viewMenuItems : List (Html Msg)
+viewMenuItems =
+    [ TextButton.view [] Edit "Edit"
+    ]
