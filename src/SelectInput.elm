@@ -66,9 +66,6 @@ view config items model =
     viewHelp
         { id = selectInputId config.id
         , itemLabel = config.itemLabel
-        , onClose = ClosePopup
-        , onOpen = OpenPopup
-        , onSelect = Selected
         }
         { open = open, items = items }
         |> H.map config.toMsg
@@ -81,9 +78,6 @@ selectInputId uid =
 viewHelp :
     { id : String
     , itemLabel : item -> String
-    , onClose : msg
-    , onOpen : msg
-    , onSelect : item -> msg
     }
     -> { open : Bool, items : ( List item, item, List item ) }
     -> Html msg
@@ -112,19 +106,19 @@ viewHelp config props =
 
         viewItem item =
             viewMenuItem (attrsForItem item)
-                (config.onSelect item)
+                (Selected item)
                 (config.itemLabel item)
     in
     div (class "relative" :: [ A.id config.id ])
-        [ div [ E.onClick config.onOpen ]
+        [ div [ E.onClick OpenPopup ]
             [ text (config.itemLabel selectedItem)
             ]
         , if props.open then
             H.styled (H.node "track-focus-outside")
                 []
                 [ class "absolute top-1 left--1 shadow-1 bg-white"
-                , E.on "focusOutside" (JD.succeed config.onClose)
-                , Key.onEscape config.onClose
+                , E.on "focusOutside" (JD.succeed ClosePopup)
+                , Key.onEscape ClosePopup
                 , tabindex -1
                 ]
                 (List.map viewItem allItems)
