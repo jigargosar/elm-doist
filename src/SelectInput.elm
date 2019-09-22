@@ -16,10 +16,6 @@ type Model
     = IsOpen Bool
 
 
-type alias Internal =
-    {}
-
-
 init : Model
 init =
     IsOpen False
