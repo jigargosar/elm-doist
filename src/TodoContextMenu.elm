@@ -26,6 +26,16 @@ type SubMenu
     | NoSubMenu
 
 
+subMenuDomId : SubMenu -> String
+subMenuDomId subMenu =
+    case subMenu of
+        MoveToSubMenu ->
+            "move-to-sub-menu"
+
+        NoSubMenu ->
+            ""
+
+
 type alias Internal =
     { todo : Todo, anchor : Element, subMenu : SubMenu }
 
@@ -57,6 +67,7 @@ type Msg
 type ItemMsg
     = Edit
     | MoveTo
+    | CloseSubMenu
 
 
 type alias Config msg =
@@ -151,6 +162,9 @@ update config message model =
                         MoveTo ->
                             ( Opened { state | subMenu = MoveToSubMenu }, Cmd.none )
 
+                        CloseSubMenu ->
+                            ( Opened { state | subMenu = NoSubMenu }, Cmd.none )
+
         Focused _ ->
             ( model, Cmd.none )
 
@@ -229,7 +243,13 @@ viewItems subMenu =
             "Move To"
         , case subMenu of
             MoveToSubMenu ->
-                div [] [ text "Select Project" ]
+                div
+                    [ A.id (subMenuDomId subMenu)
+                    , class "absolute top-1 left--1 shadow-1 bg-white"
+                    , Key.onEscape CloseSubMenu
+                    , tabindex -1
+                    ]
+                    [ TextButton.view [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project" ]
 
             _ ->
                 HX.none
