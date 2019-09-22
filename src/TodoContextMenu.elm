@@ -32,6 +32,11 @@ subMenuDomId subMenu =
             "select-project-sub-menu"
 
 
+subMenuTriggerDomId : SubMenu -> String
+subMenuTriggerDomId subMenu =
+    subMenuDomId subMenu ++ "__trigger"
+
+
 type alias Internal =
     { todo : Todo, anchor : Element, subMenu : Maybe SubMenu }
 
@@ -161,7 +166,12 @@ update config message model =
                             )
 
                         CloseSubMenu ->
-                            ( Opened { state | subMenu = Nothing }, Cmd.none )
+                            case state.subMenu of
+                                Just menu ->
+                                    ( Opened { state | subMenu = Nothing }, restoreFocusOnSubMenuClose menu )
+
+                                Nothing ->
+                                    ( model, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -188,6 +198,11 @@ focusSubMenu subMenu =
 restoreFocusCmd : Config msg -> TodoId -> Cmd msg
 restoreFocusCmd config todoId =
     triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
+
+
+restoreFocusOnSubMenuClose : SubMenu -> Cmd msg
+restoreFocusOnSubMenuClose menu =
+    subMenuTriggerDomId menu |> Focus.focusId
 
 
 view : Config msg -> Model -> Html msg
@@ -240,7 +255,8 @@ viewItems subMenu =
         "Edit"
     , div [ class "relative" ]
         [ TextButton.view
-            [ class "pv1 ph2"
+            [ A.id (subMenuTriggerDomId SelectProjectSubMenu)
+            , class "pv1 ph2"
             ]
             OpenSelectProjectSubMenu
             "Move To"
