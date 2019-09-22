@@ -839,6 +839,7 @@ todoItemConfig =
     { noOp = NoOp
     , doneChanged = todoDoneChecked
     , editClicked = editTodoClicked
+    , moreClicked = TodoContextMenuMsg << TodoContextMenu.open
     }
 
 

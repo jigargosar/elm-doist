@@ -20,6 +20,7 @@ type alias Config msg =
     { noOp : msg
     , doneChanged : TodoId -> Bool -> msg
     , editClicked : Todo -> msg
+    , moreClicked : Todo -> msg
     }
 
 

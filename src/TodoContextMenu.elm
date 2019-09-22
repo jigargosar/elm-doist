@@ -24,8 +24,8 @@ init =
 
 
 open : Todo -> Msg
-open todoId =
-    Open todoId
+open =
+    Open
 
 
 type Msg
