@@ -1,4 +1,4 @@
-module ListZipper exposing (..)
+module ListZipper exposing (ListZipper, zipperFocus, zipperFromCons, zipperFromListFocusedBy, zipperToList)
 
 
 type alias ListZipper a =
