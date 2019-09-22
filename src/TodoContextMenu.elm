@@ -69,6 +69,7 @@ type ItemMsg
     = Edit
     | OpenSelectProjectSubMenu
     | CloseSubMenu
+    | SubMenuLostFocus
 
 
 type alias Config msg =
@@ -97,8 +98,23 @@ subscriptions config model =
         Opening _ ->
             subWhenOpen
 
-        Opened _ ->
-            subWhenOpen
+        Opened state ->
+            Sub.batch
+                [ subWhenOpen
+                , case state.subMenu of
+                    Just menu ->
+                        let
+                            decoder =
+                                targetOutsideDecoder (subMenuDomId menu) (ItemMsg SubMenuLostFocus)
+                        in
+                        Sub.batch
+                            [ Browser.Events.onKeyDown decoder
+                            , Browser.Events.onMouseDown decoder
+                            ]
+
+                    Nothing ->
+                        Sub.none
+                ]
 
         Closed ->
             Sub.none
@@ -172,6 +188,14 @@ update config message model =
                             case state.subMenu of
                                 Just menu ->
                                     ( Opened { state | subMenu = Nothing }, restoreFocusOnSubMenuClose menu )
+
+                                Nothing ->
+                                    ( model, Cmd.none )
+
+                        SubMenuLostFocus ->
+                            case state.subMenu of
+                                Just _ ->
+                                    ( Opened { state | subMenu = Nothing }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )
