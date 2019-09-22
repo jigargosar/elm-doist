@@ -17,8 +17,16 @@ import UI.TextButton as TextButton
 
 type Model
     = Opening Todo
-    | Opened Todo Element
+    | Opened Internal
     | Closed
+
+
+type SubMenu
+    = SelectProject
+
+
+type alias Internal =
+    { todo : Todo, anchor : Element, subMenu : Maybe SubMenu }
 
 
 init : Model
@@ -73,7 +81,7 @@ subscriptions config model =
         Opening _ ->
             subWhenOpen
 
-        Opened _ _ ->
+        Opened _ ->
             subWhenOpen
 
         Closed ->
@@ -98,10 +106,10 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened todo el, focusFirstCmd config )
+                    ( Opened { todo = todo, anchor = el, subMenu = Nothing }, focusFirstCmd config )
 
-                Opened todo _ ->
-                    ( Opened todo el, Cmd.none )
+                Opened state ->
+                    ( Opened { state | anchor = el }, Cmd.none )
 
         LostFocus ->
             ( Closed, Cmd.none )
@@ -114,8 +122,8 @@ update config message model =
                 Opening _ ->
                     ( model, Cmd.none )
 
-                Opened todo _ ->
-                    ( Closed, restoreFocusCmd config todo.id )
+                Opened state ->
+                    ( Closed, restoreFocusCmd config state.todo.id )
 
         ItemMsg msg ->
             case model of
@@ -125,17 +133,17 @@ update config message model =
                 Opening _ ->
                     ( model, Cmd.none )
 
-                Opened todo _ ->
+                Opened state ->
                     let
                         restoreFocus =
-                            restoreFocusCmd config todo.id
+                            restoreFocusCmd config state.todo.id
                     in
                     case msg of
                         Edit ->
                             ( Closed
                             , Cmd.batch
                                 [ restoreFocus
-                                , perform (config.edit todo)
+                                , perform (config.edit state.todo)
                                 ]
                             )
 
@@ -175,8 +183,8 @@ view config model =
                 Opening _ ->
                     Nothing
 
-                Opened _ el ->
-                    Just el
+                Opened { anchor } ->
+                    Just anchor
     in
     case maybeAnchorEl of
         Just anchorEl ->
