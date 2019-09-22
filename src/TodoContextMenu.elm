@@ -4,7 +4,7 @@ import Browser.Dom as Dom exposing (Element)
 import Browser.Events
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
-import Html.Styled as H exposing (Html)
+import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -203,7 +203,7 @@ rootStyles anchorEl =
 
 viewOpen : Config msg -> Css.Style -> Html Msg
 viewOpen _ rootStyle =
-    H.styled (H.node "track-focus-outside")
+    H.styled div
         [ rootStyle ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
