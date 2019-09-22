@@ -42,6 +42,7 @@ type Msg
     = Open Todo
     | GotAnchorElement (Result Dom.Error Element)
     | Close
+    | LostFocus
     | ItemMsg ItemMsg
     | Focused Focus.FocusResult
 
@@ -62,7 +63,7 @@ subscriptions config model =
     let
         targetOutsideRootDecoder =
             JD.field "target"
-                (Focus.outsideElIdDecoder rootDomId (config.toMsg Close))
+                (Focus.outsideElIdDecoder rootDomId (config.toMsg LostFocus))
 
         subWhenOpen =
             Sub.batch
@@ -107,6 +108,9 @@ update config message model =
 
                 Opened todo _ ->
                     ( Opened todo el, Cmd.none )
+
+        LostFocus ->
+            ( Closed, Cmd.none )
 
         Close ->
             case model of
