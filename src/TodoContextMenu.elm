@@ -1,4 +1,4 @@
-module TodoContextMenu exposing (Config, Model, Msg, init, open)
+module TodoContextMenu exposing (Config, Model, Msg, init, open, update)
 
 import Focus
 import Html.Styled as H exposing (Html, div)
@@ -7,13 +7,14 @@ import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
 import Task
+import Todo exposing (Todo)
 import TodoId exposing (TodoId)
 import UI.Key as Key
 import UI.TextButton as TextButton
 
 
 type Model
-    = Opened TodoId
+    = Opened Todo
     | Closed
 
 
@@ -22,20 +23,20 @@ init =
     Closed
 
 
-open : TodoId -> Msg
+open : Todo -> Msg
 open todoId =
     Open todoId
 
 
 type Msg
-    = Open TodoId
+    = Open Todo
     | Close
     | Edit
 
 
 type alias Config msg =
     { toMsg : Msg -> msg
-    , edit : TodoId -> msg
+    , edit : Todo -> msg
     }
 
 

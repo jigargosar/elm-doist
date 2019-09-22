@@ -128,6 +128,11 @@ setInlineTodoForm inlineTodoForm model =
     { model | inlineTodoForm = inlineTodoForm }
 
 
+setTodoContextMenu : TodoContextMenu.Model -> Model -> Model
+setTodoContextMenu todoContextMenu model =
+    { model | todoContextMenu = todoContextMenu }
+
+
 setBrowserSize : BrowserSize -> Model -> Model
 setBrowserSize browserSize model =
     { model | browserSize = browserSize }
@@ -236,6 +241,7 @@ type Msg
     | AddTodo TodoForm.Fields
     | AddTodoWithDueTodayClicked
     | InlineTodoFormMsg InlineTodoForm.Msg
+    | TodoContextMenuMsg TodoContextMenu.Msg
       -- ProjectOps
     | DeleteProjectClicked ProjectId
     | AddProjectClicked
@@ -399,6 +405,17 @@ update message model =
 
         InlineTodoFormMsg msg ->
             updateInlineTodoForm msg model
+
+        TodoContextMenuMsg msg ->
+            TodoContextMenu.update todoContextMenuConfig msg model.todoContextMenu
+                |> Tuple.mapFirst (flip setTodoContextMenu model)
+
+
+todoContextMenuConfig : TodoContextMenu.Config Msg
+todoContextMenuConfig =
+    { toMsg = TodoContextMenuMsg
+    , edit = editTodoClicked
+    }
 
 
 
