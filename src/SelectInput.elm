@@ -72,7 +72,7 @@ view config items model =
         , open = open
         }
         selected
-        items
+        (LZ.zipperToList items)
         |> H.map config.toMsg
 
 
@@ -86,15 +86,12 @@ viewHelp :
     , open : Bool
     }
     -> item
-    -> ( List item, item, List item )
+    -> List item
     -> Html (Msg item)
 viewHelp config selectedItem items =
     let
-        allItems =
-            LZ.zipperToList items
-
         firstItem =
-            List.head allItems |> Maybe.withDefault selectedItem
+            List.head items |> Maybe.withDefault selectedItem
 
         selectedItemStyle item =
             if item == selectedItem then
@@ -125,7 +122,7 @@ viewHelp config selectedItem items =
                 , Key.onEscape ClosePopup
                 , tabindex -1
                 ]
-                (List.map viewItem allItems)
+                (List.map viewItem items)
 
           else
             text ""
