@@ -66,8 +66,9 @@ view config items model =
     viewHelp
         { id = selectInputId config.id
         , itemLabel = config.itemLabel
+        , open = open
         }
-        { open = open, items = items }
+        items
         |> H.map config.toMsg
 
 
@@ -78,16 +79,17 @@ selectInputId uid =
 viewHelp :
     { id : String
     , itemLabel : item -> String
+    , open : Bool
     }
-    -> { open : Bool, items : ( List item, item, List item ) }
+    -> ( List item, item, List item )
     -> Html msg
-viewHelp config props =
+viewHelp config items =
     let
         selectedItem =
-            LZ.zipperFocus props.items
+            LZ.zipperFocus items
 
         allItems =
-            LZ.zipperToList props.items
+            LZ.zipperToList items
 
         firstItem =
             List.head allItems |> Maybe.withDefault selectedItem
@@ -113,7 +115,7 @@ viewHelp config props =
         [ div [ E.onClick OpenPopup ]
             [ text (config.itemLabel selectedItem)
             ]
-        , if props.open then
+        , if config.open then
             H.styled (H.node "track-focus-outside")
                 []
                 [ class "absolute top-1 left--1 shadow-1 bg-white"
