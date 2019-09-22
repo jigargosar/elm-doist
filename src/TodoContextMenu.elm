@@ -81,7 +81,15 @@ update config message model =
                     ( Opened todo el, Cmd.none )
 
         Close ->
-            ( Closed, Cmd.none )
+            case model of
+                Closed ->
+                    ( model, Cmd.none )
+
+                Opening _ ->
+                    ( model, Cmd.none )
+
+                Opened todo _ ->
+                    ( Closed, restoreFocusCmd config todo.id )
 
         ItemMsg msg ->
             case model of
@@ -92,9 +100,18 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opened todo _ ->
+                    let
+                        restoreFocus =
+                            restoreFocusCmd config todo.id
+                    in
                     case msg of
                         Edit ->
-                            ( Closed, perform (config.edit todo) )
+                            ( Closed
+                            , Cmd.batch
+                                [ restoreFocus
+                                , perform (config.edit todo)
+                                ]
+                            )
 
 
 perform : a -> Cmd a
@@ -108,6 +125,10 @@ rootDomId =
 
 focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
+
+
+restoreFocusCmd _ todoId =
+    triggerId todoId |> Focus.focusId
 
 
 view : Config msg -> Model -> Html msg
