@@ -152,7 +152,7 @@ viewOpen _ rootStyle =
     H.styled (H.node "track-focus-outside")
         [ rootStyle ]
         [ A.id rootDomId
-        , class "absolute top-1 left--1 shadow-1 bg-white"
+        , class "pa1 shadow-1 bg-white"
         , E.on "focusOutside" (JD.succeed Close)
         , Key.onEscape Close
         , tabindex -1
@@ -162,5 +162,10 @@ viewOpen _ rootStyle =
 
 viewMenuItems : List (Html ItemMsg)
 viewMenuItems =
-    [ TextButton.view [ Focus.dataAutoFocus True ] Edit "Edit"
+    [ TextButton.view
+        [ Focus.dataAutoFocus True
+        , class "pa1"
+        ]
+        Edit
+        "Edit"
     ]
