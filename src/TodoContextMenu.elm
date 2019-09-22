@@ -182,15 +182,20 @@ view config model =
             HX.none
 
         Opened { anchor, subMenu } ->
-            H.styled div
-                [ rootStyles anchor ]
-                [ A.id rootDomId
-                , class "shadow-1 bg-white"
-                , Key.onEscape Close
-                , tabindex -1
-                ]
-                (viewMenuItems subMenu |> List.map (H.map ItemMsg))
+            viewContainer anchor
+                (viewItems subMenu |> List.map (H.map ItemMsg))
                 |> H.map config.toMsg
+
+
+viewContainer : Element -> List (Html Msg) -> Html Msg
+viewContainer anchor =
+    H.styled div
+        [ rootStyles anchor ]
+        [ A.id rootDomId
+        , class "shadow-1 bg-white"
+        , Key.onEscape Close
+        , tabindex -1
+        ]
 
 
 rootStyles : Element -> Css.Style
@@ -207,8 +212,8 @@ rootStyles anchorEl =
         ]
 
 
-viewMenuItems : Maybe SubMenu -> List (Html ItemMsg)
-viewMenuItems subMenu =
+viewItems : Maybe SubMenu -> List (Html ItemMsg)
+viewItems subMenu =
     [ TextButton.view
         [ Focus.dataAutoFocus True
         , class "pv1 ph2"
