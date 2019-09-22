@@ -90,8 +90,8 @@ subscriptions config model =
 
         subWhenOpen =
             Sub.batch
-                [ Browser.Events.onKeyDown targetOutsideRootDecoder
-                , Browser.Events.onMouseDown targetOutsideRootDecoder
+                [ Browser.Events.onKeyUp targetOutsideRootDecoder
+                , Browser.Events.onMouseUp targetOutsideRootDecoder
                 ]
     in
     case model of
@@ -108,8 +108,8 @@ subscriptions config model =
                                 targetOutsideDecoder (subMenuDomId menu) (ItemMsg SubMenuLostFocus)
                         in
                         Sub.batch
-                            [ Browser.Events.onKeyDown decoder
-                            , Browser.Events.onMouseDown decoder
+                            [ Browser.Events.onKeyUp decoder
+                            , Browser.Events.onMouseUp decoder
                             ]
 
                     Nothing ->
