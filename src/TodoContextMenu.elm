@@ -1,10 +1,10 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, triggerId, update, view)
 
-import Browser.Dom exposing (Element)
+import Browser.Dom as Dom exposing (Element)
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
-import Html.Styled.Attributes exposing (class, tabindex)
+import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Json.Decode as JD
@@ -38,7 +38,7 @@ triggerId todoId =
 
 type Msg
     = Open Todo
-    | GotAnchorElement Element
+    | GotAnchorElement (Result Dom.Error Element)
     | Close
     | ItemMsg ItemMsg
 
@@ -57,9 +57,19 @@ update : Config msg -> Msg -> Model -> ( Model, Cmd msg )
 update config message model =
     case message of
         Open todo ->
-            ( Opening todo, focusFirstCmd config )
+            ( Opening todo
+            , Dom.getElement (triggerId todo.id)
+                |> Task.attempt (GotAnchorElement >> config.toMsg)
+            )
 
-        GotAnchorElement el ->
+        GotAnchorElement (Err error) ->
+            let
+                _ =
+                    Debug.log "GotAnchorElement Error" error
+            in
+            ( model, Cmd.none )
+
+        GotAnchorElement (Ok el) ->
             case model of
                 Closed ->
                     ( model, Cmd.none )
@@ -141,7 +151,8 @@ viewOpen : Config msg -> Css.Style -> Html Msg
 viewOpen _ rootStyle =
     H.styled (H.node "track-focus-outside")
         [ rootStyle ]
-        [ class "absolute top-1 left--1 shadow-1 bg-white"
+        [ A.id rootDomId
+        , class "absolute top-1 left--1 shadow-1 bg-white"
         , E.on "focusOutside" (JD.succeed Close)
         , Key.onEscape Close
         , tabindex -1

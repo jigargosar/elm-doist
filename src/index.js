@@ -115,15 +115,15 @@ function dynamicImportPrefetchFaker() {
 
 initSubs({
   focusSelector: selector => {
-    console.log("Focusing selector",selector)
-    setTimeout(() => {
+    console.log('Focusing selector', selector)
+    requestAnimationFrame(() => {
       const el = document.querySelector(selector)
       if (el) {
         el.focus()
       } else {
         console.error('focusSelector failed:', selector)
       }
-    }, 0)
+    })
   },
   localStorageSetJsonItem,
   signIn: async () => (await firePromise).signIn(),
