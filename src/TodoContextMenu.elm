@@ -160,7 +160,9 @@ update config message model =
                             )
 
                         OpenSelectProjectSubMenu ->
-                            ( Opened { state | subMenu = SelectProjectSubMenu }, Cmd.none )
+                            ( Opened { state | subMenu = SelectProjectSubMenu }
+                            , focusSubMenu SelectProjectSubMenu
+                            )
 
                         CloseSubMenu ->
                             ( Opened { state | subMenu = NoSubMenu }, Cmd.none )
@@ -180,6 +182,11 @@ rootDomId =
 
 focusFirstCmd _ =
     Focus.autoFocusWithinId rootDomId
+
+
+focusSubMenu : SubMenu -> Cmd msg
+focusSubMenu subMenu =
+    Focus.autoFocusWithinId (subMenuDomId subMenu)
 
 
 restoreFocusCmd : Config msg -> TodoId -> Cmd msg
