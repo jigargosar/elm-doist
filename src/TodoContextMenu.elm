@@ -237,7 +237,7 @@ view config model =
 viewOpened : OpenedState -> Html OpenedMsg
 viewOpened { anchor, subMenuState } =
     viewContainer anchor
-        (viewItems subMenuState)
+        (viewRootMenuItems subMenuState)
 
 
 viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
@@ -266,8 +266,8 @@ rootStyles anchorEl =
         ]
 
 
-viewItems : Maybe SubMenu -> List (Html OpenedMsg)
-viewItems subMenuState =
+viewRootMenuItems : Maybe SubMenu -> List (Html OpenedMsg)
+viewRootMenuItems subMenuState =
     [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
     , viewSubmenuTriggerItem [] SelectProjectSubMenu subMenuState
     ]
@@ -279,13 +279,17 @@ viewSubmenuTriggerItem attrs subMenu subMenuState =
             (A.id (subMenuTriggerDomId subMenu) :: attrs)
             (OpenSubMenu subMenu)
             (subMenuTriggerTitle subMenu)
-        , viewSelectProjectSubMenu subMenuState
+        , if subMenuState == Just subMenu then
+            viewSubMenu subMenu
+
+          else
+            HX.none
         ]
 
 
-viewSelectProjectSubMenu subMenu =
+viewSubMenu subMenu =
     case subMenu of
-        Just SelectProjectSubMenu ->
+        SelectProjectSubMenu ->
             H.map SubMenuMsg <|
                 Focus.focusTracker
                     [ A.id (subMenuDomId SelectProjectSubMenu)
@@ -296,9 +300,6 @@ viewSelectProjectSubMenu subMenu =
                     ]
                     [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
                     ]
-
-        _ ->
-            HX.none
 
 
 viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
