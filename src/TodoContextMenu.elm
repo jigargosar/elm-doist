@@ -293,21 +293,6 @@ viewSubmenuTriggerItem attrs subMenu renderSubMenu =
         ]
 
 
-viewSubMenu subMenuState =
-    case subMenuState of
-        SelectProjectSubMenu ->
-            H.map SubMenuMsg <|
-                Focus.focusTracker
-                    [ A.id (subMenuDomId SelectProjectSubMenu)
-                    , class "absolute top-1 left--1 shadow-1 bg-white"
-                    , Key.onEscape CloseSubMenu
-                    , Focus.onFocusLost SubMenuLostFocus
-                    , tabindex -1
-                    ]
-                    [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
-                    ]
-
-
 viewSelectProjectSubMenu : ProjectId -> ProjectList -> Html SubMenuMsg
 viewSelectProjectSubMenu selectedProjectId projectList =
     Focus.focusTracker
