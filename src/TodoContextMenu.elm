@@ -7,6 +7,7 @@ import Focus
 import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
+import Json.Decode as JD exposing (Decoder)
 import Maybe.Extra as MX
 import MovePopup
 import Project exposing (Project, ProjectList)
@@ -233,7 +234,7 @@ update config message model =
                                     | activeIdx =
                                         state.activeIdx
                                             |> Maybe.map nextRootIdx
-                                            |> MX.or (Just 0)
+                                            |> MX.orElse (Just 0)
                                 }
                             , Cmd.none
                             )
@@ -244,7 +245,7 @@ update config message model =
                                     | activeIdx =
                                         state.activeIdx
                                             |> Maybe.map prevRootIdx
-                                            |> MX.or (Just lastRootIdx)
+                                            |> MX.orElse (Just lastRootIdx)
                                 }
                             , Cmd.none
                             )
@@ -320,16 +321,16 @@ view config projectList model =
 
 
 viewOpened : (SubMenu -> Html OpenedMsg) -> OpenedState -> Html OpenedMsg
-viewOpened renderSubMenu { anchor, maybeSubMenuState } =
+viewOpened renderSubMenu { activeIdx, anchor, maybeSubMenuState } =
     Focus.styledFocusTracker
         [ rootStyles anchor ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
-        , Key.onEscape Close
+        , Key.onDown [ Key.up Prev, Key.down Next ]
         , Focus.onFocusLost FocusLost
         , tabindex 0
         ]
-        (viewRootMenuItems renderSubMenu)
+        (viewRootMenuItems activeIdx renderSubMenu)
 
 
 rootStyles : Element -> Css.Style
@@ -346,17 +347,28 @@ rootStyles anchorEl =
         ]
 
 
-viewRootMenuItems : (SubMenu -> Html OpenedMsg) -> List (Html OpenedMsg)
-viewRootMenuItems renderSubMenu =
+viewRootMenuItems : Maybe Int -> (SubMenu -> Html OpenedMsg) -> List (Html OpenedMsg)
+viewRootMenuItems activeIdx renderSubMenu =
     rootMenuItems
-        |> List.map
-            (\item ->
+        |> List.indexedMap
+            (\idx item ->
+                let
+                    keyboard =
+                        if Just idx == activeIdx then
+                            [ class "bg-light-blue" ]
+
+                        else
+                            []
+
+                    attrs =
+                        keyboard
+                in
                 case item.msg of
                     Edit ->
-                        viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
+                        viewItem attrs Edit "Edit"
 
                     OpenSubMenu SelectProjectSubMenu ->
-                        viewSubmenuTriggerItem [] SelectProjectSubMenu renderSubMenu
+                        viewSubmenuTriggerItem attrs SelectProjectSubMenu renderSubMenu
 
                     _ ->
                         HX.none
