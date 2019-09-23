@@ -55,6 +55,7 @@ customElements.define(
       console.log('focus-tracker: disconnected')
       if(this.focusCheckerTimeoutId){
         clearTimeout(this.focusCheckerTimeoutId)
+        this.focusCheckerTimeoutId = null
       }
       this.removeEventListener('focusout', focusOutListener)
     }
@@ -65,6 +66,7 @@ function focusOutListener() {
   // console.log('foutCheckCalled', this)
   if(this.focusCheckerTimeoutId){
     clearTimeout(this.focusCheckerTimeoutId)
+    this.focusCheckerTimeoutId = null
   }
   this.focusCheckerTimeoutId = setTimeout(() => {
     if (!this.contains(document.activeElement) && this.connected) {
