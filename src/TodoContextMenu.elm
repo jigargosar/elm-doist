@@ -46,7 +46,7 @@ subMenuTriggerTitle subMenu =
 type alias OpenedState =
     { todo : Todo
     , anchor : Element
-    , subMenuState : Maybe SubMenu
+    , maybeSubMenu : Maybe SubMenu
     }
 
 
@@ -135,7 +135,7 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened { todo = todo, anchor = el, subMenuState = Nothing }, focusFirstCmd config )
+                    ( Opened { todo = todo, anchor = el, maybeSubMenu = Nothing }, focusFirstCmd config )
 
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
@@ -166,21 +166,21 @@ update config message model =
                             )
 
                         OpenSubMenu subMenu ->
-                            ( Opened { state | subMenuState = Just subMenu }
+                            ( Opened { state | maybeSubMenu = Just subMenu }
                             , focusSubMenu subMenu
                             )
 
                         SubMenuMsg subMenuMsg ->
-                            case state.subMenuState of
+                            case state.maybeSubMenu of
                                 Just menu ->
                                     case subMenuMsg of
                                         CloseSubMenu ->
-                                            ( Opened { state | subMenuState = Nothing }
+                                            ( Opened { state | maybeSubMenu = Nothing }
                                             , restoreFocusOnSubMenuClose menu
                                             )
 
                                         SubMenuLostFocus ->
-                                            ( Opened { state | subMenuState = Nothing }, Cmd.none )
+                                            ( Opened { state | maybeSubMenu = Nothing }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )
@@ -235,9 +235,9 @@ view config model =
 
 
 viewOpened : OpenedState -> Html OpenedMsg
-viewOpened { anchor, subMenuState } =
+viewOpened { anchor, maybeSubMenu } =
     viewContainer anchor
-        (viewRootMenuItems subMenuState)
+        (viewRootMenuItems maybeSubMenu)
 
 
 viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
@@ -267,19 +267,19 @@ rootStyles anchorEl =
 
 
 viewRootMenuItems : Maybe SubMenu -> List (Html OpenedMsg)
-viewRootMenuItems subMenuState =
+viewRootMenuItems maybeSubMenu =
     [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
-    , viewSubmenuTriggerItem [] SelectProjectSubMenu subMenuState
+    , viewSubmenuTriggerItem [] SelectProjectSubMenu maybeSubMenu
     ]
 
 
-viewSubmenuTriggerItem attrs subMenu subMenuState =
+viewSubmenuTriggerItem attrs subMenu maybeSubMenu =
     div [ class "relative" ]
         [ viewItem
             (A.id (subMenuTriggerDomId subMenu) :: attrs)
             (OpenSubMenu subMenu)
             (subMenuTriggerTitle subMenu)
-        , if subMenuState == Just subMenu then
+        , if maybeSubMenu == Just subMenu then
             viewSubMenu subMenu
 
           else
