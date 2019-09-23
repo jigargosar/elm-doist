@@ -35,6 +35,10 @@ type SubMenu
     = SelectProjectSubMenu
 
 
+type SubMenuState
+    = SelectProjectSubMenuState Menu.Model
+
+
 subMenuDomId : SubMenu -> String
 subMenuDomId subMenu =
     case subMenu of
@@ -58,7 +62,7 @@ type alias OpenedState =
     { todo : Todo
     , activeIdx : Maybe Int
     , anchor : Element
-    , maybeSubMenuState : Maybe SubMenu
+    , maybeSubMenuState : Maybe SubMenuState
     }
 
 
@@ -197,9 +201,11 @@ update config message model =
                             )
 
                         OpenSubMenu subMenu ->
-                            ( Opened { state | maybeSubMenuState = Just subMenu }
-                            , focusSubMenu subMenu
-                            )
+                            case subMenu of
+                                SelectProjectSubMenu ->
+                                    ( Opened { state | maybeSubMenuState = Just (SelectProjectSubMenuState Menu.init) }
+                                    , focusSubMenu subMenu
+                                    )
 
                         SubMenuMsg subMenuMsg ->
                             case state.maybeSubMenuState of
@@ -207,7 +213,7 @@ update config message model =
                                     case subMenuMsg of
                                         CloseSubMenu ->
                                             ( Opened { state | maybeSubMenuState = Nothing }
-                                            , restoreFocusOnSubMenuClose subMenuState
+                                            , restoreFocusOnSubMenuClose
                                             )
 
                                         SubMenuLostFocus ->
@@ -302,9 +308,8 @@ restoreFocusCmd config todoId =
     triggerId todoId |> Focus.attempt (Focused >> config.toMsg)
 
 
-restoreFocusOnSubMenuClose : SubMenu -> Cmd msg
-restoreFocusOnSubMenuClose _ =
-    --    subMenuTriggerDomId menu |> Focus.focusId
+restoreFocusOnSubMenuClose : Cmd msg
+restoreFocusOnSubMenuClose =
     focusRoot
 
 
@@ -325,7 +330,7 @@ view config projectList model =
                             ( Nothing, _ ) ->
                                 HX.none
 
-                            ( Just SelectProjectSubMenu, SelectProjectSubMenu ) ->
+                            ( Just (SelectProjectSubMenuState _), SelectProjectSubMenu ) ->
                                 MovePopup.view movePopupConfig openedState.todo.projectId projectList
             in
             viewOpened renderSubMenu openedState

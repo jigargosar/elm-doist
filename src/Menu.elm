@@ -1,4 +1,4 @@
-module Menu exposing (..)
+module Menu exposing (Config, Model, init, view)
 
 import Array exposing (Array)
 import Basics.Extra exposing (flip)
@@ -20,6 +20,11 @@ import UI.TextButton as TextButton
 
 type Model
     = Model (Maybe Int)
+
+
+init : Model
+init =
+    Model Nothing
 
 
 type CloseReason
