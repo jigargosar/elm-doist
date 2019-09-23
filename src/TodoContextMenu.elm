@@ -10,7 +10,6 @@ import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
 import List.Extra as LX
 import Maybe.Extra as MX
-import Menu
 import MovePopup
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -36,7 +35,7 @@ type SubMenu
 
 
 type SubMenuState
-    = SelectProjectSubMenuState Menu.Model
+    = SelectProjectSubMenuState MovePopup.Model
 
 
 subMenuDomId : SubMenu -> String
@@ -64,6 +63,11 @@ type alias OpenedState =
     , anchor : Element
     , maybeSubMenuState : Maybe SubMenuState
     }
+
+
+setSubMenuState : SubMenuState -> OpenedState -> OpenedState
+setSubMenuState subMenuState openedState =
+    { openedState | maybeSubMenuState = Just subMenuState }
 
 
 init : Model
@@ -111,6 +115,7 @@ type SubMenuMsg
     = CloseSubMenu
     | SubMenuLostFocus
     | ProjectIdSelected ProjectId
+    | MovePopupMsg MovePopup.Msg
 
 
 type alias Config msg =
@@ -203,7 +208,11 @@ update config message model =
                         OpenSubMenu subMenu ->
                             case subMenu of
                                 SelectProjectSubMenu ->
-                                    ( Opened { state | maybeSubMenuState = Just (SelectProjectSubMenuState Menu.init) }
+                                    ( Opened
+                                        { state
+                                            | maybeSubMenuState =
+                                                Just (SelectProjectSubMenuState MovePopup.init)
+                                        }
                                     , focusSubMenu subMenu
                                     )
 
@@ -230,6 +239,13 @@ update config message model =
                                                     perform (config.moved projectId state.todo)
                                                 ]
                                             )
+
+                                        MovePopupMsg movePopupMsg ->
+                                            case subMenuState of
+                                                SelectProjectSubMenuState movePopupState ->
+                                                    MovePopup.update movePopupConfig movePopupMsg movePopupState
+                                                        |> Tuple.mapFirst (SelectProjectSubMenuState >> flip setSubMenuState state >> Opened)
+                                                        |> Tuple.mapSecond (Cmd.map (SubMenuMsg >> OpenedMsg >> config.toMsg))
 
                                 Nothing ->
                                     ( model, Cmd.none )
@@ -300,7 +316,7 @@ focusRoot =
 
 focusSubMenu : SubMenu -> Cmd msg
 focusSubMenu subMenu =
-    Focus.autoFocusWithinId (subMenuDomId subMenu)
+    Focus.focusId (subMenuDomId subMenu)
 
 
 restoreFocusCmd : Config msg -> TodoId -> Cmd msg
@@ -330,8 +346,8 @@ view config projectList model =
                             ( Nothing, _ ) ->
                                 HX.none
 
-                            ( Just (SelectProjectSubMenuState _), SelectProjectSubMenu ) ->
-                                MovePopup.view movePopupConfig openedState.todo.projectId projectList
+                            ( Just (SelectProjectSubMenuState movePopup), SelectProjectSubMenu ) ->
+                                MovePopup.view movePopupConfig openedState.todo.projectId projectList movePopup
             in
             viewOpened renderSubMenu openedState
                 |> H.map (OpenedMsg >> config.toMsg)
@@ -344,7 +360,7 @@ viewOpened renderSubMenu { activeIdx, anchor, maybeSubMenuState } =
         [ A.id rootDomId
         , class "shadow-1 bg-white"
         , Key.onDown
-            [ Key.up Prev
+            [ Key.arrowUp Prev
             , Key.arrowDown Next
             , Key.enterOrSpace ActiveSelected
             ]
@@ -414,7 +430,8 @@ type alias DisplayProject =
 
 movePopupConfig : MovePopup.Config SubMenuMsg
 movePopupConfig =
-    { rootId = subMenuDomId SelectProjectSubMenu
+    { toMsg = MovePopupMsg
+    , id = subMenuDomId SelectProjectSubMenu
     , closed =
         \reason ->
             case reason of

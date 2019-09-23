@@ -1,4 +1,4 @@
-module UI.Key exposing (arrowDown, enterOrSpace, onDown, onEnter, onEnterOrSpace, onEscape, up)
+module UI.Key exposing (arrowDown, arrowUp, enterOrSpace, onDown, onEnter, onEnterOrSpace, onEscape)
 
 import Accessibility.Styled.Key exposing (enter, escape, space)
 import Html.Styled exposing (Attribute, Html)
@@ -81,8 +81,8 @@ forKey key msg keyCode =
         JD.fail keyCode
 
 
-up : msg -> Decoder msg
-up =
+arrowUp : msg -> Decoder msg
+arrowUp =
     succeedForKey "ArrowUp"
 
 

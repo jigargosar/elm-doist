@@ -1,4 +1,4 @@
-module Menu exposing (Config, Model, init, view)
+module Menu exposing (CloseReason(..), Config, Model, Msg, init, update, view)
 
 import Array exposing (Array)
 import Basics.Extra exposing (flip)
@@ -144,7 +144,8 @@ view config selected items model =
         , Focus.onFocusLost (Closed LostFocus)
         , tabindex -1
         , Key.onDown
-            [ Key.arrowDown <| keyMsg Down
+            [ Key.arrowUp <| keyMsg Up
+            , Key.arrowDown <| keyMsg Down
             , JD.lazy
                 (\_ ->
                     let
