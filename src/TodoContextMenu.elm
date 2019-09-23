@@ -1,6 +1,5 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
-import Accessibility.Styled.Key as AKey
 import Basics.Extra exposing (flip)
 import Browser.Dom as Dom exposing (Element)
 import BrowserSize exposing (BrowserSize)
