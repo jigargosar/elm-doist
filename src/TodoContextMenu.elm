@@ -311,6 +311,7 @@ rootStyles anchorEl =
         ]
 
 
+viewRootMenuItems : (SubMenu -> Html OpenedMsg) -> List (Html OpenedMsg)
 viewRootMenuItems renderSubMenu =
     rootMenuItems
         |> List.map
