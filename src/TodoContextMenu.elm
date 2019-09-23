@@ -59,15 +59,16 @@ type Msg
     | GotAnchorElement (Result Dom.Error Element)
     | Close
     | LostFocus
-    | ItemMsg ItemMsg
+    | OpenedMsg OpenedMsg
     | Focused Focus.FocusResult
 
 
-type ItemMsg
+type OpenedMsg
     = Edit
     | OpenSelectProjectSubMenu
     | CloseSubMenu
-    | SubMenuLostFocus
+    | SubMenuFocusLost
+    | FocusLost
 
 
 type alias Config msg =
@@ -118,7 +119,7 @@ update config message model =
                 Opened state ->
                     ( Closed, restoreFocusCmd config state.todo.id )
 
-        ItemMsg msg ->
+        OpenedMsg msg ->
             case model of
                 Closed ->
                     ( model, Cmd.none )
@@ -153,13 +154,16 @@ update config message model =
                                 Nothing ->
                                     ( model, Cmd.none )
 
-                        SubMenuLostFocus ->
+                        SubMenuFocusLost ->
                             case state.subMenu of
                                 Just _ ->
                                     ( Opened { state | subMenu = Nothing }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )
+
+                        FocusLost ->
+                            ( Closed, Cmd.none )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -204,7 +208,7 @@ view config model =
 
         Opened { anchor, subMenu } ->
             viewContainer anchor
-                (viewItems subMenu |> List.map (H.map ItemMsg))
+                (viewItems subMenu |> List.map (H.map OpenedMsg))
                 |> H.map config.toMsg
 
 
@@ -234,7 +238,7 @@ rootStyles anchorEl =
         ]
 
 
-viewItems : Maybe SubMenu -> List (Html ItemMsg)
+viewItems : Maybe SubMenu -> List (Html OpenedMsg)
 viewItems subMenu =
     [ TextButton.view
         [ Focus.dataAutoFocus True
