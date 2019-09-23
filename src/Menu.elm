@@ -26,7 +26,8 @@ type alias Config item msg =
     { toMsg : Msg item -> msg
     , selected : item -> msg
     , closed : CloseReason -> msg
-    , rootId : String
+    , id : String
+    , title : item -> String
     }
 
 
@@ -45,14 +46,14 @@ perform =
     Task.succeed >> Task.perform identity
 
 
-view : Config item msg -> item -> List item -> Html msg
+view : Config item msg -> Maybe item -> List item -> Html msg
 view config selected items =
     let
         viewItem item =
             HX.none
     in
     Focus.focusTracker
-        [ A.id config.rootId
+        [ A.id config.id
         , class "absolute top-1 left--1 shadow-1 bg-white"
         , Key.onEscape (Closed Canceled)
         , Focus.onFocusLost (Closed LostFocus)
