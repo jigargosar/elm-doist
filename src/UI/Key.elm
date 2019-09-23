@@ -36,9 +36,10 @@ onDown list =
         )
 
 
-stopPropagation : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
-stopPropagation msg =
-    { message = msg, stopPropagation = True, preventDefault = False }
+
+--stopPropagation : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
+--stopPropagation msg =
+--    { message = msg, stopPropagation = True, preventDefault = False }
 
 
 stopBoth : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
