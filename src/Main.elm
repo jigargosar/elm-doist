@@ -266,6 +266,11 @@ todoDoneChecked todoId isChecked =
     PatchTodo todoId [ Todo.SetCompleted isChecked ]
 
 
+moveTodoToProjectId : ProjectId -> TodoId -> Msg
+moveTodoToProjectId projectId todoId =
+    PatchTodo todoId [ Todo.SetProjectId projectId ]
+
+
 
 -- SUB
 
@@ -416,6 +421,7 @@ todoContextMenuConfig : TodoContextMenu.Config Msg
 todoContextMenuConfig =
     { toMsg = TodoContextMenuMsg
     , edit = editTodoClicked
+    , moved = \projectId todo -> moveTodoToProjectId projectId todo.id
     }
 
 

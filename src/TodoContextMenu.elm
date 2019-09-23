@@ -1,13 +1,15 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
+import BasicsExtra exposing (eq_)
 import Browser.Dom as Dom exposing (Element)
 import BrowserSize exposing (BrowserSize)
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import HtmlExtra as HX
-import Project exposing (ProjectList)
+import List.Extra as LX
+import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Task
 import Todo exposing (Todo)
@@ -86,11 +88,13 @@ type OpenedMsg
 type SubMenuMsg
     = CloseSubMenu
     | SubMenuLostFocus
+    | ProjectIdSelected ProjectId
 
 
 type alias Config msg =
     { toMsg : Msg -> msg
     , edit : Todo -> msg
+    , moved : ProjectId -> Todo -> msg
     }
 
 
@@ -163,7 +167,7 @@ update config message model =
                     in
                     case msg of
                         Close ->
-                            ( Closed, restoreFocusCmd config state.todo.id )
+                            ( Closed, restoreFocus )
 
                         Edit ->
                             ( Closed
@@ -189,6 +193,18 @@ update config message model =
 
                                         SubMenuLostFocus ->
                                             ( Opened { state | maybeSubMenuState = Nothing }, Cmd.none )
+
+                                        ProjectIdSelected projectId ->
+                                            ( Closed
+                                            , Cmd.batch
+                                                [ restoreFocus
+                                                , if projectId == state.todo.projectId then
+                                                    Cmd.none
+
+                                                  else
+                                                    perform (config.moved projectId state.todo)
+                                                ]
+                                            )
 
                                 Nothing ->
                                     ( model, Cmd.none )
@@ -299,8 +315,53 @@ viewSubmenuTriggerItem attrs subMenu renderSubMenu =
         ]
 
 
+type alias DisplayProject =
+    { id : ProjectId
+    , title : String
+    }
+
+
+toDisplayProject : Project -> DisplayProject
+toDisplayProject { id, title } =
+    { id = id, title = title }
+
+
+inboxDisplayProject : DisplayProject
+inboxDisplayProject =
+    { id = ProjectId.default, title = "Inbox" }
+
+
 viewSelectProjectSubMenu : ProjectId -> ProjectList -> Html SubMenuMsg
 viewSelectProjectSubMenu selectedProjectId projectList =
+    let
+        items =
+            inboxDisplayProject
+                :: List.map toDisplayProject projectList
+
+        selectedItem =
+            LX.find (.id >> eq_ selectedProjectId) items
+                |> Maybe.withDefault inboxDisplayProject
+
+        firstItem =
+            List.head items |> Maybe.withDefault selectedItem
+
+        selectedItemStyle item =
+            if item == selectedItem then
+                Css.batch [ Css.fontWeight Css.bold ]
+
+            else
+                Css.batch []
+
+        attrsForItem item =
+            [ Focus.dataAutoFocus (item == firstItem)
+            , css [ selectedItemStyle item ]
+            ]
+
+        viewDisplayProject item =
+            viewItem (attrsForItem item)
+                (ProjectIdSelected item.id)
+                item.title
+    in
     Focus.focusTracker
         [ A.id (subMenuDomId SelectProjectSubMenu)
         , class "absolute top-1 left--1 shadow-1 bg-white"
@@ -308,8 +369,7 @@ viewSelectProjectSubMenu selectedProjectId projectList =
         , Focus.onFocusLost SubMenuLostFocus
         , tabindex -1
         ]
-        [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
-        ]
+        (List.map viewDisplayProject items)
 
 
 viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
