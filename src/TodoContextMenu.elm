@@ -1,5 +1,7 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
+import Accessibility.Styled.Key as AKey
+import Basics.Extra exposing (flip)
 import Browser.Dom as Dom exposing (Element)
 import BrowserSize exposing (BrowserSize)
 import Css exposing (absolute, left, position, px, top, width)
@@ -7,7 +9,7 @@ import Focus
 import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
-import Json.Decode as JD exposing (Decoder)
+import List.Extra as LX
 import Maybe.Extra as MX
 import MovePopup
 import Project exposing (Project, ProjectList)
@@ -91,6 +93,7 @@ type OpenedMsg
     | Close
     | Next
     | Prev
+    | Enter
 
 
 rootMenuItems : List (MenuItem OpenedMsg)
@@ -250,6 +253,14 @@ update config message model =
                             , Cmd.none
                             )
 
+                        Enter ->
+                            case state.activeIdx |> Maybe.andThen (flip LX.getAt rootMenuItems) of
+                                Just rootMI ->
+                                    update config (OpenedMsg rootMI.msg) model
+
+                                Nothing ->
+                                    ( model, Cmd.none )
+
         Focused _ ->
             ( model, Cmd.none )
 
@@ -326,7 +337,7 @@ viewOpened renderSubMenu { activeIdx, anchor, maybeSubMenuState } =
         [ rootStyles anchor ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
-        , Key.onDown [ Key.up Prev, Key.down Next ]
+        , Key.onDown [ Key.up Prev, Key.down Next, AKey.enter Enter ]
         , Focus.onFocusLost FocusLost
         , tabindex 0
         ]
