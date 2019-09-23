@@ -120,14 +120,21 @@ rootMenuItemStyle =
 
 
 view : Config item msg -> Maybe item -> List item -> Model -> Html msg
-view config selected items model =
+view config selected items (Model maybeActiveIdx) =
     let
         isSelected item =
             selected /= Nothing && Just item == selected
 
-        viewItem item =
+        viewItem idx item =
             viewMenuItem
-                [ css [ styleIf (isSelected item) selectedStyle ] ]
+                (css [ styleIf (isSelected item) selectedStyle ]
+                    :: (if Just idx == maybeActiveIdx then
+                            [ class "bg-light-blue" ]
+
+                        else
+                            []
+                       )
+                )
                 (Selected item)
                 (config.title item)
 
@@ -148,17 +155,13 @@ view config selected items model =
             , Key.arrowDown <| keyMsg Down
             , JD.lazy
                 (\_ ->
-                    let
-                        (Model maybeActiveIdx) =
-                            model
-                    in
                     maybeActiveIdx
                         |> Maybe.andThen (flip LX.getAt items)
                         |> MX.unpack (\_ -> JD.fail "No ActiveEl") (Selected >> Key.enterOrSpace)
                 )
             ]
         ]
-        (List.map viewItem items)
+        (List.indexedMap viewItem items)
         |> H.map config.toMsg
 
 
