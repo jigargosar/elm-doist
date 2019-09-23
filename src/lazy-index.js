@@ -70,14 +70,6 @@ customElements.define(
   },
 )
 
-function focusOutListener() {
-  setTimeout(() => {
-    if (this.isConnected && !this.contains(document.activeElement)) {
-      console.log('focusOutside', this)
-      this.dispatchEvent(new CustomEvent('focusOutside'))
-    }
-  }, 200)
-}
 // utils
 
 function resizeTextArea(el) {
