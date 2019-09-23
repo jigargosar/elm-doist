@@ -654,7 +654,7 @@ viewFooter model =
 
           else
             HX.none
-        , TodoContextMenu.view todoContextMenuConfig model.todoContextMenu
+        , TodoContextMenu.view todoContextMenuConfig model.projectList model.todoContextMenu
         ]
 
 

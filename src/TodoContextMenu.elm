@@ -7,6 +7,8 @@ import Focus
 import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
+import Project exposing (ProjectList)
+import ProjectId exposing (ProjectId)
 import Task
 import Todo exposing (Todo)
 import TodoId exposing (TodoId)
@@ -220,8 +222,8 @@ restoreFocusOnSubMenuClose menu =
     subMenuTriggerDomId menu |> Focus.focusId
 
 
-view : Config msg -> Model -> Html msg
-view config model =
+view : Config msg -> ProjectList -> Model -> Html msg
+view config projectList model =
     case model of
         Closed ->
             HX.none
@@ -230,14 +232,23 @@ view config model =
             HX.none
 
         Opened openedState ->
-            viewOpened openedState
+            let
+                renderSubMenu which =
+                    H.map SubMenuMsg <|
+                        case ( openedState.maybeSubMenuState, which ) of
+                            ( Nothing, _ ) ->
+                                HX.none
+
+                            ( Just SelectProjectSubMenu, SelectProjectSubMenu ) ->
+                                viewSelectProjectSubMenu openedState.todo.projectId projectList
+            in
+            viewOpened renderSubMenu openedState
                 |> H.map (OpenedMsg >> config.toMsg)
 
 
-viewOpened : OpenedState -> Html OpenedMsg
-viewOpened { anchor, maybeSubMenuState } =
+viewOpened renderSubMenu { anchor, maybeSubMenuState } =
     viewContainer anchor
-        (viewRootMenuItems maybeSubMenuState)
+        (viewRootMenuItems renderSubMenu)
 
 
 viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
@@ -266,25 +277,19 @@ rootStyles anchorEl =
         ]
 
 
-viewRootMenuItems : Maybe SubMenu -> List (Html OpenedMsg)
-viewRootMenuItems maybeSubMenuState =
+viewRootMenuItems renderSubMenu =
     [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
-    , viewSubmenuTriggerItem [] SelectProjectSubMenu maybeSubMenuState
+    , viewSubmenuTriggerItem [] SelectProjectSubMenu renderSubMenu
     ]
 
 
-viewSubmenuTriggerItem attrs subMenu maybeSubMenuState =
+viewSubmenuTriggerItem attrs subMenu renderSubMenu =
     div [ class "relative" ]
         [ viewItem
             (A.id (subMenuTriggerDomId subMenu) :: attrs)
             (OpenSubMenu subMenu)
             (subMenuTriggerTitle subMenu)
-        , case maybeSubMenuState of
-            Nothing ->
-                HX.none
-
-            Just subMenuState ->
-                viewSubMenu subMenuState
+        , renderSubMenu subMenu
         ]
 
 
@@ -301,6 +306,19 @@ viewSubMenu subMenuState =
                     ]
                     [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
                     ]
+
+
+viewSelectProjectSubMenu : ProjectId -> ProjectList -> Html SubMenuMsg
+viewSelectProjectSubMenu selectedProjectId projectList =
+    Focus.focusTracker
+        [ A.id (subMenuDomId SelectProjectSubMenu)
+        , class "absolute top-1 left--1 shadow-1 bg-white"
+        , Key.onEscape CloseSubMenu
+        , Focus.onFocusLost SubMenuLostFocus
+        , tabindex -1
+        ]
+        [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
+        ]
 
 
 viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
