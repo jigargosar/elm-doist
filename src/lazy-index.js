@@ -6,7 +6,6 @@ import mapObjIndexed from 'ramda/es/mapObjIndexed'
 import path from 'ramda/es/path'
 import propOr from 'ramda/es/propOr'
 
-
 // Custom Elements
 customElements.define(
   'auto-resize-textarea',
@@ -44,6 +43,11 @@ customElements.define(
 customElements.define(
   'track-focus-outside',
   class extends HTMLElement {
+    constructor() {
+      super()
+      // console.log('new tracker el created', this)
+      this.focusCheckerTimeoutId = null
+    }
     connectedCallback() {
       this.addEventListener('focusout', focusOutListener)
     }
@@ -51,15 +55,18 @@ customElements.define(
 )
 
 function focusOutListener() {
-  setTimeout(() => {
-    if (!this.contains(document.activeElement)) {
+  // console.log('foutCheckCalled', this)
+  if(this.focusCheckerTimeoutId){
+    clearTimeout(this.focusCheckerTimeoutId)
+  }
+  this.focusCheckerTimeoutId = setTimeout(() => {
+    if (!this.contains(document.activeElement) && this.connected) {
       console.log('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
   }, 200)
 }
 // utils
-
 
 function resizeTextArea(el) {
   el.style.height = 'auto'
@@ -73,7 +80,7 @@ function resizeTextAreaOnInputListener(ev) {
 function dynamicImportPrefetchFaker() {
   return import(
     /* webpackPrefetch: true, webpackChunkName: "faker"  */ 'faker'
-    )
+  )
 }
 
 function focusSelector(selector) {
@@ -87,7 +94,6 @@ function focusSelector(selector) {
 }
 
 const debouncedFocusSelector = debounce(focusSelector, 0)
-
 
 // Cache
 function localStorageSetJsonItem([k, v]) {
@@ -103,14 +109,17 @@ const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
 
 async function bootElmApp() {
-  const Elm = (await import ('./Main.elm')).Elm
+  const Elm = (await import('./Main.elm')).Elm
   const app = Elm.Main.init({
     flags: {
       cachedTodoList,
       cachedProjectList,
       cachedAuthState,
 
-      browserSize: { width: window.innerWidth, height: window.innerHeight },
+      browserSize: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
       now: Date.now(),
     },
   })
@@ -121,8 +130,9 @@ async function bootElmApp() {
     onFirestoreQueryResponse: identity,
   })
 
-  firePromise.then(fire => fire.onAuthStateChanged(pubs.onAuthStateChanged))
-
+  firePromise.then(fire =>
+    fire.onAuthStateChanged(pubs.onAuthStateChanged),
+  )
 
   initSubs(app, {
     focusSelector: selector => {
@@ -186,7 +196,7 @@ async function bootElmApp() {
           : {},
 
         options.data.title === '' &&
-        options.userCollectionName === 'projects'
+          options.userCollectionName === 'projects'
           ? { title: `${faker.hacker.ingverb()} ${faker.hacker.noun()}` }
           : {},
       )
@@ -235,6 +245,3 @@ function initPubs(app, pubs) {
     }
   })(pubs)
 }
-
-
-
