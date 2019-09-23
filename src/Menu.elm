@@ -7,9 +7,7 @@ import Focus
 import FunctionalCss exposing (bgLightBlue, bold, ph, pv, styleIf)
 import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
-import Json.Decode as JD
 import List.Extra as LX
-import Maybe.Extra as MX
 import Task
 import UI.Key as Key
 import UI.TextButton as TextButton
