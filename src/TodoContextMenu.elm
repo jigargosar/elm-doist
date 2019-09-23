@@ -67,10 +67,14 @@ type Msg
 type OpenedMsg
     = Edit
     | OpenSelectProjectSubMenu
-    | CloseSubMenu
-    | SubMenuFocusLost
+    | SubMenuMsg SubMenuMsg
     | FocusLost
     | Close
+
+
+type SubMenuMsg
+    = CloseSubMenu
+    | SubMenuFocusLost
 
 
 type alias Config msg =
@@ -137,18 +141,17 @@ update config message model =
                             , focusSubMenu SelectProjectSubMenu
                             )
 
-                        CloseSubMenu ->
+                        SubMenuMsg subMenuMsg ->
                             case state.subMenu of
                                 Just menu ->
-                                    ( Opened { state | subMenu = Nothing }, restoreFocusOnSubMenuClose menu )
+                                    case subMenuMsg of
+                                        CloseSubMenu ->
+                                            ( Opened { state | subMenu = Nothing }
+                                            , restoreFocusOnSubMenuClose menu
+                                            )
 
-                                Nothing ->
-                                    ( model, Cmd.none )
-
-                        SubMenuFocusLost ->
-                            case state.subMenu of
-                                Just _ ->
-                                    ( Opened { state | subMenu = Nothing }, Cmd.none )
+                                        SubMenuFocusLost ->
+                                            ( Opened { state | subMenu = Nothing }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )
@@ -249,8 +252,15 @@ viewItems subMenu =
             ]
             OpenSelectProjectSubMenu
             "Move To"
-        , case subMenu of
-            Just SelectProjectSubMenu ->
+        , viewSelectProjectSubMenu subMenu
+        ]
+    ]
+
+
+viewSelectProjectSubMenu subMenu =
+    case subMenu of
+        Just SelectProjectSubMenu ->
+            H.map SubMenuMsg <|
                 div
                     [ A.id (subMenuDomId SelectProjectSubMenu)
                     , class "absolute top-1 left--1 shadow-1 bg-white"
@@ -265,7 +275,5 @@ viewItems subMenu =
                         "Select Project"
                     ]
 
-            _ ->
-                HX.none
-        ]
-    ]
+        _ ->
+            HX.none
