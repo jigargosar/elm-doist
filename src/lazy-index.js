@@ -51,6 +51,13 @@ customElements.define(
     connectedCallback() {
       this.addEventListener('focusout', focusOutListener)
     }
+    disconnectedCallback(){
+      console.log('focus-tracker: disconnected')
+      if(this.focusCheckerTimeoutId){
+        clearTimeout(this.focusCheckerTimeoutId)
+      }
+      this.removeEventListener('focusout', focusOutListener)
+    }
   },
 )
 
