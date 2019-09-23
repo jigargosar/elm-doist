@@ -333,16 +333,6 @@ type alias DisplayProject =
     }
 
 
-toDisplayProject : Project -> DisplayProject
-toDisplayProject { id, title } =
-    { id = id, title = title }
-
-
-inboxDisplayProject : DisplayProject
-inboxDisplayProject =
-    { id = ProjectId.default, title = "Inbox" }
-
-
 movePopupConfig : MovePopup.Config SubMenuMsg
 movePopupConfig =
     { rootId = subMenuDomId SelectProjectSubMenu
@@ -358,47 +348,6 @@ movePopupConfig =
                 MovePopup.Selected projectId ->
                     ProjectIdSelected projectId
     }
-
-
-viewSelectProjectSubMenu : ProjectId -> ProjectList -> Html SubMenuMsg
-viewSelectProjectSubMenu selectedProjectId projectList =
-    let
-        items =
-            inboxDisplayProject
-                :: List.map toDisplayProject projectList
-
-        selectedItem =
-            LX.find (.id >> eq_ selectedProjectId) items
-                |> Maybe.withDefault inboxDisplayProject
-
-        firstItem =
-            List.head items |> Maybe.withDefault selectedItem
-
-        selectedItemStyle item =
-            if item == selectedItem then
-                Css.batch [ Css.fontWeight Css.bold ]
-
-            else
-                Css.batch []
-
-        attrsForItem item =
-            [ Focus.dataAutoFocus (item == firstItem)
-            , css [ selectedItemStyle item ]
-            ]
-
-        viewDisplayProject item =
-            viewItem (attrsForItem item)
-                (ProjectIdSelected item.id)
-                item.title
-    in
-    Focus.focusTracker
-        [ A.id (subMenuDomId SelectProjectSubMenu)
-        , class "absolute top-1 left--1 shadow-1 bg-white"
-        , Key.onEscape CloseSubMenu
-        , Focus.onFocusLost SubMenuLostFocus
-        , tabindex -1
-        ]
-        (List.map viewDisplayProject items)
 
 
 viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
