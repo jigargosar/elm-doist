@@ -270,15 +270,6 @@ viewItems : Maybe SubMenu -> List (Html OpenedMsg)
 viewItems subMenuState =
     [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
     , viewSubmenuTriggerItem [] SelectProjectSubMenu subMenuState
-    , div [ class "relative" ]
-        [ TextButton.view
-            [ A.id (subMenuTriggerDomId SelectProjectSubMenu)
-            , class "pv1 ph2"
-            ]
-            (OpenSubMenu SelectProjectSubMenu)
-            "Move To"
-        , viewSelectProjectSubMenu subMenuState
-        ]
     ]
 
 
