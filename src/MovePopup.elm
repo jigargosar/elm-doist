@@ -1,6 +1,7 @@
 module MovePopup exposing (ViewConfig, firstFocusable, view)
 
 import BasicsExtra exposing (..)
+import Focus
 import Html.Styled as H exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes as A exposing (class, classList, tabindex)
 import Html.Styled.Events exposing (on)
@@ -51,12 +52,12 @@ view config projectId projectList =
                 , A.id <| ifElse (idx == 0) firstFocusable ""
                 ]
     in
-    H.node "track-focus-outside"
+    Focus.focusTracker
         [ class "absolute right-0 top-1"
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
-        , on "focusOutside" (JD.succeed config.close)
+        , Focus.onFocusOutside config.close
         , Key.onEscape config.close
         ]
         [ div [ class "pa3 lh-copy" ]

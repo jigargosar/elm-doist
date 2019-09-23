@@ -1,10 +1,10 @@
-port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, focusId, onFocusOutsideDomId, outsideElIdDecoder)
+port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, focusId, focusTracker, onFocusOutside, onFocusOutsideDomId, outsideElIdDecoder)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)
-import Html.Styled exposing (Attribute)
+import Html.Styled as H exposing (Attribute)
 import Html.Styled.Attributes as A
-import Html.Styled.Events exposing (on)
+import Html.Styled.Events as E exposing (on)
 import Json.Decode as JD exposing (Decoder)
 import Task
 
@@ -87,3 +87,13 @@ boolToAttr bool =
 
     else
         "false"
+
+
+focusTracker : List (Attribute msg) -> List (H.Html msg) -> H.Html msg
+focusTracker =
+    H.node "track-focus-outside"
+
+
+onFocusOutside : msg -> Attribute msg
+onFocusOutside msg =
+    E.on "focusOutside" (JD.succeed msg)
