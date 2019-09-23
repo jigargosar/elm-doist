@@ -53,7 +53,7 @@ customElements.define(
 function focusOutListener() {
   setTimeout(() => {
     if (!this.contains(document.activeElement)) {
-      console.debug('focusOutside', this)
+      console.log('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
   }, 200)
@@ -128,7 +128,8 @@ async function bootElmApp() {
     focusSelector: selector => {
       console.log('Queuing focusSelector', selector)
       requestAnimationFrame(() => {
-        debouncedFocusSelector(selector)
+        focusSelector(selector)
+        // debouncedFocusSelector(selector)
       })
     },
     localStorageSetJsonItem,
