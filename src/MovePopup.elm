@@ -87,46 +87,7 @@ view config selectedProjectId projectList (Model menu) =
             inboxDisplayProject
                 :: List.map toDisplayProject projectList
 
-        selectedItem =
+        maybeSelected =
             LX.find (.id >> eq_ selectedProjectId) items
-                |> Maybe.withDefault inboxDisplayProject
-
-        firstItem =
-            List.head items |> Maybe.withDefault selectedItem
-
-        selectedItemStyle item =
-            if item == selectedItem then
-                Css.batch [ Css.fontWeight Css.bold ]
-
-            else
-                Css.batch []
-
-        attrsForItem item =
-            [ Focus.dataAutoFocus (item == firstItem)
-            , css [ selectedItemStyle item ]
-            ]
-
-        viewDisplayProject item =
-            viewItem (attrsForItem item)
-                (Selected item.id |> config.closed)
-                item.title
     in
-    Menu.view (menuConfig config) (Just selectedItem) items menu
-
-
-
---    Focus.focusTracker
---        [ A.id config.id
---        , class "absolute top-1 left--1 shadow-1 bg-white"
---        , Key.onEscape (config.closed Canceled)
---        , Focus.onFocusLost (config.closed LostFocus)
---        , tabindex -1
---        ]
---        (List.map viewDisplayProject items)
-
-
-viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
-viewItem attrs action title =
-    TextButton.view (class "ph2 pv1" :: attrs)
-        action
-        title
+    Menu.view (menuConfig config) maybeSelected items menu
