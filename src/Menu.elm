@@ -68,12 +68,14 @@ update config message ((Model activeIdx) as model) =
                     ( mapActiveIdx (rollBy 1 total) model, Cmd.none )
 
         SelectKeyboardActive items ->
-            case activeIdx |> Maybe.andThen (flip LX.getAt items) of
+            ( model
+            , case activeIdx |> Maybe.andThen (flip LX.getAt items) of
                 Just item ->
-                    ( model, config.selected item |> perform )
+                    config.selected item |> perform
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    Cmd.none
+            )
 
 
 map : (Maybe Int -> Maybe Int) -> Model -> Model
