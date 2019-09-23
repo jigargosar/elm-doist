@@ -1,6 +1,7 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
 import Browser.Dom as Dom exposing (Element)
+import BrowserSize exposing (BrowserSize)
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
@@ -60,6 +61,7 @@ triggerId todoId =
 type Msg
     = Open Todo
     | GotAnchorElement (Result Dom.Error Element)
+    | BrowserReSized BrowserSize
     | OpenedMsg OpenedMsg
     | Focused Focus.FocusResult
 
@@ -84,8 +86,11 @@ type alias Config msg =
 
 
 subscriptions : Config msg -> Model -> Sub msg
-subscriptions _ _ =
-    Sub.none
+subscriptions config _ =
+    Sub.batch
+        [ BrowserSize.onBrowserResize BrowserReSized
+        ]
+        |> Sub.map config.toMsg
 
 
 update : Config msg -> Msg -> Model -> ( Model, Cmd msg )
@@ -96,6 +101,23 @@ update config message model =
             , Dom.getElement (triggerId todo.id)
                 |> Task.attempt (GotAnchorElement >> config.toMsg)
             )
+
+        BrowserReSized _ ->
+            case model of
+                Opening todo ->
+                    ( model
+                    , Dom.getElement (triggerId todo.id)
+                        |> Task.attempt (GotAnchorElement >> config.toMsg)
+                    )
+
+                Opened { todo } ->
+                    ( model
+                    , Dom.getElement (triggerId todo.id)
+                        |> Task.attempt (GotAnchorElement >> config.toMsg)
+                    )
+
+                Closed ->
+                    ( model, Cmd.none )
 
         GotAnchorElement (Err _) ->
             ( model, Cmd.none )
