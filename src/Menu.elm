@@ -6,7 +6,7 @@ import Basics.Extra exposing (flip)
 import BasicsExtra exposing (callWith)
 import Css exposing (Rem, Style, px, rem)
 import Focus
-import FunctionalCss exposing (bold, noStyle, ph, pv, styleIf)
+import FunctionalCss exposing (bgLightBlue, bold, noStyle, ph, pv, styleIf)
 import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
@@ -115,6 +115,10 @@ selectedStyle =
     Css.batch [ bold ]
 
 
+keyboardActiveStyle =
+    bgLightBlue
+
+
 rootMenuItemStyle : Style
 rootMenuItemStyle =
     Css.batch [ pv 1, ph 2 ]
@@ -126,16 +130,16 @@ view config selected items (Model maybeActiveIdx) =
         isSelected item =
             selected /= Nothing && Just item == selected
 
+        isKeyboardActive idx =
+            Just idx == maybeActiveIdx
+
         viewItem idx item =
             viewMenuItem
-                (css [ styleIf (isSelected item) selectedStyle ]
-                    :: (if Just idx == maybeActiveIdx then
-                            [ class "bg-light-blue" ]
-
-                        else
-                            []
-                       )
-                )
+                [ css
+                    [ styleIf (isSelected item) selectedStyle
+                    , styleIf (isKeyboardActive idx) keyboardActiveStyle
+                    ]
+                ]
                 (Selected item)
                 (config.title item)
 
