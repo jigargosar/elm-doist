@@ -93,7 +93,7 @@ type OpenedMsg
     | Close
     | Next
     | Prev
-    | Enter
+    | ActiveSelected
 
 
 rootMenuItems : List (MenuItem OpenedMsg)
@@ -165,7 +165,7 @@ update config message model =
                         , activeIdx = Nothing
                         , maybeSubMenuState = Nothing
                         }
-                    , focusFirstCmd config
+                    , focusRoot
                     )
 
                 Opened state ->
@@ -253,7 +253,7 @@ update config message model =
                             , Cmd.none
                             )
 
-                        Enter ->
+                        ActiveSelected ->
                             case state.activeIdx |> Maybe.andThen (flip LX.getAt rootMenuItems) of
                                 Just rootMI ->
                                     update config (OpenedMsg rootMI.msg) model
@@ -288,7 +288,7 @@ rootDomId =
     "todo-context-menu"
 
 
-focusFirstCmd _ =
+focusRoot =
     Focus.focusId rootDomId
 
 
@@ -303,8 +303,9 @@ restoreFocusCmd config todoId =
 
 
 restoreFocusOnSubMenuClose : SubMenu -> Cmd msg
-restoreFocusOnSubMenuClose menu =
-    subMenuTriggerDomId menu |> Focus.focusId
+restoreFocusOnSubMenuClose _ =
+    --    subMenuTriggerDomId menu |> Focus.focusId
+    focusRoot
 
 
 view : Config msg -> ProjectList -> Model -> Html msg
@@ -337,7 +338,11 @@ viewOpened renderSubMenu { activeIdx, anchor, maybeSubMenuState } =
         [ rootStyles anchor ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
-        , Key.onDown [ Key.up Prev, Key.down Next, AKey.enter Enter ]
+        , Key.onDown
+            [ Key.up Prev
+            , Key.down Next
+            , Key.enterOrSpace ActiveSelected
+            ]
         , Focus.onFocusLost FocusLost
         , tabindex 0
         ]
