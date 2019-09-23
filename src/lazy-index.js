@@ -88,7 +88,7 @@ function dynamicImportPrefetchFaker() {
 }
 
 function focusSelector(selector) {
-  console.log('focusSelector', selector)
+  console.debug('focusSelector', selector)
   const el = document.querySelector(selector)
   if (el) {
     el.focus()
@@ -140,7 +140,7 @@ async function bootElmApp() {
 
   initSubs(app, {
     focusSelector: selector => {
-      console.log('Queuing focusSelector', selector)
+      console.debug('Queuing focusSelector', selector)
       requestAnimationFrame(() => {
         focusSelector(selector)
         // debouncedFocusSelector(selector)
