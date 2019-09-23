@@ -28,9 +28,9 @@ module.exports = {
     ],
   },
   plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
-  optimization: {
-    splitChunks: false,
-  },
+  // optimization: {
+  //   splitChunks: false,
+  // },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
   stats: {
@@ -39,7 +39,7 @@ module.exports = {
   },
   // devtool: isProduction ? 'source-map' : 'eval-source-map',
   // devtool: isProduction ? 'source-map' : false,
-  devtool: false,
+  devtool: 'none',
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
     historyApiFallback: true,
