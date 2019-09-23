@@ -312,9 +312,19 @@ rootStyles anchorEl =
 
 
 viewRootMenuItems renderSubMenu =
-    [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
-    , viewSubmenuTriggerItem [] SelectProjectSubMenu renderSubMenu
-    ]
+    rootMenuItems
+        |> List.map
+            (\item ->
+                case item.msg of
+                    Edit ->
+                        viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
+
+                    OpenSubMenu SelectProjectSubMenu ->
+                        viewSubmenuTriggerItem [] SelectProjectSubMenu renderSubMenu
+
+                    _ ->
+                        HX.none
+            )
 
 
 viewSubmenuTriggerItem attrs subMenu renderSubMenu =
