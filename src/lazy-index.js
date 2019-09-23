@@ -46,6 +46,7 @@ customElements.define(
     constructor(){
       super()
       this.handleFocusIn = this.handleFocusIn.bind(this)
+      this.handleClick = this.handleClick.bind(this)
     }
     handleFocusIn() {
       if (!this.isConnected) return
@@ -53,7 +54,19 @@ customElements.define(
       const activeElement = ownerDocument.activeElement
       // noinspection JSCheckFunctionSignatures
       if (
-        activeElement !== ownerDocument.body &&
+        // activeElement !== ownerDocument.body &&
+        !this.contains(activeElement)
+      ) {
+        this.dispatchEvent(new CustomEvent('focusOutside'))
+      }
+    }
+    handleClick() {
+      if (!this.isConnected) return
+      const ownerDocument = this.ownerDocument
+      const activeElement = ownerDocument.activeElement
+      // noinspection JSCheckFunctionSignatures
+      if (
+        // activeElement !== ownerDocument.body &&
         !this.contains(activeElement)
       ) {
         this.dispatchEvent(new CustomEvent('focusOutside'))
@@ -62,10 +75,12 @@ customElements.define(
     connectedCallback() {
       // this.addEventListener('focusout', focusOutListener)
       this.ownerDocument.addEventListener('focusin', this.handleFocusIn)
+      this.ownerDocument.addEventListener('click', this.handleClick)
     }
     disconnectedCallback() {
       // this.removeEventListener('focusout', focusOutListener)
       this.ownerDocument.removeEventListener('focusin', this.handleFocusIn)
+      this.ownerDocument.removeEventListener('click', this.handleClick)
     }
   },
 )
