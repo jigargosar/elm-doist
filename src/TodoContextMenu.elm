@@ -36,10 +36,17 @@ subMenuTriggerDomId subMenu =
     subMenuDomId subMenu ++ "__trigger"
 
 
+subMenuTriggerTitle : SubMenu -> String
+subMenuTriggerTitle subMenu =
+    case subMenu of
+        SelectProjectSubMenu ->
+            "Move to..."
+
+
 type alias OpenedState =
     { todo : Todo
     , anchor : Element
-    , subMenu : Maybe SubMenu
+    , subMenuState : Maybe SubMenu
     }
 
 
@@ -68,7 +75,7 @@ type Msg
 
 type OpenedMsg
     = Edit
-    | OpenSelectProjectSubMenu
+    | OpenSubMenu SubMenu
     | SubMenuMsg SubMenuMsg
     | FocusLost
     | Close
@@ -128,7 +135,7 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened { todo = todo, anchor = el, subMenu = Nothing }, focusFirstCmd config )
+                    ( Opened { todo = todo, anchor = el, subMenuState = Nothing }, focusFirstCmd config )
 
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
@@ -158,22 +165,22 @@ update config message model =
                                 ]
                             )
 
-                        OpenSelectProjectSubMenu ->
-                            ( Opened { state | subMenu = Just SelectProjectSubMenu }
-                            , focusSubMenu SelectProjectSubMenu
+                        OpenSubMenu subMenu ->
+                            ( Opened { state | subMenuState = Just subMenu }
+                            , focusSubMenu subMenu
                             )
 
                         SubMenuMsg subMenuMsg ->
-                            case state.subMenu of
+                            case state.subMenuState of
                                 Just menu ->
                                     case subMenuMsg of
                                         CloseSubMenu ->
-                                            ( Opened { state | subMenu = Nothing }
+                                            ( Opened { state | subMenuState = Nothing }
                                             , restoreFocusOnSubMenuClose menu
                                             )
 
                                         SubMenuLostFocus ->
-                                            ( Opened { state | subMenu = Nothing }, Cmd.none )
+                                            ( Opened { state | subMenuState = Nothing }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )
@@ -228,9 +235,9 @@ view config model =
 
 
 viewOpened : OpenedState -> Html OpenedMsg
-viewOpened { anchor, subMenu } =
+viewOpened { anchor, subMenuState } =
     viewContainer anchor
-        (viewItems subMenu)
+        (viewItems subMenuState)
 
 
 viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
@@ -260,23 +267,29 @@ rootStyles anchorEl =
 
 
 viewItems : Maybe SubMenu -> List (Html OpenedMsg)
-viewItems subMenu =
-    [ TextButton.view
-        [ Focus.dataAutoFocus True
-        , class "pv1 ph2"
-        ]
-        Edit
-        "Edit"
+viewItems subMenuState =
+    [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
+    , viewSubmenuTriggerItem [] SelectProjectSubMenu subMenuState
     , div [ class "relative" ]
         [ TextButton.view
             [ A.id (subMenuTriggerDomId SelectProjectSubMenu)
             , class "pv1 ph2"
             ]
-            OpenSelectProjectSubMenu
+            (OpenSubMenu SelectProjectSubMenu)
             "Move To"
-        , viewSelectProjectSubMenu subMenu
+        , viewSelectProjectSubMenu subMenuState
         ]
     ]
+
+
+viewSubmenuTriggerItem attrs subMenu subMenuState =
+    div [ class "relative" ]
+        [ viewItem
+            (A.id (subMenuTriggerDomId subMenu) :: attrs)
+            (OpenSubMenu subMenu)
+            (subMenuTriggerTitle subMenu)
+        , viewSelectProjectSubMenu subMenuState
+        ]
 
 
 viewSelectProjectSubMenu subMenu =
