@@ -19,6 +19,10 @@ import UI.Key as Key
 import UI.TextButton as TextButton
 
 
+type alias MenuItem msg =
+    { msg : msg, title : String }
+
+
 type Model
     = Opening Todo
     | Opened OpenedState
@@ -84,6 +88,13 @@ type OpenedMsg
     | SubMenuMsg SubMenuMsg
     | FocusLost
     | Close
+
+
+rootMenuItems : List (MenuItem OpenedMsg)
+rootMenuItems =
+    [ { msg = Edit, title = "Edit" }
+    , { msg = OpenSubMenu SelectProjectSubMenu, title = "Move To ..." }
+    ]
 
 
 type SubMenuMsg
