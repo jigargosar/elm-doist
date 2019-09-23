@@ -85,5 +85,6 @@ view config selected items =
         |> H.map config.toMsg
 
 
+viewMenuItem : List (H.Attribute msg) -> msg -> String -> Html msg
 viewMenuItem attrs action label =
     TextButton.styled [ rootMenuItemStyle ] attrs action label
