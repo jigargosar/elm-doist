@@ -1,4 +1,4 @@
-module MovePopup exposing (view)
+module MovePopup exposing (Config, Reason(..), view)
 
 import BasicsExtra exposing (eq_)
 import Css

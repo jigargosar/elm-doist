@@ -9,6 +9,7 @@ import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import HtmlExtra as HX
 import List.Extra as LX
+import MovePopup
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
 import Task
@@ -262,7 +263,7 @@ view config projectList model =
                                 HX.none
 
                             ( Just SelectProjectSubMenu, SelectProjectSubMenu ) ->
-                                viewSelectProjectSubMenu openedState.todo.projectId projectList
+                                MovePopup.view movePopupConfig openedState.todo.projectId projectList
             in
             viewOpened renderSubMenu openedState
                 |> H.map (OpenedMsg >> config.toMsg)
@@ -329,6 +330,23 @@ toDisplayProject { id, title } =
 inboxDisplayProject : DisplayProject
 inboxDisplayProject =
     { id = ProjectId.default, title = "Inbox" }
+
+
+movePopupConfig : MovePopup.Config SubMenuMsg
+movePopupConfig =
+    { rootId = subMenuDomId SelectProjectSubMenu
+    , closed =
+        \reason ->
+            case reason of
+                MovePopup.LostFocus ->
+                    SubMenuLostFocus
+
+                MovePopup.Canceled ->
+                    CloseSubMenu
+
+                MovePopup.Selected projectId ->
+                    ProjectIdSelected projectId
+    }
 
 
 viewSelectProjectSubMenu : ProjectId -> ProjectList -> Html SubMenuMsg

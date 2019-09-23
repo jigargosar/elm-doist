@@ -7,6 +7,7 @@ import FontAwesome.Solid as FAS
 import Html.Styled exposing (Attribute, Html, div, text)
 import Html.Styled.Attributes as A exposing (class)
 import Html.Styled.Events exposing (onClick)
+import Html.Styled.Lazy as HL
 import String.Extra as SX
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
@@ -31,7 +32,7 @@ viewList config zone =
 
 viewKeyed : Config msg -> Zone -> Todo -> ( String, Html msg )
 viewKeyed config zone todo =
-    ( TodoId.toString todo.id, view config zone todo )
+    ( TodoId.toString todo.id, HL.lazy3 view config zone todo )
 
 
 view : Config msg -> Zone -> Todo -> Html msg
