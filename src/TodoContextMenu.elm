@@ -1,13 +1,11 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
 import Browser.Dom as Dom exposing (Element)
-import Browser.Events
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
-import Html.Styled as H exposing (Html, div, text)
+import Html.Styled as H exposing (Html, div)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
-import Json.Decode as JD
 import Task
 import Todo exposing (Todo)
 import TodoId exposing (TodoId)
@@ -79,45 +77,8 @@ type alias Config msg =
 
 
 subscriptions : Config msg -> Model -> Sub msg
-subscriptions config model =
-    let
-        targetOutsideDecoder domId msg =
-            JD.field "target"
-                (Focus.outsideElIdDecoder domId (config.toMsg msg))
-
-        targetOutsideRootDecoder =
-            targetOutsideDecoder rootDomId LostFocus
-
-        subWhenOpen =
-            Sub.batch
-                [ Browser.Events.onKeyUp targetOutsideRootDecoder
-                , Browser.Events.onMouseUp targetOutsideRootDecoder
-                ]
-    in
-    case model of
-        Opening _ ->
-            subWhenOpen
-
-        Opened state ->
-            Sub.batch
-                [ subWhenOpen
-                , case state.subMenu of
-                    Just menu ->
-                        let
-                            decoder =
-                                targetOutsideDecoder (subMenuDomId menu) (ItemMsg SubMenuLostFocus)
-                        in
-                        Sub.batch
-                            [ Browser.Events.onKeyUp decoder
-                            , Browser.Events.onMouseUp decoder
-                            ]
-
-                    Nothing ->
-                        Sub.none
-                ]
-
-        Closed ->
-            Sub.none
+subscriptions _ _ =
+    Sub.none
 
 
 update : Config msg -> Msg -> Model -> ( Model, Cmd msg )
