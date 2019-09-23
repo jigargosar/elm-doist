@@ -33,6 +33,7 @@ type Msg item
     = Closed CloseReason
     | Selected item
     | KeyMsg Int KeyMsg
+    | SelectKeyboardActive (List item)
 
 
 type KeyMsg
@@ -50,7 +51,7 @@ type alias Config item msg =
 
 
 update : Config item msg -> Msg item -> Model -> ( Model, Cmd msg )
-update config message model =
+update config message ((Model activeIdx) as model) =
     case message of
         Closed reason ->
             ( model, config.closed reason |> perform )
@@ -65,6 +66,17 @@ update config message model =
 
                 Down ->
                     ( mapActiveIdx (rollBy 1 total) model, Cmd.none )
+
+        SelectKeyboardActive items ->
+            case
+                activeIdx
+                    |> Maybe.andThen (flip LX.getAt items)
+            of
+                Just item ->
+                    ( model, config.selected item |> perform )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 map : (Maybe Int -> Maybe Int) -> Model -> Model
@@ -145,12 +157,7 @@ view config selected items (Model maybeActiveIdx) =
             [ Key.arrowUp <| keyMsg Up
             , Key.arrowDown <| keyMsg Down
             , AKey.escape (Closed Canceled)
-            , JD.lazy
-                (\_ ->
-                    maybeActiveIdx
-                        |> Maybe.andThen (flip LX.getAt items)
-                        |> MX.unpack (\_ -> JD.fail "No ActiveEl") (Selected >> Key.enterOrSpace)
-                )
+            , Key.enterOrSpace (SelectKeyboardActive items)
             ]
         ]
         (List.indexedMap viewItem items)
