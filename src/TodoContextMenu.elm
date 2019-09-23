@@ -74,7 +74,7 @@ type OpenedMsg
 
 type SubMenuMsg
     = CloseSubMenu
-    | SubMenuFocusLost
+    | SubMenuLostFocus
 
 
 type alias Config msg =
@@ -150,7 +150,7 @@ update config message model =
                                             , restoreFocusOnSubMenuClose menu
                                             )
 
-                                        SubMenuFocusLost ->
+                                        SubMenuLostFocus ->
                                             ( Opened { state | subMenu = Nothing }, Cmd.none )
 
                                 Nothing ->
@@ -261,10 +261,11 @@ viewSelectProjectSubMenu subMenu =
     case subMenu of
         Just SelectProjectSubMenu ->
             H.map SubMenuMsg <|
-                div
+                Focus.focusTracker
                     [ A.id (subMenuDomId SelectProjectSubMenu)
                     , class "absolute top-1 left--1 shadow-1 bg-white"
                     , Key.onEscape CloseSubMenu
+                    , Focus.onFocusLost SubMenuLostFocus
                     , tabindex -1
                     ]
                     [ TextButton.view
