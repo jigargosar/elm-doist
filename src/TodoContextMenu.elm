@@ -280,13 +280,8 @@ view config projectList model =
                 |> H.map (OpenedMsg >> config.toMsg)
 
 
+viewOpened : (SubMenu -> Html OpenedMsg) -> OpenedState -> Html OpenedMsg
 viewOpened renderSubMenu { anchor, maybeSubMenuState } =
-    viewContainer anchor
-        (viewRootMenuItems renderSubMenu)
-
-
-viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
-viewContainer anchor =
     Focus.styledFocusTracker
         [ rootStyles anchor ]
         [ A.id rootDomId
@@ -295,6 +290,7 @@ viewContainer anchor =
         , Focus.onFocusLost FocusLost
         , tabindex -1
         ]
+        (viewRootMenuItems renderSubMenu)
 
 
 rootStyles : Element -> Css.Style
