@@ -1,9 +1,10 @@
 module Menu exposing (..)
 
 import Array exposing (Array)
+import BasicsExtra exposing (callWith)
 import Css exposing (Rem, Style, px, rem)
 import Focus
-import FunctionalCss exposing (bold, noStyle, styleIf)
+import FunctionalCss exposing (bold, noStyle, ph, pv, styleIf)
 import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, tabindex)
 import Html.Styled.Events as E
@@ -58,19 +59,7 @@ selectedStyle =
 
 rootMenuItemStyle : Style
 rootMenuItemStyle =
-    Css.batch [ Css.padding2 (sp 2) (sp 1) ]
-
-
-spacingArray : Array Rem
-spacingArray =
-    [ 0, 0.25, 0.5, 1, 1.5, 2, 4, 8 ]
-        |> List.map rem
-        |> Array.fromList
-
-
-sp : Int -> Rem
-sp idx =
-    spacingArray |> Array.get idx |> Maybe.withDefault (rem (toFloat idx))
+    Css.batch [ pv 1, ph 2 ]
 
 
 view : Config item msg -> Maybe item -> List item -> Html msg
@@ -98,4 +87,4 @@ view config selected items =
 
 
 viewMenuItem styles attrs action label =
-    TextButton.styled styles (class "ph2 pv1" :: attrs) action label
+    TextButton.styled styles attrs action label
