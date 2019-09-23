@@ -15,7 +15,7 @@ import UI.TextButton as TextButton
 
 type Model
     = Opening Todo
-    | Opened Internal
+    | Opened OpenedState
     | Closed
 
 
@@ -35,8 +35,11 @@ subMenuTriggerDomId subMenu =
     subMenuDomId subMenu ++ "__trigger"
 
 
-type alias Internal =
-    { todo : Todo, anchor : Element, subMenu : Maybe SubMenu }
+type alias OpenedState =
+    { todo : Todo
+    , anchor : Element
+    , subMenu : Maybe SubMenu
+    }
 
 
 init : Model
@@ -57,8 +60,6 @@ triggerId todoId =
 type Msg
     = Open Todo
     | GotAnchorElement (Result Dom.Error Element)
-    | Close
-    | LostFocus
     | OpenedMsg OpenedMsg
     | Focused Focus.FocusResult
 
@@ -69,6 +70,7 @@ type OpenedMsg
     | CloseSubMenu
     | SubMenuFocusLost
     | FocusLost
+    | Close
 
 
 type alias Config msg =
@@ -105,20 +107,6 @@ update config message model =
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
 
-        LostFocus ->
-            ( Closed, Cmd.none )
-
-        Close ->
-            case model of
-                Closed ->
-                    ( model, Cmd.none )
-
-                Opening _ ->
-                    ( model, Cmd.none )
-
-                Opened state ->
-                    ( Closed, restoreFocusCmd config state.todo.id )
-
         OpenedMsg msg ->
             case model of
                 Closed ->
@@ -133,6 +121,9 @@ update config message model =
                             restoreFocusCmd config state.todo.id
                     in
                     case msg of
+                        Close ->
+                            ( Closed, restoreFocusCmd config state.todo.id )
+
                         Edit ->
                             ( Closed
                             , Cmd.batch
@@ -206,20 +197,25 @@ view config model =
         Opening _ ->
             HX.none
 
-        Opened { anchor, subMenu } ->
-            viewContainer anchor
-                (viewItems subMenu |> List.map (H.map OpenedMsg))
-                |> H.map config.toMsg
+        Opened openedState ->
+            viewOpened openedState
+                |> H.map (OpenedMsg >> config.toMsg)
 
 
-viewContainer : Element -> List (Html Msg) -> Html Msg
+viewOpened : OpenedState -> Html OpenedMsg
+viewOpened { anchor, subMenu } =
+    viewContainer anchor
+        (viewItems subMenu)
+
+
+viewContainer : Element -> List (Html OpenedMsg) -> Html OpenedMsg
 viewContainer anchor =
     Focus.styledFocusTracker
         [ rootStyles anchor ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
         , Key.onEscape Close
-        , Focus.onFocusLost LostFocus
+        , Focus.onFocusLost FocusLost
         , tabindex -1
         ]
 
