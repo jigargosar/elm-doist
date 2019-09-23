@@ -32,13 +32,18 @@ onDown : List (Decoder msg) -> Attribute msg
 onDown list =
     E.custom "keydown"
         (list
-            |> (JD.oneOf >> JD.map stopPropagation)
+            |> (JD.oneOf >> JD.map stopBoth)
         )
 
 
 stopPropagation : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
 stopPropagation msg =
     { message = msg, stopPropagation = True, preventDefault = False }
+
+
+stopBoth : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
+stopBoth msg =
+    { message = msg, stopPropagation = True, preventDefault = True }
 
 
 onEnter : msg -> Attribute msg
