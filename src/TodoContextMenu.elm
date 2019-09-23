@@ -267,28 +267,29 @@ rootStyles anchorEl =
 
 
 viewRootMenuItems : Maybe SubMenu -> List (Html OpenedMsg)
-viewRootMenuItems maybeSubMenu =
+viewRootMenuItems maybeSubMenuState =
     [ viewItem [ Focus.dataAutoFocus True ] Edit "Edit"
-    , viewSubmenuTriggerItem [] SelectProjectSubMenu maybeSubMenu
+    , viewSubmenuTriggerItem [] SelectProjectSubMenu maybeSubMenuState
     ]
 
 
-viewSubmenuTriggerItem attrs subMenu maybeSubMenu =
+viewSubmenuTriggerItem attrs subMenu maybeSubMenuState =
     div [ class "relative" ]
         [ viewItem
             (A.id (subMenuTriggerDomId subMenu) :: attrs)
             (OpenSubMenu subMenu)
             (subMenuTriggerTitle subMenu)
-        , if maybeSubMenu == Just subMenu then
-            viewSubMenu subMenu
+        , case maybeSubMenuState of
+            Nothing ->
+                HX.none
 
-          else
-            HX.none
+            Just subMenuState ->
+                viewSubMenu subMenuState
         ]
 
 
-viewSubMenu subMenu =
-    case subMenu of
+viewSubMenu subMenuState =
+    case subMenuState of
         SelectProjectSubMenu ->
             H.map SubMenuMsg <|
                 Focus.focusTracker
