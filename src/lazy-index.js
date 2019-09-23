@@ -43,33 +43,18 @@ customElements.define(
 customElements.define(
   'track-focus-outside',
   class extends HTMLElement {
-    constructor() {
-      super()
-      // console.log('new tracker el created', this)
-      this.focusCheckerTimeoutId = null
-    }
     connectedCallback() {
       this.addEventListener('focusout', focusOutListener)
     }
-    disconnectedCallback(){
-      console.log('focus-tracker: disconnected')
-      if(this.focusCheckerTimeoutId){
-        clearTimeout(this.focusCheckerTimeoutId)
-        this.focusCheckerTimeoutId = null
-      }
+    disconnectedCallback() {
       this.removeEventListener('focusout', focusOutListener)
     }
   },
 )
 
 function focusOutListener() {
-  // console.log('foutCheckCalled', this)
-  if(this.focusCheckerTimeoutId){
-    clearTimeout(this.focusCheckerTimeoutId)
-    this.focusCheckerTimeoutId = null
-  }
-  this.focusCheckerTimeoutId = setTimeout(() => {
-    if (!this.contains(document.activeElement) && this.connected) {
+  setTimeout(() => {
+    if (this.isConnected && !this.contains(document.activeElement)) {
       console.log('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
