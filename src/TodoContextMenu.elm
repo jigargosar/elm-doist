@@ -290,13 +290,15 @@ viewSelectProjectSubMenu subMenu =
                     , Focus.onFocusLost SubMenuLostFocus
                     , tabindex -1
                     ]
-                    [ TextButton.view
-                        [ Focus.dataAutoFocus True
-                        , class "ph2 pv1"
-                        ]
-                        CloseSubMenu
-                        "Select Project"
+                    [ viewItem [ Focus.dataAutoFocus True ] CloseSubMenu "Select Project"
                     ]
 
         _ ->
             HX.none
+
+
+viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
+viewItem attrs action title =
+    TextButton.view (class "ph2 pv1" :: attrs)
+        action
+        title
