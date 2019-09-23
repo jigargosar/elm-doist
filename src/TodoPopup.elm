@@ -24,7 +24,7 @@ import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events exposing (on)
 import HtmlExtra as HX
 import Json.Decode as JD exposing (Decoder)
-import MovePopup
+import MovePopupOld
 import Project exposing (Project)
 import ProjectId exposing (ProjectId)
 import SchedulePopup
@@ -171,7 +171,7 @@ update { focus, closedBy, toMsg } msg model =
                     ( PopupOpened todoId subPopup triggerEl
                     , case subPopup of
                         MoveSubPopup ->
-                            focus MovePopup.firstFocusable
+                            focus MovePopupOld.firstFocusable
 
                         ScheduleSubPopup ->
                             focus SchedulePopup.schedulePopupFirstFocusableDomId
@@ -196,7 +196,7 @@ update { focus, closedBy, toMsg } msg model =
 --  VIEW
 
 
-movePopupConfig : MovePopup.ViewConfig Msg
+movePopupConfig : MovePopupOld.ViewConfig Msg
 movePopupConfig =
     { close = SetSubPopup NoSubPopup
     , move = ClosePopup << Move
@@ -238,7 +238,7 @@ view toMsg projectId projectList zone today model =
                                 HX.none
 
                             MoveSubPopup ->
-                                MovePopup.view
+                                MovePopupOld.view
                                     movePopupConfig
                                     projectId
                                     projectList

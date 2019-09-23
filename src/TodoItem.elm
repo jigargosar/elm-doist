@@ -11,7 +11,6 @@ import String.Extra as SX
 import Time exposing (Zone)
 import Todo exposing (DueAt, Todo, TodoList)
 import TodoId exposing (TodoId)
-import TodoPopup
 import UI.IconButton as IconButton
 import UI.TextButton as TextButton
 
