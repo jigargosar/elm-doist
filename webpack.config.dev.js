@@ -30,7 +30,14 @@ module.exports = {
   plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
   optimization: {
     // splitChunks: false,
-    runtimeChunk: true,
+    // runtimeChunk: true,
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+        }
+      }
+    }
   },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
@@ -40,7 +47,7 @@ module.exports = {
   },
   // devtool: isProduction ? 'source-map' : 'eval-source-map',
   // devtool: isProduction ? 'source-map' : false,
-  devtool: 'none',
+  devtool: false,
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
     historyApiFallback: true,
