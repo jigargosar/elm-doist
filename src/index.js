@@ -63,7 +63,7 @@ function focusOutListener() {
       console.debug('focusOutside', this)
       this.dispatchEvent(new CustomEvent('focusOutside'))
     }
-  }, 0)
+  }, 200)
 }
 
 // Cache
