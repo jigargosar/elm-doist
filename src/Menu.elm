@@ -1,5 +1,6 @@
 module Menu exposing (CloseReason(..), Config, Model, Msg, init, update, view)
 
+import Accessibility.Styled.Key as AKey
 import Array exposing (Array)
 import Basics.Extra exposing (flip)
 import BasicsExtra exposing (callWith)
@@ -147,12 +148,12 @@ view config selected items (Model maybeActiveIdx) =
     Focus.focusTracker
         [ A.id config.id
         , class "absolute top-1 left--1 shadow-1 bg-white"
-        , Key.onEscape (Closed Canceled)
         , Focus.onFocusLost (Closed LostFocus)
-        , tabindex -1
+        , tabindex 0
         , Key.onDown
             [ Key.arrowUp <| keyMsg Up
             , Key.arrowDown <| keyMsg Down
+            , AKey.escape (Closed Canceled)
             , JD.lazy
                 (\_ ->
                     maybeActiveIdx
@@ -167,4 +168,4 @@ view config selected items (Model maybeActiveIdx) =
 
 viewMenuItem : List (H.Attribute msg) -> msg -> String -> Html msg
 viewMenuItem attrs action label =
-    TextButton.styled [ rootMenuItemStyle ] attrs action label
+    TextButton.styled [ rootMenuItemStyle ] (tabindex -1 :: attrs) action label
