@@ -6,7 +6,7 @@ import Css exposing (Rem, Style, px, rem)
 import Focus
 import FunctionalCss exposing (bold, noStyle, ph, pv, styleIf)
 import Html.Styled as H exposing (Html)
-import Html.Styled.Attributes as A exposing (class, tabindex)
+import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
 import Task
@@ -70,8 +70,7 @@ view config selected items =
 
         viewItem item =
             viewMenuItem
-                [ rootMenuItemStyle, styleIf (isSelected item) selectedStyle ]
-                []
+                [ css [ styleIf (isSelected item) selectedStyle ] ]
                 (Selected item)
                 (config.title item)
     in
@@ -86,5 +85,5 @@ view config selected items =
         |> H.map config.toMsg
 
 
-viewMenuItem styles attrs action label =
-    TextButton.styled styles attrs action label
+viewMenuItem attrs action label =
+    TextButton.styled [ rootMenuItemStyle ] attrs action label
