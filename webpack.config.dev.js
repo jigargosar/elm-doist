@@ -28,9 +28,10 @@ module.exports = {
     ],
   },
   plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
-  // optimization: {
-  //   splitChunks: false,
-  // },
+  optimization: {
+    // splitChunks: false,
+    runtimeChunk: true,
+  },
   // https://webpack.js.org/configuration/stats/
   // stats: 'errors-warnings',
   stats: {

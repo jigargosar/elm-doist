@@ -1,7 +1,7 @@
 import (/* webpackPreload:true , webpackChunkName: 'tachyons'*/'tachyons')
 import './index.css'
 import (/* webpackPreload:true , webpackChunkName: 'Elm.Main'*/ './Main.elm')
-import { Elm } from './Main.elm'
+
 // import { Elm } from './elm.min'
 import { Fire } from './fire'
 import debounce from 'debounce'
@@ -106,7 +106,8 @@ const cachedProjectList = getCached('cachedProjectList')
 const cachedTodoList = getCached('cachedTodoList')
 const cachedAuthState = getCached('cachedAuthState')
 
-function bootElmApp() {
+async function bootElmApp() {
+  const Elm = (await import ('./Main.elm')).Elm
   const app = Elm.Main.init({
     flags: {
       cachedTodoList,
