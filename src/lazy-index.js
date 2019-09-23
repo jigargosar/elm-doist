@@ -43,7 +43,7 @@ customElements.define(
 customElements.define(
   'track-focus-outside',
   class extends HTMLElement {
-    constructor(){
+    constructor() {
       super()
       this.handleFocusIn = this.handleFocusIn.bind(this)
       this.handleClick = this.handleClick.bind(this)
@@ -53,10 +53,7 @@ customElements.define(
       const ownerDocument = this.ownerDocument
       const activeElement = ownerDocument.activeElement
       // noinspection JSCheckFunctionSignatures
-      if (
-        // activeElement !== ownerDocument.body &&
-        !this.contains(activeElement)
-      ) {
+      if (!this.contains(activeElement)) {
         this.dispatchEvent(new CustomEvent('focusOutside'))
       }
     }
@@ -65,10 +62,7 @@ customElements.define(
       const ownerDocument = this.ownerDocument
       const activeElement = ownerDocument.activeElement
       // noinspection JSCheckFunctionSignatures
-      if (
-        // activeElement !== ownerDocument.body &&
-        !this.contains(activeElement)
-      ) {
+      if (!this.contains(activeElement)) {
         this.dispatchEvent(new CustomEvent('focusOutside'))
       }
     }
