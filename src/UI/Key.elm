@@ -2,7 +2,7 @@ module UI.Key exposing (onEnter, onEnterOrSpace, onEscape)
 
 import Accessibility.Styled.Key exposing (enter, escape, space)
 import Html.Styled exposing (Attribute, Html)
-import Html.Styled.Events exposing (preventDefaultOn)
+import Html.Styled.Events as E
 import Json.Decode as JD exposing (Decoder)
 
 
@@ -19,17 +19,26 @@ unlessDefaultPrevented msg =
             )
 
 
+
+--onDown : List (Decoder msg) -> Attribute msg
+--onDown list =
+--    preventDefaultOn "keydown"
+--        (unlessDefaultPrevented list
+--            |> JD.andThen (JD.oneOf >> JD.map preventDefault)
+--        )
+
+
 onDown : List (Decoder msg) -> Attribute msg
 onDown list =
-    preventDefaultOn "keydown"
-        (unlessDefaultPrevented list
-            |> JD.andThen (JD.oneOf >> JD.map preventDefault)
+    E.custom "keydown"
+        (list
+            |> (JD.oneOf >> JD.map stopPropagation)
         )
 
 
-preventDefault : msg -> ( msg, Bool )
-preventDefault msg =
-    Tuple.pair msg True
+stopPropagation : msg -> { message : msg, stopPropagation : Bool, preventDefault : Bool }
+stopPropagation msg =
+    { message = msg, stopPropagation = True, preventDefault = False }
 
 
 onEnter : msg -> Attribute msg
