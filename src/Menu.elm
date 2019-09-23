@@ -26,6 +26,13 @@ type CloseReason
 type Msg item
     = Closed CloseReason
     | Selected item
+    | KeyMsg Int KeyMsg
+
+
+type KeyMsg
+    = Up
+    | Down
+    | EnterOrSpace
 
 
 type alias Config item msg =
@@ -45,6 +52,42 @@ update config message model =
 
         Selected item ->
             ( model, config.selected item |> perform )
+
+        KeyMsg total keyMsg ->
+            case keyMsg of
+                Up ->
+                    ( mapActiveIdx (roll -1 total) model, Cmd.none )
+
+                Down ->
+                    ( model, Cmd.none )
+
+                EnterOrSpace ->
+                    ( model, Cmd.none )
+
+
+map : (Maybe Int -> Maybe Int) -> Model -> Model
+map func (Model internal) =
+    func internal |> Model
+
+
+roll : Int -> Int -> Maybe Int -> Maybe Int
+roll offset length activeIdx =
+    Just <|
+        case activeIdx of
+            Nothing ->
+                if offset > 0 then
+                    0
+
+                else
+                    length - 1
+
+            Just idx ->
+                modBy length (idx + offset)
+
+
+mapActiveIdx : (Maybe Int -> Maybe Int) -> Model -> Model
+mapActiveIdx func =
+    map func
 
 
 perform : a -> Cmd a
@@ -73,6 +116,12 @@ view config selected items =
                 [ css [ styleIf (isSelected item) selectedStyle ] ]
                 (Selected item)
                 (config.title item)
+
+        totalItems =
+            List.length items
+
+        keyMsg =
+            KeyMsg totalItems
     in
     Focus.focusTracker
         [ A.id config.id
@@ -80,6 +129,7 @@ view config selected items =
         , Key.onEscape (Closed Canceled)
         , Focus.onFocusLost (Closed LostFocus)
         , tabindex -1
+        , Key.onDown [ Key.arrowDown <| keyMsg Down ]
         ]
         (List.map viewItem items)
         |> H.map config.toMsg

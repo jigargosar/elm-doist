@@ -1,4 +1,4 @@
-module UI.Key exposing (down, enterOrSpace, onDown, onEnter, onEnterOrSpace, onEscape, up)
+module UI.Key exposing (arrowDown, enterOrSpace, onDown, onEnter, onEnterOrSpace, onEscape, up)
 
 import Accessibility.Styled.Key exposing (enter, escape, space)
 import Html.Styled exposing (Attribute, Html)
@@ -86,8 +86,8 @@ up =
     succeedForKey "ArrowUp"
 
 
-down : msg -> Decoder msg
-down =
+arrowDown : msg -> Decoder msg
+arrowDown =
     succeedForKey "ArrowDown"
 
 

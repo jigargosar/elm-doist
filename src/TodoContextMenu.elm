@@ -340,7 +340,7 @@ viewOpened renderSubMenu { activeIdx, anchor, maybeSubMenuState } =
         , class "shadow-1 bg-white"
         , Key.onDown
             [ Key.up Prev
-            , Key.down Next
+            , Key.arrowDown Next
             , Key.enterOrSpace ActiveSelected
             ]
         , Focus.onFocusLost FocusLost
