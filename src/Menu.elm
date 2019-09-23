@@ -1,6 +1,7 @@
 module Menu exposing (..)
 
 import Array exposing (Array)
+import Basics.Extra exposing (flip)
 import BasicsExtra exposing (callWith)
 import Css exposing (Rem, Style, px, rem)
 import Focus
@@ -9,6 +10,9 @@ import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
 import Html.Styled.Events as E
 import HtmlExtra as HX
+import Json.Decode as JD
+import List.Extra as LX
+import Maybe.Extra as MX
 import Task
 import UI.Key as Key
 import UI.TextButton as TextButton
@@ -26,13 +30,13 @@ type CloseReason
 type Msg item
     = Closed CloseReason
     | Selected item
+    | MaybeSelected (Maybe item)
     | KeyMsg Int KeyMsg
 
 
 type KeyMsg
     = Up
     | Down
-    | EnterOrSpace
 
 
 type alias Config item msg =
@@ -56,13 +60,18 @@ update config message model =
         KeyMsg total keyMsg ->
             case keyMsg of
                 Up ->
-                    ( mapActiveIdx (roll -1 total) model, Cmd.none )
+                    ( mapActiveIdx (rollBy -1 total) model, Cmd.none )
 
                 Down ->
+                    ( mapActiveIdx (rollBy 1 total) model, Cmd.none )
+
+        MaybeSelected maybeSelected ->
+            case maybeSelected of
+                Nothing ->
                     ( model, Cmd.none )
 
-                EnterOrSpace ->
-                    ( model, Cmd.none )
+                Just item ->
+                    ( model, config.selected item |> perform )
 
 
 map : (Maybe Int -> Maybe Int) -> Model -> Model
@@ -70,8 +79,8 @@ map func (Model internal) =
     func internal |> Model
 
 
-roll : Int -> Int -> Maybe Int -> Maybe Int
-roll offset length activeIdx =
+rollBy : Int -> Int -> Maybe Int -> Maybe Int
+rollBy offset length activeIdx =
     Just <|
         case activeIdx of
             Nothing ->
@@ -105,8 +114,8 @@ rootMenuItemStyle =
     Css.batch [ pv 1, ph 2 ]
 
 
-view : Config item msg -> Maybe item -> List item -> Html msg
-view config selected items =
+view : Config item msg -> Maybe item -> List item -> Model -> Html msg
+view config selected items model =
     let
         isSelected item =
             selected /= Nothing && Just item == selected
@@ -129,7 +138,19 @@ view config selected items =
         , Key.onEscape (Closed Canceled)
         , Focus.onFocusLost (Closed LostFocus)
         , tabindex -1
-        , Key.onDown [ Key.arrowDown <| keyMsg Down ]
+        , Key.onDown
+            [ Key.arrowDown <| keyMsg Down
+            , JD.lazy
+                (\_ ->
+                    let
+                        (Model maybeActiveIdx) =
+                            model
+                    in
+                    maybeActiveIdx
+                        |> Maybe.andThen (flip LX.getAt items)
+                        |> MX.unpack (\_ -> JD.fail "No ActiveEl") (Selected >> Key.enterOrSpace)
+                )
+            ]
         ]
         (List.map viewItem items)
         |> H.map config.toMsg
