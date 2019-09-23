@@ -137,7 +137,13 @@ update config message model =
                     ( model, Cmd.none )
 
                 Opening todo ->
-                    ( Opened { todo = todo, anchor = el, maybeSubMenuState = Nothing }, focusFirstCmd config )
+                    ( Opened
+                        { todo = todo
+                        , anchor = el
+                        , maybeSubMenuState = Nothing
+                        }
+                    , focusFirstCmd config
+                    )
 
                 Opened state ->
                     ( Opened { state | anchor = el }, Cmd.none )
