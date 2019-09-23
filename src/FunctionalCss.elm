@@ -2,7 +2,7 @@ module FunctionalCss exposing (..)
 
 import Array exposing (Array)
 import BasicsExtra exposing (callWith)
-import Css exposing (Rem, Style, rem)
+import Css exposing (Rem, Style, hex, rem)
 import CssColors
 
 
@@ -78,3 +78,12 @@ ph v =
     [ Css.paddingLeft, Css.paddingRight ]
         |> List.map (callWith (sp v))
         |> Css.batch
+
+
+hexLightBlue =
+    hex "#96ccff"
+
+
+bgLightBlue : Style
+bgLightBlue =
+    Css.backgroundColor hexLightBlue
