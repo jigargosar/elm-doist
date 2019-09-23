@@ -36,7 +36,6 @@ type CloseReason
 type Msg item
     = Closed CloseReason
     | Selected item
-    | MaybeSelected (Maybe item)
     | KeyMsg Int KeyMsg
 
 
@@ -70,14 +69,6 @@ update config message model =
 
                 Down ->
                     ( mapActiveIdx (rollBy 1 total) model, Cmd.none )
-
-        MaybeSelected maybeSelected ->
-            case maybeSelected of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just item ->
-                    ( model, config.selected item |> perform )
 
 
 map : (Maybe Int -> Maybe Int) -> Model -> Model
