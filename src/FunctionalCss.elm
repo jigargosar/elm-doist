@@ -32,3 +32,21 @@ gray =
 pointer : Style
 pointer =
     Css.cursor Css.pointer
+
+
+bold =
+    Css.fontWeight Css.bold
+
+
+noStyle : Style
+noStyle =
+    Css.batch []
+
+
+styleIf : Bool -> Style -> Style
+styleIf bool style =
+    if bool then
+        style
+
+    else
+        noStyle

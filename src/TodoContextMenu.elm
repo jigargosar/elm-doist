@@ -11,6 +11,7 @@ import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
 import List.Extra as LX
 import Maybe.Extra as MX
+import Menu
 import MovePopup
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
