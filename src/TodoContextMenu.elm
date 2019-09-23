@@ -1,14 +1,13 @@
 module TodoContextMenu exposing (Config, Model, Msg, init, open, subscriptions, triggerId, update, view)
 
-import BasicsExtra exposing (eq_)
 import Browser.Dom as Dom exposing (Element)
 import BrowserSize exposing (BrowserSize)
 import Css exposing (absolute, left, position, px, top, width)
 import Focus
 import Html.Styled as H exposing (Html, div)
-import Html.Styled.Attributes as A exposing (class, css, tabindex)
+import Html.Styled.Attributes as A exposing (class, tabindex)
 import HtmlExtra as HX
-import List.Extra as LX
+import Maybe.Extra as MX
 import MovePopup
 import Project exposing (Project, ProjectList)
 import ProjectId exposing (ProjectId)
@@ -54,6 +53,7 @@ subMenuTriggerTitle subMenu =
 
 type alias OpenedState =
     { todo : Todo
+    , activeIdx : Maybe Int
     , anchor : Element
     , maybeSubMenuState : Maybe SubMenu
     }
@@ -88,6 +88,8 @@ type OpenedMsg
     | SubMenuMsg SubMenuMsg
     | FocusLost
     | Close
+    | Next
+    | Prev
 
 
 rootMenuItems : List (MenuItem OpenedMsg)
@@ -156,6 +158,7 @@ update config message model =
                     ( Opened
                         { todo = todo
                         , anchor = el
+                        , activeIdx = Nothing
                         , maybeSubMenuState = Nothing
                         }
                     , focusFirstCmd config
@@ -224,8 +227,44 @@ update config message model =
                         FocusLost ->
                             ( Closed, Cmd.none )
 
+                        Next ->
+                            ( Opened
+                                { state
+                                    | activeIdx =
+                                        state.activeIdx
+                                            |> Maybe.map nextRootIdx
+                                            |> MX.or (Just 0)
+                                }
+                            , Cmd.none
+                            )
+
+                        Prev ->
+                            ( Opened
+                                { state
+                                    | activeIdx =
+                                        state.activeIdx
+                                            |> Maybe.map prevRootIdx
+                                            |> MX.or (Just lastRootIdx)
+                                }
+                            , Cmd.none
+                            )
+
         Focused _ ->
             ( model, Cmd.none )
+
+
+nextRootIdx : Int -> Int
+nextRootIdx idx =
+    modBy (List.length rootMenuItems) (idx + 1)
+
+
+prevRootIdx : Int -> Int
+prevRootIdx idx =
+    modBy (List.length rootMenuItems) (idx - 1)
+
+
+lastRootIdx =
+    List.length rootMenuItems - 1
 
 
 perform : a -> Cmd a
@@ -238,7 +277,7 @@ rootDomId =
 
 
 focusFirstCmd _ =
-    Focus.autoFocusWithinId rootDomId
+    Focus.focusId rootDomId
 
 
 focusSubMenu : SubMenu -> Cmd msg
@@ -288,7 +327,7 @@ viewOpened renderSubMenu { anchor, maybeSubMenuState } =
         , class "shadow-1 bg-white"
         , Key.onEscape Close
         , Focus.onFocusLost FocusLost
-        , tabindex -1
+        , tabindex 0
         ]
         (viewRootMenuItems renderSubMenu)
 
@@ -359,6 +398,6 @@ movePopupConfig =
 
 viewItem : List (H.Attribute msg) -> msg -> String -> Html msg
 viewItem attrs action title =
-    TextButton.view (class "ph2 pv1" :: attrs)
+    TextButton.view (class "ph2 pv1" :: tabindex -1 :: attrs)
         action
         title
