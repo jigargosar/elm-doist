@@ -249,11 +249,12 @@ view config model =
 
 viewContainer : Element -> List (Html Msg) -> Html Msg
 viewContainer anchor =
-    H.styled div
+    Focus.styledFocusTracker
         [ rootStyles anchor ]
         [ A.id rootDomId
         , class "shadow-1 bg-white"
         , Key.onEscape Close
+        , Focus.onFocusLost LostFocus
         , tabindex -1
         ]
 

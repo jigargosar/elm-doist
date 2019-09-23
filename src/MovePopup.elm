@@ -57,7 +57,7 @@ view config projectId projectList =
         , class "bg-white shadow-1 w5"
         , class "z-1" -- if removed; causes flickering with hover icons
         , tabindex -1
-        , Focus.onFocusOutside config.close
+        , Focus.onFocusLost config.close
         , Key.onEscape config.close
         ]
         [ div [ class "pa3 lh-copy" ]

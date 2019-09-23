@@ -1,7 +1,8 @@
-port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, focusId, focusTracker, onFocusOutside, onFocusOutsideDomId, outsideElIdDecoder)
+port module Focus exposing (FocusResult, attempt, autoFocusWithin, autoFocusWithinId, dataAutoFocus, focusId, focusTracker, onFocusLost, onFocusOutsideDomId, outsideElIdDecoder, styledFocusTracker)
 
 import BasicsExtra exposing (ifElse)
 import Browser.Dom as Dom exposing (focus)
+import Css exposing (Style)
 import Html.Styled as H exposing (Attribute)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E exposing (on)
@@ -94,6 +95,11 @@ focusTracker =
     H.node "track-focus-outside"
 
 
-onFocusOutside : msg -> Attribute msg
-onFocusOutside msg =
+styledFocusTracker : List Style -> List (Attribute msg) -> List (H.Html msg) -> H.Html msg
+styledFocusTracker =
+    H.styled focusTracker
+
+
+onFocusLost : msg -> Attribute msg
+onFocusLost msg =
     E.on "focusOutside" (JD.succeed msg)
