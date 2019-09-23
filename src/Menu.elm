@@ -1,16 +1,12 @@
 module Menu exposing (CloseReason(..), Config, Model, Msg, init, update, view)
 
 import Accessibility.Styled.Key as AKey
-import Array exposing (Array)
 import Basics.Extra exposing (flip)
-import BasicsExtra exposing (callWith)
-import Css exposing (Rem, Style, px, rem)
+import Css exposing (Rem, Style)
 import Focus
-import FunctionalCss exposing (bgLightBlue, bold, noStyle, ph, pv, styleIf)
+import FunctionalCss exposing (bgLightBlue, bold, ph, pv, styleIf)
 import Html.Styled as H exposing (Html)
 import Html.Styled.Attributes as A exposing (class, css, tabindex)
-import Html.Styled.Events as E
-import HtmlExtra as HX
 import Json.Decode as JD
 import List.Extra as LX
 import Maybe.Extra as MX
