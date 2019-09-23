@@ -11,9 +11,8 @@ module TodoForm exposing
     , view
     )
 
-import Accessibility.Styled exposing (text)
 import BasicsExtra exposing (eq_)
-import Html.Styled as H exposing (div, textarea)
+import Html.Styled as H exposing (div, text, textarea)
 import Html.Styled.Attributes as A exposing (class, rows)
 import Html.Styled.Events as E
 import Json.Encode as JE

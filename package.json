@@ -7,7 +7,7 @@
     "last 2 Chrome versions"
   ],
   "scripts": {
-    "start": "npx nodemon -w tsconfig.json -w webpack.config.dev.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --open --config webpack.config.dev.js",
+    "start": "npx nodemon -w tsconfig.json -w webpack.config.dev.js -w package-lock.json -w elm.json -x webpack-dev-server -- -d --config webpack.config.dev.js",
     "build": "webpack -p --config webpack.config.prod.js",
     "deploy": "npx firebase deploy --only hosting:elmdoist",
     "stage": "npm run build && npm run deploy"
